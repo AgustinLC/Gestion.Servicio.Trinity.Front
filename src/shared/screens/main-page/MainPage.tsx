@@ -1,13 +1,53 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaStar, FaRocket, FaCode } from "react-icons/fa";
+import { getData } from "../../../core/services/apiService";
+import logo from "../../../assets/img/logo.svg";
+import { MainData } from "../../../core/models/entity/MainData";
 
 const MainPage: React.FC = () => {
+  const [data, setData] = useState<MainData | null>(null);
+
+  //Hook para obtener los datos de la API 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getData<MainData>("/data/main");
+        setData(response);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
     <div>
-      {/* Hero Section */}
-      <header className="bg-primary text-white text-center py-5">
+      {/* Navbar */}
+      <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div className="container-fluid">
+          <a className="navbar-brand" href="#">
+            <img src={logo} alt="Logo" width="100" height="45" />
+          </a>
+          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+              <li className="nav-item">
+                <a className="nav-link active" aria-current="page" href="#">Iniciar sesión</a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" href="#">Preguntas frecuentes</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      {/* Header Section */}
+      <header className="bg-primary text-white text-center py-5 mt-4">
         <div className="container">
-          <h1 className="display-4 fw-bold">¡Bienvenido a Mi Proyecto!</h1>
+          <h1 className="display-4 fw-bold">{data?.type}</h1>
+          <h3 className="display-4 fw-bold">{data?.title}</h3>
           <p className="lead mt-3">
             La solución ideal para simplificar tus tareas y potenciar tus resultados.
           </p>
@@ -16,7 +56,6 @@ const MainPage: React.FC = () => {
           </a>
         </div>
       </header>
-
       {/* Features Section */}
       <section id="features" className="py-5 bg-light">
         <div className="container text-center">

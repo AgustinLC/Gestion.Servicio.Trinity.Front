@@ -3,7 +3,7 @@ import axiosInstance from '../../config/axiosConfig';
 import { WebApiResponse } from '../models/WebApiResponse';
 
 //Función para obtener datos
-export const getData = async <T>(endpoint: string): Promise<T[]> => {
+export const getData = async <T>(endpoint: string): Promise<T> => {
     try {
         const response = await axiosInstance.get<WebApiResponse<any>>(endpoint);
         if (response.data.sucess) {
