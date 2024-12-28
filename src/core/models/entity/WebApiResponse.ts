@@ -1,7 +1,7 @@
 export interface WebApiResponse<T> {
     data: T;
     message:string;
-    sucess:boolean;
+    success:boolean;
     statusCode:number;
     error:string;
     timestamp:string;

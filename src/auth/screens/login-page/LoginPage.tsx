@@ -1,62 +1,89 @@
-import { useState } from "react";
-import './LoginPage.css';
+import React, { useState } from 'react';
+import { useAuth } from '../../services/AuthContext';
+import { LoginRequestDto } from '../../../core/models/dto/LoginRequestDto';
+import { useNavigate } from 'react-router-dom';
 
-const LoginPage: React.FC = () => {
+const LoginPage = () => {
 
     //Estados
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    //
-    const handleSubmit = (e: React.FormEvent) => {
+    //Variables
+    const { login } = useAuth();
+    const navigate = useNavigate();
+
+    // Función para manejar el envío del formulario
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Email:', email, 'Password:', password);
+        setError('');
+        setLoading(true);
+        const credentials: LoginRequestDto = { username, password, };
+        try {
+            // Pasamos el objeto credentials
+            await login(credentials);
+            // Redirigir al dashboard o donde sea necesario
+            navigate('/')
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Error inesperado');
+        } finally {
+            setLoading(false);
+        }
     };
 
+    //Vista
     return (
-        <div className="login-container">
-            <div className="login-form animate__animated animate__fadeInDown">
-                <h2 className="text-center mb-4">Iniciar Sesión</h2>
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
-                        <label htmlFor="email" className="form-label">
-                            Correo Electrónico
-                        </label>
-                        <input
-                            type="email"
-                            id="email"
-                            className="form-control"
-                            placeholder="usuario@correo.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
+        <>
+            {/* Form login */}
+            <div className="container py-5 my-5">
+                <div className="row justify-content-center">
+                    <div className="col-md-6">
+                        <div className="card">
+                            <div className="card-body">
+                                <h1 className="text-center">Iniciar Sesión</h1>
+                                <form onSubmit={handleSubmit}>
+                                    {error && <div className="alert alert-danger">{error}</div>}
+                                    <div className="mb-3">
+                                        <label className="form-label">Nombre de usuario</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            name="username"
+                                            value={username}
+                                            onChange={(e) => setUsername(e.target.value)}
+                                            disabled={loading}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label">Contraseña</label>
+                                        <input
+                                            type="password"
+                                            className="form-control"
+                                            name="password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            disabled={loading}
+                                            required
+                                        />
+                                    </div>
+                                    <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+                                        {loading ? 'Cargando...' : 'Ingresar'}
+                                    </button>
+                                </form>
+                                <div className="text-center mt-3">
+                                    <a href="/recuperar" className="text-decoration-none">
+                                        ¿Olvidaste tu contraseña?
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="mb-3">
-                        <label htmlFor="password" className="form-label">
-                            Contraseña
-                        </label>
-                        <input
-                            type="password"
-                            id="password"
-                            className="form-control"
-                            placeholder="********"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <button type="submit" className="btn btn-primary w-100">
-                        Ingresar
-                    </button>
-                </form>
-                <div className="text-center mt-3">
-                    <a href="#" className="text-muted">
-                        ¿Olvidaste tu contraseña?
-                    </a>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

@@ -9,11 +9,8 @@ const Footer: React.FC = () => {
                 <div className="container text-center text-md-start mt-5">
                     <div className="row mt-3">
                         <div className="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
-                            <div>
-                                <img src="src/assets/img/water_drop_sky.svg" alt="logo" />
-                            </div>
                             <h6 className="text-uppercase fw-bold mb-4">
-                                <i className="fas fa-gem me-3"></i>Company name
+                                <i className="fas fa-gem"></i>Consorcio de agua "Santa María de Oro"
                             </h6>
                             <p>
                                 Here you can use rows and columns to organize your footer content. Lorem ipsum

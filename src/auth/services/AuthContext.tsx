@@ -1,0 +1,72 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import AuthService from '../services/AuthService';
+import { AuthContextProps } from '../../core/models/AuthContextProps';
+
+// Contexto de autenticación
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+
+// Proveedor de autenticación
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Estado para almacenar el token de autenticación
+  const [token, setToken] = useState<string | null>(AuthService.getToken());
+  // Estado para almacenar si el usuario está autenticado
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Estado para almacenar el rol del usuario
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  // Efecto para actualizar el estado de autenticación cuando cambia el token
+  useEffect(() => {
+    if (token) {
+      setIsAuthenticated(true);
+      const decodedToken = parseJwt(token);
+      setUserRole(decodedToken.role || null);
+    } else {
+      setIsAuthenticated(false);
+      setUserRole(null);
+    }
+  }, [token]);
+
+  // Función para realizar el login
+  const login = async (credentials: { username: string; password: string }) => {
+    try {
+      const response = await AuthService.login(credentials);
+      setToken(response.token);
+    } catch (error) {
+      setToken(null);
+      throw error;
+    }
+  };
+
+  // Función para realizar el logout
+  const logout = () => {
+    AuthService.logout();
+    setToken(null);
+  };
+
+  // Devolver el contexto de autenticación
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, userRole, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+// Función/hook para obtener el contexto de autenticación
+export const useAuth = (): AuthContextProps => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
+  }
+  return context;
+};
+
+// Helper para decodificar el token JWT
+const parseJwt = (token: string): any => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(window.atob(base64));
+  } catch (error) {
+    return null;
+  }
+};
