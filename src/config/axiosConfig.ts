@@ -4,7 +4,7 @@ import axios, { AxiosInstance } from "axios";
 const axiosInstance: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
     headers: { "Content-Type": "application/json", },
-    timeout: 5000,
+    timeout: 6000,
     timeoutErrorMessage: "Tiempo de espera agotado",
 });
 

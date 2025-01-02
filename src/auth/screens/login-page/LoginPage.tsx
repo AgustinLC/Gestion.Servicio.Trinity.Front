@@ -11,7 +11,7 @@ const LoginPage = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    //Variables
+    //Hooks
     const { login } = useAuth();
     const navigate = useNavigate();
 
@@ -31,6 +31,11 @@ const LoginPage = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    // Funcion para redirigir a la pagina de olvido de contraseña
+    const handleForgotPassword = () => {
+        navigate('/forgot-password');
     };
 
     //Vista
@@ -74,9 +79,9 @@ const LoginPage = () => {
                                     </button>
                                 </form>
                                 <div className="text-center mt-3">
-                                    <a href="/recuperar" className="text-decoration-none">
-                                        ¿Olvidaste tu contraseña?
-                                    </a>
+                                    <button type="button" className="btn btn-link text-decoration-none" onClick={handleForgotPassword} disabled={loading}>
+                                    ¿Olvidaste tu contraseña?
+                                    </button>
                                 </div>
                             </div>
                         </div>

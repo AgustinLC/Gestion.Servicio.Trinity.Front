@@ -50,7 +50,13 @@ const Navbar: React.FC = () => {
                                     {/* Links para usuarios autenticados con rol user */}
                                     {userRole === "ROLE_USER" && (
                                         <li className="nav-item">
-                                            <Link to="/admin" className={`nav-link ${isActive("/admin") ? "active" : ""}`}>Panel de usuario</Link>
+                                            <Link to="/admin" className={`nav-link ${isActive("/admin") ? "active" : ""}`}>Panel de Usuario</Link>
+                                        </li>
+                                    )}
+                                    {/* Links para usuarios autenticados con rol operatror */}
+                                    {userRole === "ROLE_OPERATOR" && (
+                                        <li className="nav-item">
+                                            <Link to="/admin" className={`nav-link ${isActive("/admin") ? "active" : ""}`}>Panel de Operadores</Link>
                                         </li>
                                     )}
                                     <li className="nav-item">

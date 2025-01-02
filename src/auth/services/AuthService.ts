@@ -1,7 +1,9 @@
 import axiosInstance from '../../config/axiosConfig';
 import { LoginRequestDto } from '../../core/models/dto/LoginRequestDto';
 import { AuthResponseDto } from '../../core/models/dto/AuthResponseDto';
+import { ForgotPassDto } from '../../core/models/dto/ForgotPassDto';
 import { WebApiResponse } from '../../core/models/entity/WebApiResponse';
+import { RecoverPassDto } from '../../core/models/dto/RecoverPassDto';
 
 // Servicio de autenticación
 const AuthService = {
@@ -20,6 +22,30 @@ const AuthService = {
             }
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Error inesperado al hacer login');
+        }
+    },
+
+    // Funcion para recuperar contraseña
+    async recoverPassword(credentials: ForgotPassDto): Promise<void> {
+        try {
+            const response = await axiosInstance.post<WebApiResponse<void>>('/auth/forgot', credentials);
+            if (!response.data.success) {
+                throw new Error(response.data.message || 'Error al enviar el correo de recuperación');
+            }
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || 'Error inesperado al enviar el correo de recuperación');
+        }
+    },
+
+    // Funcion para cambiar contraseña
+    async changePassword(credentials: RecoverPassDto): Promise<void> {
+        try {
+            const response = await axiosInstance.post<WebApiResponse<void>>('/auth/reset', credentials);
+            if (!response.data.success) {
+                throw new Error(response.data.message || 'Error al cambiar la contraseña');
+            }
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || 'Error inesperado al cambiar la contraseña');
         }
     },
 
