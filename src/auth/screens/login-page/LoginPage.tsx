@@ -12,7 +12,7 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
 
     //Hooks
-    const { login } = useAuth();
+    const { userRole, login } = useAuth();
     const navigate = useNavigate();
 
     // Función para manejar el envío del formulario
@@ -24,8 +24,14 @@ const LoginPage = () => {
         try {
             // Pasamos el objeto credentials
             await login(credentials);
+            const role = userRole;
+            console.log ("rol",role);
             // Redirigir al dashboard o donde sea necesario
-            navigate('/')
+            if (role === 'ROLE_ADMIN') {
+                navigate('/dashboard/admin');
+            } else {
+                navigate('/')
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error inesperado');
         } finally {
@@ -80,7 +86,7 @@ const LoginPage = () => {
                                 </form>
                                 <div className="text-center mt-3">
                                     <button type="button" className="btn btn-link text-decoration-none" onClick={handleForgotPassword} disabled={loading}>
-                                    ¿Olvidaste tu contraseña?
+                                        ¿Olvidaste tu contraseña?
                                     </button>
                                 </div>
                             </div>

@@ -22,7 +22,7 @@ const MainPage: React.FC = () => {
   return (
     <div>
       {/* Header Section */}
-      <header className="bg-primary text-white text-center py-5 mt-4">
+      <header className="bg-primary text-white text-center py-5">
         <div className="container">
           <h1 className="display-4 fw-bold">{data?.type}</h1>
           <h3 className="display-4 fw-bold">{data?.title}</h3>
