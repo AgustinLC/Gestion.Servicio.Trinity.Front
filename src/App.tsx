@@ -19,9 +19,9 @@ const App: React.FC = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/faq" element={<Faq />} />
         // Rutas solo para usuario operario
         <Route path="/dashboard/admin" element={<Dashboard />} />
-        <Route path="/faq" element={<Faq />} />
         // Rutas del usuario administrador
       </Routes>
       <Footer />
