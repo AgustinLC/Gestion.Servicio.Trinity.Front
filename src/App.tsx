@@ -7,6 +7,7 @@ import Navbar from "./shared/components/navbar/Navbar";
 import ForgotPasswordPage from "./auth/screens/forgot-password-page/ForgotPasswordPage";
 import ResetPasswordPage from "./auth/screens/reset-password-page/ResetPasswordPage";
 import Dashboard from "./admin/screens/dashboard/Dashboard";
+import Faq from "./shared/screens/faq/Faq";
 
 const App: React.FC = () => {
   return (
@@ -20,6 +21,8 @@ const App: React.FC = () => {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         // Rutas solo para usuario operario
         <Route path="/dashboard/admin" element={<Dashboard />} />
+        <Route path="/faq" element={<Faq />} />
+        // Rutas del usuario administrador
       </Routes>
       <Footer />
     </Router>
