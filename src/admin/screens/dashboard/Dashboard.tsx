@@ -1,52 +1,64 @@
 import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
+    const location = useLocation();
+    const currentPath = location.pathname;
 
     return (
-        <div className="navbar-fix d-flex">
-            {/* Sidebar */}
-            <nav className="sidebar bg-dark text-white">
-                <h2 className="text-center py-3">Consorcio</h2>
-                <ul className="nav flex-column">
-                    <li className="nav-item">
-                        <Link to="/dashboard/usuarios" className="nav-link text-white">
-                            Gestión de Usuarios
-                        </Link>
-                    </li>
-                    <li className="nav-item">
-                        <Link to="/dashboard/pagos" className="nav-link text-white">
-                            Gestión de Pagos
-                        </Link>
-                    </li>
-                    <li className="nav-item">
-                        <Link to="/dashboard/consumos" className="nav-link text-white">
-                            Registro y Consumos
-                        </Link>
-                    </li>
-                    <li className="nav-item">
-                        <Link to="/dashboard/reportes" className="nav-link text-white">
-                            Reportes
-                        </Link>
-                    </li>
-                </ul>
-            </nav>
+        <div className="container-fluid">
+            <div className="row">
 
-            {/* Main Content */}
-            <div className="main-content flex-grow-1">
-                {/* Header */}
-                <header className="bg-light border-bottom d-flex justify-content-between align-items-center px-4 py-3">
-                    <h4>Bienvenido, Usuario</h4>
-                    <div>
-                        <button className="btn btn-primary me-2">Botón 1</button>
-                        <button className="btn btn-secondary">Botón 2</button>
+                {/* Sidebar */}
+                <div className="col-sm-auto bg-primary sticky-top">
+                    <div className="d-flex flex-sm-column flex-row flex-nowrap bg-primary align-items-center">
+                        <ul className="nav nav-pills nav-flush flex-sm-column flex-row flex-nowrap mb-auto mx-auto text-center justify-content-between w-100 px-3">
+                            <li className="nav-item">
+                                <Link to="/dashboard/usuarios" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/usuarios' ? 'active' : ''}`} title="Gestión de Usuarios">
+                                    <i className="bi-person-lines-fill fs-4"></i>
+                                    <span className="ms-2 d-none d-lg-inline">Resumen</span>
+                                </Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link to="/dashboard/usuarios" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/usuarios' ? 'active' : ''}`} title="Gestión de Usuarios">
+                                    <i className="bi-people fs-4"></i>
+                                    <span className="ms-2 d-none d-lg-inline">Usuarios</span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/dashboard/pagos" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/pagos' ? 'active' : ''}`} title="Gestión de Pagos">
+                                    <i className="bi-table fs-4"></i>
+                                    <span className="ms-2 d-none d-lg-inline">Facturas</span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/dashboard/consumos" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/consumos' ? 'active' : ''}`} title="Registro y Consumos">
+                                    <i className="bi-speedometer2 fs-4"></i>
+                                    <span className="ms-2 d-none d-lg-inline">Lecturas</span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/dashboard/reportes" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/reportes' ? 'active' : ''}`} title="Reportes">
+                                    <i className="bi-heart fs-4"></i>
+                                    <span className="ms-2 d-none d-lg-inline">Cobros</span>
+                                </Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link to="/dashboard/usuarios" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/usuarios' ? 'active' : ''}`} title="Gestión de Usuarios">
+                                    <i className="bi-clipboard-data fs-4"></i>
+                                    <span className="ms-2 d-none d-lg-inline">Reportes</span>
+                                </Link>
+                            </li>
+                        </ul>
                     </div>
-                </header>
+                </div>
 
-                {/* Content */}
-                <main className="p-4">
-                    <Outlet /> {/* Aquí se cargarán las secciones dinámicamente */}
-                </main>
+                {/* Main Content */}
+                <div className="col-sm p-3 min-vh-100">
+                    <main className="p-4">
+                        <Outlet /> {/* Aquí se cargarán las secciones dinámicamente */}
+                    </main>
+                </div>
             </div>
         </div>
     );

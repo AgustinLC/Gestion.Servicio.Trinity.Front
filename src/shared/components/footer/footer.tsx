@@ -61,7 +61,7 @@ const Footer: React.FC = () => {
                     </div>
                 </div>
             </section>
-            <div className="text-center p-4">© 2025 Copyright:</div>
+            <div className="text-center p-4">© 2025 Copyright: Trinity Company</div>
         </footer>
     );
 };

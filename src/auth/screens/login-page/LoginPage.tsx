@@ -12,7 +12,7 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
 
     //Hooks
-    const { userRole, login } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
 
     // Función para manejar el envío del formulario
@@ -24,14 +24,7 @@ const LoginPage = () => {
         try {
             // Pasamos el objeto credentials
             await login(credentials);
-            const role = userRole;
-            console.log ("rol",role);
-            // Redirigir al dashboard o donde sea necesario
-            if (role === 'ROLE_ADMIN') {
-                navigate('/dashboard/admin');
-            } else {
-                navigate('/')
-            }
+            navigate('/');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error inesperado');
         } finally {
