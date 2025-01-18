@@ -20,7 +20,7 @@ export const getData = async <T>(endpoint: string): Promise<T> => {
 }
 
 //Función para enviar datos
-export const addData = async <T>(endpoint: string, data: Omit<T, 'id'>): Promise<T> => {
+export const addData = async <T, K extends keyof T>(endpoint: string, data: Omit<T, K>): Promise<T> => {
     try {
         const response = await axiosInstance.post<WebApiResponse<T>>(endpoint, data);
         if (response.data.success) {

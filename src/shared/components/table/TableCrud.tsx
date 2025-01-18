@@ -1,4 +1,3 @@
-// TableCRUD.tsx
 import { useEffect, useState } from 'react';
 import { Table, Button, Spinner, Form } from 'react-bootstrap';
 import { Row, TableProps } from '../../../core/models/TableProps'
