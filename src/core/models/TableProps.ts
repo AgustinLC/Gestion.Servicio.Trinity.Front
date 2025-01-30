@@ -10,11 +10,6 @@ export interface Row {
     [key: string]: any;
 }
 
-export interface Pagination {
-    currentPage: number;
-    totalPages: number;
-    onPageChange: (page: number) => void;
-}
 
 //Propiedades de la tabla
 export interface TableProps {
@@ -31,5 +26,4 @@ export interface TableProps {
     deleteButtonLabel?: string;
     extraActionButtonLabel?: string;
     loading?: boolean;
-    pagination?: Pagination;
 }

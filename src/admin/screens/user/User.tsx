@@ -45,7 +45,7 @@ const User = () => {
             const users = await getData<UserDto[]>('/operator/users');
             setData(users);
         } catch (error) {
-            alert('Error al obtener los datos');
+            alert('Error al obtener los datos' + error);
         } finally {
             setLoading(false);
         }
