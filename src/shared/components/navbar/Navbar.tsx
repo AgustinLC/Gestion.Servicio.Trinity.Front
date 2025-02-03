@@ -56,15 +56,32 @@ const Navbar: React.FC = () => {
                     <Link to="/dashboard/admin" className={`nav-link d-lg-none ${isActive("/dashboard/admin") ? "active" : ""}`}>
                       <i className="bi bi-layout-sidebar fs-5"></i>
                     </Link>
+                    <Link to="/dashboard/operator" className={`nav-link d-none d-lg-inline ${isActive("/dashboard/operator") ? "active" : ""}`}>
+                      Panel de Operación
+                    </Link>
+                    <Link to="/dashboard/operator" className={`nav-link d-lg-none ${isActive("/dashboard/operator") ? "active" : ""}`}>
+                      <i className="bi bi-layout-sidebar fs-5"></i>
+                    </Link>
                   </li>
                 )}
-                {/* Links para usuarios autenticados con otros roles */}
-                {(userRole === "ROLE_USER" || userRole === "ROLE_OPERATOR") && (
+                {/* Links para usuarios autenticados con rol operator */}
+                {userRole === "ROLE_OPERATOR" && (
                   <li className="nav-item mx-2">
-                    <Link to="/admin" className={`nav-link d-none d-lg-inline ${isActive("/admin") ? "active" : ""}`}>
-                      Panel de {userRole === "ROLE_USER" ? "Usuario" : "Operadores"}
+                    <Link to="/dashboard/operator" className={`nav-link d-none d-lg-inline ${isActive("/dashboard/operator") ? "active" : ""}`}>
+                      Panel de Operación
                     </Link>
-                    <Link to="/admin" className={`nav-link d-lg-none ${isActive("/admin") ? "active" : ""}`}>
+                    <Link to="/dashboard/operator" className={`nav-link d-lg-none ${isActive("/dashboard/operator") ? "active" : ""}`}>
+                      <i className="bi bi-layout-sidebar fs-5"></i>
+                    </Link>
+                  </li>
+                )}
+                {/* Links para usuarios autenticados con rol user */}
+                {userRole === "ROLE_USER" && (
+                  <li className="nav-item mx-2">
+                    <Link to="/dashboard/user" className={`nav-link d-none d-lg-inline ${isActive("/dashboard/user") ? "active" : ""}`}>
+                      Panel de Gestión
+                    </Link>
+                    <Link to="/dashboard/user" className={`nav-link d-lg-none ${isActive("/dashboard/user") ? "active" : ""}`}>
                       <i className="bi bi-layout-sidebar fs-5"></i>
                     </Link>
                   </li>

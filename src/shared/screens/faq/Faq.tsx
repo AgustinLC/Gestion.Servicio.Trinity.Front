@@ -11,7 +11,7 @@ const Faq: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await getData<MainData>("/data/main");
+                const response = await getData<MainData>("/auth/data-main");
                 setData(response);
             } catch (error) {
                 console.error(error);
