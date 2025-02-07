@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "./Faq.css";
 import { getData } from "../../../core/services/apiService";
-import { MainData } from "../../../core/models/entity/MainData";
 import { FaqDto } from "../../../core/models/dto/FaqDto";
+import { MainInfoDto } from "../../../core/models/models/dto/MainInfoDto";
 
 const Faq: React.FC = () => {
-    const [dataMain, setDataMain] = useState<MainData | null>(null);
+    const [dataMain, setDataMain] = useState<MainInfoDto | null>(null);
     const [dataFaq, setDataFaq] = useState<FaqDto[]>([])
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
@@ -15,7 +15,7 @@ const Faq: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await getData<MainData>("/info/data-main");
+                const response = await getData<MainInfoDto>("/info/data-main");
                 setDataMain(response);
             } catch (error) {
                 console.error("Error fetching MAIN data:", error);
@@ -66,7 +66,7 @@ const Faq: React.FC = () => {
             <header className="bg-primary text-white text-center py-5">
                 <div className="container">
                     <h1 className="display-4 fw-bold">{dataMain?.name}</h1>
-                    <h3 className="display-4 fw-bold">{dataMain?.description}</h3>
+                    <p className="lead mt-3">{dataMain?.description}</p>
                     <p className="lead mt-3">
                         FAQ - Preguntas Frecuentes
                     </p>
