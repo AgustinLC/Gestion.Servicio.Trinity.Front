@@ -5,6 +5,7 @@ import { WebApiResponse } from '../models/entity/WebApiResponse';
 //Función para obtener datos
 export const getData = async <T>(endpoint: string): Promise<T> => {
     try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const response = await axiosInstance.get<WebApiResponse<any>>(endpoint);
         if (response.data.success) {
             return response.data.data;
