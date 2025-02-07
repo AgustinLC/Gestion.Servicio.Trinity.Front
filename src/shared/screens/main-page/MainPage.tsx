@@ -1,33 +1,65 @@
 import React, { useEffect, useState } from "react";
 import { FaStar, FaRocket, FaCode } from "react-icons/fa";
 import { getData } from "../../../core/services/apiService";
-import { MainData } from "../../../core/models/entity/MainData";
+import logo from "../../../assets/img/logoNavbar.svg";
+import { MainInfoDto } from "../../../core/models/models/dto/MainInfoDto";
 
 const MainPage: React.FC = () => {
-  const [data, setData] = useState<MainData | null>(null);
 
-  //Hook para obtener los datos de la API 
+  //Estado para manejar la información principal
+  const [data, setData] = useState<MainInfoDto | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  //Hook para obtener los datos de la API de información principal
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getData<MainData>("/auth/data-main");
+        const response = await getData<MainInfoDto>("/info/data-main");
         setData(response);
       } catch (error) {
         console.error(error);
+        console.log("error");
+        setError("Error al cargar la información principal");
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
   }, []);
 
+  //Iconos para las funcionalidades
+  const featureIcons: { [key: number]: JSX.Element } = {
+    1: <FaRocket size={50} className="text-primary mb-3" />, // Icono cohete
+    2: <FaStar size={50} className="text-primary mb-3" />, // Icono estrella
+    3: <FaCode size={50} className="text-primary mb-3" />, // Icono código
+  };
+
+  //Bordes para los planes
+  const planBorder: { [key: number]: string } = {
+    1: "border-success", // Borde verde
+    2: "border-primary", // Borde azul
+    3: "border-warning", // Borde amarillo
+    4: "border-danger", // Borde rojo
+  };
+
+  //Renderizado condicional para manejar los estados de carga y error
+  if (loading) {
+    return <div className="text-center py-5">Cargando..</div>
+  }
+  if (error) {
+    return <div className="text-center py-5">{error}</div>
+  }
+
+  //Renderizado de la página principal
   return (
     <div>
       {/* Header Section */}
       <header className="bg-primary text-white text-center py-5">
         <div className="container">
-          <h1 className="display-4 fw-bold">{data?.type}</h1>
-          <h3 className="display-4 fw-bold">{data?.title}</h3>
+          <h1 className="fw-bold">{data?.name}</h1>
           <p className="lead mt-3">
-            La solución ideal para simplificar tus tareas y potenciar tus resultados.
+            {data?.description}
           </p>
           <a href="#features" className="btn btn-light btn-lg mt-4">
             Conoce más
@@ -40,21 +72,14 @@ const MainPage: React.FC = () => {
           <h2 className="fw-bold">Características Principales</h2>
           <p className="text-muted">Todo lo que necesitas en un solo lugar.</p>
           <div className="row mt-4">
-            <div className="col-md-4">
-              <FaRocket size={50} className="text-primary mb-3" />
-              <h5 className="fw-bold">Rendimiento Óptimo</h5>
-              <p>Experiencia rápida y sin interrupciones para los usuarios.</p>
-            </div>
-            <div className="col-md-4">
-              <FaStar size={50} className="text-primary mb-3" />
-              <h5 className="fw-bold">Interfaz Moderna</h5>
-              <p>Diseños atractivos y fáciles de usar.</p>
-            </div>
-            <div className="col-md-4">
-              <FaCode size={50} className="text-primary mb-3" />
-              <h5 className="fw-bold">Tecnología Avanzada</h5>
-              <p>Implementación con las últimas herramientas y frameworks.</p>
-            </div>
+            {/* Iterar sobre los features */}
+            {data?.features.map((feature) => (
+              <div className="col-md-4" key={(feature.idFeature)}>
+                {featureIcons[feature.idFeature] || <FaStar size={50} className="text-primary mb-3" />}
+                <h5 className="fw-bold">{feature.name}</h5>
+                <p>{feature.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -65,46 +90,23 @@ const MainPage: React.FC = () => {
           <h2 className="fw-bold">Planes de Precios</h2>
           <p className="text-muted">Elige el plan que mejor se adapte a tus necesidades.</p>
           <div className="row mt-4">
-            <div className="col-md-4">
-              <div className="card border-primary">
-                <div className="card-body">
-                  <h5 className="card-title fw-bold">Básico</h5>
-                  <h6 className="card-price">$10/mes</h6>
-                  <p className="text-muted">Funcionalidades esenciales.</p>
-                  <a href="#" className="btn btn-primary">
-                    Seleccionar
-                  </a>
+            {/* Iterar sobre los planes */}
+            {data?.plans.map((fee) => (
+              <div className="col-md-3 my-2" key={(fee.idFee)}>
+                <div className={`card ${planBorder[fee.idFee] || "border-primary"}`}>
+                  <div className="card-body">
+                    <h5 className="card-title fw-bold">{fee.name}</h5>
+                    <h6 className="card-price">${fee.price}{data.unitActive}</h6>
+                    <p className="text-muted">{fee.description}</p>
+                    <p className="text-muted">Consumo max: {fee.consumptionMax}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="col-md-4">
-              <div className="card border-success">
-                <div className="card-body">
-                  <h5 className="card-title fw-bold">Profesional</h5>
-                  <h6 className="card-price">$30/mes</h6>
-                  <p className="text-muted">Funciones avanzadas y soporte premium.</p>
-                  <a href="#" className="btn btn-success">
-                    Seleccionar
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-4">
-              <div className="card border-warning">
-                <div className="card-body">
-                  <h5 className="card-title fw-bold">Empresarial</h5>
-                  <h6 className="card-price">$50/mes</h6>
-                  <p className="text-muted">Soluciones personalizadas.</p>
-                  <a href="#" className="btn btn-warning">
-                    Seleccionar
-                  </a>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
-      </section>
-    </div>
+      </section >
+    </div >
   );
 };
 
