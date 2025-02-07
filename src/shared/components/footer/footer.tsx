@@ -1,8 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import logo from "../../../assets/img/logoFooter.svg";
 import { FaFacebookSquare, FaInstagramSquare, FaWhatsappSquare } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { getData } from "../../../core/services/apiService";
+import { FooterInfoDto } from "../../../core/models/models/dto/FooterInfoDto";
 
 const Footer: React.FC = () => {
+
+    //Estado para manejar la información principal
+    const [data, setData] = useState<FooterInfoDto | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    //Hook para obtener los datos de la API de información principal
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await getData<FooterInfoDto>("/info/footer");
+                setData(response);
+            } catch (error) {
+                console.error(error);
+                console.log("error");
+                setError("Error al cargar la información principal");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    //Renderizado condicional para manejar los estados de carga y error
+    if (loading) {
+        return <div className="text-center py-5">Cargando..</div>
+    }
+    if (error) {
+        return <div className="text-center py-5">{error}</div>
+    }
+
     return (
         <footer className="text-center text-lg-start bg-body-tertiary text-muted pt-2">
             <section className="">
@@ -10,22 +44,21 @@ const Footer: React.FC = () => {
                     <div className="row mt-3">
                         <div className="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
                             <div>
-                                <img src="src/assets/img/water_drop_sky.svg" alt="logo" />
+                                <img src={logo} alt="logo" />
                             </div>
                             <h6 className="text-uppercase fw-bold mb-4">
-                                <i className="fas fa-gem me-3"></i>Company name
+                                <i className="fas fa-gem me-3">{data?.name}</i>
                             </h6>
                             <p>
-                                Here you can use rows and columns to organize your footer content. Lorem ipsum
-                                dolor sit amet, consectetur adipisicing elit.
+                                {data?.slogan}
                             </p>
                         </div>
                         <div className="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
                             <h6 className="text-uppercase fw-bold mb-4">Dirección</h6>
-                            <p>Provincia: Mendoza</p>
-                            <p>Departamento: Rivadavia</p>
-                            <p>Distrito: Santa María de Oro</p>
-                            <p>Calle: Villanueva</p>
+                            <p>Provincia: {data?.province}</p>
+                            <p>Departamento: {data?.location}</p>
+                            <p>Distrito: {data?.district}</p>
+                            <p>Calle: {data?.street}</p>
                             <Link to="https://www.google.com/maps/place/CLUB+SANTA+MARIA/@-33.207028,-68.4245363,321m/data=!3m1!1e3!4m6!3m5!1s0x967e59fc88ce3c3f:0xb1ff918bf093f8fe!8m2!3d-33.207201!4d-68.423545!16s%2Fg%2F11jsw09_j1?entry=ttu" target="_blank">Ver Ubicacion</Link>
                         </div>
                         <div className="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
@@ -46,17 +79,17 @@ const Footer: React.FC = () => {
                         <div className="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
                             <h6 className="text-uppercase fw-bold mb-4">Contactos</h6>
                             <p>
-                                <Link to="https://www.facebook.com/people/Consorcio-de-agua-potable-Santa-Maria-de-Oro/100058813477291/" target="_blank">
+                                <Link to={data?.facebookUrl || "#"} target="_blank">
                                     <FaFacebookSquare /> Facebook
                                 </Link>
                             </p>
                             <p>
-                                <Link to="#">
+                                <Link to={data?.whatsappUrl || "#"} target="_blank">
                                     <FaWhatsappSquare /> Whatsapp
                                 </Link>
                             </p>
                             <p>
-                                <Link to="#">
+                                <Link to={data?.instagramUrl || "#"} target="_blank">
                                     <FaInstagramSquare /> Instagram
                                 </Link>
                             </p>
@@ -64,7 +97,7 @@ const Footer: React.FC = () => {
                     </div>
                 </div>
             </section>
-            <div className="text-center p-4">© 2025 Copyright:</div>
+            <div className="text-center p-4">© 2025 Trinity. Todos los derechos reservados</div>
         </footer>
     );
 };

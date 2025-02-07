@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainPage from "./shared/screens/main-page/MainPage";
 import LoginPage from "./auth/screens/login-page/LoginPage";
-import Footer from "./shared/components/footer/footer";
+import Footer from "./shared/components/footer/Footer";
 
 const App: React.FC = () => {
   return (
