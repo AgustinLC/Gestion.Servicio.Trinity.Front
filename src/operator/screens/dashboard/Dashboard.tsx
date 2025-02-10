@@ -20,7 +20,7 @@ const Dashboard: React.FC = () => {
                                 </Link>
                             </li>
                             <li className="nav-item">
-                                <Link to="/dashboard/admin/users" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/users' ? 'active' : ''}`} title="Gestión de Usuarios">
+                                <Link to="/dashboard/operator/users" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/operator/users' ? 'active' : ''}`} title="Gestión de Usuarios">
                                     <i className="bi-people fs-4"></i>
                                     <span className="ms-2 d-none d-lg-inline">Usuarios</span>
                                 </Link>
