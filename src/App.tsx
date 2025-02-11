@@ -8,7 +8,8 @@ import Navbar from "./shared/components/navbar/Navbar";
 import ForgotPasswordPage from "./auth/screens/forgot-password-page/ForgotPasswordPage";
 import ResetPasswordPage from "./auth/screens/reset-password-page/ResetPasswordPage";
 import OperatorDashboard from "./operator/screens/dashboard/Dashboard";
-import User from "./admin/screens/user/User";
+import User from "./operator/screens/user/User";
+import Resume from "./operator/screens/resume/Resume";
 
 const App: React.FC = () => {
   return (
@@ -23,6 +24,7 @@ const App: React.FC = () => {
         <Route path="/faq" element={<Faq />} />
         // Rutas solo para usuario operario
         <Route path="/dashboard/operator" element={<OperatorDashboard />}>
+          <Route path="resume" element={<Resume />} />
           <Route path="users" element={<User />} />
         </Route>
       </Routes>

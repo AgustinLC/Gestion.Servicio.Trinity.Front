@@ -12,6 +12,7 @@ export const getData = async <T>(endpoint: string): Promise<T> => {
         }
         throw new Error('Mensaje:' + response.data.message + 'Error:' + response.data.error)
     } catch (error) {
+        console.error('Error completo:', error); 
         if (axios.isAxiosError(error)) {
             throw new Error(error.response?.data?.message || 'Error inesperado al obtener los datos');
         } else {
