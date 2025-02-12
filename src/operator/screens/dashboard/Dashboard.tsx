@@ -14,13 +14,13 @@ const Dashboard: React.FC = () => {
                     <div className="d-flex flex-sm-column flex-row flex-nowrap bg-primary align-items-center">
                         <ul className="nav nav-pills nav-flush flex-sm-column flex-row flex-nowrap mb-auto mx-auto text-center justify-content-between w-100 px-3">
                             <li className="nav-item">
-                                <Link to="/dashboard/usuarios" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/usuarios' ? 'active' : ''}`} title="Gestión de Usuarios">
+                                <Link to="/dashboard/operator/resume" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/operator/resume' ? 'active' : ''}`} title="Gestión de Usuarios">
                                     <i className="bi-person-lines-fill fs-4"></i>
                                     <span className="ms-2 d-none d-lg-inline">Resumen</span>
                                 </Link>
                             </li>
                             <li className="nav-item">
-                                <Link to="/dashboard/admin/users" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/users' ? 'active' : ''}`} title="Gestión de Usuarios">
+                                <Link to="/dashboard/operator/users" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/operator/users' ? 'active' : ''}`} title="Gestión de Usuarios">
                                     <i className="bi-people fs-4"></i>
                                     <span className="ms-2 d-none d-lg-inline">Usuarios</span>
                                 </Link>
