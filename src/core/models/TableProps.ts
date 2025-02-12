@@ -7,18 +7,18 @@ export interface Column {
 
 //Propiedades de la fila de la tabla
 export interface Row {
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 
 //Propiedades de la tabla
-export interface TableProps {
-    data: Row[];
+export interface TableProps<T = Row> {
+    data: T[];
     columns: Column[];
     onAdd?: () => void;
-    onEdit?: (row: Row) => void;
-    onDelete?: (row: Row) => void;
-    onExtraAction?: (row: Row) => void;
+    onEdit?: (row: T) => void;
+    onDelete?: (row: T) => void;
+    onExtraAction?: (row: T) => void;
     showEditButton?: boolean;
     showDeleteButton?: boolean;
     showExtraActionButton?: boolean;

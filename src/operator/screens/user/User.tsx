@@ -6,8 +6,7 @@ import { getData, addData, updateData, deleteData } from "../../../core/services
 import { Button, Form, Modal } from "react-bootstrap";
 
 const User = () => {
-
-    //Estados
+    // Estados
     const [data, setData] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [showForm, setShowForm] = useState(false);
@@ -22,12 +21,12 @@ const User = () => {
         status: '',
     });
 
-    //Hooks
+    // Hooks
     const { register, handleSubmit, formState: { errors }, reset } = useForm<UserDto>({
         defaultValues: formData,
     });
 
-    //Props (columnas) para el componente TableCrud
+    // Props (columnas) para el componente TableCrud
     const columns = [
         { key: 'idUser', label: 'ID' },
         { key: 'username', label: 'EMAIL', visible: true },
@@ -56,24 +55,27 @@ const User = () => {
         fetchUsers();
     }, []);
 
-    //Funciones para abrir el formulario de añadir usuario
+    // Funciones para abrir el formulario de añadir usuario
     const handleAdd = async () => {
-        const newFormData = { idUser: 0, username: '', lastName: '', firstName: '', dni: 0, phone: 0, status: '', };
+        const newFormData = { idUser: 0, username: '', lastName: '', firstName: '', dni: 0, phone: 0, status: '' };
         setFormData(newFormData);
         reset(newFormData);
         setShowForm(true);
     };
 
-    //Funciones para abrir el formulario de editar usuario
-    const handleEdit = async (row: any) => {
-        const newFormData = { ...row }; // Crea un nuevo objeto con los valores de la fila
-        setFormData(newFormData); // Actualiza el estado con los valores de la fila
-        reset(newFormData); // Resetea el formulario con los nuevos valores
-        setShowForm(true);
+    // Funciones para abrir el formulario de editar usuario
+    const handleEdit = async (row: UserDto) => {
+        if (row && row.idUser) {
+            setFormData(row); // Actualiza el estado con los valores de la fila
+            reset(row); // Resetea el formulario con los nuevos valores
+            setShowForm(true);
+        } else {
+            console.error("El usuario no es válido");
+        }
     };
 
-    //Funciones para eliminar un usuario
-    const handleDelete = async (row: any) => {
+    // Funciones para eliminar un usuario
+    const handleDelete = async (row: UserDto) => {
         try {
             await deleteData('/operator/users', row.idUser);
             const newData = data.filter((user) => user.idUser !== row.idUser);
@@ -87,24 +89,24 @@ const User = () => {
         }
     };
 
-    //Funciones para la acción extra
-    const handleExtraAction = (row: any) => {
+    // Funciones para la acción extra
+    const handleExtraAction = (row: UserDto) => {
         console.log('Acción extra:', row);
     };
 
-    //Funcion para el boton de submit del formulario
+    // Función para el botón de submit del formulario
     const onSubmit = async (data: UserDto) => {
         setIsSubmitting(true);
         try {
-            if (data.idUser) {
-                //Editar usuario
-                const response = await updateData('/operator/update-user', data.idUser, data);
-                setData((prevData) => prevData.map((user) => (user.idUser === data.idUser ? response : user)));
-            }
-            else {
-                //Añadir un usuario
-                const response = (await addData<UserDto, 'idUser'>('/operator/users', data));
-                setData((prevData: UserDto[]) => [...prevData, response]);
+            if (data && data.idUser) {
+                // Editar usuario
+                const response = await updateData('/operator/update-user?idUser', data.idUser, data);
+                setData((prevData) => prevData.map((user) => (user.idUser == data.idUser ? response : user)));
+            } else {
+                // Añadir un usuario
+                console.log(data)
+                const response = await addData<UserDto>('/operator/register-user', data);
+                setData((prevData) => [...prevData, response]);
             }
             setShowForm(false);
         } catch (error) {
@@ -116,18 +118,18 @@ const User = () => {
         } finally {
             setIsSubmitting(false);
         }
-    }
+    };
 
-    //Funcion para el boton de cerrar el formulario
+    // Función para el botón de cerrar el formulario
     const handleClose = () => {
         setShowForm(false);
     };
 
-    //Renderizado del componente
+    // Renderizado del componente
     return (
         <div>
             <h1 className='text-center'>Usuarios</h1>
-            <TableCrud
+            <TableCrud<UserDto>
                 data={data}
                 columns={columns}
                 onAdd={handleAdd}

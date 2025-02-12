@@ -1,9 +1,14 @@
-import { BarChart, Bar, YAxis, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { Card, Row, Col } from "react-bootstrap";
-import { useEffect, useState } from "react";
+import { BarChart, Bar, YAxis, Tooltip, Legend, PieChart, Pie, Cell, XAxis, ResponsiveContainer } from "recharts";
+import { Card, Row, Col, Spinner } from "react-bootstrap";
+import { useEffect, useMemo, useState } from "react";
+import { ResumeDto } from "../../../core/models/dto/ResumeDto";
+import { getData } from "../../../core/services/apiService";
 
 const Resume = () => {
     //Estados
+    const [data, setData] = useState<ResumeDto | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [chartSize, setChartSize] = useState({ width: 500, height: 300 })
 
     // Función para actualizar el tamaño de los gráficos
@@ -22,106 +27,122 @@ const Resume = () => {
         };
     }, []);
 
-    // Datos de ejemplo para las tarjetas
-    const summaryData = [
-        { title: "Usuarios Activos", value: 120, color: "#28a745" },
-        { title: "Usuarios Inactivos", value: 30, color: "#dc3545" },
-        { title: "Facturas Pagas", value: 85, color: "#28a745" },
-        { title: "Facturas Impagas", value: 15, color: "#dc3545" },
-        { title: "Lecturas Realizadas", value: 200, color: "#007bff" },
-        { title: "Lecturas Pendientes", value: 20, color: "#ffc107" },
-    ];
+    // Función para obtener el resumen de los datos
+    const fetchResumes = async () => {
+        setLoading(true);
+        try {
+            const resume = await getData<ResumeDto>('/operator/resume-supplier');
+            setData(resume);
+        } catch (error) {
+            setError("Error al cargar la información principal");
+            alert('Error al obtener los datos' + error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    // Datos de ejemplo para el gráfico de barras (lecturas por mes)
-    const readingsData = [
-        { month: "Enero", lecturas: 150 },
-        { month: "Febrero", lecturas: 200 },
-        { month: "Marzo", lecturas: 180 },
-        { month: "Abril", lecturas: 220 },
-        { month: "Mayo", lecturas: 250 },
-        { month: "Junio", lecturas: 100 },
-        { month: "Julio", lecturas: 50 },
-        { month: "Agosto", lecturas: 210 },
-        { month: "Septiembre", lecturas: 150 },
-        { month: "Octubre", lecturas: 200 },
-        { month: "Noviembre", lecturas: 120 },
-        { month: "Diciembre", lecturas: 190 },
-    ];
+    // Hook para obtener el resumen al cargar el componente
+    useEffect(() => {
+        fetchResumes();
+    }, []);
+
+    // Datos para las tarjetas
+    const summaryData = useMemo(() => [
+        { title: "Usuarios Activos", value: data?.activeUsers || 0, color: "#28a745" },
+        { title: "Usuarios Inactivos", value: data?.inactiveUsers || 0, color: "#dc3545" },
+        { title: "Facturas Pagas", value: data?.billsPaid || 0, color: "#28a745" },
+        { title: "Facturas Impagas", value: data?.unpaidBills || 0, color: "#dc3545" },
+        { title: "Lecturas Realizadas", value: data?.fullReadings || 0, color: "#007bff" },
+        { title: "Lecturas Pendientes", value: data?.incompleteReadings || 0, color: "#ffc707" },
+        { title: "Modalidad activa", value: data?.activeModality || "No disponible", color: "#a15faf" },
+        { title: "Fecha de periodo (activo)", value: data?.dateActivePeriod ? new Date(data?.dateActivePeriod).toLocaleDateString() : "No disponible", color: "#ff5d00" },
+        { title: "Servicio/Unidad", value: data?.activeUnitService || "No disponible", color: "#05c1a1" }
+    ], [data]);
+
+    // Datos del gráfico de barras (Usuarios por tarifa)
+    const usersForFeeData = useMemo(() =>
+        data?.usersForFee?.map(fee => ({ fee: fee.fee, cantidad: fee.count })) ?? [],
+        [data]);
 
     // Datos de ejemplo para el gráfico de pastel (facturas pagas vs impagas)
-    const invoicesData = [
-        { name: "Pagas", value: 85 },
-        { name: "Impagas", value: 15 },
-    ];
-    const invoiceColors = ["#28a745", "#dc3545"]; // Colores para el gráfico de pastel
+    const invoicesData = useMemo(() => [
+        { name: "Pagas", value: data?.billsPaid || 0, color: "#28a745" },
+        { name: "Impagas", value: data?.unpaidBills || 0, color: "#dc3545" },
+    ], [data]);
 
+    // Render
     return (
         <div>
             <h1 className="text-center">Resumen</h1>
 
-            {/* Tarjetas de resumen */}
-            <Row className="mb-4">
-                {summaryData.map((item, index) => (
-                    <Col key={index} md={4} className="mb-3">
-                        <Card>
-                            <Card.Body>
-                                <Card.Title>{item.title}</Card.Title>
-                                <Card.Text style={{ color: item.color, fontSize: "1.5rem", fontWeight: "bold" }}>
-                                    {item.value}
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
+            {/* Mostrar el mensaje de carga mientras los datos se están cargando */}
+            {loading ? (
+                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                    <span className="mb-2 fw-bold">CARGANDO...</span>
+                    <Spinner animation="border" role="status"></Spinner>
+                </div>
+            ) : error ? (
+                <div className="text-center py-5">{error}</div>
+            ) : (
+                <div>
 
-            <Row className="mb-4">
-                {/* Gráfico de barras: Lecturas realizadas por mes */}
-                <Col md={8} className="mb-4">
-                    <Card>
-                        <Card.Body>
-                            <Card.Title>Lecturas Realizadas por Mes</Card.Title>
-                            <ResponsiveContainer width="100%" height={chartSize.height}>
-                                <BarChart data={readingsData}>F
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Bar dataKey="lecturas" fill="#007bff" />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </Card.Body>
-                    </Card>
-                </Col>
+                    {/* Tarjetas de resumen */}
+                    <Row className="mb-2">
+                        {summaryData.map((item, index) => (
+                            <Col key={index} md={4} className="mb-3">
+                                <Card>
+                                    <Card.Body>
+                                        <Card.Title>{item.title}</Card.Title>
+                                        <Card.Text style={{ color: item.color, fontSize: "1.3rem", fontWeight: "bold" }}>
+                                            {item.value}
+                                        </Card.Text>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                        ))}
+                    </Row>
 
-                {/* Gráfico de pastel: Facturas pagas vs impagas */}
-                <Col md={4} className="mb-4">
-                    <Card>
-                        <Card.Body>
-                            <Card.Title>Facturas Pagas vs Impagas</Card.Title>
-                            <ResponsiveContainer width="100%" height={chartSize.height}>
-                                <PieChart>
-                                    <Pie
-                                        data={invoicesData}
-                                        dataKey="value"
-                                        nameKey="name"
-                                        cx="50%"
-                                        cy="50%"
-                                        outerRadius={80}
-                                        fill="#8884d8"
-                                        label
-                                    >
-                                        {invoicesData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={invoiceColors[index % invoiceColors.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip />
-                                    <Legend />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
+                    <Row>
+                        {/* Gráfico de barras: Lecturas realizadas por mes */}
+                        <Col md={8} className="mb-4">
+                            <Card>
+                                <Card.Body>
+                                    <Card.Title>Cantidad de usuarios x tarifa</Card.Title>
+                                    <ResponsiveContainer width="100%" height={chartSize.height}>
+                                        <BarChart data={usersForFeeData}>
+                                            <XAxis dataKey="fee" className="d-none d-md-block" />
+                                            <YAxis />
+                                            <Tooltip />
+                                            <Legend />
+                                            <Bar dataKey="cantidad" fill="#007bff" />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+
+                        {/* Gráfico de pastel: Facturas pagas vs impagas */}
+                        <Col md={4} className="mb-4">
+                            <Card>
+                                <Card.Body>
+                                    <Card.Title>Facturas Pagas vs Impagas</Card.Title>
+                                    <ResponsiveContainer width="100%" height={chartSize.height}>
+                                        <PieChart>
+                                            <Pie data={invoicesData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8" label>
+                                                {invoicesData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip />
+                                            <Legend />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+                </div>
+            )}
         </div>
     );
 };

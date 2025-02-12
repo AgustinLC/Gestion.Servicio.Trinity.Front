@@ -18,7 +18,6 @@ const MainPage: React.FC = () => {
         setData(response);
       } catch (error) {
         console.error(error);
-        console.log("error");
         setError("Error al cargar la información principal");
       } finally {
         setLoading(false);
@@ -95,9 +94,9 @@ const MainPage: React.FC = () => {
                 <div className={`card ${planBorder[fee.idFee] || "border-primary"}`}>
                   <div className="card-body">
                     <h5 className="card-title fw-bold">{fee.name}</h5>
-                    <h6 className="card-price">${fee.price}{data.unitActive}</h6>
+                    <h6 className="card-price">${fee.price}</h6>
                     <p className="text-muted">{fee.description}</p>
-                    <p className="text-muted">Consumo max: {fee.consumptionMax}</p>
+                    <p className="text-muted">Consumo max: {fee.consumptionMax}{data.unitActive}</p>
                   </div>
                 </div>
               </div>
