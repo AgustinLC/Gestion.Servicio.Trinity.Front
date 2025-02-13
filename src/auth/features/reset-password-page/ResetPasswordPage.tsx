@@ -26,8 +26,9 @@ const ResetPasswordPage = () => {
             await AuthService.changePassword(credentials);
             setSuccess(true);
             setTimeout(() => navigate("/login"), 3000);
-        } catch (err) {
+        } catch (error) {
             setError("Error al restablecer la contraseña. Intenta nuevamente.");
+            console.error(error);
         } finally {
             setLoading(false);
         }

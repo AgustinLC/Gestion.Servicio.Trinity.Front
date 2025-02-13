@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Spinner, Form } from 'react-bootstrap';
-import { TableProps } from '../../../core/models/TableProps';
+import { TableProps } from '../../../core/models/entity/TableProps';
 
 // Hacemos que TableCrud sea genérico sin requerir una firma de índice
 const TableCrud = <T extends object>({

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./Faq.css";
 import { getData } from "../../../core/services/apiService";
 import { FaqDto } from "../../../core/models/dto/FaqDto";
-import { MainInfoDto } from "../../../core/models/models/dto/MainInfoDto";
+import { MainInfoDto } from "../../../core/models/dto/MainInfoDto";
 
 const Faq: React.FC = () => {
     const [dataMain, setDataMain] = useState<MainInfoDto | null>(null);

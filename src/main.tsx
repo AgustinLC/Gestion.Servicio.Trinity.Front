@@ -6,7 +6,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'animate.css';
 import './index.css'
 import App from './App.tsx'
-import { AuthProvider } from './auth/services/AuthContext.tsx';
+import { AuthProvider } from './context/AuthContext.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

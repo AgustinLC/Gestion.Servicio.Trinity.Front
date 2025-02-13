@@ -1,15 +1,15 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import MainPage from "./shared/screens/main-page/MainPage";
-import LoginPage from "./auth/screens/login-page/LoginPage";
-import Faq from "./shared/screens/faq/Faq";
+import MainPage from "./shared/features/main-page/MainPage";
+import LoginPage from "./auth/features/login-page/LoginPage";
+import Faq from "./shared/features/faq/Faq";
 import Footer from "./shared/components/footer/footer";
 import Navbar from "./shared/components/navbar/Navbar";
-import ForgotPasswordPage from "./auth/screens/forgot-password-page/ForgotPasswordPage";
-import ResetPasswordPage from "./auth/screens/reset-password-page/ResetPasswordPage";
-import OperatorDashboard from "./operator/screens/dashboard/Dashboard";
-import User from "./operator/screens/user/User";
-import Resume from "./operator/screens/resume/Resume";
+import ForgotPasswordPage from "./auth/features/forgot-password-page/ForgotPasswordPage";
+import ResetPasswordPage from "./auth/features/reset-password-page/ResetPasswordPage";
+import OperatorDashboard from "./operator/features/dashboard/Dashboard";
+import User from "./operator/features/user/User";
+import Resume from "./operator/features/resume/Resume";
 
 const App: React.FC = () => {
   return (

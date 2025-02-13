@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useForm } from 'react-hook-form';
 import TableCrud from "../../../shared/components/table/TableCrud";
-import { UserDto } from "../../../core/models/dto/UserDto";
-import { getData, addData, updateData, deleteData } from "../../../core/services/apiService";
+import { UserDto, RegisterRequestDto } from "../../../core/models/dto/UserDto";
+import { getData, addData, updateData } from "../../../core/services/apiService";
 import { Button, Form, Modal } from "react-bootstrap";
 
 const User = () => {
@@ -74,39 +74,26 @@ const User = () => {
         }
     };
 
-    // Funciones para eliminar un usuario
-    const handleDelete = async (row: UserDto) => {
-        try {
-            await deleteData('/operator/users', row.idUser);
-            const newData = data.filter((user) => user.idUser !== row.idUser);
-            setData(newData);
-        } catch (error) {
-            if (error instanceof Error) {
-                alert(error.message);
-            } else {
-                alert('Se produjo un error desconocido');
-            }
-        }
-    };
-
-    // Funciones para la acción extra
-    const handleExtraAction = (row: UserDto) => {
-        console.log('Acción extra:', row);
-    };
-
-    // Función para el botón de submit del formulario
+    // Función para el botón de submit del formulario (añadir o editar usuario)
     const onSubmit = async (data: UserDto) => {
         setIsSubmitting(true);
         try {
-            if (data && data.idUser) {
+            if (data.idUser) {
                 // Editar usuario
-                const response = await updateData('/operator/update-user?idUser', data.idUser, data);
-                setData((prevData) => prevData.map((user) => (user.idUser == data.idUser ? response : user)));
+                await updateData<UserDto>('/operator/update-user?idUser', data.idUser, data);
+                fetchUsers();
             } else {
-                // Añadir un usuario
-                console.log(data)
-                const response = await addData<UserDto>('/operator/register-user', data);
-                setData((prevData) => [...prevData, response]);
+                // Registrar usuario
+                const registerData: RegisterRequestDto = {
+                    username: data.username,
+                    lastname: data.lastName,
+                    firstname: data.firstName,
+                    dni: data.dni,
+                    phone: data.phone,
+                    password: data.dni.toString(),
+                };
+                await addData<RegisterRequestDto>('/operator/register-user', registerData);
+                fetchUsers();
             }
             setShowForm(false);
         } catch (error) {
@@ -134,10 +121,8 @@ const User = () => {
                 columns={columns}
                 onAdd={handleAdd}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
-                onExtraAction={handleExtraAction}
                 showEditButton={true}
-                showDeleteButton={true}
+                showDeleteButton={false}
                 showExtraActionButton={false}
                 editButtonLabel="Editar"
                 deleteButtonLabel="Eliminar"
@@ -178,7 +163,11 @@ const User = () => {
                         </Form.Group>
                         <Form.Group className="mb-3" controlId="status">
                             <Form.Label>ESTADO</Form.Label>
-                            <Form.Control type="text" {...register('status', { required: true })} />
+                            <Form.Control as="select" {...register('status', { required: true })}>
+                                <option value="">Seleccione un estado</option>
+                                <option value="ACTIVE">Activo</option>
+                                <option value="INACTIVE">Inactivo</option>
+                            </Form.Control>
                             {errors.status && <Form.Text className="text-danger">El estado es requerido</Form.Text>}
                         </Form.Group>
                         <Button variant="primary" type="submit" disabled={isSubmitting}>

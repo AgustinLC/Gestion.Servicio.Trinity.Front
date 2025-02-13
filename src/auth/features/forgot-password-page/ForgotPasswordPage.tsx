@@ -17,8 +17,9 @@ const ForgotPasswordPage = () => {
     try {
       await AuthService.recoverPassword(credentials);
       setSuccess(true);
-    } catch (err) {
+    } catch (error) {
       setError("Error al enviar el correo. Intenta nuevamente.");
+      console.error(error);
     } finally {
       setLoading(false);
     }

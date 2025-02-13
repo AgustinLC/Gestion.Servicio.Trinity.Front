@@ -3,7 +3,7 @@ import logo from "../../../assets/img/logoFooter.svg";
 import { FaFacebookSquare, FaInstagramSquare, FaWhatsappSquare } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { getData } from "../../../core/services/apiService";
-import { FooterInfoDto } from "../../../core/models/models/dto/FooterInfoDto";
+import { FooterInfoDto } from "../../../core/models/dto/FooterInfoDto";
 
 const Footer: React.FC = () => {
 

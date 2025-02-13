@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaStar, FaRocket, FaCode } from "react-icons/fa";
 import { getData } from "../../../core/services/apiService";
-import { MainInfoDto } from "../../../core/models/models/dto/MainInfoDto";
+import { MainInfoDto } from "../../../core/models/dto/MainInfoDto";
 
 const MainPage: React.FC = () => {
 

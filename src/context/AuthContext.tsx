@@ -1,12 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import AuthService from '../services/AuthService';
-import { AuthContextProps } from '../../core/models/AuthContextProps';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import AuthService from '../auth/services/AuthService';
+import { AuthContextProps } from '../core/models/entity/AuthContextProps';
 
 // Contexto de autenticación
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 // Proveedor de autenticación
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Estado para almacenar el token de autenticación
   const [token, setToken] = useState<string | null>(AuthService.getToken());
   // Estado para almacenar si el usuario está autenticado
@@ -51,22 +51,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-// Función/hook para obtener el contexto de autenticación
-export const useAuth = (): AuthContextProps => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
-  }
-  return context;
-};
-
 // Helper para decodificar el token JWT
-const parseJwt = (token: string): any => {
+const parseJwt = (token: string) => {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     return JSON.parse(window.atob(base64));
   } catch (error) {
+    console.error('Error al decodificar el token JWT:', error);
     return null;
   }
 };
+
+export default AuthContext;

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../../../auth/services/AuthContext";
+import useAuth from "../../../hooks/useAuth";
 import logo from "../../../assets/img/logoNavbar.svg";
 
 const Navbar: React.FC = () => {
