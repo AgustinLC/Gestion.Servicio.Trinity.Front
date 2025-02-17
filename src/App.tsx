@@ -35,8 +35,7 @@ const App: React.FC = () => {
       </Routes>
       {/* Pie de pagina */}
       <Footer />
-      {/* <Notificaciones />
-      <Alertas></Alertas> */}
+      {/* Notificaciones/Alertas */}
       <ToastContainer position="top-center" autoClose={4000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />
     </Router>
   );
