@@ -2,7 +2,7 @@ import axiosInstance from "../../config/axiosConfig";
 import { LoginRequestDto } from "../../core/models/dto/LoginRequestDto";
 import { AuthResponseDto } from "../../core/models/dto/AuthResponseDto";
 import { ForgotPassDto } from "../../core/models/dto/ForgotPassDto";
-import { WebApiResponse } from "../../core/models/entity/WebApiResponse";
+import { WebApiResponse } from "../../core/models/types/WebApiResponse";
 import { RecoverPassDto } from "../../core/models/dto/RecoverPassDto";
 
 // Servicio de autenticación

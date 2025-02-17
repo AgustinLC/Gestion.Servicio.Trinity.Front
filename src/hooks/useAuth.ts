@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import AuthContext from '../context/AuthContext';
-import { AuthContextProps } from '../core/models/entity/AuthContextProps';
+import { AuthContextProps } from '../core/models/types/AuthContextProps';
 
 // Función/hook para obtener el contexto de autenticación
 const useAuth = (): AuthContextProps => {

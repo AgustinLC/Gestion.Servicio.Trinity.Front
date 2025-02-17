@@ -64,7 +64,7 @@ const Resume = () => {
         data?.usersForFee?.map(fee => ({ fee: fee.fee, cantidad: fee.count })) ?? [],
         [data]);
 
-    // Datos de ejemplo para el gráfico de pastel (facturas pagas vs impagas)
+    // Datos para el gráfico de pastel
     const invoicesData = useMemo(() => [
         { name: "Pagas", value: data?.billsPaid || 0, color: "#28a745" },
         { name: "Impagas", value: data?.unpaidBills || 0, color: "#dc3545" },
@@ -73,7 +73,7 @@ const Resume = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Resumen</h1>
+            <h1>Resumen</h1>
 
             {/* Mostrar el mensaje de carga mientras los datos se están cargando */}
             {loading ? (
