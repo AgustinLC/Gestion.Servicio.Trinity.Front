@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Button, Modal, Spinner, Table, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
-import { getData, updateData } from "../../../core/services/apiService";
-import { ReadReadingDto } from "../../../core/models/dto/ReadReadingDto";
+import { getData, updateData } from "../../../../core/services/apiService";
+import { ReadReadingDto } from "../../../../core/models/dto/ReadReadingDto";
 
 interface UserReadingsModalProps {
     show: boolean;

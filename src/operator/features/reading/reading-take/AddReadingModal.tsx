@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { useForm } from "react-hook-form";
-import { ReadingForm } from "../../../core/models/types/AddReadingForm";
 
+// Interfaces/modelos
 interface AddReadingModalProps {
     show: boolean;
     onHide: () => void;
-    onSave: (date: string, readingValue: number) => Promise<void>;
+    onSave: (readingValue: number) => Promise<void>;
+}
+
+interface ReadingForm {
+    readingValue: number;
 }
 
 const AddReadingModal: React.FC<AddReadingModalProps> = ({ show, onHide, onSave }) => {
@@ -21,7 +25,7 @@ const AddReadingModal: React.FC<AddReadingModalProps> = ({ show, onHide, onSave 
     const onSubmit = async (data: ReadingForm) => {
         setIsSubmitting(true);
         try {
-            await onSave(data.date, data.readingValue);
+            await onSave(data.readingValue);
             reset();
         } catch (error) {
             console.error(error);
@@ -37,17 +41,6 @@ const AddReadingModal: React.FC<AddReadingModalProps> = ({ show, onHide, onSave 
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit(onSubmit)}>
-                    <Form.Group>
-                        <Form.Label>Fecha</Form.Label>
-                        <Form.Control
-                            type="date"
-                            {...register("date", { required: "La fecha es obligatoria" })}
-                            isInvalid={!!errors.date}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            {errors.date?.message}
-                        </Form.Control.Feedback>
-                    </Form.Group>
                     <Form.Group>
                         <Form.Label>Valor de Lectura</Form.Label>
                         <Form.Control

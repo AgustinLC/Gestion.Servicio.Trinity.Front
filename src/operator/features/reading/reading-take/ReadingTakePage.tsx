@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Button, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
-import { UserDto } from "../../../core/models/dto/UserDto";
-import { addData, getData } from "../../../core/services/apiService";
-import ReusableTable from "../../../shared/components/table/ReusableTable";
-import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
+import { UserDto } from "../../../../core/models/dto/UserDto";
+import { addData, getData } from "../../../../core/services/apiService";
+import ReusableTable from "../../../../shared/components/table/ReusableTable";
+import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
 import AddReadingModal from "./AddReadingModal";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
-import UserReadingsModal from "./UserReadingModal";
+import SearchBar from "../../../../shared/components/searcher/SearchBar";
 
-const EditReadingPage: React.FC = () => {
+const ReadingTakePage: React.FC = () => {
     // Estados
     const [users, setUsers] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState(false);
@@ -17,7 +16,6 @@ const EditReadingPage: React.FC = () => {
     const [filteredData, setFilteredData] = useState<UserDto[]>([]);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const [showAddReadingModal, setShowAddReadingModal] = useState(false);
-    const [showUserReadings, setShowUserReadings] = useState(false);
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -52,9 +50,9 @@ const EditReadingPage: React.FC = () => {
 
 
     // Manejar añadir nueva lectura
-    const handleAddReading = async (idUser: number, date: string, readingValue: number) => {
+    const handleAddReading = async (idUser: number, readingValue: number) => {
         try {
-            await addData(`/operator/register-reading-date/${idUser}/${date}/${readingValue}`, {});
+            await addData(`/operator/register-reading-active/${idUser}/${readingValue}`, {});
             toast.success("Lectura creada exitosamente");
             setShowAddReadingModal(false);
         } catch (error) {
@@ -68,7 +66,7 @@ const EditReadingPage: React.FC = () => {
         setShowAddReadingModal(false);
         setSelectedUser(null); // Limpiar el usuario seleccionado
     };
-    
+
 
     // Columnas para la tabla
     const columns: TableColumnDefinition<UserDto>[] = [
@@ -76,18 +74,14 @@ const EditReadingPage: React.FC = () => {
         { key: "lastName", label: "Apellido", sortable: false },
         { key: "dni", label: "DNI", sortable: false },
         { key: "residenceDto", label: "Calle", sortable: false, render: (row: UserDto) => row.residenceDto?.street || "Sin dirección" },
+        { key: "residenceDto", label: "N°", sortable: false, render: (row: UserDto) => row.residenceDto?.number || "Sin dirección" },
         {
             key: "actions",
             label: "Acciones",
             actions: (row: UserDto) => (
-                <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="primary" onClick={() => { setSelectedUser(row); setShowAddReadingModal(true); }}>
-                        Cargar lectura
-                    </Button>
-                    <Button variant="warning" onClick={() => { setSelectedUser(row); setShowUserReadings(true); }}>
-                        Ver lecturas
-                    </Button>
-                </div>
+                <Button className="text-nowrap" variant="primary" onClick={() => { setSelectedUser(row); setShowAddReadingModal(true); }}>
+                    Cargar lectura
+                </Button>
             ),
         },
     ];
@@ -118,17 +112,7 @@ const EditReadingPage: React.FC = () => {
                         <AddReadingModal
                             show={showAddReadingModal}
                             onHide={handleCloseAddReadingModal}
-                            onSave={(date, readingValue) => handleAddReading(selectedUser.idUser, date, readingValue)}
-                        />
-                    )}
-
-                    {/* Vista de lecturas del usuario */}
-                    {selectedUser && showUserReadings && (
-                        <UserReadingsModal
-                        show={showUserReadings}
-                        onHide={() => setShowUserReadings(false)}
-                        userName={`${selectedUser.firstName} ${selectedUser.lastName}`}
-                        userId={selectedUser.idUser}
+                            onSave={(readingValue) => handleAddReading(selectedUser.idUser, readingValue)}
                         />
                     )}
                 </div>
@@ -137,4 +121,4 @@ const EditReadingPage: React.FC = () => {
     );
 };
 
-export default EditReadingPage;
+export default ReadingTakePage;
