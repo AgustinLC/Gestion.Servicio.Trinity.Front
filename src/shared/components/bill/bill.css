@@ -1,0 +1,123 @@
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.invoice-container {
+    width: 21cm;
+    min-height: 27cm;
+    max-height: 29.7cm;
+    font-size: 13px;
+}
+
+@media print {
+  body * {
+    visibility: hidden; /* Oculta todo el contenido de la página */
+    margin: 0; /* Elimina márgenes predeterminados */
+    padding: 0; /* Elimina paddings predeterminados */
+  }
+
+  #invoice-container,
+  #invoice-container * {
+    visibility: visible; /* Muestra solo la factura */
+  }
+
+  #invoice-container {
+    position: absolute;
+    left: 0;
+    top: 0; /* Asegura que la factura comience desde la parte superior */
+    width: 100%;
+    margin: 0; /* Elimina márgenes */
+    padding: 0; /* Elimina paddings */
+  }
+
+  /* Ocultar botones de impresión y exportación */
+  .no-print {
+    display: none;
+  }
+}
+
+.wrapper {
+    border: 1.5px solid #333;
+    padding: 5px;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.flex {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.no-margin {
+    margin: 0;
+}
+
+.relative {
+    position: relative;
+}
+
+.floating-mid {
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 75px;
+    position: absolute;
+    top: 1px;
+    background: #fff;
+}
+
+.space-around {
+    justify-content: space-around;
+}
+
+.space-between {
+    justify-content: space-between;
+}
+
+.w50 {
+    width: 50%;
+}
+
+th {
+    border: 1px solid #000;
+    background: #ccc;
+    padding: 5px;
+}
+
+td {
+    padding: 5px;
+    font-size: 11px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.text-20 {
+    font-size: 20px;
+}
