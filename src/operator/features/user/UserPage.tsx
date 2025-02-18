@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button, Spinner } from "react-bootstrap";
 import AddEditModal from "./AddEditModal";
-import SearchBar from "./SearchBar";
+import SearchBar from "../../../shared/components/searcher/SearchBar";
 import { getData, addData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { UserDto } from "../../../core/models/dto/UserDto";
@@ -10,7 +10,7 @@ import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { LocationDto } from "../../../core/models/dto/LocationDto";
 import { FeeDto } from "../../../core/models/dto/FeeDto";
 
-const CrudTable = () => {
+const UserPage = () => {
 
     //Estados
     const [user, setUsers] = useState<UserDto[]>([]);
@@ -73,6 +73,7 @@ const CrudTable = () => {
                 await addData("/operator/register-user", user);
                 toast.success("Usuario creado exitosamente");
             }
+            setSelectedUser(user);
             setShowModal(false);
             fetchData();
         } catch (error) {
@@ -135,4 +136,4 @@ const CrudTable = () => {
     );
 };
 
-export default CrudTable;
+export default UserPage;

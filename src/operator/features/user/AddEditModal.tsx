@@ -8,7 +8,7 @@ import { FeeDto } from "../../../core/models/dto/FeeDto";
 interface AddEditModalProps {
   show: boolean;
   onHide: () => void;
-  onSave: (user: UserDto) => Promise<void>; // Cambiar a Promise<void>
+  onSave: (user: UserDto) => Promise<void>;
   user?: UserDto | any;
   locations: LocationDto[];
   fees: FeeDto[];
@@ -38,7 +38,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
       if (!user) {
         data.password = data.dni?.toString(); // Asegurar que la contraseña sea igual al DNI al crear
       }
-      await onSave(data); 
+      await onSave(data);
       reset();
     } catch (error) {
       console.error(error);
@@ -232,6 +232,9 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
           </Row>
           <Button className="mt-2" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Guardando..." : "Guardar"}
+          </Button>
+          <Button className="mt-2 ms-2" variant="secondary" onClick={onHide} disabled={isSubmitting}>
+            Cancelar
           </Button>
         </Form>
       </Modal.Body>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaStar, FaRocket, FaCode } from "react-icons/fa";
 import { getData } from "../../../core/services/apiService";
 import { MainInfoDto } from "../../../core/models/dto/MainInfoDto";
+import { getCookie, setCookie } from "../../../core/utils/cookiesUtils";
 
 const MainPage: React.FC = () => {
 
@@ -14,8 +15,18 @@ const MainPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getData<MainInfoDto>("/info/data-main");
-        setData(response);
+        // Verificar si la información está en una cookie
+        const cookieData = getCookie("mainInfo");
+        if (cookieData) {
+          // Si existe, usar la información de la cookie
+          setData(JSON.parse(cookieData));
+        } else {
+          // Si no existe, hacer la petición al backend
+          const response = await getData<MainInfoDto>("/info/data-main");
+          setData(response);
+          // Almacenar la información en una cookie (válida por 7 días)
+          setCookie("mainInfo", JSON.stringify(response), 7);
+        }
       } catch (error) {
         console.error(error);
         setError("Error al cargar la información principal");

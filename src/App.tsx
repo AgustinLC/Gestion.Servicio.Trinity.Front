@@ -8,7 +8,8 @@ import Navbar from "./shared/components/navbar/Navbar";
 import ForgotPasswordPage from "./auth/features/forgot-password-page/ForgotPasswordPage";
 import ResetPasswordPage from "./auth/features/reset-password-page/ResetPasswordPage";
 import OperatorDashboard from "./operator/features/dashboard/Dashboard";
-import User from "./operator/features/user/CrudTable";
+import User from "./operator/features/user/UserPage";
+import Reading from "./operator/features/reading/EditReadingPage"
 import Resume from "./operator/features/resume/Resume";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -31,6 +32,7 @@ const App: React.FC = () => {
         <Route path="/dashboard/operator" element={<OperatorDashboard />}>
           <Route path="resume" element={<Resume />} />
           <Route path="users" element={<User />} />
+          <Route path="readings" element={<Reading />} />
         </Route>
       </Routes>
       {/* Pie de pagina */}

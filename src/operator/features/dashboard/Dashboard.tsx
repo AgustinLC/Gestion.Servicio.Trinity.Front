@@ -32,7 +32,7 @@ const Dashboard: React.FC = () => {
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/dashboard/consumos" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/consumos' ? 'active' : ''}`} title="Registro y Consumos">
+                                <Link to="/dashboard/operator/readings" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/operator/readings' ? 'active' : ''}`} title="Registro y Consumos">
                                     <i className="bi-speedometer2 fs-4"></i>
                                     <span className="ms-2 d-none d-lg-inline">Lecturas</span>
                                 </Link>
