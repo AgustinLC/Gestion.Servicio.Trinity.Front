@@ -9,6 +9,7 @@ import AddReadingModal from "./AddReadingModal";
 import SearchBar from "../../../../shared/components/searcher/SearchBar";
 
 const ReadingTakePage: React.FC = () => {
+
     // Estados
     const [users, setUsers] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState(false);
@@ -64,7 +65,7 @@ const ReadingTakePage: React.FC = () => {
     // Manejar el cierre del formulario
     const handleCloseAddReadingModal = () => {
         setShowAddReadingModal(false);
-        setSelectedUser(null); // Limpiar el usuario seleccionado
+        setSelectedUser(null);
     };
 
 
@@ -74,7 +75,8 @@ const ReadingTakePage: React.FC = () => {
         { key: "lastName", label: "Apellido", sortable: false },
         { key: "dni", label: "DNI", sortable: false },
         { key: "residenceDto", label: "Calle", sortable: false, render: (row: UserDto) => row.residenceDto?.street || "Sin dirección" },
-        { key: "residenceDto", label: "N°", sortable: false, render: (row: UserDto) => row.residenceDto?.number || "Sin dirección" },
+        { key: "residenceDto", label: "N° Casa", sortable: false, render: (row: UserDto) => row.residenceDto?.number || "Sin número" },
+        { key: "residenceDto", label: "N° Medidor", sortable: false, render: (row: UserDto) => row.residenceDto?.serialNumber || "Sin número" },
         {
             key: "actions",
             label: "Acciones",
