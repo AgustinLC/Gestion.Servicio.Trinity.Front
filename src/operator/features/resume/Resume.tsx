@@ -73,7 +73,7 @@ const Resume = () => {
     // Render
     return (
         <div>
-            <h1>Resumen</h1>
+            <h1 className="text-center">Resumen</h1>
 
             {/* Mostrar el mensaje de carga mientras los datos se están cargando */}
             {loading ? (

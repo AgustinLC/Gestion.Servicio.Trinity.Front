@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button, Spinner } from "react-bootstrap";
-import AddEditModal from "./AddEditModal";
+import AddEditUserModal from "./AddEditUserModal";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
 import { getData, addData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
@@ -121,7 +121,7 @@ const UserPage = () => {
                         columns={columns}
                         defaultSort="idUser"
                     />
-                    <AddEditModal
+                    <AddEditUserModal
                         key={selectedUser ? selectedUser.idUser : "new"}
                         show={showModal}
                         onHide={() => setShowModal(false)}

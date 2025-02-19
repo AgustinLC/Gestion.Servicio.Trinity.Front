@@ -1,0 +1,39 @@
+/* Estilos del popover personalizado */
+.submenu-popover {
+    background-color: #f8f9fa;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    margin-top: 3px;
+    min-width: 200px;
+    margin-left: 0.5rem;
+    max-width: min(300px, 90vw);
+}
+
+.submenu-popover .nav-link {
+    color: #212529 !important;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+    /* Mejor padding para áreas clickables */
+    padding: 0.5rem 1rem !important;
+}
+
+.submenu-popover .nav-link:hover {
+    background-color: #cecece;
+    color: rgb(0, 0, 0) !important;
+}
+
+/* Mejor usar padding que text-indent */
+.text-indented {
+    padding-left: 1rem !important;
+}
+
+/* Animación del chevron corregida */
+.chevron-icon {
+    transition: transform 0.3s ease;
+    transform: rotate(0deg);
+}
+
+.chevron-icon.rotate {
+    transform: rotate(180deg); /* Más lógico para un chevron-right */
+}
