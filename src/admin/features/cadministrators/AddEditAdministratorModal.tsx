@@ -6,33 +6,33 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 interface AddEditModalProps {
     show: boolean;
     onHide: () => void;
-    onSave: (worker: UserDto) => Promise<void>;
-    worker?: UserDto | any;
+    onSave: (administrator: UserDto) => Promise<void>;
+    administrator?: UserDto | any;
 }
 
-const AddEditWorkerModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, worker }) => {
+const AddEditAdministratorModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, administrator }) => {
 
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Props para manejar formulario 
     const { register, handleSubmit, reset, formState: { errors }, setValue } = useForm<UserDto>({
-        defaultValues: worker || {},
+        defaultValues: administrator || {},
     });
 
     // Setear la contraseña igual al DNI al crear un nuevo operario
     useEffect(() => {
-        if (!worker) {
-            setValue("password", worker?.dni?.toString());
+        if (!administrator) {
+            setValue("password", administrator?.dni?.toString());
         }
-    }, [worker, setValue]);
+    }, [administrator, setValue]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: UserDto) => {
         // Desactivar el botón
         setIsSubmitting(true);
         try {
-            if (!worker) {
+            if (!administrator) {
                 // Asegura que la contraseña sea igual al DNI al crear
                 data.password = data.dni?.toString();
             }
@@ -48,7 +48,7 @@ const AddEditWorkerModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave,
     return (
         <Modal show={show} onHide={onHide} aria-labelledby="contained-modal-title-vcenter" centered>
             <Modal.Header closeButton>
-                <Modal.Title>{worker ? "Editar Operario" : "Añadir Operario"}</Modal.Title>
+                <Modal.Title>{administrator ? "Editar Administrador" : "Añadir Administrador"}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit(onSubmit)}>
@@ -83,7 +83,7 @@ const AddEditWorkerModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave,
                             {errors.username?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
-                    {worker && ( // Mostrar estado solo en edición
+                    {administrator && ( // Mostrar estado solo en edición
                         <Form.Group>
                             <Form.Label>Estado</Form.Label>
                             <Form.Select
@@ -131,4 +131,4 @@ const AddEditWorkerModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave,
     );
 };
 
-export default AddEditWorkerModal;
+export default AddEditAdministratorModal;

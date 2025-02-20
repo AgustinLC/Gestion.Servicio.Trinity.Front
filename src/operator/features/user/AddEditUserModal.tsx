@@ -117,7 +117,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
                 <Form.Label>DNI</Form.Label>
                 <Form.Control
                   type="number"
-                  {...register("dni", { required: "Este campo es obligatorio" })}
+                  {...register("dni", { required: "Este campo es obligatorio", maxLength: { value: 8, message: "El DNI debe tener 8 números" } })}
                   isInvalid={!!errors.dni}
                 />
                 <Form.Control.Feedback type="invalid">
@@ -129,7 +129,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
               <Form.Group>
                 <Form.Label>Teléfono</Form.Label>
                 <Form.Control
-                  {...register("phone", { required: "Este campo es obligatorio" })}
+                  {...register("phone", { required: "Este campo es obligatorio", maxLength: { value: 10, message: "El teléfono no puede tener más de 10 números" } })}
                   isInvalid={!!errors.phone}
                 />
                 <Form.Control.Feedback type="invalid">

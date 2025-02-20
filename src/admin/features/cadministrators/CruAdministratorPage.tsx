@@ -6,17 +6,17 @@ import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { Button, Spinner } from "react-bootstrap";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
-import AddEditWorkerModal from "./AddEditWorkerModal";
+import AddEditAdministratorModal from "./AddEditAdministratorModal";
 
-const CruWorkerPage = () => {
+const CruAdministratorPage = () => {
 
     //Estados
-    const [workers, setWorkers] = useState<UserDto[]>([]);
+    const [administrators, setAdministrators] = useState<UserDto[]>([]);
     const [filteredData, setFilteredData] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
-    const [selectedWorker, setSelectedWorker] = useState<UserDto | null>(null);
+    const [selectedAdministrator, setSelectedAdministrator] = useState<UserDto | null>(null);
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -27,14 +27,14 @@ const CruWorkerPage = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            // Obtener operarios
-            const workers = await getData<UserDto[]>("/admin/users-operators");
-            setWorkers(workers);
-            setFilteredData(workers);
+            // Obtener administradores
+            const administrators = await getData<UserDto[]>("/admin/users-admins");
+            setAdministrators(administrators);
+            setFilteredData(administrators);
         } catch (error) {
             console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al obtener los operarios");
-            setError("Error al cargar los operarios");
+            toast.error(error instanceof Error ? error.message : "Error al obtener los administradores");
+            setError("Error al cargar los administradores");
         } finally {
             setLoading(false);
         }
@@ -42,8 +42,8 @@ const CruWorkerPage = () => {
 
     // Manejar búsqueda
     const handleSearch = (query: string) => {
-        const filtered = workers.filter((worker) =>
-            Object.values(worker).some((value) =>
+        const filtered = administrators.filter((administrator) =>
+            Object.values(administrator).some((value) =>
                 String(value).toLowerCase().includes(query.toLowerCase())
             )
         );
@@ -51,24 +51,24 @@ const CruWorkerPage = () => {
     };
 
     // Manejar añadir/editar
-    const handleSave = async (worker: UserDto) => {
+    const handleSave = async (administrator: UserDto) => {
         try {
             //Actualizar registro
-            if (worker.idUser) {
-                await updateData("/operator/update-user?idUser", worker.idUser, worker);
-                toast.success("Usuario actualizado exitosamente");
+            if (administrator.idUser) {
+                await updateData("/operator/update-user?idUser", administrator.idUser, administrator);
+                toast.success("Administrador actualizado exitosamente");
             }
             // Añadir registro
             else {
-                await addData("/admin/register-operator", worker);
-                toast.success("Usuario creado exitosamente");
+                await addData("/admin/register-admin", administrator);
+                toast.success("Administrador creado exitosamente");
             }
-            setSelectedWorker(worker);
+            setSelectedAdministrator(administrator);
             setShowModal(false);
             fetchData();
         } catch (error) {
             console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al guardar el usuario");
+            toast.error(error instanceof Error ? error.message : "Error al guardar el administrador");
         }
     };
 
@@ -77,11 +77,12 @@ const CruWorkerPage = () => {
         { key: "idUser", label: "ID", sortable: true },
         { key: "firstName", label: "Nombre", sortable: false },
         { key: "lastName", label: "Apellido", sortable: false },
+        { key: "username", label: "Email/Username", sortable: false },
         { key: "dni", label: "DNI", sortable: false },
         { key: "phone", label: "Teléfono", sortable: false },
         {
             key: "actions", label: "Acciones", actions: (row: UserDto) => (
-                <Button variant="warning" onClick={() => { setSelectedWorker(row); setShowModal(true); }}>
+                <Button variant="warning" onClick={() => { setSelectedAdministrator(row); setShowModal(true); }}>
                     Editar
                 </Button>
             ),
@@ -90,7 +91,7 @@ const CruWorkerPage = () => {
 
     return (
         <div>
-            <h1 className="text-center">Gestión de Operarios</h1>
+            <h1 className="text-center">Gestión de administradores</h1>
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center vh-100">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
@@ -102,21 +103,25 @@ const CruWorkerPage = () => {
                 <div>
                     <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
                         <SearchBar onSearch={handleSearch} />
-                        <Button onClick={() => { setSelectedWorker(null); setShowModal(true); }}>
-                            Añadir Operario
+                        <Button onClick={() => { setSelectedAdministrator(null); setShowModal(true); }}>
+                            Añadir Administrador
                         </Button>
                     </div>
+
+                    {/* Tabla */}
                     <ReusableTable<UserDto>
                         data={filteredData}
                         columns={columns}
                         defaultSort="idUser"
                     />
-                    <AddEditWorkerModal
-                        key={selectedWorker ? selectedWorker.idUser : "new"}
+
+                    {/* Modal de añadir/edicion */}
+                    <AddEditAdministratorModal
+                        key={selectedAdministrator ? selectedAdministrator.idUser : "new"}
                         show={showModal}
                         onHide={() => setShowModal(false)}
                         onSave={handleSave}
-                        worker={selectedWorker}
+                        administrator={selectedAdministrator}
                     />
                 </div>
             )}
@@ -124,4 +129,4 @@ const CruWorkerPage = () => {
     );
 };
 
-export default CruWorkerPage;
+export default CruAdministratorPage;

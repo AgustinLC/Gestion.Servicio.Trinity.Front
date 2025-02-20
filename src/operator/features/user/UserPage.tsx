@@ -116,11 +116,15 @@ const UserPage = () => {
                             Añadir Usuario
                         </Button>
                     </div>
+                    
+                    {/* Tabla */}
                     <ReusableTable<UserDto>
                         data={filteredData}
                         columns={columns}
                         defaultSort="idUser"
                     />
+
+                    {/* Modal de añadir/edicion */}
                     <AddEditUserModal
                         key={selectedUser ? selectedUser.idUser : "new"}
                         show={showModal}

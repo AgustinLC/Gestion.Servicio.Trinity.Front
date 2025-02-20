@@ -57,7 +57,7 @@
 
                                 {/* Administradores */}
                                 <li>
-                                    <Link to="/dashboard/reportes" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/reportes' ? 'active' : ''}`} title="Gestion de administradores">
+                                    <Link to="/dashboard/admin/administrators" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/administrators' ? 'active' : ''}`} title="Gestion de administradores">
                                         <i className="bi bi-person-fill fs-4"></i>
                                         <span className="ms-2 d-none d-lg-inline">Admins</span>
                                     </Link>
