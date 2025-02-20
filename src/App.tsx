@@ -19,6 +19,7 @@ import CrudFaqPage from "./admin/features/crud-faq/CrudFaqPage";
 import CrudFeaturePage from "./admin/features/crud-features/CrudFeaturePage";
 import CruDataMainPage from "./admin/features/cru-data-main/CruDataMainPage";
 import CrudFeePage from "./admin/features/cru-fee/CruFeePage";
+import CruWorkerPage from "./admin/features/workers/CruWorkerPage";
 
 const App: React.FC = () => {
   return (
@@ -48,6 +49,7 @@ const App: React.FC = () => {
           <Route path="functions" element={<CrudFeaturePage />} />
           <Route path="data-main" element={<CruDataMainPage />} />
           <Route path="fee" element={<CrudFeePage />} />
+          <Route path="workers" element={<CruWorkerPage />} />
         </Route>
       </Routes>
       {/* Pie de pagina */}

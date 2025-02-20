@@ -185,7 +185,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
             </Col>
             <Col>
               <Form.Group>
-                <Form.Label>Número</Form.Label>
+                <Form.Label>N° de Casa</Form.Label>
                 <Form.Control
                   type="number"
                   {...register("residenceDto.number", { required: "Este campo es obligatorio" })}
@@ -200,7 +200,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
           <Row>
             <Col>
               <Form.Group>
-                <Form.Label>Número de Serie</Form.Label>
+                <Form.Label>N° de Medidor</Form.Label>
                 <Form.Control
                   {...register("residenceDto.serialNumber", { required: "Este campo es obligatorio" })}
                   isInvalid={!!errors.residenceDto?.serialNumber}

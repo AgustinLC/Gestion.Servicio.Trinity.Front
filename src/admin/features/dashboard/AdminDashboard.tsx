@@ -49,16 +49,16 @@
 
                                 {/* Operarios */}
                                 <li>
-                                    <Link to="/dashboard/reportes" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/reportes' ? 'active' : ''}`} title="Reportes">
-                                        <i className="bi-heart fs-4"></i>
+                                    <Link to="/dashboard/admin/workers" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/workers' ? 'active' : ''}`} title="Gestion de operarios">
+                                        <i className="bi bi-person-fill-gear fs-4"></i>
                                         <span className="ms-2 d-none d-lg-inline">Operarios</span>
                                     </Link>
                                 </li>
 
                                 {/* Administradores */}
                                 <li>
-                                    <Link to="/dashboard/reportes" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/reportes' ? 'active' : ''}`} title="Reportes">
-                                        <i className="bi-heart fs-4"></i>
+                                    <Link to="/dashboard/reportes" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/reportes' ? 'active' : ''}`} title="Gestion de administradores">
+                                        <i className="bi bi-person-fill fs-4"></i>
                                         <span className="ms-2 d-none d-lg-inline">Admins</span>
                                     </Link>
                                 </li>
@@ -74,7 +74,7 @@
                                 >
                                     <li className="nav-item popover-trigger">
                                         <div className={`nav-link link-light py-3 px-2 d-flex align-items-center ${activePopover === 'readings' ? 'active-submenu' : ''}`} role="button">
-                                            <i className="bi bi-view-stacked fs-4"></i>
+                                            <i className="bi bi-file-break fs-4"></i>
                                             <span className="ms-2 d-none d-lg-inline">Web</span>
                                             <i className={`bi-chevron-right ms-1 mt-1 chevron-icon d-none d-lg-inline ${activePopover === 'readings' ? 'rotate' : ''}`}></i>
                                         </div>
