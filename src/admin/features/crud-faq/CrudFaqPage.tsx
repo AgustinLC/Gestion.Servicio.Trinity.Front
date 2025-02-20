@@ -44,7 +44,7 @@ const CrudFaqPage = () => {
         if (!faqToDelete) return;
         setIsDeleting(true);
         try {
-            await deleteData("/admin/faqs?idFaq", faqToDelete.idFaq);
+            await deleteData("/admin/delete-faq?idFaq", faqToDelete.idFaq);
             toast.success("Faq eliminado exitosamente");
             fetchData();
         } catch (error) {
@@ -62,12 +62,12 @@ const CrudFaqPage = () => {
         try {
             //Actualizar registro
             if (faq.idFaq) {
-                await updateData("/admin/faqs?idFaq", faq.idFaq, faq);
+                await updateData("/admin/update-faq?idFaq", faq.idFaq, faq);
                 toast.success("Faq actualizado exitosamente");
             }
             // Añadir registro
             else {
-                await addData("/admin/faqs", faq);
+                await addData("/admin/register-faq", faq);
                 toast.success("Faq creado exitosamente");
             }
             setSelectedFaq(faq);

@@ -44,7 +44,7 @@ const CrudFeaturePage = () => {
         if (!featureToDelete) return;
         setIsDeleting(true);
         try {
-            await deleteData("/admin/feature?idFeature", featureToDelete.idFeature);
+            await deleteData("/admin/delete-feature?idFeature", featureToDelete.idFeature);
             toast.success("Funció eliminada exitosamente");
             fetchData();
         } catch (error) {
@@ -62,12 +62,12 @@ const CrudFeaturePage = () => {
         try {
             //Actualizar registro
             if (feature.idFeature) {
-                await updateData("/admin/feature?idFeature", feature.idFeature, feature);
+                await updateData("/admin/update-feature?idFeature", feature.idFeature, feature);
                 toast.success("Función actualizada exitosamente");
             }
             // Añadir registro
             else {
-                await addData("/admin/feature", feature);
+                await addData("/admin/register-feature", feature);
                 toast.success("Función creada exitosamente");
             }
             setSelectedFeature(feature);
