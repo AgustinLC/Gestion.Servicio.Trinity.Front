@@ -1,7 +1,13 @@
+.sidebar {
+    width: 180px;
+    min-width: 160px;
+    max-width: 200px;
+}
+
 /* Estilos del popover personalizado */
 .submenu-popover {
     background-color: #f8f9fa;
-    border: 1px solid rgba(0,0,0,.15);
+    border: 1px solid rgba(0, 0, 0, .15);
     border-radius: 0.5rem;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     margin-top: 2px;
@@ -35,5 +41,14 @@
 }
 
 .chevron-icon.rotate {
-    transform: rotate(180deg); /* Más lógico para un chevron-right */
+    transform: rotate(180deg);
+    /* Más lógico para un chevron-right */
+}
+
+/* Ajuste del sidebar en pantallas pequeñas */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        min-width: 100%;
+    }
 }

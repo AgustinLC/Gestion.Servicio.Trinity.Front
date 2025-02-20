@@ -43,7 +43,7 @@
                 <div className="row">
 
                     {/* Sidebar */}
-                    <div className="col-sm-auto bg-primary sticky-top sidebar">
+                    <div className="bg-primary sticky-top sidebar">
                         <div className="d-flex flex-sm-column flex-row flex-nowrap bg-primary align-items-center">
                             <ul className="nav nav-pills nav-flush flex-sm-column flex-row flex-nowrap mb-auto mx-auto text-center justify-content-between w-100 px-3">
 
@@ -83,7 +83,7 @@
                                 
                                 {/* Tarifas */}
                                 <li className="nav-item">
-                                    <Link to="/dashboard/usuarios" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/usuarios' ? 'active' : ''}`} title="Gestión de Usuarios">
+                                    <Link to="/dashboard/admin/fee" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/fee' ? 'active' : ''}`} title="Gestión de Tarifas">
                                         <i className="bi bi-clipboard2-pulse fs-4"></i>
                                         <span className="ms-2 d-none d-lg-inline">Tarifas</span>
                                     </Link>

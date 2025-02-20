@@ -1,3 +1,9 @@
+.sidebar {
+    width: 180px;
+    min-width: 160px;
+    max-width: 200px;
+}
+
 /* Estilos del popover personalizado */
 .submenu-popover {
     background-color: #f8f9fa;
@@ -36,4 +42,12 @@
 
 .chevron-icon.rotate {
     transform: rotate(180deg); /* Más lógico para un chevron-right */
+}
+
+/* Ajuste del sidebar en pantallas pequeñas */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        min-width: 100%;
+    }
 }

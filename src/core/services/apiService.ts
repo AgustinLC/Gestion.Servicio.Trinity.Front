@@ -62,7 +62,7 @@ export const updateData = async <T>(endpoint:string , id: number, data: Partial<
 //Función para eliminar datos
 export const deleteData = async (endpoint: string, id: number): Promise<void> => {
     try {
-        const response = await axiosInstance.delete<WebApiResponse<void>>(`${endpoint}/${id}`);
+        const response = await axiosInstance.delete<WebApiResponse<void>>(`${endpoint}=${id}`);
         if (response.data.success) {
             return response.data.data;
         }

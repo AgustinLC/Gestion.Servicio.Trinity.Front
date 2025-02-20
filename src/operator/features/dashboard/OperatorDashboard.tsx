@@ -40,13 +40,13 @@ const DashboardOperator: React.FC = () => {
             <div className="row">
 
                 {/* Sidebar */}
-                <div className="col-sm-auto bg-primary sticky-top sidebar">
+                <div className="bg-primary sticky-top sidebar">
                     <div className="d-flex flex-sm-column flex-row flex-nowrap bg-primary align-items-center">
                         <ul className="nav nav-pills nav-flush flex-sm-column flex-row flex-nowrap mb-auto mx-auto text-center justify-content-between w-100 px-3">
 
                             {/* Resumen */}
                             <li className="nav-item">
-                                <Link to="/dashboard/operator/resume" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/operator/resume' ? 'active' : ''}`} title="Gestión de Usuarios">
+                                <Link to="/dashboard/operator/resume" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/operator/resume' ? 'active' : ''}`} title="Resumne">
                                     <i className="bi-person-lines-fill fs-4"></i>
                                     <span className="ms-2 d-none d-lg-inline">Resumen</span>
                                 </Link>
@@ -62,7 +62,7 @@ const DashboardOperator: React.FC = () => {
 
                             {/* Facturas */}
                             <li>
-                                <Link to="/dashboard/pagos" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/pagos' ? 'active' : ''}`} title="Gestión de Pagos">
+                                <Link to="/dashboard/pagos" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/pagos' ? 'active' : ''}`} title="Gestión de Facturas">
                                     <i className="bi-table fs-4"></i>
                                     <span className="ms-2 d-none d-lg-inline">Facturas</span>
                                 </Link>
@@ -88,7 +88,7 @@ const DashboardOperator: React.FC = () => {
 
                             {/* Cobros */}
                             <li>
-                                <Link to="/dashboard/reportes" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/reportes' ? 'active' : ''}`} title="Reportes">
+                                <Link to="/dashboard/reportes" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/reportes' ? 'active' : ''}`} title="Gestión de cobros">
                                     <i className="bi-heart fs-4"></i>
                                     <span className="ms-2 d-none d-lg-inline">Cobros</span>
                                 </Link>
@@ -96,7 +96,7 @@ const DashboardOperator: React.FC = () => {
 
                             {/* Reportes */}
                             <li className="nav-item">
-                                <Link to="/dashboard/usuarios" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/usuarios' ? 'active' : ''}`} title="Gestión de Usuarios">
+                                <Link to="/dashboard/usuarios" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/usuarios' ? 'active' : ''}`} title="Gestión de Reportes">
                                     <i className="bi-clipboard-data fs-4"></i>
                                     <span className="ms-2 d-none d-lg-inline">Reportes</span>
                                 </Link>

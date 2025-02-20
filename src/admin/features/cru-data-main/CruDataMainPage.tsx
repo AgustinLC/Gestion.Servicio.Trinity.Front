@@ -70,10 +70,10 @@ const CruDataMainPage = () => {
             <h1 className="text-center mb-4">Información de la página principal</h1>
             <div className="d-flex flex-column justify-content-center align-items-center">
                 {loading ? (
-                    <>
+                    <div className="d-flex flex-column justify-content-center align-items-center vh-100">
                         <span className="mb-2 fw-bold">CARGANDO...</span>
                         <Spinner animation="border" role="status" />
-                    </>
+                    </div>
                 ) : error ? (
                     <div className="text-center py-5">{error}</div>
                 ) : mainData ? (
