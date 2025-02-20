@@ -20,7 +20,7 @@ import CrudFeaturePage from "./admin/features/crud-features/CrudFeaturePage";
 import CruDataMainPage from "./admin/features/cru-data-main/CruDataMainPage";
 import CrudFeePage from "./admin/features/cru-fee/CruFeePage";
 import CruWorkerPage from "./admin/features/workers/CruWorkerPage";
-import CruAdministratorPage from "./admin/features/cadministrators/CruAdministratorPage";
+import CruAdministratorPage from "./admin/features/cru-administrators/CruAdministratorPage";
 
 const App: React.FC = () => {
   return (
