@@ -27,7 +27,7 @@ const ReadingTakePage: React.FC = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const users = await getData<UserDto[]>("/operator/users");
+            const users = await getData<UserDto[]>("/operator/users-reading");
             setUsers(users);
             setFilteredData(users);
         } catch (error) {
