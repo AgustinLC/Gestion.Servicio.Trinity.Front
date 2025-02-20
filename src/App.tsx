@@ -16,6 +16,8 @@ import Resume from "./operator/features/resume/Resume";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CrudFaqPage from "./admin/features/crud-faq/CrudFaqPage";
+import CrudFeaturePage from "./admin/features/crud-features/CrudFeaturePage";
+import CruDataMainPage from "./admin/features/cru-data-main/CruDataMainPage";
 
 const App: React.FC = () => {
   return (
@@ -42,6 +44,8 @@ const App: React.FC = () => {
         {/* Rutas solo para usuario administrador */}
         <Route path="/dashboard/admin" element={<AdminDashboard />}>
           <Route path="faq" element={<CrudFaqPage />} />
+          <Route path="functions" element={<CrudFeaturePage />} />
+          <Route path="data-main" element={<CruDataMainPage />} />
         </Route>
       </Routes>
       {/* Pie de pagina */}
