@@ -48,7 +48,7 @@ const UnitPage = () => {
         if (!unitToDelete) return;
         setIsDeleting(true);
         try {
-            await deleteData("/admin//delete-unit?idUnit", unitToDelete.idUnit);
+            await deleteData("/admin/delete-unit?idUnit", unitToDelete.idUnit);
             toast.success("Unidad eliminada exitosamente");
             fetchData();
         } catch (error) {
@@ -116,11 +116,11 @@ const UnitPage = () => {
             ) : (
                 <div>
                     <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                    <Button variant="secondary" onClick={() => navigate(-1)}>
+                            Volver
+                        </Button>
                         <Button onClick={() => { setSelectedUnit(null); setShowModal(true); }}>
                             Añadir Unidad
-                        </Button>
-                        <Button variant="secondary" onClick={() => navigate(-1)}>
-                            Volver
                         </Button>
                     </div>
 

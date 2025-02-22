@@ -77,6 +77,7 @@ const CruWorkerPage = () => {
         { key: "idUser", label: "ID", sortable: true },
         { key: "firstName", label: "Nombre", sortable: false },
         { key: "lastName", label: "Apellido", sortable: false },
+        { key: "username", label: "Email", sortable: false },
         { key: "dni", label: "DNI", sortable: false },
         { key: "phone", label: "Teléfono", sortable: false },
         {

@@ -30,7 +30,6 @@ const Footer: React.FC = () => {
                 }
             } catch (error) {
                 console.error(error);
-                console.log("error");
                 setError("Error al cargar la información principal");
             } finally {
                 setLoading(false);
@@ -48,7 +47,7 @@ const Footer: React.FC = () => {
     }
 
     return (
-        <footer className="text-center text-lg-start bg-body-tertiary text-muted pt-2">
+        <footer className="text-center text-lg-start bg-body-tertiary text-muted pt-2 mt-auto">
             <section className="">
                 <div className="container text-center text-md-start mt-5">
                     <div className="row mt-3">

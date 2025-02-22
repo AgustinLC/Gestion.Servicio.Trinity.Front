@@ -1,3 +1,10 @@
+/* Contenedor principal usando flexbox */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 body {
   position: relative;
   overflow-y: scroll;

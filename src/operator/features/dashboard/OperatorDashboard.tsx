@@ -12,11 +12,10 @@ const DashboardOperator: React.FC = () => {
     // Constantes
     const location = useLocation();
     const currentPath = location.pathname;
-
-    // Función para alternar el estado de un pop pup específico
-    const handlePopoverToggle = (key: string) => {
-        setActivePopover(activePopover === key ? null : key);
-    };
+    const isReadingSection = [
+        '/dashboard/operator/readings/management',
+        '/dashboard/operator/readings/take',
+    ].some(path => currentPath === path);
 
     // Pop pup de lecturas
     const ReadingsPopover = (
@@ -73,12 +72,12 @@ const DashboardOperator: React.FC = () => {
                                 trigger="click"
                                 placement={window.innerWidth <= 768 ? 'bottom' : 'right'}
                                 show={activePopover === 'readings'}
-                                onToggle={(show) => handlePopoverToggle(show ? 'readings' : '')}
+                                onToggle={(show) => setActivePopover(show ? 'readings' : '')}
                                 overlay={ReadingsPopover}
                                 rootClose
                             >
                                 <li className="nav-item popover-trigger">
-                                    <div className={`nav-link link-light py-3 px-2 d-flex align-items-center ${activePopover === 'readings' ? 'active-submenu' : ''}`} role="button">
+                                    <div className={`nav-link link-light py-3 px-2 d-flex align-items-center ${isReadingSection ? 'active-submenu' : ''}`} role="button">
                                         <i className="bi-speedometer2 fs-4"></i>
                                         <span className="ms-2 d-none d-lg-inline">Lecturas</span>
                                         <i className={`bi-chevron-right ms-1 mt-1 chevron-icon d-none d-lg-inline ${activePopover === 'readings' ? 'rotate' : ''}`}></i>
