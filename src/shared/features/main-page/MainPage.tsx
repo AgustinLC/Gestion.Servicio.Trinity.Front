@@ -23,6 +23,7 @@ const MainPage: React.FC = () => {
         } else {
           // Si no existe, hacer la petición al backend
           const response = await getData<MainInfoDto>("/info/data-main");
+          console.log(response);
           setData(response);
           // Almacenar la información en una cookie (válida por 7 días)
           setCookie("mainInfo", JSON.stringify(response), 7);

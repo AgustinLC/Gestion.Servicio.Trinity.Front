@@ -88,6 +88,14 @@
                                         <span className="ms-2 d-none d-lg-inline">Tarifas</span>
                                     </Link>
                                 </li>
+
+                                {/* Servicio/Unidad */}
+                                <li className="nav-item">
+                                    <Link to="/dashboard/admin/services-units" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/services-units' ? 'active' : ''}`} title="Gestión de Relación Servicio/Unidad">
+                                        <i className="bi bi-calculator fs-4"></i>
+                                        <span className="ms-2 d-none d-lg-inline">Serv./Unid.</span>
+                                    </Link>
+                                </li>
                             </ul>
                         </div>
                     </div>
