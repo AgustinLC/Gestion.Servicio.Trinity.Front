@@ -42,12 +42,12 @@ const BillingParameterPage = () => {
         try {
             //Actualizar registro
             if (billingParameter.idBillingParameter) {
-                await updateData("/admin//billing-parameter/update?idBillingParameter", billingParameter.idBillingParameter, billingParameter);
+                await updateData("/admin/billing-parameter/update?idBillingParameter", billingParameter.idBillingParameter, billingParameter);
                 toast.success("Parametro de facturación actualizado exitosamente");
             }
             // Añadir registro
             else {
-                await addData("/admin//billing-parameter/create", billingParameter);
+                await addData("/admin/billing-parameter/create", billingParameter);
                 toast.success("Parametro de facturación creado exitosamente");
             }
             setSelectedBillingParameter(billingParameter);

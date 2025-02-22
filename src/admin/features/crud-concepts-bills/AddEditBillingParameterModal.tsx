@@ -84,19 +84,21 @@ const AddEditBillingParameterModal: React.FC<AddEditModalProps> = ({ show, onHid
                             {errors.applyCondition?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
-                    <Form.Group>
-                        <Form.Label>Estado</Form.Label>
-                        <Form.Select
-                            {...register("status", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.status}
-                        >
-                            <option value="ACTIVE">Activo</option>
-                            <option value="INACTIVE">Inactivo</option>
-                        </Form.Select>
-                        <Form.Control.Feedback type="invalid">
-                            {errors.applyCondition?.message}
-                        </Form.Control.Feedback>
-                    </Form.Group>
+                    {billingParameter && (
+                        <Form.Group>
+                            <Form.Label>Estado</Form.Label>
+                            <Form.Select
+                                {...register("status", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.status}
+                            >
+                                <option value="ACTIVE">Activo</option>
+                                <option value="INACTIVE">Inactivo</option>
+                            </Form.Select>
+                            <Form.Control.Feedback type="invalid">
+                                {errors.applyCondition?.message}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+                    )}
                     <Button className="mt-3" type="submit" disabled={isSubmitting}>
                         {isSubmitting ? "Guardando..." : "Guardar"}
                     </Button>
