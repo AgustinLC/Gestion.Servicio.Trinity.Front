@@ -1,3 +1,5 @@
+import { Status } from "./Status";
+
 export interface UserDto {
   idUser: number;
   username: string;
@@ -5,7 +7,7 @@ export interface UserDto {
   firstName: string;
   dni: number;
   phone: number;
-  status: string;
+  status: Status;
   dateRegister: string;
   password: string;
   residenceDto: ResidenceDto;

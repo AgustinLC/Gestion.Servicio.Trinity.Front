@@ -24,6 +24,7 @@ import CruAdministratorPage from "./admin/features/cru-administrators/CruAdminis
 import ServicesUnitsPage from "./admin/features/services-units/ServicesUnitsPage";
 import UnitPage from "./admin/features/services-units/UnitPage";
 import ServicePage from "./admin/features/services-units/ServicePage";
+import BillingParameterPage from "./admin/features/crud-concepts-bills/BillingParameterPage";
 
 const App: React.FC = () => {
   return (
@@ -58,6 +59,7 @@ const App: React.FC = () => {
           <Route path="services-units" element={<ServicesUnitsPage />} />
           <Route path="units" element={<UnitPage />} />
           <Route path="services" element={<ServicePage />} />
+          <Route path="billing-parameters" element={<BillingParameterPage />} />
         </Route>
       </Routes>
       {/* Pie de pagina */}

@@ -9,6 +9,7 @@ import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { LocationDto } from "../../../core/models/dto/LocationDto";
 import { FeeDto } from "../../../core/models/dto/FeeDto";
+import statusLabels from "../../../shared/components/labels-traductor/statusLabels";
 
 const UserPage = () => {
 
@@ -89,6 +90,7 @@ const UserPage = () => {
         { key: "lastName", label: "Apellido", sortable: false },
         { key: "dni", label: "DNI", sortable: false },
         { key: "phone", label: "Teléfono", sortable: false },
+        { key: "status", label: "Estado", sortable: false, render: (row) => statusLabels[row.status] || row.status },
         {
             key: "actions", label: "Acciones", actions: (row: UserDto) => (
                 <Button variant="warning" onClick={() => { setSelectedUser(row); setShowModal(true); }}>

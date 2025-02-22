@@ -96,6 +96,14 @@ const AdminDashboard: React.FC = () => {
                                     <span className="ms-2 d-none d-lg-inline">Serv./Unid.</span>
                                 </Link>
                             </li>
+
+                            {/* Servicio/Unidad */}
+                            <li className="nav-item">
+                                <Link to="/dashboard/admin/billing-parameters" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/billing-parameters' ? 'active' : ''}`} title="Gestión de Parametros de Facturación">
+                                    <i className="bi bi-receipt fs-4"></i>
+                                    <span className="ms-2 d-none d-lg-inline">Conceptos</span>
+                                </Link>
+                            </li>
                         </ul>
                     </div>
                 </div>
