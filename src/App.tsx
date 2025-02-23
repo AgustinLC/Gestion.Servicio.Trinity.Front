@@ -25,6 +25,7 @@ import ServicesUnitsPage from "./admin/features/services-units/ServicesUnitsPage
 import UnitPage from "./admin/features/services-units/UnitPage";
 import ServicePage from "./admin/features/services-units/ServicePage";
 import BillingParameterPage from "./admin/features/crud-concepts-bills/BillingParameterPage";
+import PendigBillsParameterPage from "./operator/features/pendig-bills-parameters/PendigBillParametersPage";
 
 const App: React.FC = () => {
   return (
@@ -46,6 +47,7 @@ const App: React.FC = () => {
           <Route path="users" element={<User />} />
           <Route path="readings/management" element={<ReadingManagement />} />
           <Route path="readings/take" element={<ReadingTake />} />
+          <Route path="parameters/bills" element={<PendigBillsParameterPage />} />
         </Route>
 
         {/* Rutas solo para usuario administrador */}
