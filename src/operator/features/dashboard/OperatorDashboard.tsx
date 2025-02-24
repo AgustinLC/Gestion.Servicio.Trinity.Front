@@ -16,6 +16,10 @@ const DashboardOperator: React.FC = () => {
         '/dashboard/operator/readings/management',
         '/dashboard/operator/readings/take',
     ].some(path => currentPath === path);
+    const isBillSection = [
+        '/dashboard/operator/bills/bulk-generate',
+        '/dashboard/operator/bills/individual-generate',
+    ].some(path => currentPath === path);
 
     // Pop pup de lecturas
     const ReadingsPopover = (
@@ -27,6 +31,22 @@ const DashboardOperator: React.FC = () => {
                     </Link>
                     <Link to="/dashboard/operator/readings/take" className={`nav-link link-dark py-2 text-indented ${currentPath === '/dashboard/operator/readings/take' ? 'active' : ''}`} onClick={() => setActivePopover(null)}>
                         Tomar Lecturas
+                    </Link>
+                </div>
+            </Popover.Body>
+        </Popover>
+    );
+
+    // Pop pup de facturas
+    const BillsPopover = (
+        <Popover className="submenu-popover">
+            <Popover.Body className="p-2">
+                <div className="d-flex flex-column">
+                    <Link to="/dashboard/operator/bills/bulk-generate" className={`nav-link link-dark py-2 text-indented ${currentPath === '/dashboard/operator/readings/management' ? 'active' : ''}`} onClick={() => setActivePopover(null)}>
+                        Generación Masiva
+                    </Link>
+                    <Link to="/dashboard/operator/bills/individual-generate" className={`nav-link link-dark py-2 text-indented ${currentPath === '/dashboard/operator/readings/take' ? 'active' : ''}`} onClick={() => setActivePopover(null)}>
+                        Generación Indivuidual
                     </Link>
                 </div>
             </Popover.Body>
@@ -60,12 +80,22 @@ const DashboardOperator: React.FC = () => {
                             </li>
 
                             {/* Facturas */}
-                            <li>
-                                <Link to="/dashboard/pagos" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/pagos' ? 'active' : ''}`} title="Gestión de Facturas">
-                                    <i className="bi-table fs-4"></i>
-                                    <span className="ms-2 d-none d-lg-inline">Facturas</span>
-                                </Link>
-                            </li>
+                            <OverlayTrigger
+                                trigger="click"
+                                placement={window.innerWidth <= 768 ? 'bottom' : 'right'}
+                                show={activePopover === 'bills'}
+                                onToggle={(show) => setActivePopover(show ? 'bills' : '')}
+                                overlay={BillsPopover}
+                                rootClose
+                            >
+                                <li className="nav-item popover-trigger">
+                                    <div className={`nav-link link-light py-3 px-2 d-flex align-items-center ${isBillSection ? 'active-submenu' : ''}`} role="button">
+                                        <i className="bi bi-file-earmark-spreadsheet fs-4"></i>
+                                        <span className="ms-2 d-none d-lg-inline">Facturas</span>
+                                        <i className={`bi-chevron-right ms-1 mt-1 chevron-icon d-none d-lg-inline ${activePopover === 'bills' ? 'rotate' : ''}`}></i>
+                                    </div>
+                                </li>
+                            </OverlayTrigger>
 
                             {/* Lecturas */}
                             <OverlayTrigger

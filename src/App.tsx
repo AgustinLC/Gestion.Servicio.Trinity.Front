@@ -26,6 +26,8 @@ import UnitPage from "./admin/features/services-units/UnitPage";
 import ServicePage from "./admin/features/services-units/ServicePage";
 import BillingParameterPage from "./admin/features/crud-concepts-bills/BillingParameterPage";
 import PendigBillsParameterPage from "./operator/features/pendig-bills-parameters/PendigBillParametersPage";
+import BillBulkGeneratePage from "./operator/features/generate-bill/BillBulkGeneratePage";
+import BillIndividualGeneratePage from "./operator/features/generate-bill/BillIndividualGeneratePage";
 
 const App: React.FC = () => {
   return (
@@ -48,6 +50,8 @@ const App: React.FC = () => {
           <Route path="readings/management" element={<ReadingManagement />} />
           <Route path="readings/take" element={<ReadingTake />} />
           <Route path="parameters/bills" element={<PendigBillsParameterPage />} />
+          <Route path="bills/bulk-generate" element={<BillBulkGeneratePage />} />
+          <Route path="bills/individual-generate" element={<BillIndividualGeneratePage />} />
         </Route>
 
         {/* Rutas solo para usuario administrador */}
