@@ -88,7 +88,7 @@ const DashboardOperator: React.FC = () => {
                             {/* Conceptos de factura */}
                             <li>
                                 <Link to="/dashboard/operator/parameters/bills" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/operator/parameters/bills' ? 'active' : ''}`} title="Gestión de cobros">
-                                    <i className="bi-heart fs-4"></i>
+                                    <i className="bi bi-journal-plus fs-4"></i>
                                     <span className="ms-2 d-none d-lg-inline">Conceptos</span>
                                 </Link>
                             </li>
@@ -96,7 +96,7 @@ const DashboardOperator: React.FC = () => {
                             {/* Cobros */}
                             <li>
                                 <Link to="/dashboard/reportes" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/reportes' ? 'active' : ''}`} title="Gestión de cobros">
-                                    <i className="bi-heart fs-4"></i>
+                                    <i className="bi bi-cash-coin fs-4"></i>
                                     <span className="ms-2 d-none d-lg-inline">Cobros</span>
                                 </Link>
                             </li>

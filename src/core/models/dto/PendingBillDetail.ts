@@ -1,5 +1,5 @@
 export interface PendigBillDetail {
-    idPendingBillDetail?: number;
+    idPendingBillDetail: number;
     idMeter?: number;
     idBillingParameter: number;
     value: number;

@@ -8,16 +8,21 @@ import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import AddParameterModal from "./AddParameterModal";
 import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
 import { toast } from "react-toastify";
+import SearchBar from "../../../shared/components/searcher/SearchBar";
+import UserParametersModal from "./UserParameterModal";
 
 const PendigBillsParameterPage = () => {
 
     //Estados
     const [userData, setUserData] = useState<UserDto[]>([])
     const [parameterData, setParameterData] = useState<BillingParameter[]>([]);
+    const [filteredData, setFilteredData] = useState<UserDto[]>([]);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const [showAddParameterModal, setShowAddParameterModal] = useState(false);
+    const [showUserParameters, setShowUserParameters] = useState(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+
     // Obtener datos al cargar el componente
     useEffect(() => {
         fetchData();
@@ -29,6 +34,7 @@ const PendigBillsParameterPage = () => {
         try {
             const usersActive = await getData<UserDto[]>("/operator/users-actives");
             setUserData(usersActive);
+            setFilteredData(usersActive);
             const parametersActive = await getData<BillingParameter[]>("/operator/billing-parameter/active");
             setParameterData(parametersActive)
         } catch (error) {
@@ -39,7 +45,24 @@ const PendigBillsParameterPage = () => {
         }
     };
 
-    // Manejar añadir parametro
+    // Manejar búsqueda
+    const handleSearch = (query: string) => {
+        const searchTerm = query.toLowerCase();
+        const filtered = userData.filter(user => {
+            // Buscar en propiedades directas
+            const directMatch = Object.values(user).some(value =>
+                String(value).toLowerCase().includes(searchTerm)
+            );
+            // Buscar en propiedades anidadas de residenceDto
+            const residenceMatch = Object.values(user.residenceDto).some(value =>
+                String(value).toLowerCase().includes(searchTerm)
+            );
+            return directMatch || residenceMatch;
+        });
+        setFilteredData(filtered);
+    };
+
+    // Manejar añadir conceptos
     const handleSaveParameter = async (pendigBillDetail: PendigBillDetail) => {
         if (!selectedUser) return;
         try {
@@ -66,6 +89,9 @@ const PendigBillsParameterPage = () => {
                     <Button variant="warning" onClick={() => { setSelectedUser(row); setShowAddParameterModal(true); }}>
                         Añadir Concepto
                     </Button>
+                    <Button variant="primary" onClick={() => { setSelectedUser(row); setShowUserParameters(true); }}>
+                        Ver existentes
+                    </Button>
                 </div>
             ),
         },
@@ -74,7 +100,7 @@ const PendigBillsParameterPage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Gestion de FAQ</h1>
+            <h1 className="text-center">Gestion de Conceptos</h1>
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center vh-100">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
@@ -84,14 +110,18 @@ const PendigBillsParameterPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
+                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                        <SearchBar onSearch={handleSearch} />
+                    </div>
 
                     {/* Tabla */}
                     <ReusableTable<UserDto>
-                        data={userData}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="idUser"
                     />
 
+                    {/* Modal para añadir concepto */}
                     <AddParameterModal
                         key={selectedUser ? selectedUser.idUser : "new"}
                         show={showAddParameterModal}
@@ -99,6 +129,17 @@ const PendigBillsParameterPage = () => {
                         onSave={handleSaveParameter}
                         parameters={parameterData}
                     />
+
+                    {/* Vista de conceptos del usuario */}
+                    {selectedUser && showUserParameters && (
+                        <UserParametersModal
+                        show={showUserParameters}
+                        onHide={() => setShowUserParameters(false)}
+                        parameters={parameterData}
+                        userName={`${selectedUser.firstName} ${selectedUser.lastName}`}
+                        userId={selectedUser.idUser}
+                        />
+                    )}
                 </div>
             )}
         </div>

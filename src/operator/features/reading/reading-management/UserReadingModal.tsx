@@ -111,7 +111,7 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
 
                             <tbody>
                                 {currentItems.map((reading) => (
-                                    <tr key={reading.idReading}>
+                                    <tr className="align-middle" key={reading.idReading}>
                                         <td className="text-center">{reading.date}</td>
                                         <td className="text-center">
                                             {editingId === reading.idReading ? (

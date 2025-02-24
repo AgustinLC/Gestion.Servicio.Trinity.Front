@@ -76,7 +76,7 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
 
                     {/* Input numérico */}
                     <Form.Group controlId="parameterValue" className="mb-3">
-                        <Form.Label>Valor</Form.Label>
+                        <Form.Label>Importe $</Form.Label>
                         <Form.Control
                             type="number"
                             {...register("value", {
