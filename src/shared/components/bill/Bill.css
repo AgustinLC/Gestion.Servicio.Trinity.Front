@@ -1,0 +1,172 @@
+/* Estilos generales */
+.invoice-container {
+    font-family: Arial, sans-serif;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+  }
+  
+  /* Encabezado */
+  .invoice-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .invoice-header h2 {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+  }
+  
+  /* Datos del usuario */
+  .user-data-section {
+    margin-bottom: 15px;
+  }
+  
+  .user-data-flex {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  /* Periodo facturado */
+  .billing-period {
+    margin-bottom: 20px;
+    border: 1px solid #000;
+    padding: 10px;
+  }
+  
+  .billing-period h3 {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .reading-data {
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  /* Tabla de conceptos */
+  .concepts-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .concepts-table th,
+  .concepts-table td {
+    border: 1px solid #000;
+    padding: 5px;
+  }
+  
+  .concepts-table th {
+    background-color: #f0f0f0;
+    text-align: left;
+  }
+  
+  .concepts-table .align-center {
+    text-align: center;
+  }
+  
+  .concepts-table .align-right {
+    text-align: right;
+  }
+  
+  /* Sección de pago */
+  .payment-section {
+    margin-bottom: 20px;
+  }
+  
+  .payment-flex {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  /* Notas y observaciones */
+  .notes-section {
+    border-top: 2px solid #000;
+    padding: 10px;
+  }
+  
+  .notes-list {
+    font-size: 0.9em;
+    margin: 10px 0;
+  }
+  
+  .legal-notice {
+    text-align: center;
+    margin-top: 15px;
+  }
+  
+  /* Utilidades */
+  .text-bold {
+    font-weight: bold;
+  }
+  
+  .text-right {
+    text-align: right;
+  }
+
+  /* ConsorcioInvoice.css (adicional) */
+.payment-stubs {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  border-top: 2px solid #000;
+  padding-top: 15px;
+}
+
+.bank-stub, .operator-stub {
+  border: 1px solid #000;
+  padding: 10px;
+}
+
+.bank-stub h4, .operator-stub h4 {
+  text-align: center;
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+}
+
+.stub-content {
+  font-size: 0.9em;
+}
+
+.stub-details {
+  margin: 10px 0;
+  padding: 5px;
+  background-color: #f8f8f8;
+}
+
+.bank-info {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px dashed #ccc;
+}
+
+.payment-barcode {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.signature-box {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px dashed #666;
+}
+
+.signature-box div {
+  margin: 5px 0;
+}
+
+/* Ajustes adicionales para el formato de impresión */
+@media print {
+  .invoice-container {
+    width: 100%;
+    min-height: auto;
+  }
+  
+  .payment-stubs {
+    page-break-inside: avoid;
+  }
+}

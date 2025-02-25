@@ -1,123 +1,172 @@
-* {
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-
+/* Estilos generales */
 .invoice-container {
-    width: 21cm;
-    min-height: 27cm;
-    max-height: 29.7cm;
-    font-size: 13px;
-}
-
-@media print {
-  body * {
-    visibility: hidden; /* Oculta todo el contenido de la página */
-    margin: 0; /* Elimina márgenes predeterminados */
-    padding: 0; /* Elimina paddings predeterminados */
+    font-family: Arial, sans-serif;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
   }
-
-  #invoice-container,
-  #invoice-container * {
-    visibility: visible; /* Muestra solo la factura */
-  }
-
-  #invoice-container {
-    position: absolute;
-    left: 0;
-    top: 0; /* Asegura que la factura comience desde la parte superior */
-    width: 100%;
-    margin: 0; /* Elimina márgenes */
-    padding: 0; /* Elimina paddings */
-  }
-
-  /* Ocultar botones de impresión y exportación */
-  .no-print {
-    display: none;
-  }
-}
-
-.wrapper {
-    border: 1.5px solid #333;
-    padding: 5px;
-}
-
-.text-left {
-    text-align: left;
-}
-
-.text-center {
+  
+  /* Encabezado */
+  .invoice-header {
     text-align: center;
-}
-
-.text-right {
-    text-align: right;
-}
-
-.bold {
-    font-weight: bold;
-}
-
-.italic {
-    font-style: italic;
-}
-
-.inline-block {
-    display: inline-block;
-}
-
-.flex {
+    margin-bottom: 20px;
+  }
+  
+  .invoice-header h2 {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+  }
+  
+  /* Datos del usuario */
+  .user-data-section {
+    margin-bottom: 15px;
+  }
+  
+  .user-data-flex {
     display: flex;
-    flex-wrap: wrap;
-}
-
-.no-margin {
-    margin: 0;
-}
-
-.relative {
-    position: relative;
-}
-
-.floating-mid {
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    width: 75px;
-    position: absolute;
-    top: 1px;
-    background: #fff;
-}
-
-.space-around {
-    justify-content: space-around;
-}
-
-.space-between {
     justify-content: space-between;
-}
-
-.w50 {
-    width: 50%;
-}
-
-th {
+  }
+  
+  /* Periodo facturado */
+  .billing-period {
+    margin-bottom: 20px;
     border: 1px solid #000;
-    background: #ccc;
-    padding: 5px;
-}
-
-td {
-    padding: 5px;
-    font-size: 11px;
-}
-
-table {
-    border-collapse: collapse;
+    padding: 10px;
+  }
+  
+  .billing-period h3 {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .reading-data {
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  /* Tabla de conceptos */
+  .concepts-table {
     width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .concepts-table th,
+  .concepts-table td {
+    border: 1px solid #000;
+    padding: 5px;
+  }
+  
+  .concepts-table th {
+    background-color: #f0f0f0;
+    text-align: left;
+  }
+  
+  .concepts-table .align-center {
+    text-align: center;
+  }
+  
+  .concepts-table .align-right {
+    text-align: right;
+  }
+  
+  /* Sección de pago */
+  .payment-section {
+    margin-bottom: 20px;
+  }
+  
+  .payment-flex {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  /* Notas y observaciones */
+  .notes-section {
+    border-top: 2px solid #000;
+    padding: 10px;
+  }
+  
+  .notes-list {
+    font-size: 0.9em;
+    margin: 10px 0;
+  }
+  
+  .legal-notice {
+    text-align: center;
+    margin-top: 15px;
+  }
+  
+  /* Utilidades */
+  .text-bold {
+    font-weight: bold;
+  }
+  
+  .text-right {
+    text-align: right;
+  }
+
+  /* ConsorcioInvoice.css (adicional) */
+.payment-stubs {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  border-top: 2px solid #000;
+  padding-top: 15px;
 }
 
-.text-20 {
-    font-size: 20px;
+.bank-stub, .operator-stub {
+  border: 1px solid #000;
+  padding: 10px;
+}
+
+.bank-stub h4, .operator-stub h4 {
+  text-align: center;
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+}
+
+.stub-content {
+  font-size: 0.9em;
+}
+
+.stub-details {
+  margin: 10px 0;
+  padding: 5px;
+  background-color: #f8f8f8;
+}
+
+.bank-info {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px dashed #ccc;
+}
+
+.payment-barcode {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.signature-box {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px dashed #666;
+}
+
+.signature-box div {
+  margin: 5px 0;
+}
+
+/* Ajustes adicionales para el formato de impresión */
+@media print {
+  .invoice-container {
+    width: 100%;
+    min-height: auto;
+  }
+  
+  .payment-stubs {
+    page-break-inside: avoid;
+  }
 }

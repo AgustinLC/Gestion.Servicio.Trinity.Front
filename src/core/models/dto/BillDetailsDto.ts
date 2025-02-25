@@ -8,10 +8,12 @@ export interface BillDetailsDto {
     total: number;
     paidStatus: boolean;
     deleted: boolean;
+    previousReadingDate: number
+    currentReadingDate: number
     details: BillDetailDto[];
 }
 
-interface BillDetailDto {
+export interface BillDetailDto {
     idBillDetail: number;
     idBillingParameter: number;
     billingParameterName: string;

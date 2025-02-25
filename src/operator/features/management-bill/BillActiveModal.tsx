@@ -1,14 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Modal, Button, Table, Spinner, Badge } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
+import { UserDto } from "../../../core/models/dto/UserDto";
 import { getData, deleteData } from "../../../core/services/apiService";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
+import PdfGenerator from "../../../shared/components/pdf/PdfGenerator";
+import ConsorcioInvoice from "../../../shared/components/bill/bill";
+import { formatCurrency } from "../../../core/utils/formatters";
 
 interface BillActiveModalProps {
     show: boolean;
     onHide: () => void;
-    user: { idUser: number; firstName: string; lastName: string; dni: number } | null;
+    user: UserDto | null;
 }
 
 const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user }) => {
@@ -19,15 +23,20 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [selectedBillId, setSelectedBillId] = useState<number | null>(null);
     const [anulando, setAnulando] = useState(false);
+    const [pdfLoading, setPdfLoading] = useState(false);
+    const [selectedBill, setSelectedBill] = useState<BillDetailsDto | null>(null);
 
-    // Obtener datos al montar el componente
+    // Constantes
+    const invoiceRef = useRef<HTMLDivElement>(null);
+
+    // Obtener datos al montar el componente 
     useEffect(() => {
         if (show && user?.idUser) {
             fetchData(user.idUser);
         }
     }, [show, user]);
 
-    //
+    // Obtener datos de la api
     const fetchData = async (idUser: number) => {
         setLoading(true);
         try {
@@ -41,11 +50,13 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
         }
     };
 
+    // Manejar click en anular factura
     const handleAnnularClick = (idBill: number) => {
         setSelectedBillId(idBill);
         setShowConfirmModal(true);
     };
 
+    // Manejar confirmacion para anular factura
     const handleConfirmAnnular = async () => {
         if (!selectedBillId) return;
 
@@ -53,9 +64,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
         try {
             await deleteData(`/operator/bill/mark-as-deleted?idBill`, selectedBillId);
             toast.success("Factura anulada exitosamente");
-            setBills(prev => prev.map(bill =>
-                bill.idBill === selectedBillId ? { ...bill, deleted: true } : bill
-            ).filter(bill => !bill.deleted));
+            setBills(prev => prev.filter(bill => bill.idBill !== selectedBillId));
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Error al anular la factura");
         } finally {
@@ -65,12 +74,13 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
         }
     };
 
-    // Formatear moneda
-    const formatCurrency = (value: number) => {
-        return new Intl.NumberFormat('es-AR', {
-            style: 'currency',
-            currency: 'ARS'
-        }).format(value);
+    // Manejar visualización de factura
+    const handleViewInvoice = (bill: BillDetailsDto) => {
+        setSelectedBill(bill);
+        setTimeout(() => {
+            const trigger = document.getElementById('pdf-trigger');
+            if (trigger) trigger.click();
+        }, 100);
     };
 
     return (
@@ -118,10 +128,19 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                                         </td>
                                         <td>
                                             <div className="d-flex gap-2 justify-content-center">
-                                                <Button variant="danger" size="sm" onClick={() => handleAnnularClick(bill.idBill)} disabled={bill.paidStatus}>
+                                                <Button
+                                                    variant="danger"
+                                                    size="sm"
+                                                    onClick={() => handleAnnularClick(bill.idBill)}
+                                                    disabled={bill.paidStatus}
+                                                >
                                                     Anular
                                                 </Button>
-                                                <Button variant="primary" size="sm" onClick={() => {/* Lógica de visualización */ }}>
+                                                <Button
+                                                    variant="primary"
+                                                    size="sm"
+                                                    onClick={() => handleViewInvoice(bill)}
+                                                >
                                                     Visualizar
                                                 </Button>
                                             </div>
@@ -145,7 +164,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
 
             <ConfirmModal
                 show={showConfirmModal}
-                onHide={() => {setShowConfirmModal(false); setSelectedBillId(null);}}
+                onHide={() => { setShowConfirmModal(false); setSelectedBillId(null); }}
                 title="¿Anular factura?"
                 message={
                     <>
@@ -157,6 +176,30 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                 isLoading={anulando}
                 onConfirm={handleConfirmAnnular}
             />
+
+            {selectedBill && user && (
+                <PdfGenerator
+                    fileName={`Factura_${selectedBill.idBill}`}
+                    onGenerate={(isGenerating) => setPdfLoading(isGenerating)}
+                    ref={invoiceRef}
+                >
+                    <ConsorcioInvoice
+                        user={user}
+                        bill={selectedBill}
+                        periodo={`Enero/Febrero`}
+                        numeroFactura={selectedBill.idBill.toString()}
+                        fechaEmision={new Date("2025/02/25")}
+                        fechaVencimiento={new Date("2025/03/25")}
+                    />
+                </PdfGenerator>
+            )}
+
+            {pdfLoading && (
+                <div className="pdf-loading-overlay">
+                    <Spinner animation="border" />
+                    <p>Generando PDF...</p>
+                </div>
+            )}
         </>
     );
 };
