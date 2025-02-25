@@ -51,7 +51,7 @@ const Navbar: React.FC = () => {
                 {userRole === "ROLE_ADMIN" && (
                   <>
                     <li className="nav-item mx-2">
-                      <Link to="/dashboard/admin" className={`nav-link d-none d-lg-inline ${isActive("/dashboard/admin") ? "active" : ""}`}>
+                      <Link to="/dashboard/admin/workers" className={`nav-link d-none d-lg-inline ${isActive("/dashboard/admin") ? "active" : ""}`}>
                         Panel de Administración
                       </Link>
                       <Link to="/dashboard/admin" className={`nav-link d-lg-none ${isActive("/dashboard/admin") ? "active" : ""}`}>
@@ -71,7 +71,7 @@ const Navbar: React.FC = () => {
                 {/* Links para usuarios autenticados con rol operator */}
                 {userRole === "ROLE_OPERATOR" && (
                   <li className="nav-item mx-2">
-                    <Link to="/dashboard/operator" className={`nav-link d-none d-lg-inline ${isActive("/dashboard/operator") ? "active" : ""}`}>
+                    <Link to="/dashboard/operator/resume" className={`nav-link d-none d-lg-inline ${isActive("/dashboard/operator") ? "active" : ""}`}>
                       Panel de Operación
                     </Link>
                     <Link to="/dashboard/operator" className={`nav-link d-lg-none ${isActive("/dashboard/operator") ? "active" : ""}`}>

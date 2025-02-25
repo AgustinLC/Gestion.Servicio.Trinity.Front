@@ -1,26 +1,22 @@
-import { useState, useEffect } from "react";
-import { Button, Spinner } from "react-bootstrap";
-import AddEditModal from "./AddEditModal";
-import SearchBar from "./SearchBar";
-import { getData, addData, updateData } from "../../../core/services/apiService";
-import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
 import { UserDto } from "../../../core/models/dto/UserDto";
+import { addData, getData, updateData } from "../../../core/services/apiService";
+import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
+import { Button, Spinner } from "react-bootstrap";
+import SearchBar from "../../../shared/components/searcher/SearchBar";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
-import { LocationDto } from "../../../core/models/dto/LocationDto";
-import { FeeDto } from "../../../core/models/dto/FeeDto";
+import AddEditWorkerModal from "./AddEditWorkerModal";
 
-const CrudTable = () => {
+const CruWorkerPage = () => {
 
     //Estados
-    const [user, setUsers] = useState<UserDto[]>([]);
-    const [locations, setLocations] = useState<LocationDto[]>([]);
-    const [fees, setFees] = useState<FeeDto[]>([]);
+    const [workers, setWorkers] = useState<UserDto[]>([]);
     const [filteredData, setFilteredData] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
+    const [selectedWorker, setSelectedWorker] = useState<UserDto | null>(null);
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -31,20 +27,14 @@ const CrudTable = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            // Obtener usuarios
-            const users = await getData<UserDto[]>("/operator/users");
-            setUsers(users);
-            setFilteredData(users);
-            // Obtener localidades
-            const locationsData = await getData<LocationDto[]>(`/operator/locations/${import.meta.env.VITE_ID_PROVINCE}`);
-            setLocations(locationsData);
-            // Obtener tarifas
-            const feeData = await getData<FeeDto[]>("/operator/fee");
-            setFees(feeData);
+            // Obtener operarios
+            const workers = await getData<UserDto[]>("/admin/users-operators");
+            setWorkers(workers);
+            setFilteredData(workers);
         } catch (error) {
             console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al obtener la información");
-            setError("Error al cargar la información principal");
+            toast.error(error instanceof Error ? error.message : "Error al obtener los operarios");
+            setError("Error al cargar los operarios");
         } finally {
             setLoading(false);
         }
@@ -52,8 +42,8 @@ const CrudTable = () => {
 
     // Manejar búsqueda
     const handleSearch = (query: string) => {
-        const filtered = user.filter((user) =>
-            Object.values(user).some((value) =>
+        const filtered = workers.filter((worker) =>
+            Object.values(worker).some((value) =>
                 String(value).toLowerCase().includes(query.toLowerCase())
             )
         );
@@ -61,18 +51,19 @@ const CrudTable = () => {
     };
 
     // Manejar añadir/editar
-    const handleSave = async (user: UserDto) => {
+    const handleSave = async (worker: UserDto) => {
         try {
             //Actualizar registro
-            if (user.idUser) {
-                await updateData("/operator/update-user?idUser", user.idUser, user);
+            if (worker.idUser) {
+                await updateData("/operator/update-user?idUser", worker.idUser, worker);
                 toast.success("Usuario actualizado exitosamente");
             }
             // Añadir registro
             else {
-                await addData("/operator/register-user", user);
+                await addData("/admin/register-operator", worker);
                 toast.success("Usuario creado exitosamente");
             }
+            setSelectedWorker(worker);
             setShowModal(false);
             fetchData();
         } catch (error) {
@@ -86,11 +77,12 @@ const CrudTable = () => {
         { key: "idUser", label: "ID", sortable: true },
         { key: "firstName", label: "Nombre", sortable: false },
         { key: "lastName", label: "Apellido", sortable: false },
+        { key: "username", label: "Email", sortable: false },
         { key: "dni", label: "DNI", sortable: false },
         { key: "phone", label: "Teléfono", sortable: false },
         {
             key: "actions", label: "Acciones", actions: (row: UserDto) => (
-                <Button variant="warning" onClick={() => { setSelectedUser(row); setShowModal(true); }}>
+                <Button variant="warning" onClick={() => { setSelectedWorker(row); setShowModal(true); }}>
                     Editar
                 </Button>
             ),
@@ -99,7 +91,7 @@ const CrudTable = () => {
 
     return (
         <div>
-            <h1 className="text-center">Gestión de Usuarios</h1>
+            <h1 className="text-center">Gestión de Operarios</h1>
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center vh-100">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
@@ -111,8 +103,8 @@ const CrudTable = () => {
                 <div>
                     <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
                         <SearchBar onSearch={handleSearch} />
-                        <Button onClick={() => { setSelectedUser(null); setShowModal(true); }}>
-                            Añadir Usuario
+                        <Button onClick={() => { setSelectedWorker(null); setShowModal(true); }}>
+                            Añadir Operario
                         </Button>
                     </div>
                     <ReusableTable<UserDto>
@@ -120,14 +112,12 @@ const CrudTable = () => {
                         columns={columns}
                         defaultSort="idUser"
                     />
-                    <AddEditModal
-                        key={selectedUser ? selectedUser.idUser : "new"}
+                    <AddEditWorkerModal
+                        key={selectedWorker ? selectedWorker.idUser : "new"}
                         show={showModal}
                         onHide={() => setShowModal(false)}
                         onSave={handleSave}
-                        user={selectedUser}
-                        locations={locations}
-                        fees={fees}
+                        worker={selectedWorker}
                     />
                 </div>
             )}
@@ -135,4 +125,4 @@ const CrudTable = () => {
     );
 };
 
-export default CrudTable;
+export default CruWorkerPage;

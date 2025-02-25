@@ -61,8 +61,8 @@ export const updateData = async <T>(endpoint:string , id: number, data: Partial<
 
 //Función para eliminar datos
 export const deleteData = async (endpoint: string, id: number): Promise<void> => {
+    const response = await axiosInstance.delete<WebApiResponse<void>>(`${endpoint}=${id}`);
     try {
-        const response = await axiosInstance.delete<WebApiResponse<void>>(`${endpoint}/${id}`);
         if (response.data.success) {
             return response.data.data;
         }
@@ -71,7 +71,7 @@ export const deleteData = async (endpoint: string, id: number): Promise<void> =>
         if (axios.isAxiosError(error)) {
             throw new Error(error.response?.data?.message || 'Error inesperado al eliminar los datos');
         } else {
-            throw new Error('Error inesperado al eliminar los datos');
+            throw new Error(response.data.message ||'Error inesperado al eliminar los datos');
         }
     }
 }

@@ -77,6 +77,7 @@ const ReusableTable = <T,>({
                     <tr className="text-center">
                         {columns.map((column) => (
                             <th
+                                className="align-middle"
                                 key={String(column.key)}
                                 onClick={() =>
                                     "sortable" in column && column.sortable && handleSort(column.key as keyof T)
@@ -84,17 +85,21 @@ const ReusableTable = <T,>({
                                 style={{ cursor: "sortable" in column && column.sortable ? "pointer" : "default" }}
                                 aria-sort={sortField === column.key ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
                             >
-                                {column.label}{" "}
-                                {"sortable" in column &&
-                                    column.sortable &&
-                                    sortField === column.key && (
-                                        <span>{sortDirection === "asc" ? "▲" : "▼"}</span>
-                                    )}
+                                <div className="header-content">
+                                    <span className="header-text">{column.label}</span>
+                                    {"sortable" in column &&
+                                        column.sortable &&
+                                        sortField === column.key && (
+                                            <span className="sort-arrow">
+                                                {sortDirection === "asc" ? "▲" : "▼"}
+                                            </span>
+                                        )}
+                                </div>
                             </th>
                         ))}
                     </tr>
                 </thead>
-                <tbody className="text-center">
+                <tbody className="text-center align-middle">
                     {paginatedData.map((row, rowIndex) => (
                         <tr key={rowIndex}>
                             {columns.map((column) => (

@@ -4,6 +4,7 @@ import { FaFacebookSquare, FaInstagramSquare, FaWhatsappSquare } from "react-ico
 import { Link } from "react-router-dom";
 import { getData } from "../../../core/services/apiService";
 import { FooterInfoDto } from "../../../core/models/dto/FooterInfoDto";
+import { getCookie, setCookie } from "../../../core/utils/cookiesUtils";
 
 const Footer: React.FC = () => {
 
@@ -16,11 +17,19 @@ const Footer: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await getData<FooterInfoDto>("/info/footer");
-                setData(response);
+                // Verificar si la información está en una cookie
+                const cookieData = getCookie("footerInfo");
+                if (cookieData) {
+                    // Si existe, usar la información de la cookie
+                    setData(JSON.parse(cookieData));
+                } else {
+                    const response = await getData<FooterInfoDto>("/info/footer");
+                    setData(response);
+                    // Almacenar la información en una cookie (válida por 7 días)
+                    setCookie("footerInfo", JSON.stringify(response), 7);
+                }
             } catch (error) {
                 console.error(error);
-                console.log("error");
                 setError("Error al cargar la información principal");
             } finally {
                 setLoading(false);
@@ -38,7 +47,7 @@ const Footer: React.FC = () => {
     }
 
     return (
-        <footer className="text-center text-lg-start bg-body-tertiary text-muted pt-2">
+        <footer className="text-center text-lg-start bg-body-tertiary text-muted pt-2 mt-auto">
             <section className="">
                 <div className="container text-center text-md-start mt-5">
                     <div className="row mt-3">

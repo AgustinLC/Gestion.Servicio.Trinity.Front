@@ -26,9 +26,9 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="container py-5">
-      <div className="row justify-content-center">
-        <div className="col-md-6">
+    <div className="container py-5 h-100">
+      <div className="row justify-content-center h-100">
+        <div className="col-md-6 my-auto">
           <div className="card">
             <div className="card-body">
               <h1 className="text-center">Recuperar Contraseña</h1>
