@@ -28,6 +28,7 @@ import BillingParameterPage from "./admin/features/crud-concepts-bills/BillingPa
 import PendigBillsParameterPage from "./operator/features/pendig-bills-parameters/PendigBillParametersPage";
 import BillBulkGeneratePage from "./operator/features/generate-bill/BillBulkGeneratePage";
 import BillIndividualGeneratePage from "./operator/features/generate-bill/BillIndividualGeneratePage";
+import BillManagementPage from "./operator/features/management-bill/BillManagementPage";
 
 const App: React.FC = () => {
   return (
@@ -52,6 +53,7 @@ const App: React.FC = () => {
           <Route path="parameters/bills" element={<PendigBillsParameterPage />} />
           <Route path="bills/bulk-generate" element={<BillBulkGeneratePage />} />
           <Route path="bills/individual-generate" element={<BillIndividualGeneratePage />} />
+          <Route path="bills/management" element={<BillManagementPage />} />
         </Route>
 
         {/* Rutas solo para usuario administrador */}

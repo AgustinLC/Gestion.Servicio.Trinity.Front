@@ -6,9 +6,12 @@ import { addData } from '../../../core/services/apiService';
 import { toast } from 'react-toastify';
 
 const BillBulkGeneratePage = () => {
+
+    // Estados
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    // Manejar el envío del formulario
     const handleSubmit = async () => {
         setIsLoading(true);
         try {
@@ -23,6 +26,7 @@ const BillBulkGeneratePage = () => {
         }
     };
 
+    // Render
     return (
         <div>
             <h1 className="text-center">Generación de Facturas</h1>

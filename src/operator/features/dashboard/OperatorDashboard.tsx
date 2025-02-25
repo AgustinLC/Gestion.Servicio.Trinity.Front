@@ -17,6 +17,7 @@ const DashboardOperator: React.FC = () => {
         '/dashboard/operator/readings/take',
     ].some(path => currentPath === path);
     const isBillSection = [
+        '/dashboard/operator/bills/management',
         '/dashboard/operator/bills/bulk-generate',
         '/dashboard/operator/bills/individual-generate',
     ].some(path => currentPath === path);
@@ -35,13 +36,16 @@ const DashboardOperator: React.FC = () => {
                 </div>
             </Popover.Body>
         </Popover>
-    );
+    ); 
 
     // Pop pup de facturas
     const BillsPopover = (
         <Popover className="submenu-popover">
             <Popover.Body className="p-2">
                 <div className="d-flex flex-column">
+                    <Link to="/dashboard/operator/bills/management" className={`nav-link link-dark py-2 text-indented ${currentPath === '/dashboard/operator/bills/management' ? 'active' : ''}`} onClick={() => setActivePopover(null)}>
+                        Consulta
+                    </Link>
                     <Link to="/dashboard/operator/bills/bulk-generate" className={`nav-link link-dark py-2 text-indented ${currentPath === '/dashboard/operator/readings/management' ? 'active' : ''}`} onClick={() => setActivePopover(null)}>
                         Generación Masiva
                     </Link>
