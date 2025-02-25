@@ -1,6 +1,6 @@
 // components/BulkGenerateTab.tsx
 import { useState } from 'react';
-import { Button, Form, Spinner } from 'react-bootstrap';
+import { Alert, Button, Form, Spinner } from 'react-bootstrap';
 import DatePeriodSelector from './DatePeriodSelector';
 import { addData } from '../../../core/services/apiService';
 import { toast } from 'react-toastify';
@@ -26,7 +26,7 @@ const BillBulkGeneratePage = () => {
     return (
         <div>
             <h1 className="text-center">Generación de Facturas</h1>
-            
+
             <Form>
                 <DatePeriodSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
 
@@ -36,6 +36,11 @@ const BillBulkGeneratePage = () => {
                     ) : 'Generar Facturas'}
                 </Button>
             </Form>
+
+            <Alert variant="info" className="mt-4">
+                <strong>Nota:</strong> La generación de facturas puede tomar varios segundos.
+                No cierre la página durante el proceso.
+            </Alert>
         </div>
     );
 };

@@ -34,7 +34,7 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
     }, []);
 
     const filteredResults = useMemo(() => {
-        if (searchTerm.length < 3) return [];
+        if (searchTerm.length < 2) return [];
         const term = searchTerm.toLowerCase();
         return allUsers.filter(user => {
             const dniMatch = user.dni.toString().includes(term);
@@ -42,7 +42,7 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
             const nameMatch = fullName.includes(term);
             
             return dniMatch || nameMatch;
-        }).slice(0, 7); // Limitar resultados
+        }).slice(0, 5); // Limitar resultados
     }, [searchTerm, allUsers]);
 
     // Filtrar usuarios localmente con debounce

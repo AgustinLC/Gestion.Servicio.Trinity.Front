@@ -46,7 +46,7 @@ const DashboardOperator: React.FC = () => {
                         Generación Masiva
                     </Link>
                     <Link to="/dashboard/operator/bills/individual-generate" className={`nav-link link-dark py-2 text-indented ${currentPath === '/dashboard/operator/readings/take' ? 'active' : ''}`} onClick={() => setActivePopover(null)}>
-                        Generación Indivuidual
+                        Generación Individual
                     </Link>
                 </div>
             </Popover.Body>

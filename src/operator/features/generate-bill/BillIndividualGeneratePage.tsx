@@ -19,7 +19,7 @@ const BillIndividualGeneratePage = () => {
     try {
       setIsLoading(true);
       const periodParam = selectedDate ? selectedDate.toISOString() : null;
-      await addData(`/bill/generate-manual/${userId}/${periodParam}`, {});
+      await addData(`/operator/bill/generate-manual/${userId}/${periodParam}`, {});
       toast.success(`Factura generada para usuario ${userId}`);
       setUserId(null);
       setSelectedDate(null);
@@ -50,7 +50,7 @@ const BillIndividualGeneratePage = () => {
       </Button>
 
       <Alert variant="info" className="mt-4">
-        <strong>Nota:</strong> La generación de facturas puede tomar varios segundos.
+        <strong>Nota:</strong> La generación de la factura puede tomar varios segundos.
         No cierre la página durante el proceso.
       </Alert>
 
