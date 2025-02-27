@@ -1,14 +1,16 @@
-import { BarChart, Bar, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Card, Row, Col, Spinner } from "react-bootstrap";
 import { useEffect, useMemo, useState } from "react";
-import { UserResumeDto } from "../../../core/models/dto/UserResumeDto";
-import { ResumeDto } from "../../../core/models/dto/ResumeDto";
+import { ReadReadingDto } from "../../../core/models/dto/ReadReadingDto";
+import { SummaryDto } from "../../../core/models/dto/SummaryDto";
 import { getData } from "../../../core/services/apiService";
 import useAuth from "../../../hooks/useAuth";
+import { toast } from "react-toastify";
 
 const UserResume = () => {
     // Estados
-    const [data, setData] = useState<UserResumeDto | null>(null);
+    const [data, setData] = useState<SummaryDto | null>(null);
+    const [readings, setReadings] = useState<ReadReadingDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [chartSize, setChartSize] = useState({ width: 500, height: 300 });
@@ -36,7 +38,7 @@ const UserResume = () => {
     const fetchUserResume = async () => {
         setLoading(true);
         try {
-            const resume = await getData<UserResumeDto>(`/user/resume/${userId}`);
+            const resume = await getData<SummaryDto>(`/user/summary/${userId}`);
             setData(resume);
         } catch (error) {
             setError("Error al cargar la información del usuario");
@@ -46,34 +48,82 @@ const UserResume = () => {
         }
     };
 
-    // Hook para obtener el resumen al cargar el componente
+    // Función para obtener los consumos desde la API
+    const fetchReadings = async () => {
+        setLoading(true);
+        try {
+            const readings = await getData<ReadReadingDto[]>(`/user/readings/${userId}`);
+            setReadings(readings);
+        } catch (error) {
+            console.error(error);
+            toast.error(error instanceof Error ? error.message : "Error al obtener los consumos");
+            setError("Error al cargar los consumos");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Hook para obtener el resumen y los consumos al cargar el componente
     useEffect(() => {
         if (userId) {
             fetchUserResume();
+            fetchReadings();
         }
     }, [userId]);
 
     // Datos para las tarjetas
     const summaryData = useMemo(() => [
-        { title: "Facturas Pagas", value: data?.paidBills || 0, color: "#28a745" },
+        { title: "Facturas Pagas", value: data?.billsPaid || 0, color: "#28a745" },
         { title: "Facturas Impagas", value: data?.unpaidBills || 0, color: "#dc3545" },
         { title: "Modalidad Activa", value: data?.activeModality || "No disponible", color: "#a15faf" },
-        { title: "Fecha de Periodo (Activo)", value: data?.activePeriodDate ? new Date(data.activePeriodDate).toLocaleDateString() : "No disponible", color: "#ff5d00" },
-        { title: "Servicio/Unidad", value: data?.serviceUnit || "No disponible", color: "#05c1a1" },
+        { title: "Fecha de Periodo (Activo)", value: data?.activePeriod ? new Date(data.activePeriod).toLocaleDateString() : "No disponible", color: "#ff5d00" },
+        { title: "Servicio/Unidad", value: data?.activeUnitService || "No disponible", color: "#05c1a1" },
+        { title: "Estado de Cuenta", value: data?.statusUser === 1 ? "Activa" : "Inactiva", color: data?.statusUser === 1 ? "#28a745" : "#dc3545" }, // Nuevo cuadro para el estado de actividad
     ], [data]);
 
-    // Datos del gráfico de barras (Consumo histórico)
-    const consumptionData = useMemo(() =>
-        data?.consumptionHistory?.map(entry => ({
-            period: entry.period,
-            consumption: entry.consumption,
-        })) ?? [],
-        [data]);
+    // Calcular el consumo real por mes
+    const calculateRealConsumption = (readings: ReadReadingDto[]) => {
+        // Ordenar las lecturas por fecha
+        const sortedReadings = readings.sort((a, b) => 
+            new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
+
+        // Calcular la diferencia entre lecturas consecutivas
+        return sortedReadings.map((reading, index) => {
+            const previousReading = index > 0 ? sortedReadings[index - 1].reading : 0;
+            const realConsumption = reading.reading - previousReading;
+            return {
+                period: reading.periodName, // Usamos periodName para el eje X
+                consumption: realConsumption, // Consumo real del mes
+                date: new Date(reading.date).toLocaleDateString(), // Formateamos la fecha para el tooltip
+            };
+        });
+    };
+
+    // Datos del gráfico de barras (Consumos reales por mes)
+    const consumptionData = useMemo(() => 
+        calculateRealConsumption(readings),
+        [readings]
+    );
+
+    // Tooltip personalizado para el gráfico de barras
+    const CustomTooltip = ({ active, payload, label }: any) => {
+        if (active && payload && payload.length) {
+            return (
+                <div className="custom-tooltip" style={{ backgroundColor: "#fff", padding: "10px", border: "1px solid #ccc" }}>
+                    <p>{`Periodo: ${label}`}</p>
+                    <p>{`Consumo: ${payload[0].value}`}</p>
+                    <p>{`Fecha: ${payload[0].payload.date}`}</p>
+                </div>
+            );
+        }
+        return null;
+    };
 
     // Render
     return (
         <div>
-            <h1 className="text-center">Resumen del Usuario</h1>
+            <h1 className="text-center">Resumen de {data?.userName} {data?.userLastName}</h1>
 
             {/* Mostrar el mensaje de carga mientras los datos se están cargando */}
             {loading ? (
@@ -101,7 +151,7 @@ const UserResume = () => {
                         ))}
                     </Row>
 
-                    {/* Gráfico de barras: Consumo histórico */}
+                    {/* Gráfico de barras: Consumos reales por mes */}
                     <Row>
                         <Col md={12} className="mb-4">
                             <Card>
@@ -111,7 +161,7 @@ const UserResume = () => {
                                         <BarChart data={consumptionData}>
                                             <XAxis dataKey="period" />
                                             <YAxis />
-                                            <Tooltip />
+                                            <Tooltip content={<CustomTooltip />} />
                                             <Legend />
                                             <Bar dataKey="consumption" fill="#007bff" />
                                         </BarChart>
