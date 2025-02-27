@@ -24,6 +24,8 @@ const ServicesUnitsPage = () => {
     const [showServiceEditModal, setShowServiceEditModal] = useState(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [showConfirmActiveModal, setShowConfirmActiveModal] = useState(false);
+    const [serviceUnitToUpdate, setServiceUnitToUpdate] = useState<ServiceUnitDto | null>(null);
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -91,16 +93,25 @@ const ServicesUnitsPage = () => {
         }
     };
 
-    // Manejar el cambio de estado
-    const handleToggleActive = async (serviceUnit: ServiceUnitDto) => {
+    const handleToggleActive = (serviceUnit: ServiceUnitDto) => {
+        setServiceUnitToUpdate(serviceUnit);
+        setShowConfirmActiveModal(true); 
+    };
+
+    const handleConfirmActiveChange = async () => {
+        if (!serviceUnitToUpdate) return;
+
         try {
-            const updatedStatus = !serviceUnit.active; // Cambiar el estado actual
-            await updateData(`/admin/change-serviceUnit?idServiceUnit`, serviceUnit.idServiceUnit, {});
-            fetchData(); // Recargar datos
+            const updatedStatus = !serviceUnitToUpdate.active;
+            await updateData(`/admin/change-serviceUnit?idServiceUnit`, serviceUnitToUpdate.idServiceUnit, {});
+            fetchData(); 
             toast.success(`Estado actualizado a ${updatedStatus ? "Activo" : "Inactivo"}`);
         } catch (error) {
             console.error("Error actualizando el estado:", error);
             toast.error("No se pudo actualizar el estado");
+        } finally {
+            setShowConfirmActiveModal(false); // Cerrar el modal
+            setServiceUnitToUpdate(null); // Limpiar la unidad de servicio almacenada
         }
     };
 
@@ -115,6 +126,7 @@ const ServicesUnitsPage = () => {
                     checked={row.active}
                     onChange={() => handleToggleActive(row)}
                     title={row.active ? "Activo" : "Inactivo"}
+                    className="custom-switch-container"
                 />
             )
         },
@@ -168,6 +180,23 @@ const ServicesUnitsPage = () => {
                             serviceUnit={selectedServiceUnit}
                             services={servicesData}
                             unities={unitiesData}
+                        />
+
+                        {/* Modal de Confirmación para Cambiar Estado */}
+                        <ConfirmModal
+                            show={showConfirmActiveModal}
+                            onHide={() => setShowConfirmActiveModal(false)}
+                            title="Confirmar Cambio de Estado"
+                            message={
+                                <>
+                                    ¿Estás seguro que deseas cambiar el estado de la unidad de servicio{" "}
+                                    <strong>{serviceUnitToUpdate?.serviceUnitName}</strong> a{" "}
+                                    <strong>{serviceUnitToUpdate?.active ? "Inactivo" : "Activo"}</strong>?
+                                </>
+                            }
+                            confirmText="Confirmar"
+                            isLoading={false} // Puedes agregar un estado de carga si lo necesitas
+                            onConfirm={handleConfirmActiveChange}
                         />
 
                         {/* Modal de Confirmación */}

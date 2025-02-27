@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import { Modal, Button, Table, Spinner, Badge } from "react-bootstrap";
+import { Modal, Button, Table, Spinner, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
 import { UserDto } from "../../../core/models/dto/UserDto";
-import { getData, deleteData } from "../../../core/services/apiService";
+import { getData, deleteData, updateData } from "../../../core/services/apiService";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import PdfGenerator from "../../../shared/components/pdf/PdfGenerator";
 import { formatCurrency } from "../../../core/utils/formatters";
@@ -16,7 +16,6 @@ interface BillActiveModalProps {
 }
 
 const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user }) => {
-
     // Estados
     const [bills, setBills] = useState<BillDetailsDto[]>([]);
     const [loading, setLoading] = useState(false);
@@ -25,6 +24,8 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     const [anulando, setAnulando] = useState(false);
     const [pdfLoading, setPdfLoading] = useState(false);
     const [selectedBill, setSelectedBill] = useState<BillDetailsDto | null>(null);
+    const [showConfirmStatusModal, setShowConfirmStatusModal] = useState(false);
+    const [billToUpdate, setBillToUpdate] = useState<BillDetailsDto | null>(null);
 
     // Constantes
     const invoiceRef = useRef<HTMLDivElement>(null);
@@ -36,7 +37,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
         }
     }, [show, user]);
 
-    // Obtener datos de la api
+    // Obtener datos de la API
     const fetchData = async (idUser: number) => {
         setLoading(true);
         try {
@@ -56,7 +57,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
         setShowConfirmModal(true);
     };
 
-    // Manejar confirmacion para anular factura
+    // Manejar confirmación para anular factura
     const handleConfirmAnnular = async () => {
         if (!selectedBillId) return;
 
@@ -72,6 +73,38 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
             setShowConfirmModal(false);
             setSelectedBillId(null);
         }
+    };
+
+    // Manejar el cambio de estado de pago
+    const handleConfirmStatusChange = async () => {
+        if (!billToUpdate) return;
+
+        try {
+            // Enviar solo el idBill al endpoint
+            await updateData(`/operator/bill-payment?idBill`, billToUpdate.idBill, {});
+
+            // Actualizar el estado localmente
+            setBills(prevBills =>
+                prevBills.map(b =>
+                    b.idBill === billToUpdate.idBill ? { ...b, paidStatus: !b.paidStatus } : b
+                )
+            );
+
+            // Mostrar notificación de éxito
+            toast.success(`Estado actualizado a ${!billToUpdate.paidStatus ? "Pagada" : "Impaga"}`);
+        } catch (error) {
+            console.error("Error actualizando el estado:", error);
+            toast.error("No se pudo actualizar el estado");
+        } finally {
+            setShowConfirmStatusModal(false);
+            setBillToUpdate(null);
+        }
+    };
+
+    // Manejar el cambio de estado (abrir modal de confirmación)
+    const handleTogglePaidStatus = (bill: BillDetailsDto) => {
+        setBillToUpdate(bill);
+        setShowConfirmStatusModal(true);
     };
 
     // Manejar visualización de factura
@@ -109,7 +142,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                                     <th>Excedente</th>
                                     <th>Precio Excedente</th>
                                     <th>Total</th>
-                                    <th>Estado</th>
+                                    <th>Estado de pago</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -122,9 +155,13 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                                         <td>{formatCurrency(bill.surplusPrice)}</td>
                                         <td>{formatCurrency(bill.total)}</td>
                                         <td>
-                                            <Badge bg={bill.paidStatus ? 'success' : 'warning'}>
-                                                {bill.paidStatus ? 'Pagada' : 'Impaga'}
-                                            </Badge>
+                                            <Form.Check
+                                                type="switch"
+                                                id={`paidStatusSwitch-${bill.idBill}`}
+                                                checked={bill.paidStatus}
+                                                onChange={() => handleTogglePaidStatus(bill)}
+                                                className="custom-switch-container"
+                                            />
                                         </td>
                                         <td>
                                             <div className="d-flex gap-2 justify-content-center">
@@ -153,6 +190,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                 </Modal.Footer>
             </Modal>
 
+            {/* Modal de Confirmación para Anular */}
             <ConfirmModal
                 show={showConfirmModal}
                 onHide={() => { setShowConfirmModal(false); setSelectedBillId(null); }}
@@ -166,6 +204,23 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                 confirmText="Anular"
                 isLoading={anulando}
                 onConfirm={handleConfirmAnnular}
+            />
+
+            {/* Modal de Confirmación para Cambiar Estado */}
+            <ConfirmModal
+                show={showConfirmStatusModal}
+                onHide={() => setShowConfirmStatusModal(false)}
+                title="Confirmar Cambio de Estado"
+                message={
+                    <>
+                        ¿Estás seguro que deseas cambiar el estado de la factura N°{" "}
+                        <strong>{billToUpdate?.idBill}</strong> a{" "}
+                        <strong>{billToUpdate?.paidStatus ? "Impaga" : "Pagada"}</strong>?
+                    </>
+                }
+                confirmText="Confirmar"
+                isLoading={false}
+                onConfirm={handleConfirmStatusChange} // Sin argumentos
             />
 
             {selectedBill && user && (
