@@ -127,17 +127,9 @@ const DashboardOperator: React.FC = () => {
                                 </Link>
                             </li>
 
-                            {/* Cobros */}
-                            <li>
-                                <Link to="/dashboard/reportes" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/reportes' ? 'active' : ''}`} title="Gestión de cobros">
-                                    <i className="bi bi-cash-coin fs-4"></i>
-                                    <span className="ms-2 d-none d-lg-inline">Cobros</span>
-                                </Link>
-                            </li>
-
                             {/* Reportes */}
                             <li className="nav-item">
-                                <Link to="/dashboard/usuarios" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/usuarios' ? 'active' : ''}`} title="Gestión de Reportes">
+                                <Link to="/dashboard/operator/reports" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/operator/reports' ? 'active' : ''}`} title="Generar Reportes">
                                     <i className="bi-clipboard-data fs-4"></i>
                                     <span className="ms-2 d-none d-lg-inline">Reportes</span>
                                 </Link>
