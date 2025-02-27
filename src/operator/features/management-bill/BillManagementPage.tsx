@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button, Spinner } from "react-bootstrap";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
-import { getData } from "../../../core/services/apiService";
+import { addData, getData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
@@ -22,6 +22,7 @@ const BillManagementPage = () => {
     const [showBillActiveModal, setShowBillActiveModal] = useState(false);
     const [showBillNullModal, setShowBillNullModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
+    const [isSending, setIsSending] = useState(false);
 
     // Nuevos estados para PDF
     const [pdfBills, setPdfBills] = useState<BillDetailsDto[]>([]);
@@ -143,6 +144,20 @@ const BillManagementPage = () => {
             toast.error("Error al generar el PDF");
         }
     };
+    
+    const handleSendBillNotifications = async () => {
+        setIsSending(true);
+        try {
+            await addData(`/operator/bill/send-notifications`, {});
+            toast.success("Envío de correos electrónicos realizado exitosamente");
+        } catch (error) {
+            console.error(error);
+            toast.error(error instanceof Error ? error.message : "Error al enviar correos electrónicos");
+        } finally {
+            setIsSending(false);
+        }
+    };
+
 
     // Efecto para generar el PDF cuando haya facturas
     useEffect(() => {
@@ -187,6 +202,13 @@ const BillManagementPage = () => {
                 <div>
                     <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
                         <SearchBar onSearch={handleSearch} />
+                        <Button
+                    variant="primary"
+                    onClick={handleSendBillNotifications}
+                    disabled={isSending}
+                >
+                    {isSending ? "Enviando..." : "Enviar notificaciones de facturas"}
+                </Button>
                         <Button
                             onClick={handleGeneratePdf}
                             disabled={pdfLoading}
