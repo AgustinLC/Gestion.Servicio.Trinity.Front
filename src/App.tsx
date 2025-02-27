@@ -33,6 +33,7 @@ import UserDashboard from "./user/features/dashboard/UserDashboard";
 import UserBills from "./user/features/bills/UserBills";
 import UserConsumptions from "./user/features/consumptions/UserConsumptions";
 import UserPersonalData from "./user/features/personaldata/UserPersonalData";
+import UserResume from "./user/features/resume/UserResume";
 
 const App: React.FC = () => {
   return (
@@ -50,7 +51,7 @@ const App: React.FC = () => {
 
         {/* Rutas solo para usuario */}
         <Route path="/dashboard/user" element={<UserDashboard />}>
-          {/*<Route path="resume" element={<UserResume />} />*/}
+          <Route path="resume" element={<UserResume />} />
           <Route path="bills" element={<UserBills />} />
           <Route path="consumptions" element={<UserConsumptions />} />
           <Route path="personal-data" element={<UserPersonalData />} />

@@ -117,102 +117,102 @@ const handleUpdateUser = async () => {
 
     return (
         <div className="container mt-4">
-            <h1 className="text-center">Actualizar Mis Datos Personales</h1>
-            <Form>
-                {/* Campo para el correo electrónico */}
-                <Form.Group className="mb-3">
-                    <Form.Label>Correo Electrónico</Form.Label>
-                    <Form.Control
-                        type="email"
-                        value={user.username}
-                        onChange={(e) => setUser({ ...user, username: e.target.value })}
-                    />
-                </Form.Group>
+    <h1 className="text-center">Actualizar Mis Datos Personales</h1>
+    <Form>
+        {/* Campo para el correo electrónico */}
+        <Form.Group className="mb-3">
+            <Form.Label>Correo Electrónico</Form.Label>
+            <Form.Control
+                type="email"
+                value={user.username}
+                onChange={(e) => setUser({ ...user, username: e.target.value })}
+            />
+        </Form.Group>
 
-                {/* Campo para el DNI */}
-                <Form.Group className="mb-3">
-                    <Form.Label>DNI</Form.Label>
-                    <Form.Control
-                        type="number"
-                        value={user.dni}
-                        onChange={(e) => setUser({ ...user, dni: parseInt(e.target.value) })}
-                    />
-                </Form.Group>
+        {/* Campo para el DNI */}
+        <Form.Group className="mb-3">
+            <Form.Label>DNI</Form.Label>
+            <Form.Control
+                type="number"
+                value={user.dni}
+                onChange={(e) => setUser({ ...user, dni: parseInt(e.target.value) })}
+            />
+        </Form.Group>
 
-                {/* Campo para el teléfono */}
-                <Form.Group className="mb-3">
-                    <Form.Label>Teléfono</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={user.phone}
-                        onChange={(e) => setUser({ ...user, phone: e.target.value })}
-                    />
-                </Form.Group>
+        {/* Campo para el teléfono */}
+        <Form.Group className="mb-3">
+            <Form.Label>Teléfono</Form.Label>
+            <Form.Control
+                type="text"
+                value={user.phone}
+                onChange={(e) => setUser({ ...user, phone: e.target.value })}
+            />
+        </Form.Group>
 
-                {/* Switch para la factura digital */}
-                <Form.Group className="mb-3">
-                    <Form.Label>Factura Digital</Form.Label>
-                    <div className="d-flex align-items-center">
-                        <Form.Check
-                            type="switch"
-                            id="digital-invoice-switch"
-                            label={user.digitalInvoiceAdhered ? "Adherido" : "No Adherido"}
-                            checked={user.digitalInvoiceAdhered || false}
-                            onChange={(e) => handleToggleDigitalInvoice(e.target.checked)}
-                        />
-                    </div>
-                </Form.Group>
+        {/* Switch para la factura digital */}
+        <Form.Group className="mb-3">
+            <Form.Label>Factura Digital</Form.Label>
+            <div className="d-flex align-items-center">
+                <Form.Check
+                    type="switch"
+                    id="digital-invoice-switch"
+                    label={user.digitalInvoiceAdhered ? "Adherido" : "No Adherido"}
+                    checked={user.digitalInvoiceAdhered || false}
+                    onChange={(e) => handleToggleDigitalInvoice(e.target.checked)}
+                />
+            </div>
+        </Form.Group>
 
-                {/* Botón para mostrar campos de contraseña */}
-                <Button
-                    variant="secondary"
-                    onClick={() => setShowPasswordFields(!showPasswordFields)}
-                    className="mb-3"
-                >
-                    Cambiar Contraseña
-                </Button>
+        {/* Contenedor para los botones */}
+        <div className="d-flex gap-3 mb-3">
+            {/* Botón para mostrar campos de contraseña */}
+            <Button
+                variant="secondary"
+                onClick={() => setShowPasswordFields(!showPasswordFields)}
+            >
+                Cambiar Contraseña
+            </Button>
 
-                {/* Campos para cambiar la contraseña */}
-                {showPasswordFields && (
-                    <>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Nueva Contraseña</Form.Label>
-                            <Form.Control
-                                type="password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Confirmar Contraseña</Form.Label>
-                            <Form.Control
-                                type="password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Button
-                            variant="primary"
-                            onClick={handleChangePassword}
-                            disabled={loading}
-                        >
-                            Actualizar Contraseña
-                        </Button>
-                    </>
-                )}
-
-                {/* Botón para guardar cambios */}
-                <div className="d-grid mt-4">
-                    <Button
-                        variant="primary"
-                        onClick={handleUpdateUser}
-                        disabled={loading}
-                    >
-                        Guardar Cambios
-                    </Button>
-                </div>
-            </Form>
+            {/* Botón para guardar cambios */}
+            <Button
+                variant="primary"
+                onClick={handleUpdateUser}
+                disabled={loading}
+            >
+                Guardar Cambios
+            </Button>
         </div>
+
+        {/* Campos para cambiar la contraseña */}
+        {showPasswordFields && (
+            <>
+                <Form.Group className="mb-3">
+                    <Form.Label>Nueva Contraseña</Form.Label>
+                    <Form.Control
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Confirmar Contraseña</Form.Label>
+                    <Form.Control
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                </Form.Group>
+                <Button
+                    variant="primary"
+                    onClick={handleChangePassword}
+                    disabled={loading}
+                >
+                    Actualizar Contraseña
+                </Button>
+            </>
+        )}
+    </Form>
+</div>
     );
 };
 

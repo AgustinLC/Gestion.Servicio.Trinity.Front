@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Badge, Button, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
@@ -7,18 +7,27 @@ import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
 import useAuth from "../../../hooks/useAuth";
+import PdfGenerator from "../../../shared/components/pdf/PdfGenerator";
+import ConsorcioInvoice from "../../../shared/components/bill/Bill";
+import { UserDto } from "../../../core/models/dto/UserDto";
 
 const UserBills: React.FC = () => {
     const [bills, setBills] = useState<BillDetailsDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [filteredData, setFilteredData] = useState<BillDetailsDto[]>([]);
+    const [selectedBill, setSelectedBill] = useState<BillDetailsDto | null>(null); // Estado para la factura seleccionada
+    const [pdfLoading, setPdfLoading] = useState(false); // Estado para la carga del PDF
+    const invoiceRef = useRef<HTMLDivElement>(null); // Ref para el componente de factura
+    const [user, setUsers] = useState<UserDto[] | null>(null);
+
     // Hooks importados
-    const { userId } = useAuth();
+    const { userId } = useAuth(); // Obtener el userId y el usuario logueado
 
     useEffect(() => {
-        if(userId){
+        if (userId) {
             fetchBills();
+            fetchUserData();
         }
     }, [userId]);
 
@@ -32,6 +41,20 @@ const UserBills: React.FC = () => {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al obtener las facturas");
             setError("Error al cargar las facturas");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchUserData = async () => {
+        setLoading(true);
+        try {
+            const users = await getData<UserDto[]>(`/user/${userId}`);
+            setUsers(users);
+        } catch (error) {
+            console.error(error);
+            toast.error(error instanceof Error ? error.message : "Error al obtener los datos del usuario");
+            setError("Error al cargar datos de usuario");
         } finally {
             setLoading(false);
         }
@@ -60,6 +83,15 @@ const UserBills: React.FC = () => {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al generar el enlace de pago");
         }
+    };
+
+    // Manejar visualización de factura
+    const handleViewInvoice = (bill: BillDetailsDto) => {
+        setSelectedBill(bill); // Establece la factura seleccionada
+        setTimeout(() => {
+            const trigger = document.getElementById('pdf-trigger');
+            if (trigger) trigger.click(); // Simula el clic en el botón de generación de PDF
+        }, 100);
     };
 
     const columns: TableColumnDefinition<BillDetailsDto>[] = [
@@ -108,7 +140,7 @@ const UserBills: React.FC = () => {
                             Pagar
                         </Button>
                     )}
-                    <Button variant="primary" onClick={() => window.print()}>
+                    <Button variant="primary" onClick={() => handleViewInvoice(row)}>
                         Visualizar
                     </Button>
                 </div>
@@ -135,6 +167,25 @@ const UserBills: React.FC = () => {
                         data={filteredData}
                         columns={columns}
                     />
+                </div>
+            )}
+
+            {/* Componente para generar el PDF */}
+            {selectedBill && user && (
+                <PdfGenerator
+                    fileName={`Factura_${selectedBill.idBill}`}
+                    onGenerate={(isGenerating) => setPdfLoading(isGenerating)}
+                    ref={invoiceRef}
+                >
+                    <ConsorcioInvoice user={user} bill={selectedBill} />
+                </PdfGenerator>
+            )}
+
+            {/* Overlay de carga para el PDF */}
+            {pdfLoading && (
+                <div className="pdf-loading-overlay">
+                    <Spinner animation="border" />
+                    <p>Generando PDF...</p>
                 </div>
             )}
         </div>
