@@ -19,7 +19,7 @@ const NewPeriodPage = () => {
         try {
             await addData('/operator/next-period', {});
             setSuccess(true);
-            setTimeout(() => setSuccess(false), 10000);
+            setTimeout(() => setSuccess(false), 300000);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error desconocido');
         } finally {
@@ -37,21 +37,21 @@ const NewPeriodPage = () => {
                         Información Importante
                     </Card.Title>
                     <Stack gap={2}>
-                        <div className="d-flex align-items-start">
-                            <span className="bullet">•</span>
-                            <span>INFO</span>
+                        <div>
+                            <strong>Verificación de lecturas completas:</strong>
+                            <span className="d-block text-muted">Es requisito indispensable que todas las lecturas del período actual estén registradas para habilitar la generación de un nuevo ciclo.</span>
                         </div>
-                        <div className="d-flex align-items-start">
-                            <span className="bullet">•</span>
-                            <span>INFO</span>
+                        <div>
+                            <strong>Respeto de fechas límite:</strong>
+                            <span className="d-block text-muted">El sistema bloqueará la creación de nuevos períodos hasta que finalice completamente el ciclo anterior, garantizando la secuencia cronológica correcta.</span>
                         </div>
-                        <div className="d-flex align-items-start">
-                            <span className="bullet">•</span>
-                            <span>El proceso puede tomar varios minutos</span>
+                        <div>
+                            <strong>El proceso puede tomar varios minutos:</strong>
+                            <span className="d-block text-muted">Debido a la gran cantidad de datos que se deben generar el proceso puede tardar un poco.</span>
                         </div>
-                        <div className="d-flex align-items-start">
-                            <span className="bullet">•</span>
-                            <span>Verifique que todas las lecturas estén actualizadas</span>
+                        <div>
+                            <strong>Regularización automática:</strong>
+                            <span className="d-block text-muted">En caso de períodos no generados acumulados, el sistema procesará todos los ciclos pendientes históricos, pero solo mantendrá activo y accesible el último período generado.</span>
                         </div>
                     </Stack>
                 </Card.Body>
