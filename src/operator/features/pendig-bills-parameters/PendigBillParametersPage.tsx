@@ -100,7 +100,7 @@ const PendigBillsParameterPage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Gestion de Conceptos</h1>
+            <h1 className="text-center">Gestión de Conceptos</h1>
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center vh-100">
                     <span className="mb-2 fw-bold">CARGANDO...</span>

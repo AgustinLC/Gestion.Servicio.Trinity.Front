@@ -35,7 +35,7 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
         const fetchReadings = async () => {
             setLoading(true);
             try {
-                const readings = await getData<ReadReadingDto[]>(`/operator/readings/${userId}`);
+                const readings = await getData<ReadReadingDto[]>(`/user/readings/${userId}`);
                 setReadings(readings);
             } catch (error) {
                 console.error(error);

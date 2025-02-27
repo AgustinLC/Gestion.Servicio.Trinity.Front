@@ -101,7 +101,7 @@ const CrudFaqPage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Gestion de FAQ</h1>
+            <h1 className="text-center">Gestión de FAQ</h1>
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center vh-100">
                     <span className="mb-2 fw-bold">CARGANDO...</span>

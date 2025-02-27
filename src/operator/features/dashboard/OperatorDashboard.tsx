@@ -32,7 +32,7 @@ const DashboardOperator: React.FC = () => {
                         Nuevo Periodo
                     </Link>
                     <Link to="/dashboard/operator/readings/management" className={`nav-link link-dark py-2 text-indented ${currentPath === '/dashboard/operator/readings/management' ? 'active' : ''}`} onClick={() => setActivePopover(null)}>
-                        Gestion de Lecturas
+                        Gestión de Lecturas
                     </Link>
                     <Link to="/dashboard/operator/readings/take" className={`nav-link link-dark py-2 text-indented ${currentPath === '/dashboard/operator/readings/take' ? 'active' : ''}`} onClick={() => setActivePopover(null)}>
                         Tomar Lecturas
