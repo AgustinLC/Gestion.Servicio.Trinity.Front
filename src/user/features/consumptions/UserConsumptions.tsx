@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { ReadReadingDto } from "../../../core/models/dto/ReadReadingDto";
@@ -8,17 +8,21 @@ import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
 import useAuth from "../../../hooks/useAuth";
 
+// Definir un tipo extendido que incluya realConsumption
+type ReadingWithRealConsumption = ReadReadingDto & { realConsumption: number };
+
 const UserConsumptions: React.FC = () => {
     const [readings, setReadings] = useState<ReadReadingDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [filteredData, setFilteredData] = useState<ReadReadingDto[]>([]);
+    const [filteredData, setFilteredData] = useState<ReadingWithRealConsumption[]>([]); // Cambiar el tipo aquí
+
     // Hooks importados
     const { userId } = useAuth();
 
     // Obtener los consumos al cargar el componente
     useEffect(() => {
-        if(userId){
+        if (userId) {
             fetchReadings();
         }
     }, [userId]);
@@ -29,7 +33,8 @@ const UserConsumptions: React.FC = () => {
         try {
             const readings = await getData<ReadReadingDto[]>(`/user/readings/${userId}`);
             setReadings(readings);
-            setFilteredData(readings);
+            const readingsWithRealConsumption = calculateRealConsumption(readings); // Calcular el consumo real
+            setFilteredData(readingsWithRealConsumption); // Actualizar filteredData con el tipo correcto
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al obtener los consumos");
@@ -39,9 +44,27 @@ const UserConsumptions: React.FC = () => {
         }
     };
 
+    // Calcular el consumo real por mes
+    const calculateRealConsumption = (readings: ReadReadingDto[]): ReadingWithRealConsumption[] => {
+        // Ordenar las lecturas por fecha
+        const sortedReadings = readings.sort((a, b) =>
+            new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
+
+        // Calcular la diferencia entre lecturas consecutivas
+        return sortedReadings.map((reading, index) => {
+            const previousReading = index > 0 ? sortedReadings[index - 1].reading : 0;
+            const realConsumption = reading.reading - previousReading;
+            return {
+                ...reading, // Mantener todas las propiedades originales
+                realConsumption, // Agregar el consumo real
+            };
+        });
+    };
+
     // Función para manejar la búsqueda
     const handleSearch = (query: string) => {
-        const filtered = readings.filter((reading) =>
+        const filtered = calculateRealConsumption(readings).filter((reading) =>
             Object.values(reading).some((value) =>
                 String(value).toLowerCase().includes(query.toLowerCase())
             )
@@ -50,22 +73,27 @@ const UserConsumptions: React.FC = () => {
     };
 
     // Columnas de la tabla
-    const columns: TableColumnDefinition<ReadReadingDto>[] = [
+    const columns: TableColumnDefinition<ReadingWithRealConsumption>[] = [
         { key: "idReading", label: "ID Lectura", sortable: true },
         { key: "periodName", label: "Período", sortable: true },
         {
             key: "date",
             label: "Fecha",
             sortable: true,
-            render: (row: ReadReadingDto) => new Date(row.date).toLocaleDateString(), // Formatea la fecha
+            render: (row: ReadingWithRealConsumption) => new Date(row.date).toLocaleDateString(), // Formatea la fecha
         },
         {
             key: "reading",
-            label: "Consumo Realizado",
+            label: "Lectura Actual",
             sortable: true,
-            render: (row: ReadReadingDto) => row.reading.toLocaleString(), // Formatea el consumo con separadores de miles
+            render: (row: ReadingWithRealConsumption) => row.reading.toLocaleString(), // Formatea el consumo con separadores de miles
         },
-        
+        {
+            key: "realConsumption",
+            label: "Consumo Real",
+            sortable: true,
+            render: (row: ReadingWithRealConsumption) => row.realConsumption.toLocaleString(), // Formatea el consumo real
+        },
     ];
 
     return (
@@ -84,7 +112,7 @@ const UserConsumptions: React.FC = () => {
                         <SearchBar onSearch={handleSearch} />
                     </div>
                     <ReusableTable
-                        data={filteredData}
+                        data={filteredData} // Ahora filteredData tiene el tipo correcto
                         columns={columns}
                     />
                 </div>
