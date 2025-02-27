@@ -30,6 +30,7 @@ import BillBulkGeneratePage from "./operator/features/generate-bill/BillBulkGene
 import BillIndividualGeneratePage from "./operator/features/generate-bill/BillIndividualGeneratePage";
 import BillManagementPage from "./operator/features/management-bill/BillManagementPage";
 import ReportsPage from "./operator/features/reports/ReportPage";
+import NewPeriodPage from "./operator/features/reading/new-period/NewPeriodPage";
 
 const App: React.FC = () => {
   return (
@@ -56,6 +57,7 @@ const App: React.FC = () => {
           <Route path="bills/individual-generate" element={<BillIndividualGeneratePage />} />
           <Route path="bills/management" element={<BillManagementPage />} />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="new/period" element={<NewPeriodPage />} />
         </Route>
 
         {/* Rutas solo para usuario administrador */}
