@@ -13,6 +13,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   // Estado para almacenar el rol del usuario
   const [userRole, setUserRole] = useState<string | null>(null);
+  // Estado para almacenar el id del usuario
+  const [userId, setUserID] = useState<number | null>(null);
 
   // Efecto para actualizar el estado de autenticación cuando cambia el token
   useEffect(() => {
@@ -20,6 +22,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsAuthenticated(true);
       const decodedToken = parseJwt(token);
       setUserRole(decodedToken.role || null);
+      setUserID(decodedToken.userId || null);
     } else {
       setIsAuthenticated(false);
       setUserRole(null);
@@ -45,7 +48,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Devolver el contexto de autenticación
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userRole, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, userRole, userId, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

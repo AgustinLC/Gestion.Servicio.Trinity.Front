@@ -1,0 +1,118 @@
+.sidebar {
+    width: 180px;
+    min-width: 160px;
+    max-width: 200px;
+}
+
+/* Estilos del popover personalizado */
+.submenu-popover {
+    background-color: #f8f9fa;
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    margin-top: 2px;
+    min-width: 200px;
+    margin-left: 0.5rem;
+    max-width: min(300px, 90vw);
+}
+
+.submenu-popover .nav-link {
+    color: #212529 !important;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+    padding: 0.5rem 1rem !important;
+}
+
+.submenu-popover .nav-link:hover {
+    background-color: #cecece;
+    color: rgb(0, 0, 0) !important;
+}
+
+/* Mejor usar padding que text-indent */
+.text-indented {
+    padding-left: 1rem !important;
+}
+
+/* Animación del chevron corregida */
+.chevron-icon {
+    transition: transform 0.3s ease;
+    transform: rotate(0deg);
+}
+
+.chevron-icon.rotate {
+    transform: rotate(180deg);
+}
+
+/* Efectos hover y activo para los elementos del sidebar */
+.sidebar .nav-link {
+    height: 50px;
+    transition: all 0.3s ease;
+    position: relative;
+    border-radius: 4px;
+    margin: 6px -3px;
+}
+
+/* Efecto de iluminación al pasar el mouse */
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+    transform: translateX(3px);
+}
+
+/* Estilo para el ítem activo */
+.sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    border-left: 3px solid #fff;
+    margin-left: -25px;
+}
+
+/* Borde izquierdo animado para el ítem activo */
+.sidebar .nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background-color: #fff;
+    animation: border-glow 1.5s infinite ease-in-out;
+}
+
+/* Estilo para el ítem activo */
+.sidebar .nav-link.active-submenu {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    border-left: 3px solid #fff;
+    margin-left: -25px;
+}
+
+/* Borde izquierdo animado para el ítem activo */
+.sidebar .nav-link.active-submenu::after {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background-color: #fff;
+    animation: border-glow 1.5s infinite ease-in-out;
+}
+
+.sidebar .nav-link:hover {
+    margin-left: -25px;
+}
+
+@keyframes border-glow {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+/* Ajuste del sidebar en pantallas pequeñas */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        min-width: 100%;
+    }
+}

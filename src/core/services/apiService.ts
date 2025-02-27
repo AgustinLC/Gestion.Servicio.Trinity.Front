@@ -4,18 +4,20 @@ import { WebApiResponse } from '../models/types/WebApiResponse';
 
 //Función para obtener datos
 export const getData = async <T>(endpoint: string): Promise<T> => {
+    const response = await axiosInstance.get<WebApiResponse<any>>(endpoint);
     try {
-        const response = await axiosInstance.get<WebApiResponse<any>>(endpoint);
         if (response.data.success) {
             return response.data.data;
+        } else {
+            throw new Error('Mensaje:' + response.data.message + 'Error:' + response.data.error)
         }
-        throw new Error('Mensaje:' + response.data.message + 'Error:' + response.data.error)
     } catch (error) {
         console.error('Error completo:', error); 
         if (axios.isAxiosError(error)) {
             throw new Error(error.response?.data?.message || 'Error inesperado al obtener los datos');
         } else {
-            throw new Error('Error inesperado al obtener los datos');
+            // Si el error no es de Axios, lanzamos el error del servidor
+            throw new Error(response.data.message || 'Error de conexión');
         }
     }
 }

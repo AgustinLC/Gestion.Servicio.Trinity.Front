@@ -31,6 +31,11 @@ import BillIndividualGeneratePage from "./operator/features/generate-bill/BillIn
 import BillManagementPage from "./operator/features/management-bill/BillManagementPage";
 import ReportsPage from "./operator/features/reports/ReportPage";
 import NewPeriodPage from "./operator/features/reading/new-period/NewPeriodPage";
+import UserDashboard from "./user/features/dashboard/UserDashboard";
+import UserBills from "./user/features/bills/UserBills";
+import UserConsumptions from "./user/features/consumptions/UserConsumptions";
+import UserPersonalData from "./user/features/personaldata/UserPersonalData";
+import UserResume from "./user/features/resume/UserResume";
 
 const App: React.FC = () => {
   return (
@@ -45,6 +50,14 @@ const App: React.FC = () => {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/faq" element={<Faq />} />
+
+        {/* Rutas solo para usuario */}
+        <Route path="/dashboard/user" element={<UserDashboard />}>
+          <Route path="resume" element={<UserResume />} />
+          <Route path="bills" element={<UserBills />} />
+          <Route path="consumptions" element={<UserConsumptions />} />
+          <Route path="personal-data" element={<UserPersonalData />} />
+        </Route>
 
         {/* Rutas solo para usuario operario */}
         <Route path="/dashboard/operator" element={<OperatorDashboard />}>
