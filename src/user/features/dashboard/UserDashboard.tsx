@@ -68,7 +68,7 @@ const UserDashboard: React.FC = () => {
 
                             {/* Reportes */}
                             <li className="nav-item">
-                                <Link to="/dashboard/usuarios" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/usuarios' ? 'active' : ''}`} title="Mis Datos">
+                                <Link to="/dashboard/user/personal-data" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/user/personal-data' ? 'active' : ''}`} title="Mis Datos">
                                     <i className="bi bi-person-square fs-4"></i>
                                     <span className="ms-2 d-none d-lg-inline">Mis Datos</span>
                                 </Link>

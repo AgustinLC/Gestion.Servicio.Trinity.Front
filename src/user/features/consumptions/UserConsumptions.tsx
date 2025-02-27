@@ -18,8 +18,10 @@ const UserConsumptions: React.FC = () => {
 
     // Obtener los consumos al cargar el componente
     useEffect(() => {
-        fetchReadings();
-    }, []);
+        if(userId){
+            fetchReadings();
+        }
+    }, [userId]);
 
     // Función para obtener los consumos desde la API
     const fetchReadings = async () => {

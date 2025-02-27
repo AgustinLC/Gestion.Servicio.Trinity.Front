@@ -17,8 +17,10 @@ const UserBills: React.FC = () => {
     const { userId } = useAuth();
 
     useEffect(() => {
-        fetchBills();
-    }, []);
+        if(userId){
+            fetchBills();
+        }
+    }, [userId]);
 
     const fetchBills = async () => {
         setLoading(true);
@@ -106,8 +108,8 @@ const UserBills: React.FC = () => {
                             Pagar
                         </Button>
                     )}
-                    <Button variant="info" onClick={() => window.print()}>
-                        Imprimir
+                    <Button variant="primary" onClick={() => window.print()}>
+                        Visualizar
                     </Button>
                 </div>
             ),

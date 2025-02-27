@@ -6,10 +6,11 @@ export interface UserDto {
   lastName: string;
   firstName: string;
   dni: number;
-  phone: number;
+  phone: string;
   status: Status;
   dateRegister: string;
   password: string;
+  digitalInvoiceAdhered: boolean;
   residenceDto: ResidenceDto;
 }
 

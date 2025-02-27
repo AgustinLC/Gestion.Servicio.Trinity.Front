@@ -32,6 +32,7 @@ import BillManagementPage from "./operator/features/management-bill/BillManageme
 import UserDashboard from "./user/features/dashboard/UserDashboard";
 import UserBills from "./user/features/bills/UserBills";
 import UserConsumptions from "./user/features/consumptions/UserConsumptions";
+import UserPersonalData from "./user/features/personaldata/UserPersonalData";
 
 const App: React.FC = () => {
   return (
@@ -52,6 +53,7 @@ const App: React.FC = () => {
           {/*<Route path="resume" element={<UserResume />} />*/}
           <Route path="bills" element={<UserBills />} />
           <Route path="consumptions" element={<UserConsumptions />} />
+          <Route path="personal-data" element={<UserPersonalData />} />
         </Route>
 
         {/* Rutas solo para usuario operario */}

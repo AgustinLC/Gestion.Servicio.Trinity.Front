@@ -82,10 +82,10 @@ const Navbar: React.FC = () => {
                 {/* Links para usuarios autenticados con rol user */}
                 {userRole === "ROLE_USER" && (
                   <li className="nav-item mx-2">
-                    <Link to="/dashboard/user" className={`nav-link d-none d-lg-inline ${isActive("/dashboard/user") ? "active" : ""}`}>
+                    <Link to="/dashboard/user/bills" className={`nav-link d-none d-lg-inline ${isActive("/dashboard/user/bills") ? "active" : ""}`}>
                       Panel de Gestión
                     </Link>
-                    <Link to="/dashboard/user" className={`nav-link d-lg-none ${isActive("/dashboard/user") ? "active" : ""}`}>
+                    <Link to="/dashboard/user/bills" className={`nav-link d-lg-none ${isActive("/dashboard/user/bills") ? "active" : ""}`}>
                       <i className="bi bi-layout-sidebar fs-5"></i>
                     </Link>
                   </li>
