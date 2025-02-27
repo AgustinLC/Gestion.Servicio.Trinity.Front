@@ -6,7 +6,6 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 import { getData, deleteData } from "../../../core/services/apiService";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import PdfGenerator from "../../../shared/components/pdf/PdfGenerator";
-import ConsorcioInvoice from "../../../shared/components/bill/bill";
 import { formatCurrency } from "../../../core/utils/formatters";
 
 interface BillActiveModalProps {
@@ -40,7 +39,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     const fetchData = async (idUser: number) => {
         setLoading(true);
         try {
-            const response = await getData<BillDetailsDto[]>(`/operator/bill-active/${idUser}`);
+            const response = await getData<BillDetailsDto[]>(`/user/bill-active/${idUser}`);
             setBills(response);
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Error al obtener las facturas activas");

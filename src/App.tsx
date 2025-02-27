@@ -5,7 +5,6 @@ import LoginPage from "./auth/features/login-page/LoginPage";
 import Faq from "./shared/features/faq/Faq";
 import Footer from "./shared/components/footer/footer";
 import Navbar from "./shared/components/navbar/Navbar";
-import Bill from "./shared/components/bill/bill";
 import ForgotPasswordPage from "./auth/features/forgot-password-page/ForgotPasswordPage";
 import ResetPasswordPage from "./auth/features/reset-password-page/ResetPasswordPage";
 import OperatorDashboard from "./operator/features/dashboard/OperatorDashboard";
@@ -30,6 +29,9 @@ import PendigBillsParameterPage from "./operator/features/pendig-bills-parameter
 import BillBulkGeneratePage from "./operator/features/generate-bill/BillBulkGeneratePage";
 import BillIndividualGeneratePage from "./operator/features/generate-bill/BillIndividualGeneratePage";
 import BillManagementPage from "./operator/features/management-bill/BillManagementPage";
+import UserDashboard from "./user/features/dashboard/UserDashboard";
+import UserBills from "./user/features/bills/UserBills";
+import UserConsumptions from "./user/features/consumptions/UserConsumptions";
 
 const App: React.FC = () => {
   return (
@@ -44,7 +46,13 @@ const App: React.FC = () => {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/faq" element={<Faq />} />
-        <Route path="/bill" element={<Bill />} />
+
+        {/* Rutas solo para usuario */}
+        <Route path="/dashboard/user" element={<UserDashboard />}>
+          {/*<Route path="resume" element={<UserResume />} />*/}
+          <Route path="bills" element={<UserBills />} />
+          <Route path="consumptions" element={<UserConsumptions />} />
+        </Route>
 
         {/* Rutas solo para usuario operario */}
         <Route path="/dashboard/operator" element={<OperatorDashboard />}>
