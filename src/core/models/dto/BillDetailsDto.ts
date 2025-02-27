@@ -1,5 +1,6 @@
 export interface BillDetailsDto {
     idBill: number;
+    idUser: number; 
     idMeter: number;
     idReading: number;
     consumption: number;
