@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button, Spinner } from "react-bootstrap";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
 import { getData } from "../../../core/services/apiService";
@@ -8,17 +8,25 @@ import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import BillActiveModal from "./BillActiveModal";
 import BillNullModal from "./BillNullModal";
+import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
+import ConsorcioInvoice from "../../../shared/components/bill/Bill";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const BillManagementPage = () => {
-
-    //Estados
-    const [user, setUsers] = useState<UserDto[]>([]);
+    // Estados existentes
+    const [users, setUsers] = useState<UserDto[]>([]);
     const [filteredData, setFilteredData] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showBillActiveModal, setShowBillActiveModal] = useState(false);
     const [showBillNullModal, setShowBillNullModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
+
+    // Nuevos estados para PDF
+    const [pdfBills, setPdfBills] = useState<BillDetailsDto[]>([]);
+    const [pdfLoading, setPdfLoading] = useState(false);
+    const componentRef = useRef<HTMLDivElement>(null);
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -29,28 +37,120 @@ const BillManagementPage = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            // Obtener usuarios
             const users = await getData<UserDto[]>("/operator/users");
             setUsers(users);
             setFilteredData(users);
         } catch (error) {
-            console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al obtener la información");
-            setError("Error al cargar la información principal");
+            handleError(error);
         } finally {
             setLoading(false);
         }
     };
 
+    // Manejar error genérico
+    const handleError = (error: unknown) => {
+        console.error(error);
+        const errorMessage = error instanceof Error ? error.message : "Error desconocido";
+        toast.error(errorMessage);
+        setError("Error al cargar la información principal");
+    };
+
     // Manejar búsqueda
     const handleSearch = (query: string) => {
-        const filtered = user.filter((user) =>
+        const filtered = users.filter((user) =>
             Object.values(user).some((value) =>
                 String(value).toLowerCase().includes(query.toLowerCase())
             )
         );
         setFilteredData(filtered);
     };
+
+    // Generar PDF
+    const handleGeneratePdf = async () => {
+        try {
+            setPdfLoading(true);
+            console.log('[Inicio] Obteniendo facturas...');
+
+            const bills = await getData<BillDetailsDto[]>("/operator/latest-bill/active-users");
+            console.log('[Facturas obtenidas]', bills.length);
+
+            if (bills.length === 0) {
+                toast.warning("No existen facturas para generar");
+                return;
+            }
+
+            // Verificar usuarios correspondientes
+            const missingUsers = bills.filter(bill =>
+                !users.some(user => user.idUser === bill.idUser)
+            );
+            console.log('[Usuarios faltantes]', missingUsers.length);
+
+            if (missingUsers.length > 0) {
+                console.log('[Obteniendo usuarios faltantes]');
+                const allUsers = await getData<UserDto[]>("/operator/users");
+                setUsers(allUsers);
+            }
+
+            // Actualizar estado solo si hay datos válidos
+            setPdfBills(bills.filter(bill =>
+                users.some(user => user.idUser === bill.idUser)
+            ));
+        } catch (error) {
+            console.error('[Error crítico]', error);
+            toast.error("Error en conexión con el servidor");
+        } finally {
+            setPdfLoading(false);
+        }
+    };
+
+    // Función para generar y descargar el PDF
+    const downloadPdf = async () => {
+        if (!componentRef.current) {
+            toast.error("No hay contenido para generar el PDF");
+            return;
+        }
+
+        try {
+            const pdf = new jsPDF("p", "mm", "a4");
+            const element = componentRef.current;
+
+            // Capturar el contenido HTML como imagen
+            const canvas = await html2canvas(element, { scale: 2 });
+            const imgData = canvas.toDataURL("image/png");
+
+            // Añadir la imagen al PDF
+            const imgWidth = 210; // Ancho de A4 en mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            // Dividir la imagen en varias páginas si es necesario
+            let position = 0;
+            const pageHeight = (imgWidth * 297) / 210; // Altura de A4 en mm
+
+            while (position < imgHeight) {
+                pdf.addImage(imgData, "PNG", 0, -position, imgWidth, imgHeight);
+                position += pageHeight;
+
+                if (position < imgHeight) {
+                    pdf.addPage(); // Agregar una nueva página si hay más contenido
+                }
+            }
+
+            // Descargar el PDF
+            pdf.save("facturas_consorcio.pdf");
+            toast.success("PDF generado y descargado correctamente");
+        } catch (error) {
+            console.error('[Error al generar PDF]', error);
+            toast.error("Error al generar el PDF");
+        }
+    };
+
+    // Efecto para generar el PDF cuando haya facturas
+    useEffect(() => {
+        if (pdfBills.length > 0) {
+            downloadPdf();
+            setPdfBills([]); // Limpiar el estado después de generar el PDF
+        }
+    }, [pdfBills]);
 
     // Columnas para ReusableTable
     const columns: TableColumnDefinition<UserDto>[] = [
@@ -87,23 +187,56 @@ const BillManagementPage = () => {
                 <div>
                     <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
                         <SearchBar onSearch={handleSearch} />
+                        <Button
+                            onClick={handleGeneratePdf}
+                            disabled={pdfLoading}
+                            variant="primary"
+                        >
+                            {pdfLoading ? (
+                                <>
+                                    <Spinner animation="border" size="sm" className="me-2" />
+                                    Generando PDF...
+                                </>
+                            ) : "Generar PDF de facturas"}
+                        </Button>
                     </div>
 
-                    {/* Tabla */}
+                    {/* Tabla principal */}
                     <ReusableTable<UserDto>
                         data={filteredData}
                         columns={columns}
                         defaultSort="idUser"
                     />
 
-                    {/* Modal para visualizar facturas activas */}
+                    {/* Contenedor oculto para las facturas PDF */}
+                    <div
+                        ref={componentRef}
+                        style={{
+                            position: 'absolute',
+                            left: '-9999px',
+                            top: '0',
+                            visibility: pdfBills.length > 0 ? 'visible' : 'hidden'
+                        }}
+                    >
+                        {pdfBills.map((bill) => {
+                            const user = users.find(u => u.idUser === bill.idUser);
+                            return user ? (
+                                <ConsorcioInvoice
+                                    key={`${bill.idBill}-${Date.now()}`}
+                                    user={user}
+                                    bill={bill}
+                                />
+                            ) : null;
+                        })}
+                    </div>
+
+                    {/* Modales */}
                     <BillActiveModal
                         show={showBillActiveModal}
                         onHide={() => setShowBillActiveModal(false)}
                         user={selectedUser}
                     />
 
-                    {/* Modal para visualizar facturas anuladas */}
                     <BillNullModal
                         show={showBillNullModal}
                         onHide={() => setShowBillNullModal(false)}
