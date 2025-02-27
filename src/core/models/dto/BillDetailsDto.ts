@@ -7,15 +7,30 @@ export interface BillDetailsDto {
     surplusPrice: number;
     total: number;
     paidStatus: boolean;
+    paymentLink: string;
     deleted: boolean;
-    previousReadingDate: number
-    currentReadingDate: number
+    dateRegister: Date; 
+    expirationDate: Date;
+    feeName: string; 
+    surplusChargePerUnit: number;
+    feePrice: number; 
+    consumptionMax: number; 
+    periodName: string;
+    readingsBillDto: ReadingBillDto 
     details: BillDetailDto[];
 }
 
-export interface BillDetailDto {
+interface BillDetailDto {
     idBillDetail: number;
     idBillingParameter: number;
     billingParameterName: string;
     value: number;
+}
+
+interface ReadingBillDto {
+    currentReading: number;
+    currentReadingDate: Date;
+    previousReading: number;
+    previousReadingDate: Date;
+    idBill: number;
 }

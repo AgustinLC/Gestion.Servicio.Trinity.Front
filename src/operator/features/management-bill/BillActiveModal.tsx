@@ -6,8 +6,8 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 import { getData, deleteData } from "../../../core/services/apiService";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import PdfGenerator from "../../../shared/components/pdf/PdfGenerator";
-import ConsorcioInvoice from "../../../shared/components/bill/bill";
 import { formatCurrency } from "../../../core/utils/formatters";
+import ConsorcioInvoice from "../../../shared/components/bill/Bill";
 
 interface BillActiveModalProps {
     show: boolean;
@@ -40,7 +40,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     const fetchData = async (idUser: number) => {
         setLoading(true);
         try {
-            const response = await getData<BillDetailsDto[]>(`/operator/bill-active/${idUser}`);
+            const response = await getData<BillDetailsDto[]>(`/user/bill-active/${idUser}`);
             setBills(response);
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Error al obtener las facturas activas");
@@ -128,19 +128,10 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                                         </td>
                                         <td>
                                             <div className="d-flex gap-2 justify-content-center">
-                                                <Button
-                                                    variant="danger"
-                                                    size="sm"
-                                                    onClick={() => handleAnnularClick(bill.idBill)}
-                                                    disabled={bill.paidStatus}
-                                                >
+                                                <Button variant="danger" size="sm" onClick={() => handleAnnularClick(bill.idBill)} disabled={bill.paidStatus}>
                                                     Anular
                                                 </Button>
-                                                <Button
-                                                    variant="primary"
-                                                    size="sm"
-                                                    onClick={() => handleViewInvoice(bill)}
-                                                >
+                                                <Button variant="primary" size="sm" onClick={() => handleViewInvoice(bill)}>
                                                     Visualizar
                                                 </Button>
                                             </div>
@@ -186,10 +177,6 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                     <ConsorcioInvoice
                         user={user}
                         bill={selectedBill}
-                        periodo={`Enero/Febrero`}
-                        numeroFactura={selectedBill.idBill.toString()}
-                        fechaEmision={new Date("2025/02/25")}
-                        fechaVencimiento={new Date("2025/03/25")}
                     />
                 </PdfGenerator>
             )}
