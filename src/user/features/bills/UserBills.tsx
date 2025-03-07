@@ -24,8 +24,6 @@ const UserBills: React.FC = () => {
     // Hooks importados
     const { userId } = useAuth(); // Obtener el userId y el usuario logueado
 
-   
-
     // Obtener datos del usuario 
     const fetchUserData = useCallback(async () => {
         setLoading(true);
