@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, Spinner, Alert, Card, Stack } from 'react-bootstrap';
 import { LightningChargeFill, InfoCircleFill } from 'react-bootstrap-icons';
-import { addData } from '../../../../core/services/apiService';
+import { addData } from '../../../core/services/apiService';
 import './NewPeriodPage.css';
 
 const NewPeriodPage = () => {
@@ -10,6 +10,7 @@ const NewPeriodPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+
 
     // Manejar boton para generar nuevo periodo
     const handleNewPeriod = async () => {
@@ -29,7 +30,8 @@ const NewPeriodPage = () => {
 
     // Render
     return (
-        <div className="new-period-container">
+        <div>
+            <h1 className="text-center">Generar nuevo periodo</h1>
             <Card className="info-card mb-4 bg-light">
                 <Card.Body>
                     <Card.Title className="text-primary mb-3">
@@ -58,19 +60,10 @@ const NewPeriodPage = () => {
             </Card>
 
             <div className="button-container">
-                <Button
-                    variant="primary"
-                    onClick={handleNewPeriod}
-                    disabled={isLoading}
-                    className="glowing-button"
-                >
+                <Button variant="primary" onClick={handleNewPeriod} disabled={isLoading} className="glowing-button">
                     {isLoading ? (
                         <>
-                            <Spinner
-                                animation="border"
-                                size="sm"
-                                className="me-2"
-                            />
+                            <Spinner animation="border" size="sm" className="me-2" />
                             Procesando...
                         </>
                     ) : (
@@ -93,7 +86,7 @@ const NewPeriodPage = () => {
                     </Alert>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 

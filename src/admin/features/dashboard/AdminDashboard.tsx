@@ -104,6 +104,22 @@ const AdminDashboard: React.FC = () => {
                                     <span className="ms-2 d-none d-lg-inline">Conceptos</span>
                                 </Link>
                             </li>
+
+                            {/* Periodo */}
+                            <li className="nav-item">
+                                <Link to="/dashboard/admin/new/period" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/new/period' ? 'active' : ''}`} title="Generar nueva modalidad">
+                                    <i className="bi bi-calendar-plus fs-4"></i>
+                                    <span className="ms-2 d-none d-lg-inline">Periodo</span>
+                                </Link>
+                            </li>
+
+                            {/* Modalidad */}
+                            <li className="nav-item">
+                                <Link to="/dashboard/admin/modalities" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/modalities' ? 'active' : ''}`} title="Gestion de modalidad">
+                                    <i className="bi bi-arrow-down-up fs-4"></i>
+                                    <span className="ms-2 d-none d-lg-inline">Modalidad</span>
+                                </Link>
+                            </li>
                         </ul>
                     </div>
                 </div>

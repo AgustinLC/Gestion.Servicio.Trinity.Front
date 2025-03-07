@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Badge, Button, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
@@ -19,38 +19,22 @@ const UserBills: React.FC = () => {
     const [selectedBill, setSelectedBill] = useState<BillDetailsDto | null>(null); // Estado para la factura seleccionada
     const [pdfLoading, setPdfLoading] = useState(false); // Estado para la carga del PDF
     const invoiceRef = useRef<HTMLDivElement>(null); // Ref para el componente de factura
-    const [user, setUsers] = useState<UserDto[] | null>(null);
+    const [user, setUser] = useState<UserDto | null>(null);
 
     // Hooks importados
     const { userId } = useAuth(); // Obtener el userId y el usuario logueado
 
-    useEffect(() => {
-        if (userId) {
-            fetchBills();
-            fetchUserData();
-        }
-    }, [userId]);
+   
 
-    const fetchBills = async () => {
+    // Obtener datos del usuario 
+    const fetchUserData = useCallback(async () => {
         setLoading(true);
         try {
+            const user = await getData<UserDto>(`/user/${userId}`);
+            setUser(user);
             const bills = await getData<BillDetailsDto[]>(`/user/bill-active/${userId}`);
             setBills(bills);
             setFilteredData(bills);
-        } catch (error) {
-            console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al obtener las facturas");
-            setError("Error al cargar las facturas");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchUserData = async () => {
-        setLoading(true);
-        try {
-            const users = await getData<UserDto[]>(`/user/${userId}`);
-            setUsers(users);
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al obtener los datos del usuario");
@@ -58,8 +42,16 @@ const UserBills: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [userId]);
 
+    // Montar el componente 
+    useEffect(() => {
+        if (userId) {
+            fetchUserData();
+        }
+    }, [userId, fetchUserData]);
+
+    // Manejar busqueda
     const handleSearch = (query: string) => {
         const filtered = bills.filter((bill) =>
             Object.values(bill).some((value) =>
@@ -69,6 +61,7 @@ const UserBills: React.FC = () => {
         setFilteredData(filtered);
     };
 
+    // Manejar pago de factura
     const handlePayBill = async (idBill: number) => {
         try {
             // Llama al endpoint para obtener el enlace de pago usando addData
@@ -94,32 +87,13 @@ const UserBills: React.FC = () => {
         }, 100);
     };
 
+    // Columnas para la tabla 
     const columns: TableColumnDefinition<BillDetailsDto>[] = [
         { key: "idBill", label: "Número de Factura", sortable: true },
-        {
-            key: "consumption",
-            label: "Consumo",
-            sortable: true,
-            render: (row: BillDetailsDto) => row.consumption.toLocaleString(), // Formatea el consumo con separadores de miles
-        },
-        {
-            key: "surplus",
-            label: "Excedente",
-            sortable: true,
-            render: (row: BillDetailsDto) => row.surplus.toLocaleString(), // Formatea el excedente con separadores de miles
-        },
-        {
-            key: "surplusPrice",
-            label: "Precio Excedente",
-            sortable: true,
-            render: (row: BillDetailsDto) => `$${row.surplusPrice.toLocaleString()}`, // Agrega el símbolo de pesos y formatea el número
-        },
-        {
-            key: "total",
-            label: "Total",
-            sortable: true,
-            render: (row: BillDetailsDto) => `$${row.total.toLocaleString()}`, // Agrega el símbolo de pesos y formatea el número
-        },
+        { key: "consumption", label: "Consumo", sortable: true, render: (row: BillDetailsDto) => row.consumption.toLocaleString(), },
+        { key: "surplus", label: "Excedente", sortable: true, render: (row: BillDetailsDto) => row.surplus.toLocaleString(), },
+        { key: "surplusPrice", label: "Precio Excedente", sortable: true, render: (row: BillDetailsDto) => `$${row.surplusPrice.toLocaleString()}`, },
+        { key: "total", label: "Total", sortable: true, render: (row: BillDetailsDto) => `$${row.total.toLocaleString()}`, },
         {
             key: "paidStatus",
             label: "Estado",
@@ -128,7 +102,7 @@ const UserBills: React.FC = () => {
                 <Badge bg={row.paidStatus ? "success" : "warning"}>
                     {row.paidStatus ? "Pagada" : "Impaga"}
                 </Badge>
-            ), // Usa Badge para mostrar el estado
+            ),
         },
         {
             key: "actions",
@@ -148,6 +122,7 @@ const UserBills: React.FC = () => {
         },
     ];
 
+    // Render
     return (
         <div>
             <h1 className="text-center">Mis Facturas</h1>

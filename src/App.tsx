@@ -30,12 +30,13 @@ import BillBulkGeneratePage from "./operator/features/generate-bill/BillBulkGene
 import BillIndividualGeneratePage from "./operator/features/generate-bill/BillIndividualGeneratePage";
 import BillManagementPage from "./operator/features/management-bill/BillManagementPage";
 import ReportsPage from "./operator/features/reports/ReportPage";
-import NewPeriodPage from "./operator/features/reading/new-period/NewPeriodPage";
+import NewPeriodPage from "./admin/features/period/NewPeriodPage";
 import UserDashboard from "./user/features/dashboard/UserDashboard";
 import UserBills from "./user/features/bills/UserBills";
 import UserConsumptions from "./user/features/consumptions/UserConsumptions";
 import UserPersonalData from "./user/features/personaldata/UserPersonalData";
 import UserResume from "./user/features/resume/UserResume";
+import ModalityPage from "./admin/features/modality/ModalityPage";
 
 const App: React.FC = () => {
   return (
@@ -70,7 +71,6 @@ const App: React.FC = () => {
           <Route path="bills/individual-generate" element={<BillIndividualGeneratePage />} />
           <Route path="bills/management" element={<BillManagementPage />} />
           <Route path="reports" element={<ReportsPage />} />
-          <Route path="new/period" element={<NewPeriodPage />} />
         </Route>
 
         {/* Rutas solo para usuario administrador */}
@@ -85,6 +85,8 @@ const App: React.FC = () => {
           <Route path="units" element={<UnitPage />} />
           <Route path="services" element={<ServicePage />} />
           <Route path="billing-parameters" element={<BillingParameterPage />} />
+          <Route path="new/period" element={<NewPeriodPage />} />
+          <Route path="modalities" element={<ModalityPage />} />
         </Route>
       </Routes>
       {/* Pie de pagina */}

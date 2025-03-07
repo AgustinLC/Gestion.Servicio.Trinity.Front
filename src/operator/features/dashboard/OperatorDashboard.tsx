@@ -13,7 +13,6 @@ const DashboardOperator: React.FC = () => {
     const location = useLocation();
     const currentPath = location.pathname;
     const isReadingSection = [
-        '/dashboard/operator/new/period',
         '/dashboard/operator/readings/management',
         '/dashboard/operator/readings/take',
     ].some(path => currentPath === path);
@@ -28,9 +27,6 @@ const DashboardOperator: React.FC = () => {
         <Popover className="submenu-popover">
             <Popover.Body className="p-2">
                 <div className="d-flex flex-column">
-                    <Link to="/dashboard/operator/new/period" className={`nav-link link-dark py-2 text-indented ${currentPath === '/dashboard/operator/new/period' ? 'active' : ''}`} onClick={() => setActivePopover(null)}>
-                        Nuevo Periodo
-                    </Link>
                     <Link to="/dashboard/operator/readings/management" className={`nav-link link-dark py-2 text-indented ${currentPath === '/dashboard/operator/readings/management' ? 'active' : ''}`} onClick={() => setActivePopover(null)}>
                         Gestión de Lecturas
                     </Link>

@@ -1,11 +1,229 @@
-/* Ajustes adicionales para el formato de impresión */
-@media print {
-  .invoice-container {
-    width: 100%;
-    min-height: auto;
-  }
-  
-  .payment-stubs {
-    page-break-inside: avoid;
-  }
+/* Estilos para el contenedor */
+.invoice-container {
+  width: 210mm;
+  /* Ancho de A4 */
+  height: 297mm;
+  /* Alto de A4 (fijo) */
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  font-size: 9px;
+  overflow: hidden;
+}
+
+/* Estilos para el encabezado */
+.invoice-header {
+  display: flex;
+  justify-content: flex-start;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.user-info,
+.consortium-info {
+  flex: 1;
+}
+
+.user-info table,
+.consortium-info table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 5px;
+}
+
+.user-info td,
+.consortium-info td {
+  padding: 2px;
+}
+
+/* Estilos para los detalles */
+.reading-details table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 5px;
+}
+
+.reading-details th,
+.reading-details td {
+  padding: 2px;
+  border: 0.5px solid #000;
+  text-align: center;
+}
+
+/* Estilos para los conceptos */
+.billing-concepts table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 5px;
+}
+
+.billing-concepts th,
+.billing-concepts td {
+  padding: 2px;
+  border: 1px solid #000;
+  text-align: center;
+}
+
+/* Estilos para el resumen */
+.debt-summary table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+  table-layout: fixed;
+}
+
+.debt-summary td {
+  padding: 2px;
+  border: 0.5px solid #000;
+  vertical-align: top;
+}
+
+.debt-summary td[colspan="2"] {
+  word-wrap: break-word;
+}
+
+.debt-summary td:nth-child(3),
+.debt-summary td:nth-child(4) {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Estilos para las notas */
+.notes-section {
+  border: 1px solid #000;
+  padding-top: 10px;
+}
+
+.notes-section p {
+  margin: 5px 0;
+}
+
+/* Estilos para los talonarios */
+.bead-section {
+  width: 100%;
+  font-family: Arial, sans-serif;
+  margin-top: 5px;
+  font-size: 9px;
+}
+
+/* Estilos para la tabla principal */
+.bead-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bead-table td {
+  vertical-align: top;
+}
+
+/* Estilos para cada talonario */
+.bead-ticket {
+  width: 50%;
+}
+
+/* Estilos para la tabla interna de cada talonario */
+.bead-inner-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #000;
+}
+
+/* Estilos para el encabezado */
+.bead-header {
+  text-align: center;
+  padding: 10px;
+}
+
+.bead-header h5 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.bead-header p {
+  margin: 0;
+}
+
+.bead-cuit {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 2px;
+}
+
+/* Estilos para la información del cliente */
+.bead-info {
+  padding: 8px;
+}
+
+.bead-info p {
+  margin: 2px 0;
+}
+
+.bead-info span {
+  display: inline-block;
+  padding: 2px 3px;
+  border: 1px solid #000;
+}
+
+.bead-client {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Estilos para los totales */
+.bead-totals {
+  padding: 10px;
+}
+
+.bead-totals table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bead-totals td {
+  text-align: center;
+  padding: 2px;
+  border: 1px solid #000;
+}
+
+.bead-totals div {
+  padding: 5px;
+  border: 1px solid #000;
+  margin-top: 5px;
+}
+
+.bead-totals p {
+  margin: 0;
+  font-weight: bold;
+}
+
+/* Estilos para el pie de página */
+.bead-footer {
+  text-align: center;
+  padding: 10px;
+  padding-bottom: 59.5px;
+}
+
+.bead-footer p {
+  margin: 0;
+}
+
+/* Estilos para el texto fuera del borde */
+.bead-footer-text {
+  text-align: center;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* Bordes personalizados */
+.border-bottom {
+  border-bottom: 1px solid #000;
+}
+
+.border-top {
+  border-top: 1px solid #000;
 }
