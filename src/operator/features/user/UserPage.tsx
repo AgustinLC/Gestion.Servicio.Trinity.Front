@@ -66,7 +66,7 @@ const UserPage = () => {
         try {
             //Actualizar registro
             if (user.idUser) {
-                await updateData("/operator/update-user?idUser", user.idUser, user);
+                await updateData("/user/update?idUser", user.idUser, user);
                 toast.success("Usuario actualizado exitosamente");
             }
             // Añadir registro

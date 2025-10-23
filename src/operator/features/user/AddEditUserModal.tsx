@@ -230,6 +230,20 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
               </Form.Group>
             </Col>
           </Row>
+          <Row>
+            <Col>
+              <Form.Group>
+                <Form.Label>Valor actual del Medidor</Form.Label>
+                <Form.Control
+                  {...register("residenceDto.valueMeter", { required: "Este campo es obligatorio" })}
+                  isInvalid={!!errors.residenceDto?.valueMeter}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.residenceDto?.valueMeter?.message}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          </Row>
           <Button className="mt-2" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Guardando..." : "Guardar"}
           </Button>

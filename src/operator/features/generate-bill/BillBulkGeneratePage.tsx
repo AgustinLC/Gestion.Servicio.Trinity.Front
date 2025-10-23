@@ -1,6 +1,6 @@
 // components/BulkGenerateTab.tsx
 import { useState } from 'react';
-import { Alert, Button, Form, Spinner } from 'react-bootstrap';
+import { Alert, Button, Spinner } from 'react-bootstrap';
 import DatePeriodSelector from './DatePeriodSelector';
 import { addData } from '../../../core/services/apiService';
 import { toast } from 'react-toastify';
@@ -16,7 +16,7 @@ const BillBulkGeneratePage = () => {
         setIsLoading(true);
         try {
             const periodParam = selectedDate ? selectedDate.toISOString() : null;
-            await addData(`/bill/generate-auto/${periodParam}`, {});
+            await addData(`/operator/bill/generate-auto/${periodParam}`, {});
             toast.success('Facturas generadas exitosamente');
             setSelectedDate(null);
         } catch (error) {
@@ -31,15 +31,18 @@ const BillBulkGeneratePage = () => {
         <div>
             <h1 className="text-center">Generación de Facturas</h1>
 
-            <Form>
-                <DatePeriodSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
+            <DatePeriodSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
 
-                <Button variant="primary" onClick={handleSubmit} disabled={isLoading}>
-                    {isLoading ? (
-                        <Spinner animation="border" size="sm" />
-                    ) : 'Generar Facturas'}
-                </Button>
-            </Form>
+            <Button variant="primary" onClick={handleSubmit} disabled={isLoading} aria-label="Generar facturas">
+                {isLoading ? (
+                <>
+                    <Spinner animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
+                    Generando...
+                </>
+                ) : (
+                'Generar Facturas'
+                )}
+            </Button>
 
             <Alert variant="info" className="mt-4">
                 <strong>Nota:</strong> La generación de facturas puede tomar varios segundos.

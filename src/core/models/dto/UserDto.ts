@@ -22,4 +22,5 @@ interface ResidenceDto {
   number: number;
   serialNumber: string;
   idFee: number;
+  valueMeter: number;
 }

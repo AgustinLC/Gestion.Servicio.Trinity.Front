@@ -17,16 +17,16 @@ const BillIndividualGeneratePage = () => {
       return;
     }
     try {
-      setIsLoading(true);
-      const periodParam = selectedDate ? selectedDate.toISOString() : null;
-      await addData(`/operator/bill/generate-manual/${userId}/${periodParam}`, {});
-      toast.success(`Factura generada para usuario ${userId}`);
-      setUserId(null);
-      setSelectedDate(null);
+        setIsLoading(true);
+        const periodParam = selectedDate ? selectedDate.toISOString() : null;
+        await addData(`/operator/bill/generate-manual/${userId}/${periodParam}`, {});
+        toast.success(`Factura generada para usuario ${userId}`);
+        setUserId(null);
+        setSelectedDate(null);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Error desconocido');
+        toast.error(error instanceof Error ? error.message : 'Error desconocido');
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
 
