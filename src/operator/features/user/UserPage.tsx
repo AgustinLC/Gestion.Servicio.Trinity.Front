@@ -64,22 +64,23 @@ const UserPage = () => {
     // Manejar añadir/editar
     const handleSave = async (user: UserDto) => {
         try {
-            //Actualizar registro
             if (user.idUser) {
                 await updateData("/user/update?idUser", user.idUser, user);
                 toast.success("Usuario actualizado exitosamente");
-            }
-            // Añadir registro
-            else {
+            } else {
                 await addData("/operator/register-user", user);
                 toast.success("Usuario creado exitosamente");
             }
+
+            // Solo se ejecuta si no hubo error
             setSelectedUser(user);
             setShowModal(false);
             fetchData();
-        } catch (error) {
+
+        } catch (error: any) {
             console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al guardar el usuario");
+            toast.error(error.message || "Error al guardar el usuario");
+            // No cerrar modal, no resetear formulario
         }
     };
 
@@ -118,7 +119,7 @@ const UserPage = () => {
                             Añadir Usuario
                         </Button>
                     </div>
-                    
+
                     {/* Tabla */}
                     <ReusableTable<UserDto>
                         data={filteredData}

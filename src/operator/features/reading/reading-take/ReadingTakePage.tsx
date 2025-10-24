@@ -87,9 +87,34 @@ const ReadingTakePage: React.FC = () => {
     // Manejar añadir nueva lectura
     const handleAddReading = async (idUser: number, readingValue: number) => {
         try {
+            // Guardar filtros actuales
+            const currentStreet = selectedStreet;
+            const currentDistrict = selectedDistrict;
+
             await addData(`/operator/register-reading-active/${idUser}/${readingValue}`, {});
             toast.success("Lectura creada exitosamente");
             setShowAddReadingModal(false);
+
+            // 🔹 Recargar datos desde la API
+            await fetchData();
+
+            // 🔹 Reaplicar filtros
+            if (currentStreet || currentDistrict) {
+                setFilteredData(() => {
+                    let filtered = users;
+                    if (currentStreet) {
+                        filtered = filtered.filter(user =>
+                            user.residenceDto.street === currentStreet
+                        );
+                    }
+                    if (currentDistrict) {
+                        filtered = filtered.filter(user =>
+                            user.residenceDto.district === currentDistrict
+                        );
+                    }
+                    return filtered;
+                });
+            }
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al guardar la lectura");
