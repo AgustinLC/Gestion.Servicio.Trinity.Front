@@ -39,98 +39,95 @@ const AdminDashboard: React.FC = () => {
 
     // Render
     return (
-        <div className="container-fluid">
-            <div className="row">
+        <div className="d-flex min-vh-100">
+            {/* Sidebar */}
+            <aside
+                className="bg-primary text-light d-flex flex-column align-items-center p-3"
+                style={{ width: "174px", position: "sticky", top: 0, height: "100vh" }}
+            >
+                <ul className="nav nav-pills flex-column w-100">
 
-                {/* Sidebar */}
-                <div className="bg-primary sticky-top sidebar">
-                    <div className="d-flex flex-sm-column flex-row flex-nowrap bg-primary align-items-center">
-                        <ul className="nav nav-pills nav-flush flex-sm-column flex-row flex-nowrap mb-auto mx-auto text-center justify-content-between w-100 px-3">
+                    {/* Operarios */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/admin/workers" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/workers' ? 'active' : ''}`} title="Gestión de operarios">
+                            <i className="bi bi-person-fill-gear fs-4"></i>
+                            <span className="ms-2 d-none d-lg-inline">Operarios</span>
+                        </Link>
+                    </li>
 
-                            {/* Operarios */}
-                            <li>
-                                <Link to="/dashboard/admin/workers" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/workers' ? 'active' : ''}`} title="Gestión de operarios">
-                                    <i className="bi bi-person-fill-gear fs-4"></i>
-                                    <span className="ms-2 d-none d-lg-inline">Operarios</span>
-                                </Link>
-                            </li>
+                    {/* Administradores */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/admin/administrators" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/administrators' ? 'active' : ''}`} title="Gestión de administradores">
+                            <i className="bi bi-person-fill fs-4"></i>
+                            <span className="ms-2 d-none d-lg-inline">Admins</span>
+                        </Link>
+                    </li>
 
-                            {/* Administradores */}
-                            <li>
-                                <Link to="/dashboard/admin/administrators" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/administrators' ? 'active' : ''}`} title="Gestión de administradores">
-                                    <i className="bi bi-person-fill fs-4"></i>
-                                    <span className="ms-2 d-none d-lg-inline">Admins</span>
-                                </Link>
-                            </li>
+                    {/* Contenido pagina principal */}
+                    <OverlayTrigger
+                        trigger="click"
+                        placement={window.innerWidth <= 768 ? 'bottom' : 'right'}
+                        show={activePopover === 'web'}
+                        onToggle={(show) => setActivePopover(show ? 'web' : null)}
+                        overlay={WebPopover}
+                        rootClose
+                    >
+                        <li className="nav-item popover-trigger">
+                            <div className={`nav-link link-light py-3 d-flex align-items-center ${isWebSection ? 'active-submenu' : ''}`} role="button">
+                                <i className="bi bi-file-break fs-4"></i>
+                                <span className="ms-2 d-none d-lg-inline">Web</span>
+                                <i className={`bi-chevron-right ms-1 mt-1 chevron-icon d-none d-lg-inline ${activePopover === 'web' ? 'rotate' : ''}`}></i>
+                            </div>
+                        </li>
+                    </OverlayTrigger>
 
-                            {/* Contenido pagina principal */}
-                            <OverlayTrigger
-                                trigger="click"
-                                placement={window.innerWidth <= 768 ? 'bottom' : 'right'}
-                                show={activePopover === 'web'}
-                                onToggle={(show) => setActivePopover(show ? 'web' : null)}
-                                overlay={WebPopover}
-                                rootClose
-                            >
-                                <li className="nav-item popover-trigger">
-                                    <div className={`nav-link link-light py-3 px-2 d-flex align-items-center ${isWebSection ? 'active-submenu' : ''}`} role="button">
-                                        <i className="bi bi-file-break fs-4"></i>
-                                        <span className="ms-2 d-none d-lg-inline">Web</span>
-                                        <i className={`bi-chevron-right ms-1 mt-1 chevron-icon d-none d-lg-inline ${activePopover === 'web' ? 'rotate' : ''}`}></i>
-                                    </div>
-                                </li>
-                            </OverlayTrigger>
+                    {/* Tarifas */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/admin/fee" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/fee' ? 'active' : ''}`} title="Gestión de Tarifas">
+                            <i className="bi bi-clipboard2-pulse fs-4"></i>
+                            <span className="ms-2 d-none d-lg-inline">Tarifas</span>
+                        </Link>
+                    </li>
 
-                            {/* Tarifas */}
-                            <li className="nav-item">
-                                <Link to="/dashboard/admin/fee" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/fee' ? 'active' : ''}`} title="Gestión de Tarifas">
-                                    <i className="bi bi-clipboard2-pulse fs-4"></i>
-                                    <span className="ms-2 d-none d-lg-inline">Tarifas</span>
-                                </Link>
-                            </li>
+                    {/* Servicio/Unidad */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/admin/services-units" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/services-units' ? 'active' : ''}`} title="Gestión de Relación Servicio/Unidad">
+                            <i className="bi bi-calculator fs-4"></i>
+                            <span className="ms-2 d-none d-lg-inline">Serv./Unid.</span>
+                        </Link>
+                    </li>
 
-                            {/* Servicio/Unidad */}
-                            <li className="nav-item">
-                                <Link to="/dashboard/admin/services-units" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/services-units' ? 'active' : ''}`} title="Gestión de Relación Servicio/Unidad">
-                                    <i className="bi bi-calculator fs-4"></i>
-                                    <span className="ms-2 d-none d-lg-inline">Serv./Unid.</span>
-                                </Link>
-                            </li>
+                    {/* Servicio/Unidad */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/admin/billing-parameters" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/billing-parameters' ? 'active' : ''}`} title="Gestión de Parametros de Facturación">
+                            <i className="bi bi-receipt fs-4"></i>
+                            <span className="ms-2 d-none d-lg-inline">Conceptos</span>
+                        </Link>
+                    </li>
 
-                            {/* Servicio/Unidad */}
-                            <li className="nav-item">
-                                <Link to="/dashboard/admin/billing-parameters" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/billing-parameters' ? 'active' : ''}`} title="Gestión de Parametros de Facturación">
-                                    <i className="bi bi-receipt fs-4"></i>
-                                    <span className="ms-2 d-none d-lg-inline">Conceptos</span>
-                                </Link>
-                            </li>
+                    {/* Periodo */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/admin/new/period" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/new/period' ? 'active' : ''}`} title="Generar nueva modalidad">
+                            <i className="bi bi-calendar-plus fs-4"></i>
+                            <span className="ms-2 d-none d-lg-inline">Periodo</span>
+                        </Link>
+                    </li>
 
-                            {/* Periodo */}
-                            <li className="nav-item">
-                                <Link to="/dashboard/admin/new/period" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/new/period' ? 'active' : ''}`} title="Generar nueva modalidad">
-                                    <i className="bi bi-calendar-plus fs-4"></i>
-                                    <span className="ms-2 d-none d-lg-inline">Periodo</span>
-                                </Link>
-                            </li>
+                    {/* Modalidad */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/admin/modalities" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/modalities' ? 'active' : ''}`} title="Gestion de modalidad">
+                            <i className="bi bi-arrow-down-up fs-4"></i>
+                            <span className="ms-2 d-none d-lg-inline">Modalidad</span>
+                        </Link>
+                    </li>
+                </ul>
+            </aside>
 
-                            {/* Modalidad */}
-                            <li className="nav-item">
-                                <Link to="/dashboard/admin/modalities" className={`nav-link link-light py-3 px-2 d-flex align-items-center ${currentPath === '/dashboard/admin/modalities' ? 'active' : ''}`} title="Gestion de modalidad">
-                                    <i className="bi bi-arrow-down-up fs-4"></i>
-                                    <span className="ms-2 d-none d-lg-inline">Modalidad</span>
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
 
-                {/* Main Content */}
-                <div className="col-sm p-3 min-vh-100">
-                    <main className="p-4">
-                        <Outlet /> {/* Aquí se cargarán las secciones dinámicamente */}
-                    </main>
-                </div>
-            </div>
+            {/* Main Content */}
+                <main className="flex-grow-1 p-4 bg-light"  style={{ overflowX: "auto" }}>
+                    <Outlet /> {/* Aquí se cargarán las secciones dinámicamente */}
+                </main>
         </div>
     );
 };

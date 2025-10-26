@@ -37,6 +37,7 @@ import UserConsumptions from "./user/features/consumptions/UserConsumptions";
 import UserPersonalData from "./user/features/personaldata/UserPersonalData";
 import UserResume from "./user/features/resume/UserResume";
 import ModalityPage from "./admin/features/modality/ModalityPage";
+import ProtectedRoute from "./auth/features/protected-route/ProtectedRoute";
 
 const App: React.FC = () => {
   return (
@@ -53,7 +54,7 @@ const App: React.FC = () => {
         <Route path="/faq" element={<Faq />} />
 
         {/* Rutas solo para usuario */}
-        <Route path="/dashboard/user" element={<UserDashboard />}>
+        <Route path="/dashboard/user" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>}>
           <Route path="resume" element={<UserResume />} />
           <Route path="bills" element={<UserBills />} />
           <Route path="consumptions" element={<UserConsumptions />} />
@@ -61,7 +62,7 @@ const App: React.FC = () => {
         </Route>
 
         {/* Rutas solo para usuario operario */}
-        <Route path="/dashboard/operator" element={<OperatorDashboard />}>
+        <Route path="/dashboard/operator" element={<ProtectedRoute><OperatorDashboard /></ProtectedRoute>}>
           <Route path="resume" element={<Resume />} />
           <Route path="users" element={<User />} />
           <Route path="readings/management" element={<ReadingManagement />} />
@@ -74,7 +75,7 @@ const App: React.FC = () => {
         </Route>
 
         {/* Rutas solo para usuario administrador */}
-        <Route path="/dashboard/admin" element={<AdminDashboard />}>
+        <Route path="/dashboard/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}>
           <Route path="faq" element={<CrudFaqPage />} />
           <Route path="functions" element={<CrudFeaturePage />} />
           <Route path="data-main" element={<CruDataMainPage />} />
