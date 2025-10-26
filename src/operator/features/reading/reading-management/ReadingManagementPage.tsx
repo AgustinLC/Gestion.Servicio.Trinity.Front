@@ -72,6 +72,7 @@ const ReadingManagementPage: React.FC = () => {
 
     // Columnas para la tabla
     const columns: TableColumnDefinition<UserDto>[] = [
+        { key: "idUser", label: "ID", sortable: true },
         { key: "firstName", label: "Nombre", sortable: false },
         { key: "lastName", label: "Apellido", sortable: false },
         { key: "dni", label: "DNI", sortable: false },
@@ -109,9 +110,10 @@ const ReadingManagementPage: React.FC = () => {
                         <SearchBar onSearch={handleSearch} />
                     </div>
                     {/* Tabla de usuarios */}
-                    <ReusableTable
+                    <ReusableTable<UserDto>
                         data={filteredData}
                         columns={columns}
+                        defaultSort="idUser"
                     />
 
                     {/* Modal para añadir lectura */}

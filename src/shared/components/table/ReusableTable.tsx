@@ -113,20 +113,66 @@ const ReusableTable = <T,>({
             </Table>
 
             {/* Paginación */}
-            <Pagination>
+            <Pagination className="justify-content-center flex-wrap">
                 <Pagination.Prev
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
                 />
-                {Array.from({ length: totalPages }, (_, index) => (
-                    <Pagination.Item
-                        key={index + 1}
-                        active={index + 1 === currentPage}
-                        onClick={() => handlePageChange(index + 1)}
-                    >
-                        {index + 1}
-                    </Pagination.Item>
-                ))}
+
+                {(() => {
+                    const visiblePages = 5; // cantidad de botones visibles
+                    const pages = [];
+
+                    let start = Math.max(1, currentPage - Math.floor(visiblePages / 2));
+                    const end = Math.min(totalPages, start + visiblePages - 1);
+
+                    if (end - start < visiblePages - 1) {
+                        start = Math.max(1, end - visiblePages + 1);
+                    }
+
+                    // Mostrar primer botón y puntos suspensivos
+                    if (start > 1) {
+                        pages.push(
+                            <Pagination.Item key={1} onClick={() => handlePageChange(1)}>
+                                1
+                            </Pagination.Item>
+                        );
+                        if (start > 2) {
+                            pages.push(<Pagination.Ellipsis key="start-ellipsis" disabled />);
+                        }
+                    }
+
+                    // Páginas visibles
+                    for (let i = start; i <= end; i++) {
+                        pages.push(
+                            <Pagination.Item
+                                key={i}
+                                active={i === currentPage}
+                                onClick={() => handlePageChange(i)}
+                            >
+                                {i}
+                            </Pagination.Item>
+                        );
+                    }
+
+                    // Mostrar puntos suspensivos finales
+                    if (end < totalPages) {
+                        if (end < totalPages - 1) {
+                            pages.push(<Pagination.Ellipsis key="end-ellipsis" disabled />);
+                        }
+                        pages.push(
+                            <Pagination.Item
+                                key={totalPages}
+                                onClick={() => handlePageChange(totalPages)}
+                            >
+                                {totalPages}
+                            </Pagination.Item>
+                        );
+                    }
+
+                    return pages;
+                })()}
+
                 <Pagination.Next
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}

@@ -123,7 +123,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                             <td className='border-top-0'>CATEGORÍA</td>
                             <td className='border-left-0 border-top-0'>{user.residenceDto.idFee}</td>
                             <td className='border-left-0 border-top-0'>{bill.periodName}</td>
-                            <td className='border-left-0 border-top-0'>{bill.readingsBillDto.currentReading}</td>
+                            <td className='border-left-0 border-top-0'>{formatDate(new Date(bill.expirationDate))}</td>
                             <td className='border-left-0 border-top-0'>-</td>
                         </tr>
                     </tbody>
@@ -454,7 +454,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                             <td className="bead-info">
                                                 <p><strong>Factura Nº:</strong> <span>0001-000{bill.idBill}</span></p>
                                                 <p>Cliente: <span>{user.firstName} {user.lastName}</span></p>
-                                                <p><strong>N° de usuario: </strong>{user.firstName} {user.lastName}</p>
+                                                <p><strong>N° de usuario: </strong>{user.idUser}</p>
                                                 <p><strong>Fecha de Emisión: </strong>{formatDate(new Date(bill.dateRegister))}</p>
                                             </td>
                                             <td className="bead-info">
