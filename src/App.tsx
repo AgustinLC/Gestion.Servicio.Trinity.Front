@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import MainPage from "./shared/features/main-page/MainPage";
 import LoginPage from "./auth/features/login-page/LoginPage";
 import Faq from "./shared/features/faq/Faq";
@@ -10,8 +10,8 @@ import ResetPasswordPage from "./auth/features/reset-password-page/ResetPassword
 import OperatorDashboard from "./operator/features/dashboard/OperatorDashboard";
 import AdminDashboard from "./admin/features/dashboard/AdminDashboard";
 import User from "./operator/features/user/UserPage";
-import ReadingManagement from "./operator/features/reading/reading-management/ReadingManagementPage"
-import ReadingTake from "./operator/features/reading/reading-take/ReadingTakePage"
+import ReadingManagement from "./operator/features/reading/reading-management/ReadingManagementPage";
+import ReadingTake from "./operator/features/reading/reading-take/ReadingTakePage";
 import Resume from "./operator/features/resume/Resume";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -39,13 +39,19 @@ import UserResume from "./user/features/resume/UserResume";
 import ModalityPage from "./admin/features/modality/ModalityPage";
 import ProtectedRoute from "./auth/features/protected-route/ProtectedRoute";
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const location = useLocation();
+
+  // Rutas donde queremos mostrar el Footer
+  const showFooterPaths = ["/", "/faq", "/login", "/forgot-password", "/reset-password"];
+
+  const shouldShowFooter = showFooterPaths.includes(location.pathname);
+
   return (
-    <Router>
+    <>
       {/* Barra de navegacion */}
       <Navbar />
       <Routes>
-
         {/* Rutas sin permisos comunes a cualquier usuario */}
         <Route path="/" element={<MainPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -90,12 +96,28 @@ const App: React.FC = () => {
           <Route path="modalities" element={<ModalityPage />} />
         </Route>
       </Routes>
+
       {/* Pie de pagina */}
-      <Footer />
+      {shouldShowFooter && <Footer />}
+
       {/* Notificaciones/Alertas */}
-      <ToastContainer position="top-center" autoClose={4000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />
-    </Router>
+      <ToastContainer
+        position="top-center"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+      />
+    </>
   );
 };
+
+const App: React.FC = () => (
+  <Router>
+    <AppContent />
+  </Router>
+);
 
 export default App;
