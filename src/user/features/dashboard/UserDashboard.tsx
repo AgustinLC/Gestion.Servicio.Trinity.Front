@@ -1,37 +1,14 @@
-import React, { useState } from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import './UserDashboard.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const UserDashboard: React.FC = () => {
-    //Estados
-    const [activePopover, setActivePopover] = useState<string | null>(null);
 
     // Constantes
     const location = useLocation();
     const currentPath = location.pathname;
 
-    // Función para alternar el estado de un pop pup específico
-    const handlePopoverToggle = (key: string) => {
-        setActivePopover(activePopover === key ? null : key);
-    };
-
-    // Pop pup de lecturas
-    const ReadingsPopover = (
-        <Popover className="submenu-popover">
-            <Popover.Body className="p-2">
-                <div className="d-flex flex-column">
-                    <Link to="/dashboard/operator/readings/management" className={`nav-link link-dark py-2 text-indented ${currentPath === '/dashboard/operator/readings/management' ? 'active' : ''}`} onClick={() => setActivePopover(null)}>
-                        Gestion de Lecturas
-                    </Link>
-                    <Link to="/dashboard/operator/readings/take" className={`nav-link link-dark py-2 text-indented ${currentPath === '/dashboard/operator/readings/take' ? 'active' : ''}`} onClick={() => setActivePopover(null)}>
-                        Tomar Lecturas
-                    </Link>
-                </div>
-            </Popover.Body>
-        </Popover>
-    );
 
     return (
         <div className="container-fluid">
@@ -78,8 +55,8 @@ const UserDashboard: React.FC = () => {
                 </div>
 
                 {/* Main Content */}
-                <div className="col-sm p-3 min-vh-100">
-                    <main className="p-4">
+                <div className="dashboard-main flex-grow-1 p-4 bg-light">
+                    <main>
                         <Outlet /> {/* Aquí se cargarán las secciones dinámicamente */}
                     </main>
                 </div>

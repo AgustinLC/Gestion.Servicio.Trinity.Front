@@ -1,8 +1,4 @@
-.sidebar {
-    width: 180px;
-    min-width: 160px;
-    max-width: 200px;
-}
+
 
 /* Estilos del popover personalizado */
 .submenu-popover {
@@ -109,10 +105,3 @@
     100% { opacity: 0.5; }
 }
 
-/* Ajuste del sidebar en pantallas pequeñas */
-@media (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        min-width: 100%;
-    }
-}
