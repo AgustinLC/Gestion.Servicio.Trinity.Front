@@ -276,9 +276,9 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                         <tr>
                             <td>10</td>
                             <td className="text-start">Descuento</td>
-                            <td>0</td>
+                            <td>{bill.discountCounter}</td>
                             <td className="text-end">0,00</td>
-                            <td className="text-end">0,00</td>
+                            <td className="text-end">{bill.totalDiscounts}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -299,14 +299,14 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                 <strong>RESUMEN DE DEUDA AL:</strong> {formatDate(new Date(bill.dateRegister))}
                             </td>
                             <td><strong>SUBTOTAL</strong></td>
-                            <td>{bill.total}</td>
+                            <td>{bill.subTotal}</td>
                         </tr>
                         <tr>
                             <td className='border-bottom-0' colSpan={2}>
                                 Señor Usuario: A dicha fecha Ud. no registra conceptos facturados pendientes de pago
                             </td>
                             <td><strong>IVA 21,00 %</strong></td>
-                            <td>0,00</td>
+                            <td>{bill.iva}</td>
                         </tr>
                         <tr>
                             <td className='border-bottom-0 border-top-0' colSpan={2}>
@@ -320,7 +320,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                 CANTIDAD DE BIMESTRES IMPAGOS HASTA LA FECHA: 0
                             </td>
                             <td><strong>Descuento</strong></td>
-                            <td>0,00</td>
+                            <td>-{bill.totalDiscounts}</td>
                         </tr>
                         <tr>
                             <td className='border-top-0' colSpan={2}>
@@ -415,15 +415,15 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                                         <tr>
                                                             <td>
                                                                 <p>IMP. SERVICIO</p>
-                                                                <div>$ {bill.total}</div>
+                                                                <div>$ {bill.subTotal}</div>
                                                             </td>
                                                             <td>
                                                                 <p>I.V.A.</p>
-                                                                <div>21%</div>
+                                                                <div>$ {bill.iva}</div>
                                                             </td>
                                                             <td>
-                                                                <p>.</p>
-                                                                <div>$ 0,00</div>
+                                                                <p>DESCUENTO</p>
+                                                                <div>- $ {bill.totalDiscounts}</div>
                                                             </td>
                                                             <td>
                                                                 <p>TOTAL A PAGAR</p>

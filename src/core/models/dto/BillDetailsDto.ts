@@ -6,6 +6,10 @@ export interface BillDetailsDto {
     consumption: number;
     surplus: number;
     surplusPrice: number;
+    iva: number;
+    discountCounter: number;
+    totalDiscounts: number;
+    subTotal: number;
     total: number;
     paidStatus: boolean;
     paymentLink: string;
