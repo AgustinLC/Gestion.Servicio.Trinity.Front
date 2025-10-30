@@ -38,6 +38,8 @@ import UserPersonalData from "./user/features/personaldata/UserPersonalData";
 import UserResume from "./user/features/resume/UserResume";
 import ModalityPage from "./admin/features/modality/ModalityPage";
 import ProtectedRoute from "./auth/features/protected-route/ProtectedRoute";
+import DiscountManagementPage from "./admin/features/discounts/DiscountManagementPage";
+import DiscountsPage from "./operator/features/discounts/DiscountsPage";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -78,6 +80,7 @@ const AppContent: React.FC = () => {
           <Route path="bills/individual-generate" element={<BillIndividualGeneratePage />} />
           <Route path="bills/management" element={<BillManagementPage />} />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="discounts" element={<DiscountsPage />} />
         </Route>
 
         {/* Rutas solo para usuario administrador */}
@@ -94,6 +97,7 @@ const AppContent: React.FC = () => {
           <Route path="billing-parameters" element={<BillingParameterPage />} />
           <Route path="new/period" element={<NewPeriodPage />} />
           <Route path="modalities" element={<ModalityPage />} />
+          <Route path="discounts/management" element={<DiscountManagementPage />} />
         </Route>
       </Routes>
 

@@ -145,7 +145,7 @@ const AdminDashboard: React.FC = () => {
 
                      {/* Descuentos */}
                     <li className="nav-item">
-                        <Link to="/dashboard/admin/modalities" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/modalities' ? 'active' : ''}`} title="Gestion de modalidad" onClick={() => setSidebarOpen(false)}>
+                        <Link to="/dashboard/admin/discounts/management" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/discounts' ? 'active' : ''}`} title="Gestion de descuentos" onClick={() => setSidebarOpen(false)}>
                             <i className="bi bi-plus-slash-minus fs-4"></i>
                             <span className="ms-2 d-lg-inline">Descuentos</span>
                         </Link>
