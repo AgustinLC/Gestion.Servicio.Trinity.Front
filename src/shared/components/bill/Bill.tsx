@@ -83,6 +83,10 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                             </tr>
                             <tr>
                                 <td><strong>UBICACIÓN DEL INMUEBLE</strong></td>
+                                <td>{user.residenceDto.district}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DOMICILIO DEL USUARIO</strong></td>
                                 <td>{user.residenceDto.street}</td>
                             </tr>
                             <tr>
@@ -94,12 +98,8 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                 <td>{user.idUser}</td>
                             </tr>
                             <tr>
-                                <td><strong>DOMICILIO DEL USUARIO</strong></td>
-                                <td>{user.residenceDto.street}</td>
-                            </tr>
-                            <tr>
                                 <td><strong>C.U.I.T. DEL USUARIO</strong></td>
-                                <td>0</td>
+                                <td>-</td>
                             </tr>
                         </tbody>
                     </table>
@@ -347,7 +347,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                         <p>Cat. 1 - Unidad Simple</p>
                         <p>Cat. 2 - Undidad Doble</p>
                         <p>Cat. 3 - Industrial</p>
-                        <p>Cat. 4 - Grandes consumidore</p>
+                        <p>Cat. 4 - Grandes consumidores</p>
 
                     </div>
                     <div>
