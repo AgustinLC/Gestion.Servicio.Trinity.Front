@@ -3,8 +3,9 @@ import { Modal, Button, Table, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { getData, deleteData } from "../../../core/services/apiService";
 import { UserDto } from "../../../core/models/dto/UserDto";
-import { DiscountDto } from "../../../core/models/dto/Discount";
 import AddDiscountModal from "./AddDiscountModal";
+import { UserDiscountDto } from "../../../core/models/dto/UserDiscountDto";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 
 interface ShowDiscountUserModalProps {
     show: boolean;
@@ -14,9 +15,12 @@ interface ShowDiscountUserModalProps {
 
 const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onHide, user }) => {
 
-    const [discounts, setDiscounts] = useState<DiscountDto[]>([]);
+    const [userDiscounts, setUserDiscounts] = useState<UserDiscountDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [discountToDelete, setDiscountToDelete] = useState<number | null>(null);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         if (show) fetchDiscounts();
@@ -26,8 +30,8 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
     const fetchDiscounts = async () => {
         setLoading(true);
         try {
-            const data = await getData<DiscountDto[]>(`/operator/userDiscount/${user.idUser}`);
-            setDiscounts(data);
+            const data = await getData<UserDiscountDto[]>(`/operator/userDiscount/${user.idUser}`);
+            setUserDiscounts(data);
         } catch {
             toast.error("Error al obtener los descuentos");
         } finally {
@@ -35,16 +39,28 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
         }
     };
 
-    const handleDelete = async (idDiscount: number) => {
-        if (!confirm("¿Seguro que deseas eliminar este descuento?")) return;
+    // Funcion para mostrar el modal de confirmación de eliminacion
+    const handleDeleteClick = (idUserDiscount: number) => {
+        setDiscountToDelete(idUserDiscount);
+        setShowConfirmModal(true);
+    };
+
+    // Funcion para eliminar un desceunto de un usuario
+    const handleDelete = async () => {
+        if (!discountToDelete) return;
+        setIsDeleting(true);
         try {
-            await deleteData("/operator/discounts/", idDiscount);
+            await deleteData("/operator/delete-userDiscount?idUserDiscount", discountToDelete);
             toast.success("Descuento eliminado");
             fetchDiscounts();
         } catch {
             toast.error("Error al eliminar el descuento");
-        }
-    };
+        } finally {
+            setIsDeleting(false);
+            setShowConfirmModal(false);
+            setDiscountToDelete(null);
+        };
+    }
 
     return (
         <>
@@ -60,7 +76,7 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
                             <Spinner animation="border" />
                             <p className="mt-2">Cargando descuentos...</p>
                         </div>
-                    ) : discounts.length === 0 ? (
+                    ) : userDiscounts.length === 0 ? (
                         <p className="text-center">No hay descuentos registrados.</p>
                     ) : (
                         <Table striped bordered hover responsive>
@@ -74,26 +90,14 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
                                 </tr>
                             </thead>
                             <tbody>
-                                {discounts.map((discount) => (
-                                    <tr key={discount.idDiscount}>
-                                        <td>{discount.idDiscount}</td>
-                                        <td>{discount.name}</td>
-                                        <td>{discount.description}</td>
-                                        <td>{discount.amount}</td>
+                                {userDiscounts.map((userDiscount) => (
+                                    <tr key={userDiscount.idDiscount}>
+                                        <td>{userDiscount.idDiscount}</td>
+                                        <td>{userDiscount.name}</td>
+                                        <td>{userDiscount.description}</td>
+                                        <td>{userDiscount.amount}</td>
                                         <td>
-                                            <Button
-                                                variant="outline-primary"
-                                                size="sm"
-                                                className="me-2"
-                                                onClick={() => toast.info("Editar descuento próximamente")}
-                                            >
-                                                Editar
-                                            </Button>
-                                            <Button
-                                                variant="outline-danger"
-                                                size="sm"
-                                                onClick={() => handleDelete(discount.idDiscount)}
-                                            >
+                                            <Button variant="danger" onClick={() => handleDeleteClick(userDiscount.idUserDiscount)}>
                                                 Eliminar
                                             </Button>
                                         </td>
@@ -112,6 +116,21 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            {/* Modal de confirmación */}
+            <ConfirmModal
+                show={showConfirmModal}
+                onHide={() => { setShowConfirmModal(false); setDiscountToDelete(null); }}
+                title="Confirmar eliminación"
+                message={
+                    <>
+                        ¿Estás seguro que deseas eliminar el concepto:
+                    </>
+                }
+                confirmText="Confirmar"
+                isLoading={isDeleting}
+                onConfirm={handleDelete}
+            />
 
             <AddDiscountModal
                 show={showAddModal}

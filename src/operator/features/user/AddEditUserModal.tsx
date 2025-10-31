@@ -233,13 +233,32 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
           <Row>
             <Col>
               <Form.Group>
-                <Form.Label>Valor actual del Medidor</Form.Label>
+                <Form.Label>Val. actual del Medidor</Form.Label>
                 <Form.Control
                   {...register("residenceDto.valueMeter", { required: "Este campo es obligatorio" })}
                   isInvalid={!!errors.residenceDto?.valueMeter}
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.residenceDto?.valueMeter?.message}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group>
+                <Form.Label>Enviar boleta al correo</Form.Label>
+                <Form.Select
+                  {...register("digitalInvoiceAdhered", {
+                    required: "Este campo es obligatorio",
+                    setValueAs: (value) => value === "true" // Convierte el string a booleano
+                  })}
+                  isInvalid={!!errors.digitalInvoiceAdhered}
+                >
+                  <option value="">Seleccione una opción</option>
+                  <option value="true">Sí</option>
+                  <option value="false">No</option>
+                </Form.Select>
+                <Form.Control.Feedback type="invalid">
+                  {errors.digitalInvoiceAdhered?.message}
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
