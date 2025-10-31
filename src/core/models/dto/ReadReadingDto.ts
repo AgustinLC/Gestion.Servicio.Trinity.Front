@@ -5,4 +5,5 @@ export interface ReadReadingDto {
     periodName: string;
     reading: number;
     date: string;
+    consumption: number; 
 }

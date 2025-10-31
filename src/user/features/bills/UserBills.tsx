@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Badge, Button, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
-import { addData, getData } from "../../../core/services/apiService";
+import { getData } from "../../../core/services/apiService";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
@@ -60,7 +60,7 @@ const UserBills: React.FC = () => {
     };
 
     // Manejar pago de factura
-    const handlePayBill = async (idBill: number) => {
+    /*const handlePayBill = async (idBill: number) => {
         try {
             // Llama al endpoint para obtener el enlace de pago usando addData
             const response = await addData(`/user/payment/create/${idBill}`, {});
@@ -74,7 +74,7 @@ const UserBills: React.FC = () => {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al generar el enlace de pago");
         }
-    };
+    };*/
 
     // Manejar visualización de factura
     const handleViewInvoice = (bill: BillDetailsDto) => {
@@ -107,11 +107,11 @@ const UserBills: React.FC = () => {
             label: "Acciones",
             actions: (row: BillDetailsDto) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    {!row.paidStatus && (
+                    {/*{!row.paidStatus && (
                         <Button variant="success" onClick={() => handlePayBill(row.idBill)}>
                             Pagar
                         </Button>
-                    )}
+                    )}*/}
                     <Button variant="primary" onClick={() => handleViewInvoice(row)}>
                         Visualizar
                     </Button>

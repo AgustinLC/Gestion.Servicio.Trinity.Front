@@ -81,30 +81,6 @@ const UserResume = () => {
         { title: "Estado de Cuenta", value: data?.statusUser === 1 ? "Activa" : "Inactiva", color: data?.statusUser === 1 ? "#28a745" : "#dc3545" }, // Nuevo cuadro para el estado de actividad
     ], [data]);
 
-    // Calcular el consumo real por mes
-    const calculateRealConsumption = (readings: ReadReadingDto[]) => {
-        // Ordenar las lecturas por fecha
-        const sortedReadings = readings.sort((a, b) => 
-            new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
-
-        // Calcular la diferencia entre lecturas consecutivas
-        return sortedReadings.map((reading, index) => {
-            const previousReading = index > 0 ? sortedReadings[index - 1].reading : 0;
-            const realConsumption = reading.reading - previousReading;
-            return {
-                period: reading.periodName, // Usamos periodName para el eje X
-                consumption: realConsumption, // Consumo real del mes
-                date: new Date(reading.date).toLocaleDateString(), // Formateamos la fecha para el tooltip
-            };
-        });
-    };
-
-    // Datos del gráfico de barras (Consumos reales por mes)
-    const consumptionData = useMemo(() => 
-        calculateRealConsumption(readings),
-        [readings]
-    );
 
     // Tooltip personalizado para el gráfico de barras
     const CustomTooltip = ({ active, payload, label }: any) => {
@@ -158,12 +134,12 @@ const UserResume = () => {
                                 <Card.Body>
                                     <Card.Title>Historial de Consumo</Card.Title>
                                     <ResponsiveContainer width="100%" height={chartSize.height}>
-                                        <BarChart data={consumptionData}>
-                                            <XAxis dataKey="period" />
+                                        <BarChart data={readings}>
+                                            <XAxis dataKey="periodName" />
                                             <YAxis />
                                             <Tooltip content={<CustomTooltip />} />
                                             <Legend />
-                                            <Bar dataKey="consumption" fill="#007bff" />
+                                            <Bar name="Consumo" dataKey="consumption" fill="#007bff" />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </Card.Body>

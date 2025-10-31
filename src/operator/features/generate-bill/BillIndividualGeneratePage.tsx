@@ -18,7 +18,7 @@ const BillIndividualGeneratePage = () => {
     }
     try {
         setIsLoading(true);
-        const periodParam = selectedDate ? selectedDate.toISOString() : null;
+        const periodParam = selectedDate ? selectedDate.toISOString().split('T')[0] : null;
         await addData(`/operator/bill/generate-manual/${userId}/${periodParam}`, {});
         toast.success(`Factura generada para usuario ${userId}`);
         setUserId(null);

@@ -340,8 +340,8 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
 
             {/* Notas Finales */}
             <div className="notes-section">
-                <h6 className='text-center mb-5'>Notas de interes General</h6>
-                <p className='text-center mt-5'><strong>El pago fuera de término puede ocasionar la suspensión del servicio y costos extras en concepto de reconexión del mismo.</strong></p>
+                <p className='text-center mt-1'>RECUERDE USUARIO QUE CUANDO TENGA UNA BOLETA VENCIDA CORRE EL RIESGO QUE EL CONSORCIO LE SUSPENDA EL SERVICIO DE AGUA POTABLE, Y LUEGO DEBA REALIZAR UNA RECONEXIÓN DEL SERVICIO.</p>
+                <h6 className='text-center mt-1'> CBU 0110438120043811503456 consorcio Vecinal de agua potable santa María de Oro. ALIAS: BOMBO.PRIMO.NUDO</h6>
                 <div className='d-flex justify-content-between'>
                     <div>
                         <p>Cat. 1 - Unidad Simple</p>

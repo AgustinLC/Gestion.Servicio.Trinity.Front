@@ -15,7 +15,7 @@ const BillBulkGeneratePage = () => {
     const handleSubmit = async () => {
         setIsLoading(true);
         try {
-            const periodParam = selectedDate ? selectedDate.toISOString() : null;
+            const periodParam = selectedDate ? selectedDate.toISOString().split('T')[0] : null;
             await addData(`/operator/bill/generate-auto/${periodParam}`, {});
             toast.success('Facturas generadas exitosamente');
             setSelectedDate(null);

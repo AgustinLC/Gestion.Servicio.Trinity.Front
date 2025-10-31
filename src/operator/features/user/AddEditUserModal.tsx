@@ -263,6 +263,12 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
               </Form.Group>
             </Col>
           </Row>
+          <Form.Group className="mb-3">
+            <Form.Text className="text-danger">
+              * Al activar el envio de boleta por correo no se añadira la factura al PDF masivo.
+            </Form.Text>
+          </Form.Group>
+
           <Button className="mt-2" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Guardando..." : "Guardar"}
           </Button>
