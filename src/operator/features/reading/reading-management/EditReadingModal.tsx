@@ -4,9 +4,15 @@ import { Modal, Button, Form } from "react-bootstrap";
 interface EditReadingModalProps {
     show: boolean;
     onHide: () => void;
-    reading: { idReading: number; reading: number };
+    reading: {
+        idReading: number;
+        reading: number;
+        date?: string;
+        periodName?: string;
+    };
     onSubmit: (readingValue: number) => void;
 }
+
 
 const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, reading, onSubmit }) => {
     const [readingValue, setReadingValue] = useState(reading.reading);
@@ -16,13 +22,23 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
     };
 
     return (
-        <Modal show={show} onHide={onHide}>
+        <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
                 <Modal.Title>Editar Lectura</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form>
-                    <Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Fecha</Form.Label>
+                        <Form.Control type="text" value={reading.date || ""} disabled />
+                    </Form.Group>
+                    
+                    <Form.Group className="mb-3">
+                        <Form.Label>Periodo</Form.Label>
+                        <Form.Control type="text" value={reading.periodName || ""} disabled />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
                         <Form.Label>Valor de Lectura</Form.Label>
                         <Form.Control
                             type="number"
@@ -33,12 +49,8 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>
-                    Cancelar
-                </Button>
-                <Button variant="primary" onClick={handleSubmit}>
-                    Guardar
-                </Button>
+                <Button variant="secondary" onClick={onHide}>Cancelar</Button>
+                <Button variant="primary" onClick={handleSubmit}>Guardar</Button>
             </Modal.Footer>
         </Modal>
     );

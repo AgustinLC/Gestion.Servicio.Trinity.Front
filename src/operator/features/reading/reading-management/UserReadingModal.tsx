@@ -82,7 +82,7 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
 
     // Render
     return (
-        <Modal show={show} onHide={onHide} centered>
+        <Modal show={show} onHide={onHide} centered size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>Lecturas de {userName}</Modal.Title>
             </Modal.Header>
@@ -99,50 +99,92 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
                         <Table striped bordered hover>
                             <thead>
                                 <tr className="text-center">
-                                    <th>Fecha
-                                        <span style={{ cursor: "pointer", marginLeft: "5px" }} onClick={handleSort}>
+                                    <th>
+                                        Fecha
+                                        <span
+                                            style={{ cursor: "pointer", marginLeft: "5px" }}
+                                            onClick={handleSort}
+                                        >
                                             {sortAsc ? "▲" : "▼"}
                                         </span>
                                     </th>
+                                    <th>Período</th>
                                     <th>Valor de Lectura</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
 
                             <tbody>
-                                {currentItems.map((reading) => (
-                                    <tr className="align-middle" key={reading.idReading}>
-                                        <td className="text-center">{reading.date}</td>
-                                        <td className="text-center">
-                                            {editingId === reading.idReading ? (
-                                                <Form.Control className="text-center" type="number" value={tempReading} onChange={(e) =>
-                                                    setTempReading(Number(e.target.value))
-                                                } />
-                                            ) : (
-                                                reading.reading
-                                            )}
-                                        </td>
-                                        <td className="text-center">
-                                            {editingId === reading.idReading ? (
-                                                <Button variant="success" onClick={() => handleSave(reading.idReading)} disabled={saving}>
-                                                    {saving ? <Spinner as="span" animation="border" size="sm" /> : "Guardar"}
-                                                </Button>
-                                            ) : (
-                                                <Button variant="warning" onClick={() => handleEdit(reading)}>
-                                                    Editar
-                                                </Button>
-                                            )}
+                                {currentItems.length > 0 ? (
+                                    currentItems.map((reading) => (
+                                        <tr className="align-middle text-center" key={reading.idReading}>
+                                            <td>{reading.date}</td>
+                                            <td>{reading.periodName || "—"}</td>
+                                            <td>
+                                                {editingId === reading.idReading ? (
+                                                    <Form.Control
+                                                        className="text-center"
+                                                        type="number"
+                                                        value={tempReading}
+                                                        onChange={(e) =>
+                                                            setTempReading(Number(e.target.value))
+                                                        }
+                                                    />
+                                                ) : (
+                                                    reading.reading
+                                                )}
+                                            </td>
+                                            <td>
+                                                {editingId === reading.idReading ? (
+                                                    <Button
+                                                        variant="success"
+                                                        onClick={() => handleSave(reading.idReading)}
+                                                        disabled={saving}
+                                                    >
+                                                        {saving ? (
+                                                            <Spinner as="span" animation="border" size="sm" />
+                                                        ) : (
+                                                            "Guardar"
+                                                        )}
+                                                    </Button>
+                                                ) : (
+                                                    <Button
+                                                        variant="warning"
+                                                        onClick={() => handleEdit(reading)}
+                                                    >
+                                                        Editar
+                                                    </Button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={4} className="text-center">
+                                            No hay lecturas disponibles
                                         </td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </Table>
+
+                        {/* Controles de paginación */}
                         <div className="d-flex justify-content-between align-items-center">
-                            <Button variant="secondary" disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)}>
+                            <Button
+                                variant="secondary"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => prev - 1)}
+                            >
                                 Anterior
                             </Button>
-                            <span>Página {currentPage} de {totalPages}</span>
-                            <Button variant="secondary" disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)}>
+                            <span>
+                                Página {currentPage} de {totalPages}
+                            </span>
+                            <Button
+                                variant="secondary"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                            >
                                 Siguiente
                             </Button>
                         </div>
