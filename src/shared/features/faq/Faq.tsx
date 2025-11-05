@@ -4,6 +4,7 @@ import { getData } from "../../../core/services/apiService";
 import { FaqDto } from "../../../core/models/dto/FaqDto";
 import { MainInfoDto } from "../../../core/models/dto/MainInfoDto";
 import { getCookie, setCookie } from "../../../core/utils/cookiesUtils";
+import { hasConsentFor } from "../../../core/utils/cookiesUtils";
 
 const Faq: React.FC = () => {
     const [dataMain, setDataMain] = useState<MainInfoDto | null>(null);
@@ -16,17 +17,32 @@ const Faq: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Verificar si la información está en una cookie
-                const cookieData = getCookie("mainInfo");
-                if (cookieData) {
+                let mainData = null;
+
+                // Solo usar las cookies si el usuario dio su consentimiento
+                if (hasConsentFor("essential")) {
+                    // Verificar si la información está en una cookie
+                    const cookieData = getCookie("mainInfo");
+                    if (cookieData) {
+                        // Si existe, usar la información de la cookie
+                        mainData = JSON.parse(cookieData);
+                    }
+                }
+
+                if (mainData) {
                     // Si existe, usar la información de la cookie
-                    setDataMain(JSON.parse(cookieData));
+                    setDataMain(mainData);
                 } else {
                     // Si no existe, hacer la petición al backend
                     const response = await getData<MainInfoDto>("/info/data-main");
                     setDataMain(response);
-                    // Almacenar la información en una cookie (válida por 7 días)
-                    setCookie("mainInfo", JSON.stringify(response), 7);
+
+                    // Solo guardar si hay consentimiento
+                    if (hasConsentFor("essential")) {
+                        // Almacenar la información en una cookie (válida por 7 días)
+                        setCookie("mainInfo", JSON.stringify(response), 7);
+                        //console.log("Cookie de Faq Guardada");
+                    }
                 }
             } catch (error) {
                 console.error(error);
@@ -42,17 +58,28 @@ const Faq: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Verificar si la información está en una cookie
-                const cookieData = getCookie("faqInfo");
-                if (cookieData) {
+                let faqData = null;
+
+                if (hasConsentFor("essential")) {
+                    // Verificar si la información está en una cookie
+                    const cookieData = getCookie("faqInfo");
+                    if (cookieData) {
+                        // Si existe, usar la información de la cookie
+                        faqData = JSON.parse(cookieData);
+                    }
+                }
+
+                if (faqData) {
                     // Si existe, usar la información de la cookie
-                    setDataFaq(JSON.parse(cookieData));
+                    setDataFaq(faqData);
                 } else {
                     // Si no existe, hacer la petición al backend
                     const response = await getData<FaqDto[]>("/info/faq");
                     setDataFaq(response);
-                    // Almacenar la información en una cookie (válida por 7 días)
-                    setCookie("faqInfo", JSON.stringify(response), 7);
+                    if (hasConsentFor("essential")) {
+                        // Almacenar la información en una cookie (válida por 7 días)
+                        setCookie("faqInfo", JSON.stringify(response), 7);
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching FAQ data:", error);

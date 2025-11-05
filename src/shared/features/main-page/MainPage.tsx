@@ -3,6 +3,7 @@ import { FaStar, FaRocket, FaCode } from "react-icons/fa";
 import { getData } from "../../../core/services/apiService";
 import { MainInfoDto } from "../../../core/models/dto/MainInfoDto";
 import { getCookie, setCookie } from "../../../core/utils/cookiesUtils";
+import { hasConsentFor } from "../../../core/utils/cookiesUtils";
 
 const MainPage: React.FC = () => {
 
@@ -15,17 +16,32 @@ const MainPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Verificar si la información está en una cookie
-        const cookieData = getCookie("mainInfo");
-        if (cookieData) {
+        let mainData = null;
+
+        // Solo usar las cookies si el usuario dio su consentimiento
+        if (hasConsentFor("essential")) {
+          // Verificar si la información está en una cookie
+          const cookieData = getCookie("mainInfo");
+          if (cookieData) {
+            // Si existe, usar la información de la cookie
+            mainData = JSON.parse(cookieData);
+          }
+        }
+
+        if (mainData) {
           // Si existe, usar la información de la cookie
-          setData(JSON.parse(cookieData));
+          setData(mainData);
         } else {
           // Si no existe, hacer la petición al backend
           const response = await getData<MainInfoDto>("/info/data-main");
           setData(response);
-          // Almacenar la información en una cookie (válida por 7 días)
-          setCookie("mainInfo", JSON.stringify(response), 7);
+
+          // Solo guardar si hay consentimiento
+          if (hasConsentFor("essential")) {
+            // Almacenar la información en una cookie (válida por 7 días)
+            setCookie("mainInfo", JSON.stringify(response), 7);
+            //console.log("Cookie de Main Info Guardada");
+          }
         }
       } catch (error) {
         console.error(error);

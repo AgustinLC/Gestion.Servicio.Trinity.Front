@@ -13,3 +13,20 @@ export const setCookie = (name: string, value: string, days: number): void => {
     const expires = `expires=${date.toUTCString()}`;
     document.cookie = `${name}=${value}; ${expires}; path=/`;
 };
+
+// Funcion para obtener el consentimiento elegido por el usuario
+export function getCookieConsent() {
+  const data = localStorage.getItem("site_cookie_consent_v1");
+  if (!data) return null;
+
+  try {
+    return JSON.parse(data);
+  } catch {
+    return null;
+  }
+}
+
+export function hasConsentFor(type: "essential" | "analytics" | "marketing") {
+  const consent = getCookieConsent();
+  return consent?.prefs?.[type] === true;
+}

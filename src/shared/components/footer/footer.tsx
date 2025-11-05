@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { getData } from "../../../core/services/apiService";
 import { FooterInfoDto } from "../../../core/models/dto/FooterInfoDto";
 import { getCookie, setCookie } from "../../../core/utils/cookiesUtils";
+import { hasConsentFor } from "../../../core/utils/cookiesUtils";
 
 const Footer: React.FC = () => {
 
@@ -17,16 +18,31 @@ const Footer: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Verificar si la información está en una cookie
-                const cookieData = getCookie("footerInfo");
-                if (cookieData) {
+                let mainData = null;
+
+                // Solo usar las cookies si el usuario dio su consentimiento
+                if (hasConsentFor("essential")) {
+                    // Verificar si la información está en una cookie
+                    const cookieData = getCookie("footerInfo");
+                    if (cookieData) {
+                        // Si existe, usar la información de la cookie
+                        mainData = JSON.parse(cookieData);
+                    }
+                }
+
+                if (mainData) {
                     // Si existe, usar la información de la cookie
-                    setData(JSON.parse(cookieData));
+                    setData(mainData);
                 } else {
                     const response = await getData<FooterInfoDto>("/info/footer");
                     setData(response);
-                    // Almacenar la información en una cookie (válida por 7 días)
-                    setCookie("footerInfo", JSON.stringify(response), 7);
+
+                    // Solo guardar si hay consentimiento
+                    if (hasConsentFor("essential")) {
+                        // Almacenar la información en una cookie (válida por 7 días)
+                        setCookie("footerInfo", JSON.stringify(response), 7);
+                        //console.log("Cookie de Footer Guardada");
+                    }
                 }
             } catch (error) {
                 console.error(error);

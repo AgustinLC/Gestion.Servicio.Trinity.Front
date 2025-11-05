@@ -5,6 +5,7 @@ import LoginPage from "./auth/features/login-page/LoginPage";
 import Faq from "./shared/features/faq/Faq";
 import Footer from "./shared/components/footer/footer";
 import Navbar from "./shared/components/navbar/Navbar";
+import CookieBanner from "./shared/components/cookies/CookieBanner";
 import ForgotPasswordPage from "./auth/features/forgot-password-page/ForgotPasswordPage";
 import ResetPasswordPage from "./auth/features/reset-password-page/ResetPasswordPage";
 import OperatorDashboard from "./operator/features/dashboard/OperatorDashboard";
@@ -103,6 +104,9 @@ const AppContent: React.FC = () => {
 
       {/* Pie de pagina */}
       {shouldShowFooter && <Footer />}
+
+      {/* Banner de cookies */}
+      <CookieBanner />
 
       {/* Notificaciones/Alertas */}
       <ToastContainer
