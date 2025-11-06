@@ -158,6 +158,7 @@ const ReadingTakePage: React.FC = () => {
                         <AddReadingModal
                             show={showAddReadingModal}
                             onHide={handleCloseAddReadingModal}
+                            user= {selectedUser.idUser}
                             onSave={(readingValue) => handleAddReading(selectedUser.idUser, readingValue)}
                         />
                     )}

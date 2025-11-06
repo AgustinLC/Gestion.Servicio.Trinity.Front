@@ -1,19 +1,40 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { useForm } from "react-hook-form";
+import { getData } from "../../../../core/services/apiService";
+import { toast } from "react-toastify";
 
 // Interfaces/modelos
 interface AddReadingModalProps {
     show: boolean;
     onHide: () => void;
     onSave: (readingValue: number) => Promise<void>;
+    user: number;
 }
 
 interface ReadingForm {
     readingValue: number;
 }
 
-const AddReadingModal: React.FC<AddReadingModalProps> = ({ show, onHide, onSave }) => {
+const AddReadingModal: React.FC<AddReadingModalProps> = ({ show, onHide, onSave, user }) => {
+
+    // Estados 
+    const [lastReading, setLastReading] = useState<number>(0)
+
+    useEffect(() => {
+        const fetchLastReading = async () => {
+            if (!user) return;
+            try {
+                const reading = await getData<number>(`/operator/reading/${user}`);
+                setLastReading(reading);
+            } catch (error) {
+                console.error(error);
+                toast.error("No se pudo obtener la última lectura");
+            }
+        };
+
+        fetchLastReading();
+    }, [user]);
 
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,7 +62,14 @@ const AddReadingModal: React.FC<AddReadingModalProps> = ({ show, onHide, onSave 
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit(onSubmit)}>
+                    <Form.Label>
+                        Lectura anterior:{" "}
+                        <strong>
+                            {lastReading !== null ? lastReading : "Sin lectura anterior"}
+                        </strong>
+                    </Form.Label>
                     <Form.Group>
+
                         <Form.Label>Valor de Lectura</Form.Label>
                         <Form.Control
                             type="number"

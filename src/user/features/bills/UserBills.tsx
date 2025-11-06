@@ -87,10 +87,13 @@ const UserBills: React.FC = () => {
 
     // Columnas para la tabla 
     const columns: TableColumnDefinition<BillDetailsDto>[] = [
-        { key: "idBill", label: "Número de Factura", sortable: true },
+        { key: "idBill", label: "N° de Factura", sortable: true },
+        { key: "periodName", label: "Periodo", sortable: false },
         { key: "consumption", label: "Consumo", sortable: true, render: (row: BillDetailsDto) => row.consumption.toLocaleString(), },
         { key: "surplus", label: "Excedente", sortable: true, render: (row: BillDetailsDto) => row.surplus.toLocaleString(), },
         { key: "surplusPrice", label: "Precio Excedente", sortable: true, render: (row: BillDetailsDto) => `$${row.surplusPrice.toLocaleString()}`, },
+        { key: "subTotal", label: "Subtotal", sortable: false, render: (row: BillDetailsDto) => `$${row.subTotal.toLocaleString()}`, },
+        { key: "totalDiscounts", label: "Descuentos", sortable: false, render: (row: BillDetailsDto) => `$${row.totalDiscounts.toLocaleString()}`, },
         { key: "total", label: "Total", sortable: true, render: (row: BillDetailsDto) => `$${row.total.toLocaleString()}`, },
         {
             key: "paidStatus",
