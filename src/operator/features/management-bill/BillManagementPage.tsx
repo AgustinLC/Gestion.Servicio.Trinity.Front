@@ -12,11 +12,11 @@ import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
 import ConsorcioInvoice from "../../../shared/components/bill/Bill";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { useSearch } from "../../../hooks/useSearch";
 
 const BillManagementPage = () => {
     // Estados existentes
     const [users, setUsers] = useState<UserDto[]>([]);
-    const [filteredData, setFilteredData] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showBillActiveModal, setShowBillActiveModal] = useState(false);
@@ -32,6 +32,7 @@ const BillManagementPage = () => {
     // Obtener datos al cargar el componente
     useEffect(() => {
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Obtener datos de la api
@@ -56,15 +57,11 @@ const BillManagementPage = () => {
         setError("Error al cargar la información principal");
     };
 
-    // Manejar búsqueda
-    const handleSearch = (query: string) => {
-        const filtered = users.filter((user) =>
-            Object.values(user).some((value) =>
-                String(value).toLowerCase().includes(query.toLowerCase())
-            )
-        );
-        setFilteredData(filtered);
-    };
+    // Hook para buscar por columnas 
+    const { filteredData, handleSearch, setFilteredData } = useSearch<UserDto>(
+        users,
+        ["firstName", "lastName", "idUser"] // columnas filtrables
+      );
 
     // Generar PDF
     const handleGeneratePdf = async () => {
@@ -169,7 +166,7 @@ const BillManagementPage = () => {
 
     // Columnas para ReusableTable
     const columns: TableColumnDefinition<UserDto>[] = [
-        { key: "idUser", label: "ID", sortable: true },
+        { key: "idUser", label: "N° Conexión.", sortable: true },
         { key: "firstName", label: "Nombre", sortable: false },
         { key: "lastName", label: "Apellido", sortable: false },
         { key: "dni", label: "DNI", sortable: false },

@@ -10,13 +10,13 @@ import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
 import { toast } from "react-toastify";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
 import UserParametersModal from "./UserParameterModal";
+import { useSearch } from "../../../hooks/useSearch";
 
 const PendigBillsParameterPage = () => {
 
     //Estados
     const [userData, setUserData] = useState<UserDto[]>([])
     const [parameterData, setParameterData] = useState<BillingParameter[]>([]);
-    const [filteredData, setFilteredData] = useState<UserDto[]>([]);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const [showAddParameterModal, setShowAddParameterModal] = useState(false);
     const [showUserParameters, setShowUserParameters] = useState(false);
@@ -26,6 +26,7 @@ const PendigBillsParameterPage = () => {
     // Obtener datos al cargar el componente
     useEffect(() => {
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     //Obtener informacion de la api
@@ -45,22 +46,11 @@ const PendigBillsParameterPage = () => {
         }
     };
 
-    // Manejar búsqueda
-    const handleSearch = (query: string) => {
-        const searchTerm = query.toLowerCase();
-        const filtered = userData.filter(user => {
-            // Buscar en propiedades directas
-            const directMatch = Object.values(user).some(value =>
-                String(value).toLowerCase().includes(searchTerm)
-            );
-            // Buscar en propiedades anidadas de residenceDto
-            const residenceMatch = Object.values(user.residenceDto).some(value =>
-                String(value).toLowerCase().includes(searchTerm)
-            );
-            return directMatch || residenceMatch;
-        });
-        setFilteredData(filtered);
-    };
+    // Hook para buscar por columnas 
+    const { filteredData, handleSearch, setFilteredData } = useSearch<UserDto>(
+            userData,
+            ["firstName", "lastName", "idUser"]
+        );
 
     // Manejar añadir conceptos
     const handleSaveParameter = async (pendigBillDetail: PendigBillDetail) => {
@@ -77,7 +67,8 @@ const PendigBillsParameterPage = () => {
 
     // Columnas para ReusableTable
     const columns: TableColumnDefinition<UserDto>[] = [
-        { key: "firstName", label: "Nombre", sortable: true },
+        { key: "idUser", label: "N° Conexión", sortable: true},
+        { key: "firstName", label: "Nombre", sortable: false },
         { key: "lastName", label: "Apellido", sortable: false },
         { key: "dni", label: "DNI", sortable: false },
         { key: "street" as keyof UserDto, label: "Calle", sortable: false, render: (row: UserDto) => row.residenceDto?.street || "Sin dirección" },

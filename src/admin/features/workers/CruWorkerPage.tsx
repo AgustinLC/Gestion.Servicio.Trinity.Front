@@ -7,12 +7,12 @@ import { Button, Spinner } from "react-bootstrap";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import AddEditWorkerModal from "./AddEditWorkerModal";
+import { useSearch } from "../../../hooks/useSearch";
 
 const CruWorkerPage = () => {
 
     //Estados
     const [workers, setWorkers] = useState<UserDto[]>([]);
-    const [filteredData, setFilteredData] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
@@ -21,6 +21,7 @@ const CruWorkerPage = () => {
     // Obtener datos al cargar el componente
     useEffect(() => {
         fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Obtener datos de la api
@@ -40,15 +41,11 @@ const CruWorkerPage = () => {
         }
     };
 
-    // Manejar búsqueda
-    const handleSearch = (query: string) => {
-        const filtered = workers.filter((worker) =>
-            Object.values(worker).some((value) =>
-                String(value).toLowerCase().includes(query.toLowerCase())
-            )
-        );
-        setFilteredData(filtered);
-    };
+    // Hook para buscar por columnas 
+    const { filteredData, handleSearch, setFilteredData } = useSearch<UserDto>(
+        workers,
+        ["firstName", "lastName", "idUser"]
+    );
 
     // Manejar añadir/editar
     const handleSave = async (worker: UserDto) => {

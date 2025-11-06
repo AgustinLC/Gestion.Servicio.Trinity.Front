@@ -7,13 +7,13 @@ import { Button, Spinner } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
 import AddEditDiscountModal from "./AddEditDiscountModal";
+import { useSearch } from "../../../hooks/useSearch";
 
 const DiscountManagementPage = () => {
 
     // Estados 
     const [discount, setDiscount] = useState<DiscountDto[]>([]);
     const [loading, setLoading] = useState(false);
-    const [filteredData, setFilteredData] = useState<DiscountDto[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [selectedDiscount, setSelectedDiscount] = useState<DiscountDto | null>(null);
     const [showModal, setShowModal] = useState(false);
@@ -21,6 +21,7 @@ const DiscountManagementPage = () => {
     // Obtener datos al cargar el componente
     useEffect(() => {
         fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     //Obtener datos de la api 
@@ -40,15 +41,11 @@ const DiscountManagementPage = () => {
         }
     };
 
-    // Manejar búsqueda
-    const handleSearch = (query: string) => {
-        const filtered = discount.filter((discount) =>
-            Object.values(discount).some((value) =>
-                String(value).toLowerCase().includes(query.toLowerCase())
-            )
-        );
-        setFilteredData(filtered);
-    };
+    // Hook para buscar por columnas 
+    const { filteredData, handleSearch, setFilteredData } = useSearch<DiscountDto>(
+        discount,
+        ["name", "idDiscount"]
+    );
 
     // Manejar añadir/editar
     const handleSave = async (discount: DiscountDto) => {
@@ -56,7 +53,7 @@ const DiscountManagementPage = () => {
             if (discount.idDiscount) {
                 await updateData("/admin/update-discount?idDiscount", discount.idDiscount, discount);
                 toast.success("Descuento actualizado exitosamente");
-                
+
             } else {
                 await addData("/admin/register-discount", discount);
                 toast.success("Descuento creado exitosamente");

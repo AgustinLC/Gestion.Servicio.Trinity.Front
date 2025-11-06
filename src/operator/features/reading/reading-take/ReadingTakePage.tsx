@@ -7,6 +7,7 @@ import ReusableTable from "../../../../shared/components/table/ReusableTable";
 import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
 import AddReadingModal from "./AddReadingModal";
 import SearchBar from "../../../../shared/components/searcher/SearchBar";
+import { useSearch } from "../../../../hooks/useSearch";
 
 const ReadingTakePage: React.FC = () => {
 
@@ -14,9 +15,9 @@ const ReadingTakePage: React.FC = () => {
     const [users, setUsers] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [filteredData, setFilteredData] = useState<UserDto[]>([]);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const [showAddReadingModal, setShowAddReadingModal] = useState(false);
+    // Filtros
     const [selectedStreet, setSelectedStreet] = useState<string>("");
     const [selectedDistrict, setSelectedDistrict] = useState<string>("");
     const [uniqueStreets, setUniqueStreets] = useState<string[]>([]);
@@ -25,25 +26,8 @@ const ReadingTakePage: React.FC = () => {
     // Obtener datos al cargar el componente
     useEffect(() => {
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    // Manejar todos los filtros
-    useEffect(() => {
-        let filtered = users;
-        // Filtro por búsqueda
-        if (selectedStreet) {
-            filtered = filtered.filter(user =>
-                user.residenceDto.street === selectedStreet
-            );
-        }
-        // Filtro por distrito
-        if (selectedDistrict) {
-            filtered = filtered.filter(user =>
-                user.residenceDto.district === selectedDistrict
-            );
-        }
-        setFilteredData(filtered);
-    }, [users, selectedStreet, selectedDistrict]);
 
     // Obtener usuarios de la API
     const fetchData = async () => {
@@ -66,23 +50,12 @@ const ReadingTakePage: React.FC = () => {
         }
     };
 
-    // Manejar búsqueda
-    const handleSearch = (query: string) => {
-        const searchTerm = query.toLowerCase();
-        const filtered = users.filter(user => {
-            // Buscar en propiedades directas
-            const directMatch = Object.values(user).some(value =>
-                String(value).toLowerCase().includes(searchTerm)
-            );
-            // Buscar en propiedades anidadas de residenceDto
-            const residenceMatch = Object.values(user.residenceDto).some(value =>
-                String(value).toLowerCase().includes(searchTerm)
-            );
-            return directMatch || residenceMatch;
-        });
-        setFilteredData(filtered);
-    };
-
+    // Hook reutilizable de búsqueda + filtros
+  const { filteredData, handleSearch, setFilteredData } = useSearch<UserDto>(
+    users,
+    [ "firstName", "lastName", "idUser" ],
+    { "residenceDto.street": selectedStreet || null, "residenceDto.district": selectedDistrict || null, }
+  );
 
     // Manejar añadir nueva lectura
     const handleAddReading = async (idUser: number, readingValue: number) => {
@@ -130,6 +103,7 @@ const ReadingTakePage: React.FC = () => {
 
     // Columnas para la tabla
     const columns: TableColumnDefinition<UserDto>[] = [
+        { key: "idUser", label: "N° Conexión", sortable: false },
         { key: "firstName", label: "Nombre", sortable: false },
         { key: "lastName", label: "Apellido", sortable: false },
         { key: "dni", label: "DNI", sortable: false },

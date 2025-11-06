@@ -7,12 +7,12 @@ import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import ShowDiscountUserModal from "./ShowDiscountUserModal";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
+import { useSearch } from "../../../hooks/useSearch";
 
 const DiscountsPage = () => {
 
     // Estados principales
     const [users, setUsers] = useState<UserDto[]>([]);
-    const [filteredData, setFilteredData] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -24,6 +24,7 @@ const DiscountsPage = () => {
     // Obtener datos al cargar el componente
     useEffect(() => {
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Obtener datos de la api
@@ -43,15 +44,11 @@ const DiscountsPage = () => {
         }
     };
 
-    // Manejar búsqueda
-    const handleSearch = (query: string) => {
-        const filtered = users.filter((user) =>
-            Object.values(user).some((value) =>
-                String(value).toLowerCase().includes(query.toLowerCase())
-            )
-        );
-        setFilteredData(filtered);
-    };
+    // Hook para buscar por columnas 
+    const { filteredData, handleSearch, setFilteredData } = useSearch<UserDto>(
+        users,
+        ["firstName", "lastName", "idUser"] // columnas filtrables
+    );
 
     // Función para ver descuentos de un usuario
     const handleViewDiscounts = (user: UserDto) => {
@@ -61,7 +58,7 @@ const DiscountsPage = () => {
 
     // Columnas de la tabla de usuarios
     const columns: TableColumnDefinition<UserDto>[] = [
-        { key: "idUser", label: "ID", sortable: true },
+        { key: "idUser", label: "N° Conexión", sortable: true },
         { key: "firstName", label: "Nombre", sortable: false },
         { key: "lastName", label: "Apellido", sortable: false },
         { key: "dni", label: "DNI", sortable: false },

@@ -25,7 +25,7 @@ const ReusableTable = <T,>({
             return sortDirection === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         }
         if (typeof aValue === "number" && typeof bValue === "number") {
-            return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+            return sortDirection === "desc" ? aValue - bValue : bValue - aValue;
         }
         return 0;
     });

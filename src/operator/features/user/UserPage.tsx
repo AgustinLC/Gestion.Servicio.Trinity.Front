@@ -10,6 +10,7 @@ import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { LocationDto } from "../../../core/models/dto/LocationDto";
 import { FeeDto } from "../../../core/models/dto/FeeDto";
 import statusLabels from "../../../shared/components/labels-traductor/statusLabels";
+import { useSearch } from "../../../hooks/useSearch";
 
 const UserPage = () => {
 
@@ -17,7 +18,6 @@ const UserPage = () => {
     const [user, setUsers] = useState<UserDto[]>([]);
     const [locations, setLocations] = useState<LocationDto[]>([]);
     const [fees, setFees] = useState<FeeDto[]>([]);
-    const [filteredData, setFilteredData] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
@@ -26,6 +26,7 @@ const UserPage = () => {
     // Obtener datos al cargar el componente
     useEffect(() => {
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Obtener datos de la api
@@ -51,15 +52,11 @@ const UserPage = () => {
         }
     };
 
-    // Manejar búsqueda
-    const handleSearch = (query: string) => {
-        const filtered = user.filter((user) =>
-            Object.values(user).some((value) =>
-                String(value).toLowerCase().includes(query.toLowerCase())
-            )
-        );
-        setFilteredData(filtered);
-    };
+    // Hook para buscar por columnas 
+    const { filteredData, handleSearch, setFilteredData } = useSearch<UserDto>(
+        user,
+        ["firstName", "lastName", "idUser"] 
+    );
 
     // Manejar añadir/editar
     const handleSave = async (user: UserDto) => {
@@ -86,7 +83,7 @@ const UserPage = () => {
 
     // Columnas para ReusableTable
     const columns: TableColumnDefinition<UserDto>[] = [
-        { key: "idUser", label: "ID", sortable: true },
+        { key: "idUser", label: "N° Conexión", sortable: true },
         { key: "firstName", label: "Nombre", sortable: false },
         { key: "lastName", label: "Apellido", sortable: false },
         { key: "dni", label: "DNI", sortable: false },

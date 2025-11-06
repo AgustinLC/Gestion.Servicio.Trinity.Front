@@ -8,13 +8,13 @@ import { TableColumnDefinition } from "../../../../core/models/types/TableTypes"
 import AddReadingModal from "./AddReadingModal";
 import SearchBar from "../../../../shared/components/searcher/SearchBar";
 import UserReadingsModal from "./UserReadingModal";
+import { useSearch } from "../../../../hooks/useSearch";
 
 const ReadingManagementPage: React.FC = () => {
     // Estados
     const [users, setUsers] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [filteredData, setFilteredData] = useState<UserDto[]>([]);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const [showAddReadingModal, setShowAddReadingModal] = useState(false);
     const [showUserReadings, setShowUserReadings] = useState(false);
@@ -22,6 +22,7 @@ const ReadingManagementPage: React.FC = () => {
     // Obtener datos al cargar el componente
     useEffect(() => {
         fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Obtener usuarios de la API
@@ -40,15 +41,11 @@ const ReadingManagementPage: React.FC = () => {
         }
     };
 
-    // Manejar búsqueda
-    const handleSearch = (query: string) => {
-        const filtered = users.filter((users) =>
-            Object.values(users).some((value) =>
-                String(value).toLowerCase().includes(query.toLowerCase())
-            )
-        );
-        setFilteredData(filtered);
-    };
+    // Hook para buscar por columnas 
+    const { filteredData, handleSearch, setFilteredData } = useSearch<UserDto>(
+        users,
+        ["firstName", "lastName", "idUser"] // columnas filtrables
+    );
 
 
     // Manejar añadir nueva lectura
@@ -68,11 +65,11 @@ const ReadingManagementPage: React.FC = () => {
         setShowAddReadingModal(false);
         setSelectedUser(null); // Limpiar el usuario seleccionado
     };
-    
+
 
     // Columnas para la tabla
     const columns: TableColumnDefinition<UserDto>[] = [
-        { key: "idUser", label: "ID", sortable: true },
+        { key: "idUser", label: "N° Conexión", sortable: true },
         { key: "firstName", label: "Nombre", sortable: false },
         { key: "lastName", label: "Apellido", sortable: false },
         { key: "dni", label: "DNI", sortable: false },
@@ -128,10 +125,10 @@ const ReadingManagementPage: React.FC = () => {
                     {/* Vista de lecturas del usuario */}
                     {selectedUser && showUserReadings && (
                         <UserReadingsModal
-                        show={showUserReadings}
-                        onHide={() => setShowUserReadings(false)}
-                        userName={`${selectedUser.firstName} ${selectedUser.lastName}`}
-                        userId={selectedUser.idUser}
+                            show={showUserReadings}
+                            onHide={() => setShowUserReadings(false)}
+                            userName={`${selectedUser.firstName} ${selectedUser.lastName}`}
+                            userId={selectedUser.idUser}
                         />
                     )}
                 </div>
