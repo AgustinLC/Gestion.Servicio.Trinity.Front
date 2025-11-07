@@ -11,6 +11,8 @@ export interface UserDto {
   dateRegister: string;
   password: string;
   digitalInvoiceAdhered: boolean;
+  ivaInvoiceAdhered: boolean;
+  pdfInvoiceAdhered: boolean;
   residenceDto: ResidenceDto;
 }
 

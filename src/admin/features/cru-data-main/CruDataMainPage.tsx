@@ -62,6 +62,7 @@ const CruDataMainPage = () => {
         facebookUrl: "Facebook URL",
         whatsappUrl: "Whatsapp URL",
         instagramUrl: "Instagram URL",
+        mapsUrl: "Google Maps URL",
         cuit: "CUIT",
     };
 
@@ -78,7 +79,7 @@ const CruDataMainPage = () => {
                     <div className="text-center py-5">{error}</div>
                 ) : mainData ? (
                     <div className="w-75">
-                        {["name", "description", "slogan","province", "location", "district", "street", "facebookUrl", "whatsappUrl", "instagramUrl", "cuit"].map((field) => (
+                        {["name", "description", "slogan","province", "location", "district", "street", "facebookUrl", "whatsappUrl", "instagramUrl", "mapsUrl", "cuit"].map((field) => (
                             <Card className="mb-3" key={field}>
                                 <Card.Body>
                                     <Card.Title className="fw-bold">{fieldTranslations[field]}</Card.Title>

@@ -84,7 +84,7 @@ const Footer: React.FC = () => {
                             <p>Departamento: {data?.location}</p>
                             <p>Distrito: {data?.district}</p>
                             <p>Calle: {data?.street}</p>
-                            <Link to="https://www.google.com/maps/place/CLUB+SANTA+MARIA/@-33.207028,-68.4245363,321m/data=!3m1!1e3!4m6!3m5!1s0x967e59fc88ce3c3f:0xb1ff918bf093f8fe!8m2!3d-33.207201!4d-68.423545!16s%2Fg%2F11jsw09_j1?entry=ttu" target="_blank">Ver Ubicacion</Link>
+                            <Link to={data?.mapsUrl || "#"} target="_blank">Ver ubicación</Link>
                         </div>
                         <div className="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
                             <h6 className="text-uppercase fw-bold mb-4">Compañia</h6>

@@ -8,4 +8,5 @@ export interface FooterInfoDto {
     facebookUrl: string; 
     whatsappUrl: string; 
     instagramUrl: string; 
+    mapsUrl: string;
 }

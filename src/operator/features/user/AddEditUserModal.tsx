@@ -212,6 +212,20 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
             </Col>
             <Col>
               <Form.Group>
+                <Form.Label>Val. actual del Medidor</Form.Label>
+                <Form.Control
+                  {...register("residenceDto.valueMeter", { required: "Este campo es obligatorio" })}
+                  isInvalid={!!errors.residenceDto?.valueMeter}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.residenceDto?.valueMeter?.message}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Form.Group>
                 <Form.Label>Tarifa</Form.Label>
                 <Form.Select
                   {...register("residenceDto.idFee", { required: "Este campo es obligatorio" })}
@@ -229,27 +243,15 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Form.Group>
-                <Form.Label>Val. actual del Medidor</Form.Label>
-                <Form.Control
-                  {...register("residenceDto.valueMeter", { required: "Este campo es obligatorio" })}
-                  isInvalid={!!errors.residenceDto?.valueMeter}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.residenceDto?.valueMeter?.message}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
             <Col>
               <Form.Group>
                 <Form.Label>Enviar boleta al correo</Form.Label>
                 <Form.Select
                   {...register("digitalInvoiceAdhered", {
-                    required: "Este campo es obligatorio",
-                    setValueAs: (value) => value === "true" // Convierte el string a booleano
+                    validate: (value) =>
+                      value === true || value === false ? true : "Este campo es obligatorio",
+                    setValueAs: (value) =>
+                      value === "true" ? true : value === "false" ? false : undefined,
                   })}
                   isInvalid={!!errors.digitalInvoiceAdhered}
                 >
@@ -263,12 +265,50 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
               </Form.Group>
             </Col>
           </Row>
-          <Form.Group className="mb-3">
-            <Form.Text className="text-danger">
-              * Al activar el envio de boleta por correo no se añadira la factura al PDF masivo.
-            </Form.Text>
-          </Form.Group>
-
+          <Row>
+            <Col>
+              <Form.Group>
+                <Form.Label>Calcular IVA al consumo total</Form.Label>
+                <Form.Select
+                  {...register("ivaInvoiceAdhered", {
+                    validate: (value) =>
+                      value === true || value === false ? true : "Este campo es obligatorio",
+                    setValueAs: (value) =>
+                      value === "true" ? true : value === "false" ? false : undefined,
+                  })}
+                  isInvalid={!!errors.ivaInvoiceAdhered}
+                >
+                  <option value="">Seleccione una opción</option>
+                  <option value="true">Sí</option>
+                  <option value="false">No</option>
+                </Form.Select>
+                <Form.Control.Feedback type="invalid">
+                  {errors.ivaInvoiceAdhered?.message}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group>
+                <Form.Label>Generar PDF de facturas</Form.Label>
+                <Form.Select
+                  {...register("pdfInvoiceAdhered", {
+                    validate: (value) =>
+                      value === true || value === false ? true : "Este campo es obligatorio",
+                    setValueAs: (value) =>
+                      value === "true" ? true : value === "false" ? false : undefined,
+                  })}
+                  isInvalid={!!errors.pdfInvoiceAdhered}
+                >
+                  <option value="">Seleccione una opción</option>
+                  <option value="true">Sí</option>
+                  <option value="false">No</option>
+                </Form.Select>
+                <Form.Control.Feedback type="invalid">
+                  {errors.pdfInvoiceAdhered?.message}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          </Row>
           <Button className="mt-2" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Guardando..." : "Guardar"}
           </Button>

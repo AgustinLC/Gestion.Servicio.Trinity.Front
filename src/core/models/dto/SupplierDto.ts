@@ -11,5 +11,6 @@ export interface Supplier {
     facebookUrl: string;
     whatsappUrl: string;
     instagramUrl: string;
+    mapsUrl: string;
     cuit: number; 
 }
