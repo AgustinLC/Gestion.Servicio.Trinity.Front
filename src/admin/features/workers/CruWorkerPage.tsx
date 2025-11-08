@@ -52,7 +52,7 @@ const CruWorkerPage = () => {
         try {
             //Actualizar registro
             if (worker.idUser) {
-                await updateData("/operator/update-user?idUser", worker.idUser, worker);
+                await updateData("/user/update?idUser", worker.idUser, worker);
                 toast.success("Usuario actualizado exitosamente");
             }
             // Añadir registro

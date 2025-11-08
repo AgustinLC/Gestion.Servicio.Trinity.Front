@@ -5,4 +5,5 @@ export interface FeeDto{
     price: number;
     consumptionMax: number;
     surplusChargePerUnit: number;
+    maturityAmount: number;
 }

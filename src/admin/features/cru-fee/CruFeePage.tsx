@@ -64,6 +64,7 @@ const CrudFeePage = () => {
         { key: "price", label: "Precio", sortable: true },
         { key: "consumptionMax", label: "Consumo Max.", sortable: false },
         { key: "surplusChargePerUnit", label: "Costo por Exceso", sortable: false },
+        { key: "maturityAmount", label: "Costo por Vencimiento", sortable: false },
         {
             key: "actions", label: "Acciones", actions: (row: FeeDto) => (
                 <Button variant="warning" onClick={() => { setSelectedFee(row); setShowModal(true); }}>

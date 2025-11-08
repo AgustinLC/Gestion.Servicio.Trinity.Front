@@ -81,13 +81,23 @@ const AddEditFeeModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, fe
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Costo por Exceso.</Form.Label>
+                        <Form.Label>Costo por Exceso</Form.Label>
                         <Form.Control
                             {...register("surplusChargePerUnit", { required: "Este campo es obligatorio" })}
                             isInvalid={!!errors.surplusChargePerUnit}
                         />
                         <Form.Control.Feedback type="invalid">
                             {errors.surplusChargePerUnit?.message}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Label>Costo por Vencimiento</Form.Label>
+                        <Form.Control
+                            {...register("maturityAmount", { required: "Este campo es obligatorio" })}
+                            isInvalid={!!errors.maturityAmount}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {errors.maturityAmount?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Button className="mt-2" type="submit" disabled={isSubmitting}>
