@@ -286,7 +286,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
 
             {/* Resumen de Deuda */}
             <div className="debt-summary">
-                <table>
+                <table className='mb-1'>
                     {/* Colgroup para definir el ancho de las columnas */}
                     <colgroup>
                         <col style={{ width: '40px' }} />
@@ -330,8 +330,13 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                             <td>{bill.total}</td>
                         </tr>
                         <tr>
-                            <td colSpan={4}>
+                            <td colSpan={4} className='text-end'>
                                 Son Pesos: <strong>{convertNumberToWords(bill.total)}</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colSpan={4} className='text-end'>
+                                PASADA LA FECHA DE VENCIMIENTO DEBERA PAGAR: <strong>{bill.maturityAmount}</strong>
                             </td>
                         </tr>
                     </tbody>

@@ -16,11 +16,13 @@ export interface BillDetailsDto {
     deleted: boolean;
     dateRegister: Date; 
     expirationDate: Date;
+    maturityAmount: number;
     feeName: string; 
     surplusChargePerUnit: number;
     feePrice: number; 
     consumptionMax: number; 
     periodName: string;
+
     readingsBillDto: ReadingBillDto 
     details: BillDetailDto[];
 }
