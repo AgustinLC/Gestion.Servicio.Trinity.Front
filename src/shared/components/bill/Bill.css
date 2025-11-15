@@ -17,8 +17,8 @@
 .invoice-header {
   display: flex;
   justify-content: flex-start;
-  padding-bottom: 5px;
-  margin-bottom: 10px;
+  padding-bottom: 2px;
+  margin-bottom: 5px;
   width: 100%;
 }
 
@@ -31,7 +31,7 @@
 .consortium-info table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
 }
 
 .user-info td,
@@ -94,11 +94,11 @@
 /* Estilos para las notas */
 .notes-section {
   border: 1px solid #000;
-  padding-top: 10px;
+  padding-top: 2px;
 }
 
 .notes-section p {
-  margin: 5px 0;
+  margin: 1px 0;
 }
 
 /* Estilos para los talonarios */
@@ -215,7 +215,7 @@
 /* Estilos para el texto fuera del borde */
 .bead-footer-text {
   text-align: center;
-  margin-top: 10px;
+  margin-top: 5px;
   font-weight: bold;
 }
 

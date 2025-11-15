@@ -353,8 +353,9 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
 
             {/* Notas Finales */}
             <div className="notes-section">
-                <p className='text-center mt-1'>RECUERDE USUARIO QUE CUANDO TENGA UNA BOLETA VENCIDA CORRE EL RIESGO QUE EL CONSORCIO LE SUSPENDA EL SERVICIO DE AGUA POTABLE, Y LUEGO DEBA REALIZAR UNA RECONEXIÓN DEL SERVICIO.</p>
-                <h6 className='text-center mt-1'> CBU 0110438120043811503456 consorcio Vecinal de agua potable santa María de Oro. ALIAS: BOMBO.PRIMO.NUDO</h6>
+                <p className='text-center mx-0'>RECUERDE USUARIO QUE CUANDO TENGA UNA BOLETA VENCIDA CORRE EL RIESGO QUE EL CONSORCIO LE SUSPENDA EL SERVICIO DE AGUA POTABLE, Y LUEGO DEBA REALIZAR UNA RECONEXIÓN DEL SERVICIO.</p>
+                <p className='text-center fw-bold fs-6'>CBU 0110438120043811503456 consorcio Vecinal de agua potable santa María de Oro. ALIAS: BOMBO.PRIMO.NUDO</p>
+                <p className='text-center fw-bold'>RESTRICCIÓN DE USOS DEL AGUA POTABLE DE 8 A 21HS. Esta prohibido utilizar agua potable para regarjardines, calles, lavar veredas, autos y llenar pileta. Disposición de DIRCAS para que no le aplique multa por derroche. Hamos un uso responsable</p>
                 <div className='d-flex justify-content-between'>
                     <div>
                         <p>Cat. 1 - Unidad Simple</p>
