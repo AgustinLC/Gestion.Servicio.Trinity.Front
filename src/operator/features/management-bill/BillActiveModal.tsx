@@ -141,8 +141,8 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                                     <th>Período</th>
                                     <th>Consumo</th>
                                     <th>Excedente</th>
-                                    <th>Descuento</th>
                                     <th>Subtotal</th>
+                                    <th>Descuento</th>
                                     <th>Total</th>
                                     <th>Estado de pago</th>
                                     <th>Acciones</th>
@@ -155,8 +155,8 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                                         <td>{bill.periodName}</td>
                                         <td>{bill.consumption.toFixed(2)}</td>
                                         <td>{formatCurrency(bill.surplusPrice)}</td>
-                                        <td>{formatCurrency(bill.totalDiscounts)}</td>
                                         <td>{formatCurrency(bill.subTotal)}</td>
+                                        <td>{formatCurrency(bill.totalDiscounts)}</td>
                                         <td>{formatCurrency(bill.total)}</td>
                                         <td>
                                             <Form.Check

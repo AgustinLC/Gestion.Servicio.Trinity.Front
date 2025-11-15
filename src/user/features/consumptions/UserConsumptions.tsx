@@ -53,11 +53,15 @@ const UserConsumptions: React.FC = () => {
 
     // Columnas de la tabla
     const columns: TableColumnDefinition<ReadReadingDto>[] = [
-        { key: "idReading", label: "ID Lectura", sortable: true },
         { key: "periodName", label: "Período", sortable: true },
         { key: "date", label: "Fecha", sortable: true },
         { key: "reading", label: "Lectura actual", sortable: true },
-        { key: "consumption", label: "Consumo", sortable: false},
+        {
+            key: "consumption", label: "Consumo", sortable: false, render: (row) =>
+                row.consumption === null || row.consumption === undefined
+                    ? "Aún no se realizó el cálculo"
+                    : row.consumption.toString()
+        },
     ];
 
     return (

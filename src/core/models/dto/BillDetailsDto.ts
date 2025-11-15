@@ -22,7 +22,7 @@ export interface BillDetailsDto {
     feePrice: number; 
     consumptionMax: number; 
     periodName: string;
-
+    amountUnpaidInvoices: number;
     readingsBillDto: ReadingBillDto 
     details: BillDetailDto[];
 }

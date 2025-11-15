@@ -303,7 +303,15 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                         </tr>
                         <tr>
                             <td className='border-bottom-0' colSpan={2}>
-                                Señor Usuario: A dicha fecha Ud. no registra conceptos facturados pendientes de pago
+                                {bill.amountUnpaidInvoices > 0 ? (
+                                    <>
+                                        Señor Usuario: A dicha fecha Ud. registra un monto pendiente de pago de <strong>${bill.amountUnpaidInvoices}</strong>
+                                    </>
+                                ) : (
+                                    <>
+                                        Señor Usuario: A dicha fecha Ud. no registra conceptos facturados pendientes de pago.
+                                    </>
+                                )}
                             </td>
                             <td><strong>IVA 21,00 %</strong></td>
                             <td>{bill.iva}</td>
