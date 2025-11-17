@@ -41,6 +41,7 @@ import ModalityPage from "./admin/features/modality/ModalityPage";
 import ProtectedRoute from "./auth/features/protected-route/ProtectedRoute";
 import DiscountManagementPage from "./admin/features/discounts/DiscountManagementPage";
 import DiscountsPage from "./operator/features/discounts/DiscountsPage";
+import BillGenerateFilteredPage from "./operator/features/generate-bill/BillGenerateFilteredPage";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -79,6 +80,7 @@ const AppContent: React.FC = () => {
           <Route path="parameters/bills" element={<PendigBillsParameterPage />} />
           <Route path="bills/bulk-generate" element={<BillBulkGeneratePage />} />
           <Route path="bills/individual-generate" element={<BillIndividualGeneratePage />} />
+          <Route path="bills/generate-filtered" element={<BillGenerateFilteredPage />} />
           <Route path="bills/management" element={<BillManagementPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="discounts" element={<DiscountsPage />} />

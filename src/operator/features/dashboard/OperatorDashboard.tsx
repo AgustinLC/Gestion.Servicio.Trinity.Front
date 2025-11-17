@@ -30,6 +30,7 @@ const DashboardOperator: React.FC = () => {
         "/dashboard/operator/bills/management",
         "/dashboard/operator/bills/bulk-generate",
         "/dashboard/operator/bills/individual-generate",
+        "/dashboard/operator/bills/generate-filtered",
     ].includes(currentPath);
 
     // Popovers
@@ -78,6 +79,13 @@ const DashboardOperator: React.FC = () => {
                 >
                     Generación Individual
                 </Link>
+                <Link
+                    to="/dashboard/operator/bills/generate-filtered"
+                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/generate-filtered" ? "active" : ""}`}
+                    onClick={() => setActivePopover(null)}
+                >
+                    Generación por Filtros
+                </Link>
             </Popover.Body>
         </Popover>
     );
@@ -121,7 +129,7 @@ const DashboardOperator: React.FC = () => {
                             <span className="ms-2 d-lg-inline">Usuarios</span>
                         </Link>
                     </li>
-                    
+
                     {/* Facturas */}
                     <OverlayTrigger
                         trigger="click"
