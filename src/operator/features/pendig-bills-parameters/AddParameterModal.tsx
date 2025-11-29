@@ -50,7 +50,7 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
     return (
         <Modal show={show} onHide={onHide} aria-labelledby="contained-modal-title-vcenter" centered>
             <Modal.Header closeButton>
-                <Modal.Title>Agregar Parámetro</Modal.Title>
+                <Modal.Title>Agregar Concepto</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit(onSubmit)}>

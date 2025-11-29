@@ -70,10 +70,7 @@ const PendigBillsParameterPage = () => {
         { key: "idUser", label: "N° Conexión", sortable: true},
         { key: "firstName", label: "Nombre", sortable: false },
         { key: "lastName", label: "Apellido", sortable: false },
-        { key: "dni", label: "DNI", sortable: false },
         { key: "street" as keyof UserDto, label: "Calle", sortable: false, render: (row: UserDto) => row.residenceDto?.street || "Sin dirección" },
-        { key: "houseNumber" as keyof UserDto, label: "N° Casa", sortable: false, render: (row: UserDto) => row.residenceDto?.number || "Sin número" },
-        { key: "meterNumber" as keyof UserDto, label: "N° Medidor", sortable: false, render: (row: UserDto) => row.residenceDto?.serialNumber || "Sin número" },
         {
             key: "actions", label: "Acciones", actions: (row: UserDto) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
@@ -124,11 +121,11 @@ const PendigBillsParameterPage = () => {
                     {/* Vista de conceptos del usuario */}
                     {selectedUser && showUserParameters && (
                         <UserParametersModal
-                        show={showUserParameters}
-                        onHide={() => setShowUserParameters(false)}
-                        parameters={parameterData}
-                        userName={`${selectedUser.firstName} ${selectedUser.lastName}`}
-                        userId={selectedUser.idUser}
+                            show={showUserParameters}
+                            onHide={() => setShowUserParameters(false)}
+                            parameters={parameterData}
+                            userName={`${selectedUser.firstName} ${selectedUser.lastName}`}
+                            userId={selectedUser.idUser}
                         />
                     )}
                 </div>

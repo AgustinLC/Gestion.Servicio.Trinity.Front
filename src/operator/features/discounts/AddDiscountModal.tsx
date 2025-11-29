@@ -4,27 +4,36 @@ import { toast } from "react-toastify";
 import { getData, addData } from "../../../core/services/apiService";
 import { DiscountDto } from "../../../core/models/dto/Discount";
 import { UserDto } from "../../../core/models/dto/UserDto";
+import { ApplyCondition } from "../../../core/models/dto/ApplyCondition";
 
 interface AddDiscountModalProps {
     show: boolean;
     onHide: () => void;
     user: UserDto;
+    discounts?: DiscountDto[]; // Descuentos pasados desde el padre
     onAssigned?: () => void; // callback para que el padre recargue la lista
 }
 
-const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user, onAssigned }) => {
+const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user, discounts, onAssigned }) => {
     const [allDiscounts, setAllDiscounts] = useState<DiscountDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [assigning, setAssigning] = useState(false);
     const [selectedDiscountId, setSelectedDiscountId] = useState<number | null>(null);
+    const [amount, setAmount] = useState<number>(0);
 
     useEffect(() => {
-        if (show) fetchAllDiscounts();
-        else {
+        if (show) {
+            if (discounts && discounts.length > 0) {
+                setAllDiscounts(discounts);
+            } else {
+                fetchAllDiscounts();
+            }
+        } else {
             // limpiar selección cuando se cierre
             setSelectedDiscountId(null);
+            setAmount(0);
         }
-    }, [show]);
+    }, [show, discounts]);
 
     // Obtener todos los descuentos
     const fetchAllDiscounts = async () => {
@@ -41,10 +50,40 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
         }
     };
 
+    // Manejar cambio en el selector de descuentos
+    const handleDiscountChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedId = parseInt(event.target.value);
+        setSelectedDiscountId(selectedId || null);
+        
+        if (selectedId) {
+            const selectedDiscount = allDiscounts.find(d => d.idDiscount === selectedId);
+            if (selectedDiscount) {
+                // Si es FIXED, establecer el amount y no permitir modificación
+                // Si es MANUAL, establecer el amount por defecto pero permitir modificación
+                setAmount(selectedDiscount.amount);
+            }
+        } else {
+            setAmount(0);
+        }
+    };
+
+    // Obtener el descuento seleccionado
+    const selectedDiscount = selectedDiscountId 
+        ? allDiscounts.find(d => d.idDiscount === selectedDiscountId)
+        : null;
+
+    // Verificar si el descuento es fijo
+    const isFixed = selectedDiscount?.applyCondition === ApplyCondition.FIXED;
+
     // Asignar un descuento
     const handleAssign = async () => {
         if (!selectedDiscountId) {
             toast.warn("Seleccioná un descuento primero");
+            return;
+        }
+
+        if (!amount || amount <= 0) {
+            toast.warn("El importe debe ser mayor a 0");
             return;
         }
 
@@ -53,6 +92,7 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
             await addData("/operator/register-userDiscount", {
                 idUser: user.idUser,
                 idDiscount: selectedDiscountId,
+                amount: amount,
             });
 
             toast.success("Descuento asignado correctamente");
@@ -67,11 +107,9 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered>
+        <Modal show={show} onHide={onHide} aria-labelledby="contained-modal-title-vcenter" centered>
             <Modal.Header closeButton>
-                <Modal.Title>
-                    Asignar descuento a {user.firstName} {user.lastName}
-                </Modal.Title>
+                <Modal.Title>Agregar Descuento</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -82,28 +120,42 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
                     </div>
                 ) : (
                     <>
-                        <Form.Group>
-                            <Form.Label>Seleccioná un descuento</Form.Label>
+                        {/* Selector de descuentos */}
+                        <Form.Group controlId="discountSelect" className="mb-3">
+                            <Form.Label>Seleccione un descuento</Form.Label>
                             <Form.Select
                                 value={selectedDiscountId ?? ""}
-                                onChange={(e) => setSelectedDiscountId(e.target.value ? Number(e.target.value) : null)}
+                                onChange={handleDiscountChange}
                             >
-                                <option value="">-- Seleccionar --</option>
+                                <option value="">Seleccione...</option>
                                 {allDiscounts.map((d) => (
                                     <option key={d.idDiscount} value={d.idDiscount}>
-                                        {d.name} — {d.description} — ${d.amount}
+                                        {d.name}
                                     </option>
                                 ))}
                             </Form.Select>
                         </Form.Group>
 
+                        {/* Input numérico para el importe */}
                         {selectedDiscountId && (
-                            <div className="mt-3">
-                                <strong>Detalles del descuento seleccionado:</strong>
-                                <div className="mt-1">
-                                    {allDiscounts.find((d) => d.idDiscount === selectedDiscountId)?.description}
-                                </div>
-                            </div>
+                            <Form.Group controlId="discountAmount" className="mb-3">
+                                <Form.Label>Importe $</Form.Label>
+                                <Form.Control
+                                    type="number"
+                                    value={amount}
+                                    onChange={(e) => setAmount(Number(e.target.value))}
+                                    disabled={isFixed || !selectedDiscountId}
+                                    isInvalid={amount <= 0}
+                                />
+                                {isFixed && (
+                                    <Form.Text className="text-muted">
+                                        Este descuento es fijo, el importe no se puede modificar.
+                                    </Form.Text>
+                                )}
+                                <Form.Control.Feedback type="invalid">
+                                    El importe debe ser mayor a 0
+                                </Form.Control.Feedback>
+                            </Form.Group>
                         )}
                     </>
                 )}
@@ -113,8 +165,8 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
                 <Button variant="secondary" onClick={onHide} disabled={assigning}>
                     Cancelar
                 </Button>
-                <Button variant="success" onClick={handleAssign} disabled={assigning || loading}>
-                    {assigning ? "Asignando..." : "Asignar descuento"}
+                <Button variant="primary" onClick={handleAssign} disabled={assigning || loading || !selectedDiscountId}>
+                    {assigning ? "Guardando..." : "Guardar"}
                 </Button>
             </Modal.Footer>
         </Modal>

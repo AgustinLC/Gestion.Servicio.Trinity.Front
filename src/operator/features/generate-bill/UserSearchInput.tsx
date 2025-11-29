@@ -34,15 +34,21 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
     }, []);
 
     const filteredResults = useMemo(() => {
-        if (searchTerm.length < 2) return [];
-        const term = searchTerm.toLowerCase();
+        if (searchTerm.length < 1) return [];
+
+        const term = searchTerm.trim().toLowerCase();
+        const numericTerm = searchTerm.replace(/\D/g, ""); // solo números
+
         return allUsers.filter(user => {
-            const dniMatch = user.dni.toString().includes(term);
+            const conexMatch = numericTerm
+                ? user.idUser.toString().includes(numericTerm)
+                : false;
+
             const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
             const nameMatch = fullName.includes(term);
-            
-            return dniMatch || nameMatch;
-        }).slice(0, 5); // Limitar resultados
+
+            return conexMatch || nameMatch;
+        }).slice(0, 5);
     }, [searchTerm, allUsers]);
 
     // Filtrar usuarios localmente con debounce
@@ -58,7 +64,7 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
     const handleSelectUser = (user: UserDto) => {
         setSelectedUser(user);
         onUserSelected(user.idUser);
-        setSearchTerm(`${user.dni} - ${user.firstName} ${user.lastName}`);
+        setSearchTerm(`${user.idUser} - ${user.firstName} ${user.lastName}`);
         setFilteredUsers([]);
     };
 
@@ -71,7 +77,7 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
 
     return (
         <Form.Group className="mb-3 position-relative">
-            <Form.Label>Buscar usuario por DNI</Form.Label>
+            <Form.Label>Buscar usuario por Nº Conexión</Form.Label>
 
             {isLoading && (
                 <div className="mb-2">
@@ -90,9 +96,9 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
                     setSearchTerm(value);
                     if (!value) clearSelection();
                 }}
-                placeholder="Ingrese DNI o nombre..."
+                placeholder="Ingrese numero de conexión o nombre..."
                 disabled={isLoading || !!selectedUser}
-                aria-label="Buscar usuario por DNI o nombre"
+                aria-label="Buscar usuario por numero de conexión o nombre"
             />
 
             {filteredUsers.length > 0 && (
@@ -107,9 +113,8 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
                         >
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong>{user.dni}</strong>
-                                    <div className="text-muted small">
-                                        {user.firstName} {user.lastName}
+                                    <div className="text-muted">
+                                        <strong>{user.firstName} {user.lastName}</strong>
                                     </div>
                                     <div className="text-muted extra-small">
                                         {user.residenceDto?.street} {user.residenceDto?.number}
@@ -129,7 +134,7 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
                     <div className="d-flex justify-content-between align-items-center">
                         <div>
                             <strong>Seleccionado:</strong> {selectedUser.firstName} {selectedUser.lastName}
-                            <span className="text-muted ms-2">(DNI: {selectedUser.dni})</span>
+                            <span className="text-muted ms-2">(Nº de conexión: {selectedUser.idUser})</span>
                             <div className="text-muted small mt-1">
                                 Domicilio: {selectedUser.residenceDto.street} {selectedUser.residenceDto.number}
                             </div>

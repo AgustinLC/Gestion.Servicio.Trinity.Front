@@ -5,9 +5,8 @@ import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { Button, Spinner } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
 import AddEditDiscountModal from "./AddEditDiscountModal";
-import { useSearch } from "../../../hooks/useSearch";
+import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 
 const DiscountManagementPage = () => {
 
@@ -31,7 +30,6 @@ const DiscountManagementPage = () => {
             // Obtener descuentos 
             const discounts = await getData<DiscountDto[]>("/operator/discounts");
             setDiscount(discounts);
-            setFilteredData(discounts);
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al obtener la información");
@@ -40,12 +38,6 @@ const DiscountManagementPage = () => {
             setLoading(false);
         }
     };
-
-    // Hook para buscar por columnas 
-    const { filteredData, handleSearch, setFilteredData } = useSearch<DiscountDto>(
-        discount,
-        ["name", "idDiscount"]
-    );
 
     // Manejar añadir/editar
     const handleSave = async (discount: DiscountDto) => {
@@ -73,10 +65,10 @@ const DiscountManagementPage = () => {
 
     // Columnas para ReusableTable
     const columns: TableColumnDefinition<DiscountDto>[] = [
-        { key: "idDiscount", label: "ID", sortable: true },
         { key: "name", label: "Nombre", sortable: false },
         { key: "description", label: "Descripción", sortable: false },
-        { key: "amount", label: "Precio", sortable: false },
+        { key: "amount", label: "Importe $", sortable: false },
+        { key: "applyCondition", label: "Condición", sortable: false, render: (row) => applyConditionLabels[row.applyCondition] || row.applyCondition },
         {
             key: "actions", label: "Acciones", actions: (row: DiscountDto) => (
                 <Button variant="warning" onClick={() => { setSelectedDiscount(row); setShowModal(true); }}>
@@ -99,7 +91,6 @@ const DiscountManagementPage = () => {
             ) : (
                 <div>
                     <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
-                        <SearchBar onSearch={handleSearch} />
                         <Button onClick={() => { setSelectedDiscount(null); setShowModal(true); }}>
                             Añadir Descuento
                         </Button>
@@ -107,7 +98,7 @@ const DiscountManagementPage = () => {
 
                     {/* Tabla */}
                     <ReusableTable<DiscountDto>
-                        data={filteredData}
+                        data={discount}
                         columns={columns}
                         defaultSort="idDiscount"
                     />

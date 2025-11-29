@@ -1,3 +1,5 @@
+import { ApplyCondition } from "./ApplyCondition";
+
 export interface UserDiscountDto {
     idUserDiscount: number;
     idUser: number;
@@ -5,4 +7,7 @@ export interface UserDiscountDto {
     name: string;
     description: string;
     amount: number;
+    applyCondition: ApplyCondition;
+    value: number;
+    dateRegister: string;
 }

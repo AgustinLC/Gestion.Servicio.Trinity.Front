@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react"
 import { Button, Spinner } from "react-bootstrap";
 import { UserDto } from "../../../core/models/dto/UserDto";
+import { DiscountDto } from "../../../core/models/dto/Discount";
 import { getData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import ShowDiscountUserModal from "./ShowDiscountUserModal";
+import AddDiscountModal from "./AddDiscountModal";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
 import { useSearch } from "../../../hooks/useSearch";
 
@@ -13,12 +15,14 @@ const DiscountsPage = () => {
 
     // Estados principales
     const [users, setUsers] = useState<UserDto[]>([]);
+    const [discountData, setDiscountData] = useState<DiscountDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     // Estado para el modal
     const [showModal, setShowModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
+    const [showAddDiscountModal, setShowAddDiscountModal] = useState(false);
 
 
     // Obtener datos al cargar el componente
@@ -32,9 +36,12 @@ const DiscountsPage = () => {
         setLoading(true);
         try {
             // Obtener usuarios
-            const users = await getData<UserDto[]>("/operator/users");
+            const users = await getData<UserDto[]>("/operator/users-actives");
             setUsers(users);
             setFilteredData(users);
+            // Obtener descuentos activos
+            const discountsActive = await getData<DiscountDto[]>("/operator/discounts");
+            setDiscountData(discountsActive);
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al obtener la información");
@@ -61,22 +68,24 @@ const DiscountsPage = () => {
         { key: "idUser", label: "N° Conexión", sortable: true },
         { key: "firstName", label: "Nombre", sortable: false },
         { key: "lastName", label: "Apellido", sortable: false },
-        { key: "dni", label: "DNI", sortable: false },
-        { key: "phone", label: "Teléfono", sortable: false },
+        { key: "street" as keyof UserDto, label: "Calle", sortable: false, render: (row: UserDto) => row.residenceDto?.street || "Sin dirección" },
         {
-            key: "actions", label: "Acciones",
-            actions: (row: UserDto) => (
-                <Button variant="warning" onClick={() => handleViewDiscounts(row)}>
-                    Ver descuentos
-                </Button>
+            key: "actions", label: "Acciones", actions: (row: UserDto) => (
+                <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
+                    <Button variant="warning" onClick={() => { setSelectedUser(row); setShowAddDiscountModal(true); }}>
+                        Añadir Descuento
+                    </Button>
+                    <Button variant="primary" onClick={() => handleViewDiscounts(row)}>
+                        Ver existentes
+                    </Button>
+                </div>
             ),
         },
     ];
 
-
     return (
         <div>
-            <h1 className="text-center">Gestión de descuentos</h1>
+            <h1 className="text-center">Gestión de Descuentos</h1>
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center vh-100">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
@@ -96,12 +105,22 @@ const DiscountsPage = () => {
                         defaultSort="idUser"
                     />
 
-                    {/* Modal para ver los descuentos de un usuario */}
+                    {/* Modal para añadir descuento */}
+                    <AddDiscountModal
+                        key={selectedUser ? selectedUser.idUser : "new"}
+                        show={showAddDiscountModal}
+                        onHide={() => setShowAddDiscountModal(false)}
+                        user={selectedUser!}
+                        discounts={discountData}
+                    />
+
+                    {/* Vista de descuentos del usuario */}
                     {selectedUser && (
                         <ShowDiscountUserModal
                             show={showModal}
                             onHide={() => setShowModal(false)}
                             user={selectedUser}
+                            discounts={discountData}
                         />
                     )}
                 </div>

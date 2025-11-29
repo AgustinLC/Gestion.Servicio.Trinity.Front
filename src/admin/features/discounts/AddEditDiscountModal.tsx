@@ -70,6 +70,19 @@ const AddEditDiscountModal: React.FC<AddEditModalProps> = ({ show, onHide, onSav
                             {errors.amount?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
+                    <Form.Group>
+                        <Form.Label>Condición</Form.Label>
+                        <Form.Select
+                            {...register("applyCondition", { required: "Este campo es obligatorio" })}
+                            isInvalid={!!errors.applyCondition}
+                        >
+                            <option value="FIXED">Fijo</option>
+                            <option value="MANUAL">Manual</option>
+                        </Form.Select>
+                        <Form.Control.Feedback type="invalid">
+                            {errors.applyCondition?.message}
+                        </Form.Control.Feedback>
+                    </Form.Group>
 
                     <Button className="mt-2" type="submit" disabled={isSubmitting}>
                         {isSubmitting ? "Guardando..." : "Guardar"}

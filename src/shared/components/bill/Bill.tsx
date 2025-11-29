@@ -57,10 +57,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                 <td>C.P. 5579 - Rvia. - Mza</td>
                             </tr>
                             <tr>
-                                <td><strong>C.U.I.T NRO.:</strong> 30-65481347-3  <strong>ING.BRUTOS:</strong></td>
-                            </tr>
-                            <tr>
-                                <td>I.V.A. Resp.Inscripto NRO. E.P.A.S.</td>
+                                <td><strong>C.U.I.T NRO.:</strong> 30-65481347-3</td>
                             </tr>
                         </tbody>
                     </table>
@@ -70,8 +67,8 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                     <table>
                         <tbody>
                             <tr>
-                                <td><strong>NÚMERO DE FACTURA</strong></td>
-                                <td>0001-000{bill.idBill}</td>
+                                <td><strong>N° DE FACTURA</strong></td>
+                                <td>0001-{bill.idBill}</td>
                             </tr>
                             <tr className='border-bottom'>
                                 <td><strong>FECHA EMISIÓN</strong></td>
@@ -94,12 +91,8 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                 <td>{user.residenceDto.number}</td>
                             </tr>
                             <tr>
-                                <td><strong>N°. SOCIO</strong></td>
+                                <td><strong>N° CONEXIÓN</strong></td>
                                 <td>{user.idUser}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>C.U.I.T. DEL USUARIO</strong></td>
-                                <td>-</td>
                             </tr>
                         </tbody>
                     </table>
@@ -147,7 +140,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                             <th className='border-left-0 border-top-0'>MES</th>
                             <th className='border-left-0 border-top-0'>AÑO</th>
                             <th className='border-left-0 border-top-0'>ESTADO ANTERIOR</th>
-                            <th className='border-top-0  border-left-0'>EN m3</th>
+                            <th className='border-top-0  border-left-0'>EN m³</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -226,26 +219,12 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                             <td className="text-end">{bill.surplusChargePerUnit},00</td>
                             <td className="text-end">{bill.surplusPrice},00</td>
                         </tr>
-                        <tr>
-                            <td>04</td>
-                            <td className="text-start">Intereses</td>
-                            <td>0</td>
-                            <td className="text-end">0,00</td>
-                            <td className="text-end">0,00</td>
-                        </tr>
-                        <tr>
-                            <td>05</td>
-                            <td className="text-start">Multas</td>
-                            <td>0</td>
-                            <td className="text-end">0,00</td>
-                            <td className="text-end">0,00</td>
-                        </tr>
-                        {['Reconexión', 'Conexiones', 'Materiales'].map((concepto, index) => {
+                        {['Reconexión', 'Conexión', 'Materiales','Multas'].map((concepto, index) => {
                             const detail = bill.details.find(d =>
                                 d.billingParameterName.toLowerCase() === concepto.toLowerCase()
                             );
-                            const codigo = String(6 + index).padStart(2, '0'); // Genera 06, 07, 08
-                            const cantidad = concepto === 'Conexiones' ? 0 : 0; // Cantidad estática
+                            const codigo = String(4 + index).padStart(2, '0'); // Genera 04, 05, 06, 07
+                            const cantidad = concepto === 'Conexión' ? 0 : 0; // Cantidad estática
                             return (
                                 <tr key={codigo}>
                                     <td>{codigo}</td>
@@ -267,18 +246,18 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                             );
                         })}
                         <tr>
-                            <td>09</td>
+                            <td>08</td>
                             <td className="text-start">Varios</td>
                             <td>0</td>
                             <td className="text-end">0,00</td>
                             <td className="text-end">0,00</td>
                         </tr>
                         <tr>
-                            <td>10</td>
-                            <td className="text-start">Descuento</td>
+                            <td>09</td>
+                            <td className="text-start">Descuentos</td>
                             <td>{bill.discountCounter}</td>
                             <td className="text-end">0,00</td>
-                            <td className="text-end">{bill.totalDiscounts}</td>
+                            <td className="text-end">{bill.totalDiscounts},00</td>
                         </tr>
                     </tbody>
                 </table>
@@ -299,13 +278,13 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                 <strong>RESUMEN DE DEUDA AL:</strong> {formatDate(new Date(bill.dateRegister))}
                             </td>
                             <td><strong>SUBTOTAL</strong></td>
-                            <td>{bill.subTotal}</td>
+                            <td>$ {bill.subTotal}</td>
                         </tr>
                         <tr>
                             <td className='border-bottom-0' colSpan={2}>
                                 {bill.amountUnpaidInvoices > 0 ? (
                                     <>
-                                        Señor Usuario: A dicha fecha Ud. registra un monto pendiente de pago de <strong>${bill.amountUnpaidInvoices}</strong>
+                                        Señor Usuario: A dicha fecha Ud. registra un monto pendiente de pago de <strong>$ {bill.amountUnpaidInvoices}</strong>
                                     </>
                                 ) : (
                                     <>
@@ -314,28 +293,28 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                 )}
                             </td>
                             <td><strong>IVA 21,00 %</strong></td>
-                            <td>{bill.iva}</td>
+                            <td>$ {bill.iva}</td>
                         </tr>
                         <tr>
                             <td className='border-bottom-0 border-top-0' colSpan={2}>
                                 PAGUE EN TÉRMINO. EVITE INCONVENIENTES
                             </td>
                             <td><strong>IVA R.N.I. 10.50 %</strong></td>
-                            <td>0,00</td>
+                            <td>$ 0,00</td>
                         </tr>
                         <tr>
                             <td className='border-bottom-0 border-top-0' colSpan={2}>
                                 CANTIDAD DE BIMESTRES IMPAGOS HASTA LA FECHA: 0
                             </td>
                             <td><strong>Descuento</strong></td>
-                            <td>-{bill.totalDiscounts}</td>
+                            <td>$ - {bill.totalDiscounts}</td>
                         </tr>
                         <tr>
                             <td className='border-top-0' colSpan={2}>
                                 CUENTA BANCARIA. Bco Nacion Suc. Rivadavia Cuenta Corriente 11503/45
                             </td>
                             <td><strong>TOTAL A PAGAR</strong></td>
-                            <td>{bill.total}</td>
+                            <td>$ {bill.total}</td>
                         </tr>
                         <tr>
                             <td colSpan={4} className='text-end'>
@@ -344,7 +323,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                         </tr>
                         <tr>
                             <td colSpan={4} className='text-end'>
-                                PASADA LA FECHA DE VENCIMIENTO DEBERA PAGAR: <strong>{bill.maturityAmount}</strong>
+                                PASADA LA FECHA DE VENCIMIENTO DEBERA PAGAR: <strong>$ {bill.maturityAmount}</strong>
                             </td>
                         </tr>
                     </tbody>
@@ -355,21 +334,20 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
             <div className="notes-section">
                 <p className='text-center mx-0'>RECUERDE USUARIO QUE CUANDO TENGA UNA BOLETA VENCIDA CORRE EL RIESGO QUE EL CONSORCIO LE SUSPENDA EL SERVICIO DE AGUA POTABLE, Y LUEGO DEBA REALIZAR UNA RECONEXIÓN DEL SERVICIO.</p>
                 <p className='text-center fw-bold fs-6'>CBU 0110438120043811503456 consorcio Vecinal de agua potable santa María de Oro. ALIAS: BOMBO.PRIMO.NUDO</p>
-                <p className='text-center fw-bold'>RESTRICCIÓN DE USOS DEL AGUA POTABLE DE 8 A 21HS. Esta prohibido utilizar agua potable para regarjardines, calles, lavar veredas, autos y llenar pileta. Disposición de DIRCAS para que no le aplique multa por derroche. Hamos un uso responsable</p>
+                <p className='text-center fw-bold'>RESTRICCIÓN DE USOS DEL AGUA POTABLE DE 8 A 20HS. Está prohibido utilizar agua potable para regar jardines, calles, lavar veredas, autos y llenar pileta. Disposición de DIRCAS para que no le aplique multa por derroche. Hagamos un uso responsable</p>
                 <div className='d-flex justify-content-between'>
                     <div>
                         <p>Cat. 1 - Unidad Simple</p>
                         <p>Cat. 2 - Undidad Doble</p>
                         <p>Cat. 3 - Industrial</p>
                         <p>Cat. 4 - Grandes consumidores</p>
-
                     </div>
                     <div>
                         <p className='text-center'>Reclamos en 2a. Instancia</p>
                         <table className='mb-0 text-center border border-dark'>
                             <thead>
                                 <tr>
-                                    <th className='fw-normal'>Llámenos al Centro de Atención al Usuario</th>
+                                    <th className='fw-normal'>Comuniquese al Centro de Atención al Usuario</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -377,10 +355,10 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                     <td className='border-top border-dark'>EL ENTE REGULADOR PROTEGE SUS DERECHOS</td>
                                 </tr>
                                 <tr>
-                                    <td className='border-top border-dark'>Llámenos al Centro de Atención al Usuario</td>
+                                    <td className='border-top border-dark'>Comunicarse al Centro de Atención al Usuario</td>
                                 </tr>
                                 <tr>
-                                    <td className='border-top border-dark'>0-800-666-0600</td>
+                                    <td className='border-top border-dark'>correo: dircas@irrigacion.gov.ar</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -400,24 +378,23 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                         <tr>
                                             <td colSpan={2} className="bead-header border-bottom">
                                                 <h5>Consorcio Vecinal de Agua Potable</h5>
-                                                <p>Santa Maria de Oro</p>
+                                                <p>Santa María de Oro</p>
                                                 <div className="bead-cuit">
                                                     <p><strong>C.U.I.T. NRO:</strong> 30-65481347-3</p>
-                                                    <p><strong>I.V.A Resp. Inscripto NRO.E.P.A.S</strong></p>
                                                 </div>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td className="bead-info">
-                                                <p><strong>Factura Nº:</strong> <span>0001-000{bill.idBill}</span></p>
-                                                <p><strong>Fecha de Emisión:</strong> {formatDate(new Date(bill.dateRegister))}</p>
-                                                <p><strong>Conexión:</strong> {user.idUser}</p>
+                                                <p><strong>Factura Nº:</strong> <span>0001-{bill.idBill}</span></p>
+                                                <p><strong>N° Conexión:</strong> {user.idUser}</p>
+                                                <p><strong>Cliente:</strong> <span>{user.firstName} {user.lastName}</span></p>
                                                 <p><strong>Periodo:</strong> <span>{bill.periodName}</span></p>
                                             </td>
                                             <td className="bead-info">
-                                                <p><strong>C.FINAL</strong></p>
-                                                <p><strong>CUIT:</strong> <span>____/_________________/____</span></p>
-                                                <p><strong>Cliente:</strong> <span>{user.firstName} {user.lastName}</span></p>
+                                                <p><strong>Consumidor final</strong></p>
+                                                <p><strong>Consumo:</strong> {bill.consumption}m³</p>
+                                                <p><strong>Monto deuda:</strong> ${bill.amountUnpaidInvoices}</p>
                                                 <p><strong>Fecha de Emisión:</strong> {formatDate(new Date(bill.dateRegister))}</p>
                                                 <p><strong>Fecha de vencimiento:</strong> {formatDate(new Date(bill.expirationDate))}</p>
                                             </td>
@@ -446,7 +423,11 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <p>Bco Nacion Suc. Rivadavia Cuenta Corriente 11503/45</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colSpan={2} className="text-center">
+                                                <p><strong>Son pesos: </strong><span>{convertNumberToWords(bill.total)}</span></p>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -461,31 +442,56 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                         <tr>
                                             <td colSpan={2} className="bead-header border-bottom">
                                                 <h5>Consorcio Vecinal de Agua Potable</h5>
-                                                <p>Santa Maria de Oro</p>
+                                                <p>Santa María de Oro</p>
+                                                <div className="bead-cuit">
+                                                    <p><strong>C.U.I.T. NRO:</strong> 30-65481347-3</p>
+                                                </div>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td className="bead-info">
-                                                <p><strong>Factura Nº:</strong> <span>0001-000{bill.idBill}</span></p>
-                                                <p>Cliente: <span>{user.firstName} {user.lastName}</span></p>
-                                                <p><strong>N° de usuario: </strong>{user.idUser}</p>
-                                                <p><strong>Fecha de Emisión: </strong>{formatDate(new Date(bill.dateRegister))}</p>
+                                                <p><strong>Factura Nº:</strong> <span>0001-{bill.idBill}</span></p>
+                                                <p><strong>N° Conexión:</strong> {user.idUser}</p>
+                                                <p><strong>Cliente:</strong> <span>{user.firstName} {user.lastName}</span></p>
+                                                <p><strong>Periodo:</strong> <span>{bill.periodName}</span></p>
                                             </td>
                                             <td className="bead-info">
-                                                <p><strong>CONEXION: </strong>{user.idUser}</p>
-                                                <p><strong>Periodo:</strong> {bill.periodName}</p>
+                                                <p><strong>Consumidor final</strong></p>
+                                                <p><strong>Consumo:</strong> {bill.consumption}m³</p>
+                                                <p><strong>Monto deuda:</strong> ${bill.amountUnpaidInvoices}</p>
+                                                <p><strong>Fecha de Emisión:</strong> {formatDate(new Date(bill.dateRegister))}</p>
                                                 <p><strong>Fecha de vencimiento:</strong> {formatDate(new Date(bill.expirationDate))}</p>
-                                                <p><strong>TOTAL A PAGAR:</strong><span>$ {bill.total}</span></p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colSpan={2} className="bead-totals border-top">
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                <p>IMP. SERVICIO</p>
+                                                                <div>$ {bill.subTotal}</div>
+                                                            </td>
+                                                            <td>
+                                                                <p>I.V.A.</p>
+                                                                <div>$ {bill.iva}</div>
+                                                            </td>
+                                                            <td>
+                                                                <p>DESCUENTO</p>
+                                                                <div>- $ {bill.totalDiscounts}</div>
+                                                            </td>
+                                                            <td>
+                                                                <p>TOTAL A PAGAR</p>
+                                                                <div>$ {bill.total}</div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td colSpan={2} className="text-center">
                                                 <p><strong>Son pesos: </strong><span>{convertNumberToWords(bill.total)}</span></p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colSpan={2} className="bead-footer border-top text-center">
-                                                <p>Bco Nacion Suc. Rivadavia Cuenta Corriente 11503/45</p>
                                             </td>
                                         </tr>
                                     </tbody>

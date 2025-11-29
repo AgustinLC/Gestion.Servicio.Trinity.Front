@@ -130,6 +130,27 @@ const DashboardOperator: React.FC = () => {
                         </Link>
                     </li>
 
+                    {/* Lecturas */}
+                    <OverlayTrigger
+                        trigger="click"
+                        placement={window.innerWidth <= 768 ? "bottom" : "right"}
+                        show={activePopover === "readings"}
+                        onToggle={(show) => setActivePopover(show ? "readings" : "")}
+                        overlay={ReadingsPopover}
+                        rootClose
+                    >
+                        <li className="nav-item popover-trigger">
+                            <div
+                                className={`nav-link link-light py-3 d-flex align-items-center ${isReadingSection ? "active-submenu" : ""}`}
+                                role="button"
+                            >
+                                <i className="bi-speedometer2 fs-4"></i>
+                                <span className="ms-2  d-lg-inline">Lecturas</span>
+                                <i className={`bi-chevron-right ms-1 mt-1 chevron-icon d-none d-lg-inline ${activePopover === "readings" ? "rotate" : ""}`}></i>
+                            </div>
+                        </li>
+                    </OverlayTrigger>
+
                     {/* Facturas */}
                     <OverlayTrigger
                         trigger="click"
@@ -153,27 +174,6 @@ const DashboardOperator: React.FC = () => {
                         </li>
                     </OverlayTrigger>
 
-                    {/* Lecturas */}
-                    <OverlayTrigger
-                        trigger="click"
-                        placement={window.innerWidth <= 768 ? "bottom" : "right"}
-                        show={activePopover === "readings"}
-                        onToggle={(show) => setActivePopover(show ? "readings" : "")}
-                        overlay={ReadingsPopover}
-                        rootClose
-                    >
-                        <li className="nav-item popover-trigger">
-                            <div
-                                className={`nav-link link-light py-3 d-flex align-items-center ${isReadingSection ? "active-submenu" : ""}`}
-                                role="button"
-                            >
-                                <i className="bi-speedometer2 fs-4"></i>
-                                <span className="ms-2  d-lg-inline">Lecturas</span>
-                                <i className={`bi-chevron-right ms-1 mt-1 chevron-icon d-none d-lg-inline ${activePopover === "readings" ? "rotate" : ""}`}></i>
-                            </div>
-                        </li>
-                    </OverlayTrigger>
-
                     {/* Conceptos */}
                     <li>
                         <Link to="/dashboard/operator/parameters/bills" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/parameters/bills" ? "active" : ""}`}>
@@ -182,19 +182,19 @@ const DashboardOperator: React.FC = () => {
                         </Link>
                     </li>
 
-                    {/* Reportes */}
-                    <li className="nav-item">
-                        <Link to="/dashboard/operator/reports" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/reports" ? "active" : ""}`}>
-                            <i className="bi-clipboard-data fs-4"></i>
-                            <span className="ms-2 d-lg-inline">Reportes</span>
-                        </Link>
-                    </li>
-
                     {/* Descuentos */}
                     <li className="nav-item">
                         <Link to="/dashboard/operator/discounts" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/operator/discounts' ? 'active' : ''}`} title="Gestion de modalidad" onClick={() => setSidebarOpen(false)}>
                             <i className="bi bi-plus-slash-minus fs-4"></i>
                             <span className="ms-2 d-lg-inline">Descuentos</span>
+                        </Link>
+                    </li>
+                    
+                    {/* Reportes */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/operator/reports" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/reports" ? "active" : ""}`}>
+                            <i className="bi-clipboard-data fs-4"></i>
+                            <span className="ms-2 d-lg-inline">Reportes</span>
                         </Link>
                     </li>
                 </ul>

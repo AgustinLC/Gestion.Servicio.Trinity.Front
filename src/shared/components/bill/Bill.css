@@ -113,24 +113,102 @@
 .bead-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* Fija la altura de la fila principal */
+.bead-table tbody > tr {
+  display: flex; /* Usa flexbox para igualar alturas */
+  width: 100%;
 }
 
 .bead-table td {
   vertical-align: top;
+  flex: 1; /* Cada celda ocupa el mismo espacio */
+  display: flex;
+  flex-direction: column;
 }
 
 /* Estilos para cada talonario */
 .bead-ticket {
   width: 50%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Estilos para la tabla interna de cada talonario */
 .bead-inner-table {
   width: 100%;
+  flex: 1; /* Ocupa todo el espacio disponible */
   border-collapse: collapse;
   border: 1px solid #000;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Hace que el tbody ocupe todo el espacio */
+.bead-inner-table tbody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Las filas del header tienen altura fija */
+.bead-inner-table tbody > tr:first-child {
+  flex-shrink: 0;
+}
+
+/* La fila del medio (contenido) ocupa el espacio restante */
+.bead-inner-table tbody > tr:nth-child(2) {
+  flex: 1;
+  display: flex;
+}
+
+/* Las filas del footer tienen altura fija */
+.bead-inner-table tbody > tr:last-child {
+  flex-shrink: 0;
+}
+
+/* Las celdas de información ocupan el espacio disponible */
+.bead-info {
+  padding: 5px;
+  vertical-align: top;
+  flex: 1;
+}
+
+/* Para las filas con múltiples columnas */
+.bead-inner-table tbody > tr:nth-child(2) > td {
+  flex: 1;
+}
+
+/* Footer text */
+.bead-footer-text {
+  margin: 5px 0;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Estilos adicionales para headers y borders */
+.bead-header {
+  padding: 5px;
+  text-align: center;
+}
+
+.border-bottom {
+  border-bottom: 1px solid #000;
+}
+
+.border-top {
+  border-top: 1px solid #000;
+}
+
+.bead-totals {
+  padding: 5px;
+}
+
+.bead-cuit {
+  margin-top: 5px;
+}
 /* Estilos para el encabezado */
 .bead-header {
   text-align: center;

@@ -61,7 +61,6 @@ const BillingParameterPage = () => {
 
     // Columnas para ReusableTable
     const columns: TableColumnDefinition<BillingParameter>[] = [
-        { key: "idBillingParameter", label: "ID", sortable: true },
         { key: "name", label: "Nombre", sortable: false },
         { key: "description", label: "Descripción", sortable: false },
         { key: "value", label: "Importe $", sortable: false },
@@ -81,7 +80,7 @@ const BillingParameterPage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Parametros de Facturación</h1>
+            <h1 className="text-center">Gestión de Conceptos</h1>
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center vh-100">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
@@ -93,7 +92,7 @@ const BillingParameterPage = () => {
                 <div>
                     <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
                         <Button onClick={() => { setSelectedBillingParameter(null); setShowModal(true); }}>
-                            Añadir Param. Facturación
+                            Añadir concepto
                         </Button>
                     </div>
 

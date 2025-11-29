@@ -111,30 +111,6 @@ const AdminDashboard: React.FC = () => {
                         </Link>
                     </li>
 
-                    {/* Servicio/Unidad */}
-                    <li className="nav-item">
-                        <Link to="/dashboard/admin/services-units" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/services-units' ? 'active' : ''}`} title="Gestión de Relación Servicio/Unidad" onClick={() => setSidebarOpen(false)}>
-                            <i className="bi bi-calculator fs-4"></i>
-                            <span className="ms-2 d-lg-inline">Serv./Unid.</span>
-                        </Link>
-                    </li>
-
-                    {/* Servicio/Unidad */}
-                    <li className="nav-item">
-                        <Link to="/dashboard/admin/billing-parameters" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/billing-parameters' ? 'active' : ''}`} title="Gestión de Parametros de Facturación" onClick={() => setSidebarOpen(false)}>
-                            <i className="bi bi-receipt fs-4"></i>
-                            <span className="ms-2 d-lg-inline">Conceptos</span>
-                        </Link>
-                    </li>
-
-                    {/* Periodo */}
-                    <li className="nav-item">
-                        <Link to="/dashboard/admin/new/period" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/new/period' ? 'active' : ''}`} title="Generar nueva modalidad" onClick={() => setSidebarOpen(false)}>
-                            <i className="bi bi-calendar-plus fs-4"></i>
-                            <span className="ms-2 d-lg-inline">Periodo</span>
-                        </Link>
-                    </li>
-
                     {/* Modalidad */}
                     <li className="nav-item">
                         <Link to="/dashboard/admin/modalities" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/modalities' ? 'active' : ''}`} title="Gestion de modalidad" onClick={() => setSidebarOpen(false)}>
@@ -143,11 +119,35 @@ const AdminDashboard: React.FC = () => {
                         </Link>
                     </li>
 
+                    {/* Servicio/Unidad */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/admin/services-units" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/services-units' ? 'active' : ''}`} title="Gestión de Relación Servicio/Unidad" onClick={() => setSidebarOpen(false)}>
+                            <i className="bi bi-calculator fs-4"></i>
+                            <span className="ms-2 d-lg-inline">Serv./Unid.</span>
+                        </Link>
+                    </li>
+                    
+                    {/* Conceptos */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/admin/billing-parameters" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/billing-parameters' ? 'active' : ''}`} title="Gestión de Parametros de Facturación" onClick={() => setSidebarOpen(false)}>
+                            <i className="bi bi-receipt fs-4"></i>
+                            <span className="ms-2 d-lg-inline">Conceptos</span>
+                        </Link>
+                    </li>
+
                      {/* Descuentos */}
                     <li className="nav-item">
                         <Link to="/dashboard/admin/discounts/management" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/discounts' ? 'active' : ''}`} title="Gestion de descuentos" onClick={() => setSidebarOpen(false)}>
                             <i className="bi bi-plus-slash-minus fs-4"></i>
                             <span className="ms-2 d-lg-inline">Descuentos</span>
+                        </Link>
+                    </li>
+                    
+                    {/* Periodo */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/admin/new/period" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/new/period' ? 'active' : ''}`} title="Generar nueva modalidad" onClick={() => setSidebarOpen(false)}>
+                            <i className="bi bi-calendar-plus fs-4"></i>
+                            <span className="ms-2 d-lg-inline">Periodo</span>
                         </Link>
                     </li>
                 </ul>

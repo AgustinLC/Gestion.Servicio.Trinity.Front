@@ -4,4 +4,5 @@ export interface PendigBillDetail {
     idBillingParameter: number;
     value: number;
     deleted?: boolean;
+    dateRegister: string;
 }
