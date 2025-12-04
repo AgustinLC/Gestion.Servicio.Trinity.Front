@@ -1,7 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useAuth  from '../../../hooks/useAuth';
 import { LoginRequestDto } from '../../../core/models/dto/LoginRequestDto';
 import { useNavigate } from 'react-router-dom';
+import AuthService from '../../../auth/services/AuthService';
+
+// Helper para decodificar el token JWT
+const parseJwt = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(window.atob(base64));
+  } catch (error) {
+    console.error('Error al decodificar el token JWT:', error);
+    return null;
+  }
+};
+
+// Función para obtener la ruta según el rol
+const getRouteByRole = (role: string | null): string => {
+  switch (role) {
+    case 'ROLE_ADMIN':
+      return '/dashboard/admin/workers';
+    case 'ROLE_OPERATOR':
+      return '/dashboard/operator/resume';
+    case 'ROLE_USER':
+      return '/dashboard/user/resume';
+    default:
+      return '/';
+  }
+};
 
 const LoginPage = () => {
 
@@ -12,8 +39,16 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
 
     //Hooks
-    const { login } = useAuth();
+    const { login, userRole, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+
+    // Efecto para redirigir si el usuario ya está autenticado al cargar la página
+    useEffect(() => {
+        if (isAuthenticated && userRole) {
+            const route = getRouteByRole(userRole);
+            navigate(route);
+        }
+    }, [isAuthenticated, userRole, navigate]);
 
     // Función para manejar el envío del formulario
     const handleSubmit = async (e: React.FormEvent) => {
@@ -24,7 +59,18 @@ const LoginPage = () => {
         try {
             // Pasamos el objeto credentials
             await login(credentials);
-            navigate('/');
+            
+            // Obtener el token recién guardado y decodificarlo para obtener el rol
+            const token = AuthService.getToken();
+            if (token) {
+                const decodedToken = parseJwt(token);
+                const role = decodedToken?.role || null;
+                const route = getRouteByRole(role);
+                navigate(route);
+            } else {
+                // Si no hay token, redirigir a la página principal
+                navigate('/');
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error inesperado');
         } finally {

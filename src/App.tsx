@@ -39,17 +39,24 @@ import UserPersonalData from "./user/features/personaldata/UserPersonalData";
 import UserResume from "./user/features/resume/UserResume";
 import ModalityPage from "./admin/features/modality/ModalityPage";
 import ProtectedRoute from "./auth/features/protected-route/ProtectedRoute";
+import RoleProtectedRoute from "./auth/features/protected-route/RoleProtectedRoute";
 import DiscountManagementPage from "./admin/features/discounts/DiscountManagementPage";
 import DiscountsPage from "./operator/features/discounts/DiscountsPage";
 import BillGenerateFilteredPage from "./operator/features/generate-bill/BillGenerateFilteredPage";
+import NotFoundPage from "./shared/features/not-found-page/NotFoundPage";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
 
   // Rutas donde queremos mostrar el Footer
   const showFooterPaths = ["/", "/faq", "/login", "/forgot-password", "/reset-password"];
+  
+  // Verificar si es una ruta 404 (cualquier ruta que no esté en las rutas definidas)
+  const isNotFoundPage = !location.pathname.startsWith("/dashboard") && 
+                         !showFooterPaths.includes(location.pathname) &&
+                         location.pathname !== "/faq";
 
-  const shouldShowFooter = showFooterPaths.includes(location.pathname);
+  const shouldShowFooter = showFooterPaths.includes(location.pathname) || isNotFoundPage;
 
   return (
     <>
@@ -63,45 +70,48 @@ const AppContent: React.FC = () => {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/faq" element={<Faq />} />
 
-        {/* Rutas solo para usuario */}
-        <Route path="/dashboard/user" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>}>
-          <Route path="resume" element={<UserResume />} />
-          <Route path="bills" element={<UserBills />} />
-          <Route path="consumptions" element={<UserConsumptions />} />
-          <Route path="personal-data" element={<UserPersonalData />} />
+        {/* Rutas solo para usuario común */}
+        <Route path="/dashboard/user" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]}><UserDashboard /></RoleProtectedRoute>}>
+          <Route path="resume" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]}><UserResume /></RoleProtectedRoute>} />
+          <Route path="bills" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]}><UserBills /></RoleProtectedRoute>} />
+          <Route path="consumptions" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]}><UserConsumptions /></RoleProtectedRoute>} />
+          <Route path="personal-data" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]}><UserPersonalData /></RoleProtectedRoute>} />
         </Route>
 
         {/* Rutas solo para usuario operario */}
-        <Route path="/dashboard/operator" element={<ProtectedRoute><OperatorDashboard /></ProtectedRoute>}>
-          <Route path="resume" element={<Resume />} />
-          <Route path="users" element={<User />} />
-          <Route path="readings/management" element={<ReadingManagement />} />
-          <Route path="readings/take" element={<ReadingTake />} />
-          <Route path="parameters/bills" element={<PendigBillsParameterPage />} />
-          <Route path="bills/bulk-generate" element={<BillBulkGeneratePage />} />
-          <Route path="bills/individual-generate" element={<BillIndividualGeneratePage />} />
-          <Route path="bills/generate-filtered" element={<BillGenerateFilteredPage />} />
-          <Route path="bills/management" element={<BillManagementPage />} />
-          <Route path="reports" element={<ReportsPage />} />
-          <Route path="discounts" element={<DiscountsPage />} />
+        <Route path="/dashboard/operator" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><OperatorDashboard /></RoleProtectedRoute>}>
+          <Route path="resume" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><Resume /></RoleProtectedRoute>} />
+          <Route path="users" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><User /></RoleProtectedRoute>} />
+          <Route path="readings/management" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReadingManagement /></RoleProtectedRoute>} />
+          <Route path="readings/take" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReadingTake /></RoleProtectedRoute>} />
+          <Route path="parameters/bills" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><PendigBillsParameterPage /></RoleProtectedRoute>} />
+          <Route path="bills/bulk-generate" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillBulkGeneratePage /></RoleProtectedRoute>} />
+          <Route path="bills/individual-generate" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillIndividualGeneratePage /></RoleProtectedRoute>} />
+          <Route path="bills/generate-filtered" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillGenerateFilteredPage /></RoleProtectedRoute>} />
+          <Route path="bills/management" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillManagementPage /></RoleProtectedRoute>} />
+          <Route path="reports" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReportsPage /></RoleProtectedRoute>} />
+          <Route path="discounts" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DiscountsPage /></RoleProtectedRoute>} />
         </Route>
 
         {/* Rutas solo para usuario administrador */}
-        <Route path="/dashboard/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}>
-          <Route path="faq" element={<CrudFaqPage />} />
-          <Route path="functions" element={<CrudFeaturePage />} />
-          <Route path="data-main" element={<CruDataMainPage />} />
-          <Route path="fee" element={<CrudFeePage />} />
-          <Route path="workers" element={<CruWorkerPage />} />
-          <Route path="administrators" element={<CruAdministratorPage />} />
-          <Route path="services-units" element={<ServicesUnitsPage />} />
-          <Route path="units" element={<UnitPage />} />
-          <Route path="services" element={<ServicePage />} />
-          <Route path="billing-parameters" element={<BillingParameterPage />} />
-          <Route path="new/period" element={<NewPeriodPage />} />
-          <Route path="modalities" element={<ModalityPage />} />
-          <Route path="discounts/management" element={<DiscountManagementPage />} />
+        <Route path="/dashboard/admin" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><AdminDashboard /></RoleProtectedRoute>}>
+          <Route path="faq" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><CrudFaqPage /></RoleProtectedRoute>} />
+          <Route path="functions" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><CrudFeaturePage /></RoleProtectedRoute>} />
+          <Route path="data-main" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><CruDataMainPage /></RoleProtectedRoute>} />
+          <Route path="fee" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><CrudFeePage /></RoleProtectedRoute>} />
+          <Route path="workers" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><CruWorkerPage /></RoleProtectedRoute>} />
+          <Route path="administrators" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><CruAdministratorPage /></RoleProtectedRoute>} />
+          <Route path="services-units" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><ServicesUnitsPage /></RoleProtectedRoute>} />
+          <Route path="units" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><UnitPage /></RoleProtectedRoute>} />
+          <Route path="services" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><ServicePage /></RoleProtectedRoute>} />
+          <Route path="billing-parameters" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><BillingParameterPage /></RoleProtectedRoute>} />
+          <Route path="new/period" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><NewPeriodPage /></RoleProtectedRoute>} />
+          <Route path="modalities" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><ModalityPage /></RoleProtectedRoute>} />
+          <Route path="discounts/management" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><DiscountManagementPage /></RoleProtectedRoute>} />
         </Route>
+
+        {/* Ruta catch-all para páginas no encontradas */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
       {/* Pie de pagina */}
