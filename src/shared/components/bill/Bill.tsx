@@ -175,55 +175,24 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                     <tbody>
                         <tr>
                             <td>01</td>
-                            <td className="text-start">Consumo Normal</td>
+                            <td className="text-start">Cuota Social</td>
                             <td>1</td>
                             <td className="text-end">{bill.feePrice},00</td>
                             <td className="text-end">{bill.feePrice},00</td>
                         </tr>
-                        {/* Cuota social */}
-                        {bill.details
-                            .filter(detail => detail.billingParameterName === "Cuota Social")
-                            .map(detail => {
-                                // Sumamos todos los valores de "Cuota Social" si hay múltiples
-                                const totalCuotaSocial = bill.details
-                                    .filter(d => d.billingParameterName === "Cuota Social")
-                                    .reduce((total, d) => total + d.value, 0);
-
-                                return (
-                                    <tr key={detail.idBillDetail}>
-                                        <td>02</td>
-                                        <td className="text-start">Cuota Social {bill.periodName}</td>
-                                        <td>1</td>
-                                        <td className="text-end">
-                                            {totalCuotaSocial.toLocaleString('es-AR', {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2
-                                            })}
-                                        </td>
-                                        <td className="text-end">
-                                            {totalCuotaSocial.toLocaleString('es-AR', {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2
-                                            })}
-                                        </td>
-                                    </tr>
-                                );
-                            })
-                            .slice(0, 1) // Nos aseguramos de renderizar solo 1 fila
-                        }
                         {/* Excedentes */}
                         <tr>
-                            <td>03</td>
+                            <td>02</td>
                             <td className="text-start">Excedentes servicio medido (En metros cúbicos)</td>
                             <td>{bill.surplus}</td>
                             <td className="text-end">{bill.surplusChargePerUnit},00</td>
                             <td className="text-end">{bill.surplusPrice},00</td>
                         </tr>
-                        {['Reconexión', 'Conexión', 'Materiales', 'Multas'].map((concepto, index) => {
+                        {['Reconexión', 'Conexión', 'Materiales', 'Boletas faltantes', 'Multas', 'Otros'].map((concepto, index) => {
                             const detail = bill.details.find(d =>
                                 d.billingParameterName.toLowerCase() === concepto.toLowerCase()
                             );
-                            const codigo = String(4 + index).padStart(2, '0'); // Genera 04, 05, 06, 07
+                            const codigo = String(3 + index).padStart(2, '0'); // Genera 03, 04, 05, 06, 07, 08
                             const cantidad = concepto === 'Conexión' ? 0 : 0; // Cantidad estática
                             return (
                                 <tr key={codigo}>
@@ -245,13 +214,6 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                 </tr>
                             );
                         })}
-                        <tr>
-                            <td>08</td>
-                            <td className="text-start">Varios</td>
-                            <td>0</td>
-                            <td className="text-end">0,00</td>
-                            <td className="text-end">0,00</td>
-                        </tr>
                         <tr>
                             <td>09</td>
                             <td className="text-start">Descuentos</td>
@@ -334,7 +296,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
             <div className="notes-section">
                 <p className='text-center mx-0'>RECUERDE USUARIO QUE CUANDO TENGA UNA BOLETA VENCIDA CORRE EL RIESGO QUE EL CONSORCIO LE SUSPENDA EL SERVICIO DE AGUA POTABLE, Y LUEGO DEBA REALIZAR UNA RECONEXIÓN DEL SERVICIO.</p>
                 <p className='text-center fw-bold fs-6'>CBU 0110438120043811503456 consorcio Vecinal de agua potable santa María de Oro. ALIAS: BOMBO.PRIMO.NUDO</p>
-                <p className='text-center fw-bold'>RESTRICCIÓN DE USOS DEL AGUA POTABLE DE 8 A 20HS. Está prohibido utilizar agua potable para regar jardines, calles, lavar veredas, autos y llenar pileta. Disposición de DIRCAS para que no le aplique multa por derroche. Hagamos un uso responsable</p>
+                <p className='text-center fw-bold fs-6'>RESTRICCIÓN DE USOS DEL AGUA POTABLE DE 8 A 20HS. Está prohibido utilizar agua potable para regar jardines, calles, lavar veredas, autos y llenar pileta. Disposición de DIRCAS para que no le aplique multa por derroche. Hagamos un uso responsable</p>
                 <div className='d-flex justify-content-between'>
                     <div>
                         <p>Cat. 1 - Unidad Simple</p>
@@ -417,17 +379,16 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                                                 <div>- $ {bill.totalDiscounts}</div>
                                                             </td>
                                                             <td>
-                                                                <p>TOTAL A PAGAR</p>
+                                                                <p>TOTAL</p>
                                                                 <div>$ {bill.total}</div>
+                                                            </td>
+                                                            <td>
+                                                                <p>T. VENCIDA</p>
+                                                                <div>$ {bill.maturityAmount}</div>
                                                             </td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colSpan={2} className="text-center">
-                                                <p><strong>Son pesos: </strong><span>{convertNumberToWords(bill.total)}</span></p>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -481,17 +442,16 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                                                 <div>- $ {bill.totalDiscounts}</div>
                                                             </td>
                                                             <td>
-                                                                <p>TOTAL A PAGAR</p>
+                                                                <p>TOTAL</p>
                                                                 <div>$ {bill.total}</div>
+                                                            </td>
+                                                            <td>
+                                                                <p>T. VENCIDA</p>
+                                                                <div>$ {bill.maturityAmount}</div>
                                                             </td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colSpan={2} className="text-center">
-                                                <p><strong>Son pesos: </strong><span>{convertNumberToWords(bill.total)}</span></p>
                                             </td>
                                         </tr>
                                     </tbody>
