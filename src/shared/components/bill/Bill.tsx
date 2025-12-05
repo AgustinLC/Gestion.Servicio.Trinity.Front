@@ -104,20 +104,20 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                 <table className='mb-0'>
                     <thead>
                         <tr>
-                            <th className='fw-normal'>NÚMERO DE USUARIO</th>
-                            <th className='border-left-0'>{user.idUser}</th>
-                            <th className='border-left-0'>PERIODO FACTURADO</th>
-                            <th className='border-left-0'>VENCIMIENTO</th>
-                            <th className='border-left-0'>PRÓXIMO VENCIMIENTO</th>
+                            <th className='fw-normal border border-dark'>NÚMERO DE USUARIO</th>
+                            <th className='border-top border-bottom border-dark'>{user.idUser}</th>
+                            <th className='border border-dark'>PERIODO FACTURADO</th>
+                            <th className='border-top border-bottom border-end border-dark'>VENCIMIENTO</th>
+                            <th className='border-top border-bottom border-end border-dark'>PRÓXIMO VENCIMIENTO</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td className='border-top-0'>CATEGORÍA</td>
-                            <td className='border-left-0 border-top-0'>{user.residenceDto.idFee}</td>
-                            <td className='border-left-0 border-top-0'>{bill.periodName}</td>
-                            <td className='border-left-0 border-top-0'>{formatDate(new Date(bill.expirationDate))}</td>
-                            <td className='border-left-0 border-top-0'>-</td>
+                            <td className='border-bottom border-start border-end border-dark'>CATEGORÍA</td>
+                            <td className='border-bottom border-dark'>{user.residenceDto.idFee}</td>
+                            <td className='border-bottom border-start border-end border-dark'>{bill.periodName}</td>
+                            <td className='border-bottom border-end border-dark'>{formatDate(new Date(bill.expirationDate))}</td>
+                            <td className='border-bottom border-end border-dark'>-</td>
                         </tr>
                     </tbody>
                 </table>
@@ -125,36 +125,36 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                 <table>
                     <thead>
                         <tr>
-                            <th className='border-bottom-0'>NÚMERO DE</th>
-                            <th colSpan={4} className='border-left-0'>FECHA DE LECTURA Y ESTADO ACTUAL</th>
-                            <th colSpan={4} className='border-left-0'>FECHA DE LECTURA Y ESTADO ANTERIOR</th>
-                            <th className='border-left-0 border-bottom-0'>TOTAL CONSUMO REGISTRADO</th>
+                            <th className='border-start border-end border-dark'>NÚMERO DE</th>
+                            <th colSpan={4} className='border-bottom border-dark'>FECHA DE LECTURA Y ESTADO ACTUAL</th>
+                            <th colSpan={4} className='border-bottom border-start border-end border-dark'>FECHA DE LECTURA Y ESTADO ANTERIOR</th>
+                            <th className='border-bottom border-end border-dark'>TOTAL CONSUMO REGISTRADO</th>
                         </tr>
                         <tr>
-                            <th className='border-top-0'>MEDIDOR</th>
-                            <th className='border-left-0 border-top-0'>DÍA</th>
-                            <th className='border-left-0 border-top-0'>MES</th>
-                            <th className='border-left-0 border-top-0'>AÑO</th>
-                            <th className='border-left-0 border-top-0'>ESTADO ACTUAL</th>
-                            <th className='border-left-0 border-top-0'>DÍA</th>
-                            <th className='border-left-0 border-top-0'>MES</th>
-                            <th className='border-left-0 border-top-0'>AÑO</th>
-                            <th className='border-left-0 border-top-0'>ESTADO ANTERIOR</th>
-                            <th className='border-top-0  border-left-0'>EN m³</th>
+                            <th className='border-bottom border-start border-end border-dark'>MEDIDOR</th>
+                            <th className='border-bottom border-dark'>DÍA</th>
+                            <th className='border-bottom border-start border-dark'>MES</th>
+                            <th className='border-bottom border-start border-dark'>AÑO</th>
+                            <th className='border-bottom border-start border-dark'>ESTADO ACTUAL</th>
+                            <th className='border-bottom border-start border-dark'>DÍA</th>
+                            <th className='border-bottom border-start border-dark'>MES</th>
+                            <th className='border-bottom border-start border-dark'>AÑO</th>
+                            <th className='border-bottom border-start border-end border-dark'>ESTADO ANTERIOR</th>
+                            <th className='border-bottom border-end border-dark'>EN m³</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td className='border-top-0'>{bill.idMeter}</td>
-                            <td className='border-left-0 border-top-0'>{currentReadingDateSeparate.day}</td>
-                            <td className='border-left-0 border-top-0'>{currentReadingDateSeparate.month}</td>
-                            <td className='border-left-0 border-top-0'>{currentReadingDateSeparate.year}</td>
-                            <td className='border-left-0 border-top-0'>{bill.readingsBillDto.currentReading}</td>
-                            <td className='border-left-0 border-top-0'>{previousReadingDateSeparate.day}</td>
-                            <td className='border-left-0 border-top-0'>{previousReadingDateSeparate.month}</td>
-                            <td className='border-left-0 border-top-0'>{previousReadingDateSeparate.year}</td>
-                            <td className='border-left-0 border-top-0'>{bill.readingsBillDto.previousReading}</td>
-                            <td className='border-top-0'>{bill.consumption}</td>
+                            <td className='border-bottom border-start border-end border-dark'>{bill.idMeter}</td>
+                            <td className='border-bottom border-dark'>{currentReadingDateSeparate.day}</td>
+                            <td className='border-bottom border-start border-dark'>{currentReadingDateSeparate.month}</td>
+                            <td className='border-bottom border-start border-dark'>{currentReadingDateSeparate.year}</td>
+                            <td className='border-bottom border-start border-dark'>{bill.readingsBillDto.currentReading}</td>
+                            <td className='border-bottom border-start border-dark'>{previousReadingDateSeparate.day}</td>
+                            <td className='border-bottom border-start border-dark'>{previousReadingDateSeparate.month}</td>
+                            <td className='border-bottom border-start border-dark'>{previousReadingDateSeparate.year}</td>
+                            <td className='border-bottom border-start border-end border-dark'>{bill.readingsBillDto.previousReading}</td>
+                            <td className='border-bottom border-end border-dark'>{bill.consumption}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -219,7 +219,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                             <td className="text-end">{bill.surplusChargePerUnit},00</td>
                             <td className="text-end">{bill.surplusPrice},00</td>
                         </tr>
-                        {['Reconexión', 'Conexión', 'Materiales','Multas'].map((concepto, index) => {
+                        {['Reconexión', 'Conexión', 'Materiales', 'Multas'].map((concepto, index) => {
                             const detail = bill.details.find(d =>
                                 d.billingParameterName.toLowerCase() === concepto.toLowerCase()
                             );
@@ -344,7 +344,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                     </div>
                     <div>
                         <p className='text-center'>Reclamos en 2a. Instancia</p>
-                        <table className='mb-0 text-center border border-dark'>
+                        <table className='mb-0 text-center border-top border-start border-dark'>
                             <thead>
                                 <tr>
                                     <th className='fw-normal'>Comuniquese al Centro de Atención al Usuario</th>
@@ -400,7 +400,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td colSpan={2} className="bead-totals border-top">
+                                            <td colSpan={2} className="bead-totals">
                                                 <table>
                                                     <tbody>
                                                         <tr>

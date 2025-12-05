@@ -49,7 +49,6 @@
 .reading-details th,
 .reading-details td {
   padding: 2px;
-  border: 0.5px solid #000;
   text-align: center;
 }
 
@@ -58,13 +57,16 @@
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 5px;
+  border-top: 1px solid #000;
+  border-left: 1px solid #000;
 }
 
 .billing-concepts th,
 .billing-concepts td {
   padding: 2px;
-  border: 1px solid #000;
   text-align: center;
+  border-right: 1px solid #000;
+  border-bottom: 1px solid #000;
 }
 
 /* Estilos para el resumen */
@@ -73,22 +75,27 @@
   border-collapse: collapse;
   margin-bottom: 10px;
   table-layout: fixed;
+  border-top: 1px solid #000;
+  border-left: 1px solid #000;
 }
 
 .debt-summary td {
   padding: 2px;
-  border: 0.5px solid #000;
   vertical-align: top;
+  border-bottom: 1px solid #000;
+  border-right: 1px solid #000;
 }
 
 .debt-summary td[colspan="2"] {
   word-wrap: break-word;
+  border-right: 1px solid #000;
 }
 
 .debt-summary td:nth-child(3),
 .debt-summary td:nth-child(4) {
   text-align: right;
   white-space: nowrap;
+  border-right: 1px solid #000;
 }
 
 /* Estilos para las notas */
@@ -117,14 +124,16 @@
 }
 
 /* Fija la altura de la fila principal */
-.bead-table tbody > tr {
-  display: flex; /* Usa flexbox para igualar alturas */
+.bead-table tbody>tr {
+  display: flex;
+  /* Usa flexbox para igualar alturas */
   width: 100%;
 }
 
 .bead-table td {
   vertical-align: top;
-  flex: 1; /* Cada celda ocupa el mismo espacio */
+  flex: 1;
+  /* Cada celda ocupa el mismo espacio */
   display: flex;
   flex-direction: column;
 }
@@ -139,7 +148,8 @@
 /* Estilos para la tabla interna de cada talonario */
 .bead-inner-table {
   width: 100%;
-  flex: 1; /* Ocupa todo el espacio disponible */
+  flex: 1;
+  /* Ocupa todo el espacio disponible */
   border-collapse: collapse;
   border: 1px solid #000;
   display: flex;
@@ -154,18 +164,18 @@
 }
 
 /* Las filas del header tienen altura fija */
-.bead-inner-table tbody > tr:first-child {
+.bead-inner-table tbody>tr:first-child {
   flex-shrink: 0;
 }
 
 /* La fila del medio (contenido) ocupa el espacio restante */
-.bead-inner-table tbody > tr:nth-child(2) {
+.bead-inner-table tbody>tr:nth-child(2) {
   flex: 1;
   display: flex;
 }
 
 /* Las filas del footer tienen altura fija */
-.bead-inner-table tbody > tr:last-child {
+.bead-inner-table tbody>tr:last-child {
   flex-shrink: 0;
 }
 
@@ -177,7 +187,7 @@
 }
 
 /* Para las filas con múltiples columnas */
-.bead-inner-table tbody > tr:nth-child(2) > td {
+.bead-inner-table tbody>tr:nth-child(2)>td {
   flex: 1;
 }
 
@@ -195,11 +205,11 @@
 }
 
 .border-bottom {
-  border-bottom: 1px solid #000;
+  border-bottom: 0px solid #000;
 }
 
 .border-top {
-  border-top: 1px solid #000;
+  border-top: 0px solid #000;
 }
 
 .bead-totals {
@@ -209,6 +219,7 @@
 .bead-cuit {
   margin-top: 5px;
 }
+
 /* Estilos para el encabezado */
 .bead-header {
   text-align: center;
@@ -243,7 +254,7 @@
 .bead-info span {
   display: inline-block;
   padding: 2px 3px;
-  border: 1px solid #000;
+  border: 0px solid #000;
 }
 
 .bead-client {
@@ -260,17 +271,20 @@
 .bead-totals table {
   width: 100%;
   border-collapse: collapse;
+  border-top: 1px solid #000;
+  border-left: 1px solid #000;
+  border-bottom: 1px solid #000;
 }
 
 .bead-totals td {
   text-align: center;
   padding: 2px;
-  border: 1px solid #000;
+  border-right: 1px solid #000;
 }
 
 .bead-totals div {
   padding: 5px;
-  border: 1px solid #000;
+  border: 0px solid #000;
   margin-top: 5px;
 }
 
@@ -299,9 +313,9 @@
 
 /* Bordes personalizados */
 .border-bottom {
-  border-bottom: 1px solid #000;
+  border-bottom: 0px solid #000;
 }
 
 .border-top {
-  border-top: 1px solid #000;
+  border-top: 0px solid #000;
 }
