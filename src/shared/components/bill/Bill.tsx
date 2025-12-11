@@ -185,7 +185,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                             <td>02</td>
                             <td className="text-start">Excedentes servicio medido (En metros cúbicos)</td>
                             <td>{bill.surplus}</td>
-                            <td className="text-end">{bill.surplusChargePerUnit},00</td>
+                            <td className="text-end">{bill.feeSurplusChargePerUnit},00</td>
                             <td className="text-end">{bill.surplusPrice},00</td>
                         </tr>
                         {['Reconexión', 'Conexión', 'Materiales', 'Boletas faltantes', 'Multas', 'Otros'].map((concepto, index) => {

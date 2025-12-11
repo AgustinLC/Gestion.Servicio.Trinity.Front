@@ -18,9 +18,9 @@ export interface BillDetailsDto {
     expirationDate: Date;
     maturityAmount: number;
     feeName: string; 
-    surplusChargePerUnit: number;
+    feeSurplusChargePerUnit: number;
     feePrice: number; 
-    consumptionMax: number; 
+    feeConsumptionMax: number; 
     periodName: string;
     amountUnpaidInvoices: number;
     readingsBillDto: ReadingBillDto 
