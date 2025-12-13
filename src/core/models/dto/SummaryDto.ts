@@ -3,6 +3,7 @@ export interface SummaryDto {
   userLastName: string;
   statusUser: number;
   billsPaid: number;
+  billsPaidLate: number;
   unpaidBills: number;
   activeModality: string;
   activePeriod: Date;

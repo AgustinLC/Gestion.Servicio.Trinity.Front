@@ -1,3 +1,5 @@
+import { PaymentStatus } from "./PaymentStatus";
+
 export interface BillDetailsDto {
     idBill: number;
     idUser: number; 
@@ -11,7 +13,7 @@ export interface BillDetailsDto {
     totalDiscounts: number;
     subTotal: number;
     total: number;
-    paidStatus: boolean;
+    paidStatus: PaymentStatus;
     paymentLink: string;
     deleted: boolean;
     dateRegister: Date; 

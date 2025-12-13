@@ -49,11 +49,11 @@ const Resume = () => {
     // Datos para las tarjetas
     const summaryData = useMemo(() => [
         { title: "Usuarios Activos", value: data?.activeUsers || 0, color: "#28a745" },
+        { title: "Usuarios Suspendidos", value: data?.suspendedUsers || 0, color: "#ffc707" },
         { title: "Usuarios Inactivos", value: data?.inactiveUsers || 0, color: "#dc3545" },
-        { title: "Facturas Pagas", value: data?.billsPaid || 0, color: "#28a745" },
-        { title: "Facturas Impagas", value: data?.unpaidBills || 0, color: "#dc3545" },
+        { title: "Medidores faltantes", value: data?.missingMeters || 0, color: "#ffc707" },
         { title: "Lecturas Realizadas", value: data?.fullReadings || 0, color: "#007bff" },
-        { title: "Lecturas Pendientes", value: data?.incompleteReadings || 0, color: "#ffc707" },
+        { title: "Lecturas Pendientes", value: data?.incompleteReadings || 0, color: "#" },
         { title: "Modalidad activa", value: data?.activeModality || "No disponible", color: "#a15faf" },
         { title: "Fecha de periodo (activo)", value: data?.dateActivePeriod ? new Date(data?.dateActivePeriod).toLocaleDateString() : "No disponible", color: "#ff5d00" },
         { title: "Servicio/Unidad", value: data?.activeUnitService || "No disponible", color: "#05c1a1" }
@@ -66,7 +66,8 @@ const Resume = () => {
 
     // Datos para el gráfico de pastel
     const invoicesData = useMemo(() => [
-        { name: "Pagas", value: data?.billsPaid || 0, color: "#28a745" },
+        { name: "Pagas en término", value: data?.billsPaid || 0, color: "#28a745" },
+        { name: "Pagas fuera de término", value: data?.billsPaidLate || 0, color: "#ffc707" },
         { name: "Impagas", value: data?.unpaidBills || 0, color: "#dc3545" },
     ], [data]);
 

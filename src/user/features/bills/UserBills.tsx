@@ -10,6 +10,7 @@ import useAuth from "../../../hooks/useAuth";
 import PdfGenerator from "../../../shared/components/pdf/PdfGenerator";
 import ConsorcioInvoice from "../../../shared/components/bill/Bill";
 import { UserDto } from "../../../core/models/dto/UserDto";
+import { PaymentStatus } from "../../../core/models/dto/PaymentStatus";
 
 const UserBills: React.FC = () => {
     const [bills, setBills] = useState<BillDetailsDto[]>([]);
@@ -41,6 +42,19 @@ const UserBills: React.FC = () => {
             setLoading(false);
         }
     }, [userId]);
+
+    const getPaymentStatusBadge = (status: PaymentStatus) => {
+        switch (status) {
+            case PaymentStatus.UNPAID:
+                return <Badge bg="danger">Impaga</Badge>;
+            case PaymentStatus.PAID_ON_TIME:
+                return <Badge bg="success">Pagada en término</Badge>;
+            case PaymentStatus.PAID_LATE:
+                return <Badge bg="warning" text="dark">Pagada fuera de término</Badge>;
+            default:
+                return <Badge bg="secondary">Desconocido</Badge>;
+        }
+    };
 
     // Montar el componente 
     useEffect(() => {
@@ -100,9 +114,7 @@ const UserBills: React.FC = () => {
             label: "Estado",
             sortable: true,
             render: (row: BillDetailsDto) => (
-                <Badge bg={row.paidStatus ? "success" : "warning"}>
-                    {row.paidStatus ? "Pagada" : "Impaga"}
-                </Badge>
+                getPaymentStatusBadge(row.paidStatus)
             ),
         },
         {

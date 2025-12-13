@@ -142,6 +142,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
                   <Form.Select {...register("status", { required: "Este campo es obligatorio" })} isInvalid={!!errors.status}>
                     <option value="ACTIVE">Activo</option>
                     <option value="INACTIVE">Inactivo</option>
+                    <option value="SUSPENDED">Suspendido</option>
                   </Form.Select>
                   <Form.Control.Feedback type="invalid">{errors.status?.message}</Form.Control.Feedback>
                 </Form.Group>

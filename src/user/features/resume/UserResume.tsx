@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Card, Row, Col, Spinner } from "react-bootstrap";
 import { useEffect, useMemo, useState } from "react";
 import { ReadReadingDto } from "../../../core/models/dto/ReadReadingDto";
@@ -47,6 +47,13 @@ const UserResume = () => {
             setLoading(false);
         }
     };
+
+    // Datos para el gráfico de pastel
+    const invoicesData = useMemo(() => [
+        { name: "Pagas en término", value: data?.billsPaid || 0, color: "#28a745" },
+        { name: "Pagas fuera de término", value: data?.billsPaidLate || 0, color: "#ffc707" },
+        { name: "Impagas", value: data?.unpaidBills || 0, color: "#dc3545" },
+    ], [data]);
 
     // Función para obtener los consumos desde la API
     const fetchReadings = async () => {
@@ -129,7 +136,7 @@ const UserResume = () => {
 
                     {/* Gráfico de barras: Consumos reales por mes */}
                     <Row>
-                        <Col md={12} className="mb-4">
+                        <Col md={8} className="mb-4">
                             <Card>
                                 <Card.Body>
                                     <Card.Title>Historial de Consumo</Card.Title>
@@ -141,6 +148,25 @@ const UserResume = () => {
                                             <Legend />
                                             <Bar name="Consumo" dataKey="consumption" fill="#007bff" />
                                         </BarChart>
+                                    </ResponsiveContainer>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                        {/* Gráfico de pastel: Facturas pagas vs impagas */}
+                        <Col md={4} className="mb-4">
+                            <Card>
+                                <Card.Body>
+                                    <Card.Title>Facturas Pagas vs Impagas</Card.Title>
+                                    <ResponsiveContainer width="100%" height={chartSize.height}>
+                                        <PieChart>
+                                            <Pie data={invoicesData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8" label>
+                                                {invoicesData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip />
+                                            <Legend />
+                                        </PieChart>
                                     </ResponsiveContainer>
                                 </Card.Body>
                             </Card>
