@@ -38,7 +38,6 @@ import UserConsumptions from "./user/features/consumptions/UserConsumptions";
 import UserPersonalData from "./user/features/personaldata/UserPersonalData";
 import UserResume from "./user/features/resume/UserResume";
 import ModalityPage from "./admin/features/modality/ModalityPage";
-import ProtectedRoute from "./auth/features/protected-route/ProtectedRoute";
 import RoleProtectedRoute from "./auth/features/protected-route/RoleProtectedRoute";
 import DiscountManagementPage from "./admin/features/discounts/DiscountManagementPage";
 import DiscountsPage from "./operator/features/discounts/DiscountsPage";

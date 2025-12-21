@@ -77,6 +77,7 @@ const AddEditBillingParameterModal: React.FC<AddEditModalProps> = ({ show, onHid
                             isInvalid={!!errors.applyCondition}
                         >
                             <option value="MANUAL">Manual</option>
+                            <option value="CONDITIONAL">Condicional</option>
                             <option value="FIXED">Fijo</option>
                         </Form.Select>
                         <Form.Control.Feedback type="invalid">

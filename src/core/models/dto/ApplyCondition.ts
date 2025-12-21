@@ -1,4 +1,5 @@
 export enum ApplyCondition {
     FIXED = "FIXED",
-    MANUAL = "MANUAL"
+    MANUAL = "MANUAL",
+    CONDITIONAL = "CONDITIONAL"
 }

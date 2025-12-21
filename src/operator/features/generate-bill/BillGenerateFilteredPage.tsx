@@ -87,17 +87,45 @@ const BillGenerateFilteredPage = () => {
 
                     <Col md={4}>
                         <Form.Group>
-                            <Form.Label>Barrio</Form.Label>
-                            <Form.Control name="district" value={filters.district} onChange={handleChange} />
+                            <Form.Label>Ordenar por</Form.Label>
+                            <Form.Select name="sortBy" value={filters.sortBy} onChange={handleChange}>
+                                <option value="date">Fecha</option>
+                                <option value="total">Total</option>
+                                <option value="consumption">Consumo</option>
+                                <option value="period">Período</option>
+                                <option value="street">Calle</option>
+                            </Form.Select>
                         </Form.Group>
                     </Col>
 
+                    <Col md={4}>
+                        <Form.Group>
+                            <Form.Label>Mostrar eliminados</Form.Label>
+                            <Form.Select name="deleted" value={filters.deleted} onChange={handleChange}>
+                                <option value="">-- No filtrar --</option>
+                                <option value="true">Sí</option>
+                                <option value="false">No</option>
+                            </Form.Select>
+                        </Form.Group>
+                    </Col>
+
+                    {/*
+                    <Col md={4}>
+                        <Form.Group>
+                            <Form.Label>Distrito</Form.Label>
+                            <Form.Control name="district" value={filters.district} onChange={handleChange} />
+                        </Form.Group>
+                    </Col>
+                    */}
+
+                    {/*
                     <Col md={4}>
                         <Form.Group>
                             <Form.Label>ID Período</Form.Label>
                             <Form.Control type="number" name="idPeriod" value={filters.idPeriod} onChange={handleChange} />
                         </Form.Group>
                     </Col>
+                    */}
                 </Row>
 
                 <Row className="mb-3">
@@ -117,10 +145,22 @@ const BillGenerateFilteredPage = () => {
 
                     <Col md={4}>
                         <Form.Group>
+                            <Form.Label>Dirección</Form.Label>
+                            <Form.Select name="sortDirection" value={filters.sortDirection} onChange={handleChange}>
+                                <option value="DESC">Descendente</option>
+                                <option value="ASC">Ascendente</option>
+                            </Form.Select>
+                        </Form.Group>
+                    </Col>
+
+                    {/*
+                    <Col md={4}>
+                        <Form.Group>
                             <Form.Label>Modalidad</Form.Label>
                             <Form.Control type="number" name="idModality" value={filters.idModality} onChange={handleChange} />
                         </Form.Group>
                     </Col>
+                    */}
                 </Row>
 
                 <Row className="mb-3">
@@ -165,17 +205,6 @@ const BillGenerateFilteredPage = () => {
                 <Row className="mb-3">
                     <Col md={4}>
                         <Form.Group>
-                            <Form.Label>Mostrar eliminados</Form.Label>
-                            <Form.Select name="deleted" value={filters.deleted} onChange={handleChange}>
-                                <option value="">-- No filtrar --</option>
-                                <option value="true">Sí</option>
-                                <option value="false">No</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </Col>
-
-                    <Col md={4}>
-                        <Form.Group>
                             <Form.Label>Fecha desde</Form.Label>
                             <Form.Control type="date" name="dateFrom" value={filters.dateFrom} onChange={handleChange} />
                         </Form.Group>
@@ -187,9 +216,7 @@ const BillGenerateFilteredPage = () => {
                             <Form.Control type="date" name="dateTo" value={filters.dateTo} onChange={handleChange} />
                         </Form.Group>
                     </Col>
-                </Row>
-
-                <Row className="mb-3">
+                    
                     <Col md={4}>
                         <Form.Group>
                             <Form.Label>Factura digital</Form.Label>
@@ -200,7 +227,9 @@ const BillGenerateFilteredPage = () => {
                             </Form.Select>
                         </Form.Group>
                     </Col>
+                </Row>
 
+                <Row className="mb-3">
                     <Col md={4}>
                         <Form.Group>
                             <Form.Label>Total mínimo</Form.Label>
@@ -212,32 +241,6 @@ const BillGenerateFilteredPage = () => {
                         <Form.Group>
                             <Form.Label>Total máximo</Form.Label>
                             <Form.Control type="number" name="maxTotal" value={filters.maxTotal} onChange={handleChange} />
-                        </Form.Group>
-                    </Col>
-                </Row>
-
-                <Row className="mb-4">
-                    <Col md={4}>
-                        <Form.Group>
-                            <Form.Label>Ordenar por</Form.Label>
-                            <Form.Select name="sortBy" value={filters.sortBy} onChange={handleChange}>
-                                <option value="date">Fecha</option>
-                                <option value="total">Total</option>
-                                <option value="consumption">Consumo</option>
-                                <option value="period">Período</option>
-                                <option value="street">Calle</option>
-                                <option value="district">Barrio</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </Col>
-
-                    <Col md={4}>
-                        <Form.Group>
-                            <Form.Label>Dirección</Form.Label>
-                            <Form.Select name="sortDirection" value={filters.sortDirection} onChange={handleChange}>
-                                <option value="DESC">Descendente</option>
-                                <option value="ASC">Ascendente</option>
-                            </Form.Select>
                         </Form.Group>
                     </Col>
                 </Row>

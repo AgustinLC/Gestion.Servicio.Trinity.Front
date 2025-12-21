@@ -5,6 +5,7 @@ import { getData, addData } from "../../../core/services/apiService";
 import { DiscountDto } from "../../../core/models/dto/Discount";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { ApplyCondition } from "../../../core/models/dto/ApplyCondition";
+import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 
 interface AddDiscountModalProps {
     show: boolean;
@@ -130,7 +131,7 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
                                 <option value="">Seleccione...</option>
                                 {allDiscounts.map((d) => (
                                     <option key={d.idDiscount} value={d.idDiscount}>
-                                        {d.name}
+                                        {d.name} - {applyConditionLabels[d.applyCondition]}
                                     </option>
                                 ))}
                             </Form.Select>

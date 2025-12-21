@@ -48,10 +48,10 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                 <td><strong>Consorcio Vecinal de Agua Potable</strong></td>
                             </tr>
                             <tr>
-                                <td>Santa Maria de Oro</td>
+                                <td>Santa María de Oro</td>
                             </tr>
                             <tr>
-                                <td>Liniers s/n. Sta. Maria de Oro</td>
+                                <td>Liniers s/n. Sta. María de Oro</td>
                             </tr>
                             <tr>
                                 <td>C.P. 5579 - Rvia. - Mza</td>
@@ -188,11 +188,11 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                             <td className="text-end">{bill.feeSurplusChargePerUnit},00</td>
                             <td className="text-end">{bill.surplusPrice},00</td>
                         </tr>
-                        {['Reconexión', 'Conexión', 'Materiales', 'Boletas faltantes', 'Multas', 'Otros'].map((concepto, index) => {
+                        {['Consumo Normal','Reconexión', 'Conexión', 'Materiales', 'Boletas faltantes', 'Multas', 'Otros'].map((concepto, index) => {
                             const detail = bill.details.find(d =>
                                 d.billingParameterName.toLowerCase() === concepto.toLowerCase()
                             );
-                            const codigo = String(3 + index).padStart(2, '0'); // Genera 03, 04, 05, 06, 07, 08
+                            const codigo = String(3 + index).padStart(2, '0'); // Genera 03, 04, 05, 06, 07, 08, 09
                             const cantidad = concepto === 'Conexión' ? 0 : 0; // Cantidad estática
                             return (
                                 <tr key={codigo}>
@@ -215,7 +215,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                             );
                         })}
                         <tr>
-                            <td>09</td>
+                            <td>10</td>
                             <td className="text-start">Descuentos</td>
                             <td>{bill.discountCounter}</td>
                             <td className="text-end">0,00</td>
@@ -269,7 +269,7 @@ const ConsorcioInvoice = forwardRef<HTMLDivElement, ConsorcioInvoiceProps>(({
                                 CANTIDAD DE BIMESTRES IMPAGOS HASTA LA FECHA: 0
                             </td>
                             <td><strong>Descuento</strong></td>
-                            <td>$ - {bill.totalDiscounts}</td>
+                            <td>- $ {bill.totalDiscounts}</td>
                         </tr>
                         <tr>
                             <td className='border-top-0' colSpan={2}>

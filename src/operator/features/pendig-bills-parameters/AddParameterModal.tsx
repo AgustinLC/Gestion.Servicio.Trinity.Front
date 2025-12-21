@@ -3,6 +3,7 @@ import { Modal, Form, Button } from "react-bootstrap";
 import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
 import { useForm } from "react-hook-form";
+import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 
 interface AddParameterModalProps {
     show: boolean;
@@ -65,13 +66,15 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
                             <option value="">Seleccione...</option>
                             {parameters.map(param => (
                                 <option key={param.idBillingParameter} value={param.idBillingParameter}>
-                                    {param.name}
+                                    {param.name} - {applyConditionLabels[param.applyCondition]}
                                 </option>
                             ))}
                         </Form.Select>
-                        <Form.Control.Feedback type="invalid">
-                            {errors.idBillingParameter?.message}
-                        </Form.Control.Feedback>
+                        {errors.idBillingParameter && (
+                            <Form.Control.Feedback type="invalid">
+                                {errors.idBillingParameter.message}
+                            </Form.Control.Feedback>
+                        )}
                     </Form.Group>
 
                     {/* Input numérico */}
