@@ -3,9 +3,8 @@ import { Modal, Button, Table, Spinner, Badge } from "react-bootstrap";
 import { getData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
-import PdfGenerator from "../../../shared/components/pdf/PdfGenerator";
+import BillPdfGenerator, { BillPdfGeneratorRef } from "../../../shared/components/pdf/BillPdfGenerator";
 import { formatCurrency } from "../../../core/utils/formatters";
-import ConsorcioInvoice from "../../../shared/components/bill/Bill";
 import { UserDto } from "../../../core/models/dto/UserDto";
 
 interface BillNullModalProps {
@@ -22,8 +21,8 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
     const [pdfLoading, setPdfLoading] = useState(false);
     const [selectedBill, setSelectedBill] = useState<BillDetailsDto | null>(null);
 
-    // Ref para el componente de factura
-    const invoiceRef = useRef<HTMLDivElement>(null);
+    // Ref para el generador de PDF
+    const pdfGeneratorRef = useRef<BillPdfGeneratorRef>(null);
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -49,8 +48,7 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
     const handleViewInvoice = (bill: BillDetailsDto) => {
         setSelectedBill(bill);
         setTimeout(() => {
-            const trigger = document.getElementById('pdf-trigger');
-            if (trigger) trigger.click();
+            pdfGeneratorRef.current?.generate();
         }, 100);
     };
 
@@ -113,13 +111,13 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
             </Modal>
 
             {selectedBill && user && (
-                <PdfGenerator
+                <BillPdfGenerator
+                    bill={selectedBill}
+                    user={user}
                     fileName={`Factura_${selectedBill.idBill}`}
                     onGenerate={(isGenerating) => setPdfLoading(isGenerating)}
-                    ref={invoiceRef}
-                >
-                    <ConsorcioInvoice user={user} bill={selectedBill} />
-                </PdfGenerator>
+                    ref={pdfGeneratorRef}
+                />
             )}
 
             {pdfLoading && (

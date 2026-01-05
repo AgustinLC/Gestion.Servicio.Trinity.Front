@@ -5,9 +5,8 @@ import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { getData, deleteData, updateData } from "../../../core/services/apiService";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
-import PdfGenerator from "../../../shared/components/pdf/PdfGenerator";
+import BillPdfGenerator, { BillPdfGeneratorRef } from "../../../shared/components/pdf/BillPdfGenerator";
 import { formatCurrency } from "../../../core/utils/formatters";
-import ConsorcioInvoice from "../../../shared/components/bill/Bill";
 import { PaymentStatus } from "../../../core/models/dto/PaymentStatus";
 
 interface BillActiveModalProps {
@@ -30,8 +29,8 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedStatus, setSelectedStatus] = useState<PaymentStatus | null>(null);
 
-    // Constantes
-    const invoiceRef = useRef<HTMLDivElement>(null);
+    // Ref para el generador de PDF
+    const pdfGeneratorRef = useRef<BillPdfGeneratorRef>(null);
 
     // Obtener datos al montar el componente 
     useEffect(() => {
@@ -154,8 +153,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     const handleViewInvoice = (bill: BillDetailsDto) => {
         setSelectedBill(bill);
         setTimeout(() => {
-            const trigger = document.getElementById('pdf-trigger');
-            if (trigger) trigger.click();
+            pdfGeneratorRef.current?.generate();
         }, 100);
     };
 
@@ -335,16 +333,13 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
             </Modal>
 
             {selectedBill && user && (
-                <PdfGenerator
+                <BillPdfGenerator
+                    bill={selectedBill}
+                    user={user}
                     fileName={`Factura_${selectedBill.idBill}`}
                     onGenerate={(isGenerating) => setPdfLoading(isGenerating)}
-                    ref={invoiceRef}
-                >
-                    <ConsorcioInvoice
-                        user={user}
-                        bill={selectedBill}
-                    />
-                </PdfGenerator>
+                    ref={pdfGeneratorRef}
+                />
             )}
 
             {pdfLoading && (

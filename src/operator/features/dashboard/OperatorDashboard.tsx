@@ -84,7 +84,7 @@ const DashboardOperator: React.FC = () => {
                     className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/generate-filtered" ? "active" : ""}`}
                     onClick={() => setActivePopover(null)}
                 >
-                    Generación por Filtros
+                    Generación de PDF
                 </Link>
             </Popover.Body>
         </Popover>

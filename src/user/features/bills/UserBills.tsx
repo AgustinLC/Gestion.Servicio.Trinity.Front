@@ -7,8 +7,7 @@ import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
 import useAuth from "../../../hooks/useAuth";
-import PdfGenerator from "../../../shared/components/pdf/PdfGenerator";
-import ConsorcioInvoice from "../../../shared/components/bill/Bill";
+import BillPdfGenerator, { BillPdfGeneratorRef } from "../../../shared/components/pdf/BillPdfGenerator";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { PaymentStatus } from "../../../core/models/dto/PaymentStatus";
 
@@ -19,7 +18,7 @@ const UserBills: React.FC = () => {
     const [filteredData, setFilteredData] = useState<BillDetailsDto[]>([]);
     const [selectedBill, setSelectedBill] = useState<BillDetailsDto | null>(null); // Estado para la factura seleccionada
     const [pdfLoading, setPdfLoading] = useState(false); // Estado para la carga del PDF
-    const invoiceRef = useRef<HTMLDivElement>(null); // Ref para el componente de factura
+    const pdfGeneratorRef = useRef<BillPdfGeneratorRef>(null); // Ref para el generador de PDF
     const [user, setUser] = useState<UserDto | null>(null);
 
     // Hooks importados
@@ -94,8 +93,7 @@ const UserBills: React.FC = () => {
     const handleViewInvoice = (bill: BillDetailsDto) => {
         setSelectedBill(bill); // Establece la factura seleccionada
         setTimeout(() => {
-            const trigger = document.getElementById('pdf-trigger');
-            if (trigger) trigger.click(); // Simula el clic en el botón de generación de PDF
+            pdfGeneratorRef.current?.generate();
         }, 100);
     };
 
@@ -160,13 +158,13 @@ const UserBills: React.FC = () => {
 
             {/* Componente para generar el PDF */}
             {selectedBill && user && (
-                <PdfGenerator
+                <BillPdfGenerator
+                    bill={selectedBill}
+                    user={user}
                     fileName={`Factura_${selectedBill.idBill}`}
                     onGenerate={(isGenerating) => setPdfLoading(isGenerating)}
-                    ref={invoiceRef}
-                >
-                    <ConsorcioInvoice user={user} bill={selectedBill} />
-                </PdfGenerator>
+                    ref={pdfGeneratorRef}
+                />
             )}
 
             {/* Overlay de carga para el PDF */}

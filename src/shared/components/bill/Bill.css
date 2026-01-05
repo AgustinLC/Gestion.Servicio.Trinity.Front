@@ -11,6 +11,7 @@
   font-family: Arial, sans-serif;
   font-size: 9px;
   overflow: hidden;
+  transform: translateZ(0);
 }
 
 /* Estilos para el encabezado */

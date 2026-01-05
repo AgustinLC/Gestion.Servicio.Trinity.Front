@@ -3,6 +3,9 @@ import { Button, Form, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { getData } from '../../../core/services/apiService';
 import { FeeDto } from '../../../core/models/dto/FeeDto';
+import { BillDetailsDto } from '../../../core/models/dto/BillDetailsDto';
+import { UserDto } from '../../../core/models/dto/UserDto';
+import { useBillPdfGenerator } from '../../../shared/hooks/useBillPdfGenerator';
 
 const BillGenerateFilteredPage = () => {
     const [filters, setFilters] = useState({
@@ -22,10 +25,15 @@ const BillGenerateFilteredPage = () => {
         minTotal: '',
         maxTotal: '',
         sortBy: 'date',
-        sortDirection: 'DESC',
+        sortDirection: 'ASC',
     });
     const [allFees, setAllFees] = useState<FeeDto[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [filteredBills, setFilteredBills] = useState<BillDetailsDto[]>([]);
+    const [users, setUsers] = useState<UserDto[]>([]);
+    
+    // Hook para generar PDFs
+    const { isGenerating: pdfLoading, generateMultiplePdf } = useBillPdfGenerator();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -62,13 +70,53 @@ const BillGenerateFilteredPage = () => {
         try {
             const query = buildQueryParams();
 
-            await getData(`/operator/search-bills?${query}`);
+            const allFilteredBills = await getData<BillDetailsDto[]>(`/operator/search-bills?${query}`);
+            setFilteredBills(allFilteredBills);
 
-            toast.success('Facturas generadas exitosamente');
+            if (allFilteredBills.length === 0) {
+                toast.warning('No se encontraron facturas con los filtros seleccionados');
+            } else {
+                toast.success(`${allFilteredBills.length} factura(s) encontrada(s)`);
+                
+                // Obtener usuarios necesarios
+                const userIds = [...new Set(allFilteredBills.map(bill => bill.idUser))];
+                const allUsers = await getData<UserDto[]>("/operator/users");
+                const neededUsers = allUsers.filter(user => userIds.includes(user.idUser));
+                setUsers(neededUsers);
+            }
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Error desconocido');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleGeneratePdf = async () => {
+        if (filteredBills.length === 0) {
+            toast.warning('No hay facturas para generar PDF');
+            return;
+        }
+
+        if (users.length === 0) {
+            toast.error('No se encontraron usuarios para las facturas');
+            return;
+        }
+
+        try {
+            const fecha = new Date().toISOString().split("T")[0];
+            const fileName = `facturas_filtradas_${fecha}`;
+            
+            toast.info("Generando PDF... Esto puede tomar varios minutos");
+            
+            await generateMultiplePdf(filteredBills, users, {
+                fileName,
+                onProgress: (processed: number, total: number) => {
+                    console.log(`Procesando ${processed}/${total}`);
+                },
+            });
+        } catch (error) {
+            console.error('Error generando PDF:', error);
+            toast.error('Error al generar PDF');
         }
     };
 
@@ -147,8 +195,8 @@ const BillGenerateFilteredPage = () => {
                         <Form.Group>
                             <Form.Label>Dirección</Form.Label>
                             <Form.Select name="sortDirection" value={filters.sortDirection} onChange={handleChange}>
-                                <option value="DESC">Descendente</option>
                                 <option value="ASC">Ascendente</option>
+                                <option value="DESC">Descendente</option>
                             </Form.Select>
                         </Form.Group>
                     </Col>
@@ -245,19 +293,50 @@ const BillGenerateFilteredPage = () => {
                     </Col>
                 </Row>
 
-                <Button variant="primary" onClick={handleSubmit} disabled={isLoading}>
-                    {isLoading ? (
-                        <>
-                            <Spinner animation="border" size="sm" className="me-2" />
-                            Generando...
-                        </>
-                    ) : (
-                        'Generar Facturas'
+                <div className="d-flex gap-2 mb-3">
+                    <Button variant="primary" onClick={handleSubmit} disabled={isLoading}>
+                        {isLoading ? (
+                            <>
+                                <Spinner animation="border" size="sm" className="me-2" />
+                                Buscando...
+                            </>
+                        ) : (
+                            'Buscar Facturas'
+                        )}
+                    </Button>
+
+                    {filteredBills.length > 0 && (
+                        <Button 
+                            variant="success" 
+                            onClick={handleGeneratePdf} 
+                            disabled={pdfLoading || users.length === 0}
+                        >
+                            {pdfLoading ? (
+                                <>
+                                    <Spinner animation="border" size="sm" className="me-2" />
+                                    Generando PDF...
+                                </>
+                            ) : (
+                                `Generar PDF (${filteredBills.length} factura${filteredBills.length > 1 ? 's' : ''})`
+                            )}
+                        </Button>
                     )}
-                </Button>
+                </div>
+
+                {filteredBills.length > 0 && (
+                    <Alert variant="success" className="mt-3">
+                        <strong>{filteredBills.length}</strong> factura(s) encontrada(s) con los filtros seleccionados.
+                        {users.length < filteredBills.length && (
+                            <div className="text-warning mt-2">
+                                <small>Advertencia: {filteredBills.length - users.length} factura(s) no tienen usuario asociado.</small>
+                            </div>
+                        )}
+                    </Alert>
+                )}
 
                 <Alert variant="info" className="mt-4">
-                    <strong>Nota:</strong> La generación mediante filtros puede tardar unos segundos.
+                    <strong>Nota:</strong> La búsqueda mediante filtros puede tardar unos segundos.
+                    La generación de PDF puede tardar varios minutos si hay muchas facturas.
                     No cierres la página hasta que finalice el proceso.
                 </Alert>
             </Form>
