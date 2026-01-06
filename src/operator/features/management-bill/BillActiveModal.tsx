@@ -336,7 +336,8 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                 <BillPdfGenerator
                     bill={selectedBill}
                     user={user}
-                    fileName={`Factura_${selectedBill.idBill}`}
+                    includeUserName
+                    includePeriod
                     onGenerate={(isGenerating) => setPdfLoading(isGenerating)}
                     ref={pdfGeneratorRef}
                 />

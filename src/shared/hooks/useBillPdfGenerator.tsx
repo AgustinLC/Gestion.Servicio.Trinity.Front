@@ -10,11 +10,11 @@ import { toast } from 'react-toastify';
 export interface BillPdfOptions {
     /** Nombre del archivo PDF (sin extensión) */
     fileName?: string;
-    /** Calidad de imagen (0-1). Menor = más rápido pero menos calidad. Default: 0.8 */
+    /** Calidad de imagen (0-1). Menor = más rápido pero menos calidad. Default: 0.7 */
     imageQuality?: number;
-    /** Escala para html2canvas. Menor = más rápido. Default: 1.25 */
+    /** Escala para html2canvas. Menor = más rápido. Default: 1 */
     scale?: number;
-    /** Tamaño del lote para procesar facturas. Default: 10 */
+    /** Tamaño del lote para procesar facturas. Default: 5 */
     batchSize?: number;
     /** Callback cuando se actualiza el progreso (procesadas, total) */
     onProgress?: (processed: number, total: number) => void;
@@ -25,6 +25,12 @@ export interface BillPdfOptions {
     /** Callback cuando hay un error */
     onError?: (error: Error) => void;
 }
+
+// Constantes para el PDF
+const PDF_WIDTH_MM = 210;
+const PDF_HEIGHT_MM = 297;
+// Tolerancia del 5% para evitar páginas en blanco por pequeñas diferencias de renderizado
+const HEIGHT_TOLERANCE = PDF_HEIGHT_MM * 1.05;
 
 interface BillWithUser {
     bill: BillDetailsDto;
@@ -47,7 +53,7 @@ export const useBillPdfGenerator = () => {
             const {
                 fileName = `Factura_${bill.idBill}`,
                 imageQuality = 0.8,
-                scale = 1.25,
+                scale = 1,
                 onStart,
                 onComplete,
                 onError,
@@ -72,7 +78,7 @@ export const useBillPdfGenerator = () => {
             try {
                 // Renderizar la factura
                 root.render(<ConsorcioInvoice user={user} bill={bill} />);
-                await new Promise((resolve) => setTimeout(resolve, 100));
+                await new Promise((resolve) => setTimeout(resolve, 50));
 
                 const invoiceElement = invoiceWrapper.querySelector(
                     '.invoice-container'
@@ -92,6 +98,7 @@ export const useBillPdfGenerator = () => {
 
                 const imgData = canvas.toDataURL('image/jpeg', imageQuality);
                 const ratio = canvas.height / canvas.width;
+                const finalHeight = PDF_WIDTH_MM * ratio;
 
                 // Liberar memoria
                 canvas.width = 0;
@@ -99,22 +106,21 @@ export const useBillPdfGenerator = () => {
 
                 // Crear PDF
                 const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgWidth = 210;
-                const imgHeight = 297;
-                const finalHeight = imgWidth * ratio;
 
-                // Si la factura es más alta que una página, dividirla
-                if (finalHeight > imgHeight) {
+                // Si la factura es SIGNIFICATIVAMENTE más alta que una página, dividirla
+                // Usamos HEIGHT_TOLERANCE para evitar páginas en blanco por pequeñas diferencias
+                if (finalHeight > HEIGHT_TOLERANCE) {
                     let y = 0;
                     while (y < finalHeight) {
                         if (y > 0) {
                             pdf.addPage();
                         }
-                        pdf.addImage(imgData, 'JPEG', 0, -y, imgWidth, finalHeight);
-                        y += imgHeight;
+                        pdf.addImage(imgData, 'JPEG', 0, -y, PDF_WIDTH_MM, finalHeight);
+                        y += PDF_HEIGHT_MM;
                     }
                 } else {
-                    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, finalHeight);
+                    // Factura cabe en una página (o está dentro del margen de tolerancia)
+                    pdf.addImage(imgData, 'JPEG', 0, 0, PDF_WIDTH_MM, PDF_HEIGHT_MM);
                 }
 
                 pdf.save(`${fileName}.pdf`);
@@ -146,9 +152,9 @@ export const useBillPdfGenerator = () => {
         ) => {
             const {
                 fileName = `facturas_consorcio_${new Date().toISOString().split('T')[0]}`,
-                imageQuality = 0.8,
-                scale = 1.25,
-                batchSize = 10,
+                imageQuality = 0.7,
+                scale = 1,
+                batchSize = 5,
                 onProgress,
                 onStart,
                 onComplete,
@@ -183,8 +189,6 @@ export const useBillPdfGenerator = () => {
             }
 
             const pdf = new jsPDF('p', 'mm', 'a4');
-            const imgWidth = 210;
-            const imgHeight = 297;
 
             // Contenedor oculto
             const tempContainer = document.createElement('div');
@@ -198,8 +202,8 @@ export const useBillPdfGenerator = () => {
             tempContainer.appendChild(invoiceWrapper);
 
             const root = ReactDOM.createRoot(invoiceWrapper);
-            
-            // ✅ Contador de páginas totales agregadas al PDF
+
+            // Contador de páginas totales agregadas al PDF
             let totalPagesAdded = 0;
 
             try {
@@ -208,7 +212,7 @@ export const useBillPdfGenerator = () => {
 
                     // Renderizar factura
                     root.render(<ConsorcioInvoice user={user} bill={bill} />);
-                    await new Promise((resolve) => setTimeout(resolve, 100));
+                    await new Promise((resolve) => setTimeout(resolve, 50));
 
                     const invoiceElement = invoiceWrapper.querySelector(
                         '.invoice-container'
@@ -229,35 +233,38 @@ export const useBillPdfGenerator = () => {
 
                     const imgData = canvas.toDataURL('image/jpeg', imageQuality);
                     const ratio = canvas.height / canvas.width;
-                    const finalHeight = imgWidth * ratio;
+                    const finalHeight = PDF_WIDTH_MM * ratio;
 
                     // Liberar memoria del canvas
                     canvas.width = 0;
                     canvas.height = 0;
 
-                    // ✅ LÓGICA SIMPLIFICADA Y CORREGIDA
-                    if (finalHeight > imgHeight) {
-                        // Factura dividida en múltiples páginas
+                    // Agregar página solo si ya hay páginas en el PDF
+                    if (totalPagesAdded > 0) {
+                        pdf.addPage();
+                    }
+
+                    // LÓGICA CORREGIDA: Usar tolerancia para evitar páginas en blanco
+                    if (finalHeight > HEIGHT_TOLERANCE) {
+                        // Factura REALMENTE necesita múltiples páginas (más de 5% mayor que A4)
                         let y = 0;
-                        
+                        let isFirstPageOfThisBill = true;
+
                         while (y < finalHeight) {
-                            // Agregar página solo si ya hay páginas en el PDF
-                            if (totalPagesAdded > 0) {
+                            // Si no es la primera página de esta factura, agregar página
+                            if (!isFirstPageOfThisBill) {
                                 pdf.addPage();
                             }
-                            
-                            pdf.addImage(imgData, 'JPEG', 0, -y, imgWidth, finalHeight);
+
+                            pdf.addImage(imgData, 'JPEG', 0, -y, PDF_WIDTH_MM, finalHeight);
                             totalPagesAdded++;
-                            y += imgHeight;
+                            isFirstPageOfThisBill = false;
+                            y += PDF_HEIGHT_MM;
                         }
                     } else {
-                        // Factura cabe en una página
-                        // Agregar página solo si ya hay páginas en el PDF
-                        if (totalPagesAdded > 0) {
-                            pdf.addPage();
-                        }
-                        
-                        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, finalHeight);
+                        // Factura cabe en una página (incluyendo margen de tolerancia)
+                        // Forzar el ajuste exacto a A4 para evitar espacios en blanco
+                        pdf.addImage(imgData, 'JPEG', 0, 0, PDF_WIDTH_MM, PDF_HEIGHT_MM);
                         totalPagesAdded++;
                     }
 
@@ -266,7 +273,7 @@ export const useBillPdfGenerator = () => {
                     setProgress({ processed, total: validBills.length });
                     onProgress?.(processed, validBills.length);
 
-                    // Yield cada batchSize facturas para no bloquear
+                    // Yield cada batchSize facturas para no bloquear el navegador
                     if (processed % batchSize === 0) {
                         await new Promise((resolve) => setTimeout(resolve, 0));
                         toast.info(`Procesando ${processed}/${validBills.length}`, {
@@ -292,7 +299,7 @@ export const useBillPdfGenerator = () => {
         },
         []
     );
-    
+
     return {
         isGenerating,
         progress,
