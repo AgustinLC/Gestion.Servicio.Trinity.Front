@@ -21,7 +21,7 @@ export interface BillPdfGeneratorProps {
     /** Callback cuando cambia el estado de generación */
     onGenerate?: (isGenerating: boolean) => void;
     /** Opciones adicionales para la generación */
-    options?: Omit<BillPdfOptions, 'fileName' | 'onStart' | 'onComplete' | 'onError'>;
+    options?: Omit<BillPdfOptions, 'fileName'>;
     /** Auto-generar cuando se monta el componente (solo para una factura) */
     autoGenerate?: boolean;
 }
@@ -41,7 +41,7 @@ const buildAutoFileName = (
     includePeriod: boolean
 ): string => {
     const parts: string[] = ['Factura', String(bill.idBill)];
-    
+
     if (includeUserName) {
         // Limpiar el nombre para que sea válido como nombre de archivo
         const cleanName = `${user.firstName}_${user.lastName}`
@@ -49,14 +49,14 @@ const buildAutoFileName = (
             .replace(/[^a-zA-Z0-9_áéíóúÁÉÍÓÚñÑ]/g, '');
         parts.push(cleanName);
     }
-    
+
     if (includePeriod && bill.periodName) {
         const cleanPeriod = bill.periodName
             .replace(/\s+/g, '_')
             .replace(/[^a-zA-Z0-9_]/g, '');
         parts.push(cleanPeriod);
     }
-    
+
     return parts.join('_');
 };
 
@@ -122,12 +122,12 @@ const BillPdfGenerator = forwardRef<BillPdfGeneratorRef, BillPdfGeneratorProps>(
                 } else if (bill && user) {
                     // Determinar nombre del archivo
                     const finalFileName = fileName || buildAutoFileName(
-                        bill, 
-                        user, 
-                        includeUserName, 
+                        bill,
+                        user,
+                        includeUserName,
                         includePeriod
                     );
-                    
+
                     // Generar PDF de una sola factura
                     await generateSinglePdf(bill, user, {
                         fileName: finalFileName,

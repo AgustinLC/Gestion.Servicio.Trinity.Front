@@ -28,9 +28,9 @@ const DashboardOperator: React.FC = () => {
 
     const isBillSection = [
         "/dashboard/operator/bills/management",
-        "/dashboard/operator/bills/bulk-generate",
-        "/dashboard/operator/bills/individual-generate",
+        "/dashboard/operator/bills/generate",
         "/dashboard/operator/bills/generate-filtered",
+        "/dashboard/operator/bills/update-expiration",
     ].includes(currentPath);
 
     // Popovers
@@ -66,18 +66,11 @@ const DashboardOperator: React.FC = () => {
                     Consulta
                 </Link>
                 <Link
-                    to="/dashboard/operator/bills/bulk-generate"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/bulk-generate" ? "active" : ""}`}
+                    to="/dashboard/operator/bills/generate"
+                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/generate" ? "active" : ""}`}
                     onClick={() => setActivePopover(null)}
                 >
-                    Generación Masiva
-                </Link>
-                <Link
-                    to="/dashboard/operator/bills/individual-generate"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/individual-generate" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Generación Individual
+                    Generación de Facturas
                 </Link>
                 <Link
                     to="/dashboard/operator/bills/generate-filtered"
@@ -85,6 +78,13 @@ const DashboardOperator: React.FC = () => {
                     onClick={() => setActivePopover(null)}
                 >
                     Generación de PDF
+                </Link>
+                <Link
+                    to="/dashboard/operator/bills/update-expiration"
+                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/update-expiration" ? "active" : ""}`}
+                    onClick={() => setActivePopover(null)}
+                >
+                    Actualizar Vencimiento
                 </Link>
             </Popover.Body>
         </Popover>

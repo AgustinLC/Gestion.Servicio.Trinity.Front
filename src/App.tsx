@@ -27,8 +27,8 @@ import UnitPage from "./admin/features/services-units/UnitPage";
 import ServicePage from "./admin/features/services-units/ServicePage";
 import BillingParameterPage from "./admin/features/crud-concepts-bills/BillingParameterPage";
 import PendigBillsParameterPage from "./operator/features/pendig-bills-parameters/PendigBillParametersPage";
-import BillBulkGeneratePage from "./operator/features/generate-bill/BillBulkGeneratePage";
-import BillIndividualGeneratePage from "./operator/features/generate-bill/BillIndividualGeneratePage";
+import BillGeneratePage from "./operator/features/generate-bill/BillGeneratePage";
+import BillUpdateExpirationPage from "./operator/features/generate-bill/BillUpdateExpirationPage";
 import BillManagementPage from "./operator/features/management-bill/BillManagementPage";
 import ReportsPage from "./operator/features/reports/ReportPage";
 import NewPeriodPage from "./admin/features/period/NewPeriodPage";
@@ -84,9 +84,9 @@ const AppContent: React.FC = () => {
           <Route path="readings/management" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReadingManagement /></RoleProtectedRoute>} />
           <Route path="readings/take" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReadingTake /></RoleProtectedRoute>} />
           <Route path="parameters/bills" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><PendigBillsParameterPage /></RoleProtectedRoute>} />
-          <Route path="bills/bulk-generate" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillBulkGeneratePage /></RoleProtectedRoute>} />
-          <Route path="bills/individual-generate" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillIndividualGeneratePage /></RoleProtectedRoute>} />
+          <Route path="bills/generate" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillGeneratePage /></RoleProtectedRoute>} />
           <Route path="bills/generate-filtered" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillGenerateFilteredPage /></RoleProtectedRoute>} />
+          <Route path="bills/update-expiration" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillUpdateExpirationPage /></RoleProtectedRoute>} />
           <Route path="bills/management" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillManagementPage /></RoleProtectedRoute>} />
           <Route path="reports" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReportsPage /></RoleProtectedRoute>} />
           <Route path="discounts" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DiscountsPage /></RoleProtectedRoute>} />
