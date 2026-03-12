@@ -8,8 +8,6 @@ import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import BillActiveModal from "./BillActiveModal";
 import BillNullModal from "./BillNullModal";
-import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
-import { useBillPdfGenerator } from "../../../shared/hooks/useBillPdfGenerator";
 import { useSearch } from "../../../hooks/useSearch";
 
 const BillManagementPage = () => {
@@ -23,7 +21,7 @@ const BillManagementPage = () => {
     const [isSending, setIsSending] = useState(false);
 
     // Hook para generar PDFs
-    const { isGenerating: pdfLoading, generateMultiplePdf } = useBillPdfGenerator();
+    //const { isGenerating: pdfLoading, generateMultiplePdf } = useBillPdfGenerator();
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -59,7 +57,7 @@ const BillManagementPage = () => {
         ["firstName", "lastName", "idUser"] // columnas filtrables
     );
 
-
+    /*
     // Generar PDF
     const handleGeneratePdf = async () => {
         try {
@@ -116,7 +114,7 @@ const BillManagementPage = () => {
             toast.error("Error en conexión con el servidor");
         }
     };
-    
+    */
     const handleSendBillNotifications = async () => {
         setIsSending(true);
         try {
