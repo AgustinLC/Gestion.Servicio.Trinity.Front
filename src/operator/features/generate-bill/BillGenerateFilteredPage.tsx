@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button, Form, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { getData } from '../../../core/services/apiService';
-import { FeeDto } from '../../../core/models/dto/FeeDto';
 import { BillDetailsDto } from '../../../core/models/dto/BillDetailsDto';
 import { UserDto } from '../../../core/models/dto/UserDto';
 import { useBillPdfGeneratorV2 } from '../../../shared/hooks/useBillPdfGeneratorV2';
+import useAppData from '../../../hooks/useAppData';
 
 const BillGenerateFilteredPage = () => {
     const [filters, setFilters] = useState({
@@ -27,10 +27,10 @@ const BillGenerateFilteredPage = () => {
         sortBy: 'date',
         sortDirection: 'ASC',
     });
-    const [allFees, setAllFees] = useState<FeeDto[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [filteredBills, setFilteredBills] = useState<BillDetailsDto[]>([]);
     const [users, setUsers] = useState<UserDto[]>([]);
+    const { fees, operatorUsers } = useAppData();
     
     // Hook para generar PDFs (V2 - usa @react-pdf/renderer, 10-50x más rápido)
     const { isGenerating: pdfLoading, generateMultiplePdf } = useBillPdfGeneratorV2();
@@ -39,20 +39,6 @@ const BillGenerateFilteredPage = () => {
         const { name, value } = e.target;
         setFilters((prev) => ({ ...prev, [name]: value }));
     };
-
-    useEffect(() => {
-        const loadFees = async () => {
-            try {
-                const fees = await getData<FeeDto[]>("/operator/fee");
-                setAllFees(fees);
-            } catch (error) {
-                console.error(error);
-                toast.error("Error cargando tarifas");
-            }
-        };
-
-        loadFees();
-    }, []);
 
     const buildQueryParams = () => {
         const params = new URLSearchParams();
@@ -80,8 +66,7 @@ const BillGenerateFilteredPage = () => {
                 
                 // Obtener usuarios necesarios
                 const userIds = [...new Set(allFilteredBills.map(bill => bill.idUser))];
-                const allUsers = await getData<UserDto[]>("/operator/users");
-                const neededUsers = allUsers.filter(user => userIds.includes(user.idUser));
+                const neededUsers = operatorUsers.filter(user => userIds.includes(user.idUser));
                 setUsers(neededUsers);
             }
         } catch (error) {
@@ -101,7 +86,7 @@ const BillGenerateFilteredPage = () => {
         if (filters.street) parts.push(`calle_${filters.street.replace(/\s+/g, '-')}`);
         if (filters.idUser) parts.push(`conexion_${filters.idUser}`);
         if (filters.idFee) {
-            const fee = allFees.find(f => f.idFee === Number(filters.idFee));
+            const fee = fees.find(f => f.idFee === Number(filters.idFee));
             if (fee) parts.push(`tarifa_${fee.name.replace(/\s+/g, '-')}`);
         }
         if (filters.paidStatus) {
@@ -253,7 +238,7 @@ const BillGenerateFilteredPage = () => {
                             >
                                 <option value="">-- Seleccionar tarifa --</option>
 
-                                {allFees.map((fee) => (
+                                {fees.map((fee) => (
                                     <option key={fee.idFee} value={fee.idFee}>
                                         {fee.name}
                                     </option>

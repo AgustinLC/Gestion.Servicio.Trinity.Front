@@ -1,54 +1,29 @@
-import { useEffect, useState } from "react";
-import { addData, getData } from "../../../core/services/apiService";
+import { useState } from "react";
+import { addData } from "../../../core/services/apiService";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { Button, Spinner } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { UserDto } from "../../../core/models/dto/UserDto";
-import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import AddParameterModal from "./AddParameterModal";
 import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
 import { toast } from "react-toastify";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
 import UserParametersModal from "./UserParameterModal";
 import { useSearch } from "../../../hooks/useSearch";
+import useAppData from "../../../hooks/useAppData";
 
 const PendigBillsParameterPage = () => {
 
     //Estados
-    const [userData, setUserData] = useState<UserDto[]>([])
-    const [parameterData, setParameterData] = useState<BillingParameter[]>([]);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const [showAddParameterModal, setShowAddParameterModal] = useState(false);
     const [showUserParameters, setShowUserParameters] = useState(false);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    const { operatorActiveUsers, activeBillingParameters, loading, error } = useAppData();
 
-    // Obtener datos al cargar el componente
-    useEffect(() => {
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    //Obtener informacion de la api
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const usersActive = await getData<UserDto[]>("/operator/users-actives");
-            setUserData(usersActive);
-            setFilteredData(usersActive);
-            const parametersActive = await getData<BillingParameter[]>("/operator/billing-parameter/active");
-            setParameterData(parametersActive)
-        } catch (error) {
-            console.error("Error fetching USER data:", error);
-            setError("Error al cargar los usuarios.");
-        } finally {
-            setLoading(false);
-        }
-    };
 
     // Hook para buscar por columnas 
-    const { filteredData, handleSearch, setFilteredData } = useSearch<UserDto>(
-            userData,
+    const { filteredData, handleSearch } = useSearch<UserDto>(
+            operatorActiveUsers,
             ["firstName", "lastName", "idUser"]
         );
 
@@ -115,7 +90,7 @@ const PendigBillsParameterPage = () => {
                         show={showAddParameterModal}
                         onHide={() => setShowAddParameterModal(false)}
                         onSave={handleSaveParameter}
-                        parameters={parameterData}
+                        parameters={activeBillingParameters}
                     />
 
                     {/* Vista de conceptos del usuario */}
@@ -123,7 +98,7 @@ const PendigBillsParameterPage = () => {
                         <UserParametersModal
                             show={showUserParameters}
                             onHide={() => setShowUserParameters(false)}
-                            parameters={parameterData}
+                            parameters={activeBillingParameters}
                             userName={`${selectedUser.firstName} ${selectedUser.lastName}`}
                             userId={selectedUser.idUser}
                         />

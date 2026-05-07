@@ -2,24 +2,42 @@ import axios from 'axios';
 import axiosInstance from '../../config/axiosConfig';
 import { WebApiResponse } from '../models/types/WebApiResponse';
 
+const pendingGetRequests = new Map<string, Promise<unknown>>();
+
 //Función para obtener datos
 export const getData = async <T>(endpoint: string): Promise<T> => {
-    const response = await axiosInstance.get<WebApiResponse<any>>(endpoint);
+    const pendingRequest = pendingGetRequests.get(endpoint);
+
+    if (pendingRequest) {
+        return pendingRequest as Promise<T>;
+    }
+
+    const request = axiosInstance
+        .get<WebApiResponse<T>>(endpoint)
+        .then((response) => {
+            if (response.data.success) {
+                return response.data.data;
+            }
+
+            throw new Error('Mensaje:' + response.data.message + 'Error:' + response.data.error);
+        })
+        .finally(() => {
+            pendingGetRequests.delete(endpoint);
+        });
+
+    pendingGetRequests.set(endpoint, request);
+
     try {
-        if (response.data.success) {
-            return response.data.data;
-        } else {
-            throw new Error('Mensaje:' + response.data.message + 'Error:' + response.data.error)
-        }
+        return await request;
     } catch (error) {
-        console.error('Error completo:', error); 
+        console.error('Error completo:', error);
         if (axios.isAxiosError(error)) {
             throw new Error(error.response?.data?.message || 'Error inesperado al obtener los datos');
-        } else {
-            // Si el error no es de Axios, lanzamos el error del servidor
-            throw new Error(response.data.message || 'Error de conexión');
         }
+
+        throw error instanceof Error ? error : new Error('Error de conexion');
     }
+
 }
 
 //Función para añadir datos

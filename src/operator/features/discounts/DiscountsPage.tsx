@@ -1,23 +1,18 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Button, Spinner } from "react-bootstrap";
 import { UserDto } from "../../../core/models/dto/UserDto";
-import { DiscountDto } from "../../../core/models/dto/Discount";
-import { getData } from "../../../core/services/apiService";
-import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import ShowDiscountUserModal from "./ShowDiscountUserModal";
 import AddDiscountModal from "./AddDiscountModal";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
 import { useSearch } from "../../../hooks/useSearch";
+import useAppData from "../../../hooks/useAppData";
 
 const DiscountsPage = () => {
 
     // Estados principales
-    const [users, setUsers] = useState<UserDto[]>([]);
-    const [discountData, setDiscountData] = useState<DiscountDto[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const { operatorActiveUsers, discounts, loading, error } = useAppData();
 
     // Estado para el modal
     const [showModal, setShowModal] = useState(false);
@@ -25,35 +20,9 @@ const DiscountsPage = () => {
     const [showAddDiscountModal, setShowAddDiscountModal] = useState(false);
 
 
-    // Obtener datos al cargar el componente
-    useEffect(() => {
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    // Obtener datos de la api
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            // Obtener usuarios
-            const users = await getData<UserDto[]>("/operator/users-actives");
-            setUsers(users);
-            setFilteredData(users);
-            // Obtener descuentos activos
-            const discountsActive = await getData<DiscountDto[]>("/operator/discounts");
-            setDiscountData(discountsActive);
-        } catch (error) {
-            console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al obtener la información");
-            setError("Error al cargar la información principal");
-        } finally {
-            setLoading(false);
-        }
-    };
-
     // Hook para buscar por columnas 
-    const { filteredData, handleSearch, setFilteredData } = useSearch<UserDto>(
-        users,
+    const { filteredData, handleSearch } = useSearch<UserDto>(
+        operatorActiveUsers,
         ["firstName", "lastName", "idUser"] // columnas filtrables
     );
 
@@ -111,7 +80,7 @@ const DiscountsPage = () => {
                         show={showAddDiscountModal}
                         onHide={() => setShowAddDiscountModal(false)}
                         user={selectedUser!}
-                        discounts={discountData}
+                        discounts={discounts}
                     />
 
                     {/* Vista de descuentos del usuario */}
@@ -120,7 +89,7 @@ const DiscountsPage = () => {
                             show={showModal}
                             onHide={() => setShowModal(false)}
                             user={selectedUser}
-                            discounts={discountData}
+                            discounts={discounts}
                         />
                     )}
                 </div>

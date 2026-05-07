@@ -1,58 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Button, Form, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { UserDto } from "../../../../core/models/dto/UserDto";
-import { addData, getData } from "../../../../core/services/apiService";
+import { addData } from "../../../../core/services/apiService";
 import ReusableTable from "../../../../shared/components/table/ReusableTable";
 import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
 import AddReadingModal from "./AddReadingModal";
 import SearchBar from "../../../../shared/components/searcher/SearchBar";
 import { useSearch } from "../../../../hooks/useSearch";
+import useAppData from "../../../../hooks/useAppData";
 
 const ReadingTakePage: React.FC = () => {
 
     // Estados
-    const [users, setUsers] = useState<UserDto[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const [showAddReadingModal, setShowAddReadingModal] = useState(false);
     // Filtros
     const [selectedStreet, setSelectedStreet] = useState<string>("");
     const [selectedDistrict, setSelectedDistrict] = useState<string>("");
-    const [uniqueStreets, setUniqueStreets] = useState<string[]>([]);
-    const [uniqueDistricts, setUniqueDistricts] = useState<string[]>([]);
+    const { operatorReadingUsers, loading, error, refreshOperatorReadingUsers } = useAppData();
 
-    // Obtener datos al cargar el componente
-    useEffect(() => {
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    // Obtener usuarios de la API
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const users = await getData<UserDto[]>("/operator/users-reading");
-            setUsers(users);
-            setFilteredData(users);
-            // Extraer calles y distritos únicos
-            const streets = Array.from(new Set(users.map(u => u.residenceDto.street).filter(s => s)));
-            const districts = Array.from(new Set(users.map(u => u.residenceDto.district).filter(d => d)));
-            setUniqueStreets(streets as string[]);
-            setUniqueDistricts(districts as string[]);
-        } catch (error) {
-            console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al obtener la información");
-            setError("Error al cargar la información principal");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const uniqueStreets = useMemo(
+        () => Array.from(new Set(operatorReadingUsers.map(u => u.residenceDto?.street).filter(Boolean))) as string[],
+        [operatorReadingUsers]
+    );
+    const uniqueDistricts = useMemo(
+        () => Array.from(new Set(operatorReadingUsers.map(u => u.residenceDto?.district).filter(Boolean))) as string[],
+        [operatorReadingUsers]
+    );
 
     // Hook reutilizable de búsqueda + filtros
-  const { filteredData, handleSearch, setFilteredData } = useSearch<UserDto>(
-    users,
+  const { filteredData, handleSearch } = useSearch<UserDto>(
+    operatorReadingUsers,
     [ "firstName", "lastName", "idUser" ],
     { "residenceDto.street": selectedStreet || null, "residenceDto.district": selectedDistrict || null, }
   );
@@ -60,34 +39,10 @@ const ReadingTakePage: React.FC = () => {
     // Manejar añadir nueva lectura
     const handleAddReading = async (idUser: number, readingValue: number) => {
         try {
-            // Guardar filtros actuales
-            const currentStreet = selectedStreet;
-            const currentDistrict = selectedDistrict;
-
             await addData(`/operator/register-reading-active/${idUser}/${readingValue}`, {});
             toast.success("Lectura creada exitosamente");
             setShowAddReadingModal(false);
-
-            // 🔹 Recargar datos desde la API
-            await fetchData();
-
-            // 🔹 Reaplicar filtros
-            if (currentStreet || currentDistrict) {
-                setFilteredData(() => {
-                    let filtered = users;
-                    if (currentStreet) {
-                        filtered = filtered.filter(user =>
-                            user.residenceDto.street === currentStreet
-                        );
-                    }
-                    if (currentDistrict) {
-                        filtered = filtered.filter(user =>
-                            user.residenceDto.district === currentDistrict
-                        );
-                    }
-                    return filtered;
-                });
-            }
+            await refreshOperatorReadingUsers();
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al guardar la lectura");
