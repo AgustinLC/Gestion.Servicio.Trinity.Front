@@ -6,10 +6,9 @@ import { Button, Form, Spinner } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { ServiceUnitDto } from "../../../core/models/dto/ServiceUnitDto";
 import AddEditServiceUnitModal from "./AddEditServiceUnitModal";
-import { Service } from "../../../core/models/dto/Service";
-import { Unit } from "../../../core/models/dto/Unit";
 import { Link } from "react-router-dom";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
+import useAppData from "../../../hooks/useAppData";
 
 const ServicesUnitsPage = () => {
 
@@ -19,13 +18,12 @@ const ServicesUnitsPage = () => {
     const [serviceUnitToDelete, setServiceUnitToDelete] = useState<ServiceUnitDto | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [servicesData, setServicesData] = useState<Service[]>([])
-    const [unitiesData, setUnitiesData] = useState<Unit[]>([])
     const [showServiceEditModal, setShowServiceEditModal] = useState(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [showConfirmActiveModal, setShowConfirmActiveModal] = useState(false);
     const [serviceUnitToUpdate, setServiceUnitToUpdate] = useState<ServiceUnitDto | null>(null);
+    const { adminServices, adminUnits } = useAppData();
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -39,12 +37,6 @@ const ServicesUnitsPage = () => {
             // Obtener relacion entre servicios y unidades
             const servicesUnities = await getData<ServiceUnitDto[]>("/admin/servicesUnits");
             setServiceUnitData(servicesUnities);
-            // Obtener servicios
-            const services = await getData<Service[]>("admin/services");
-            setServicesData(services);
-            // Obtener unidades
-            const unities = await getData<Unit[]>("admin/unities");
-            setUnitiesData(unities);
         } catch (error) {
             console.error("Error fetching ServiceUnit data:", error);
             setError("Error al cargar los servicios y las unidades.");
@@ -178,8 +170,8 @@ const ServicesUnitsPage = () => {
                             onHide={() => setShowServiceEditModal(false)}
                             onSave={handleSave}
                             serviceUnit={selectedServiceUnit}
-                            services={servicesData}
-                            unities={unitiesData}
+                            services={adminServices}
+                            unities={adminUnits}
                         />
 
                         {/* Modal de Confirmación para Cambiar Estado */}

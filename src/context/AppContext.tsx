@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useCallback, useEffect, useState } from "react";
+import React, { createContext, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { getData } from "../core/services/apiService";
 import { UserDto } from "../core/models/dto/UserDto";
@@ -25,10 +25,17 @@ interface AppContextProps {
     loading: boolean;
     error: string | null;
     refreshAppData: () => Promise<void>;
+    refreshOperatorUserLists: () => Promise<void>;
     refreshOperatorUsers: () => Promise<void>;
     refreshOperatorActiveUsers: () => Promise<void>;
     refreshOperatorReadingUsers: () => Promise<void>;
+    refreshDiscounts: () => Promise<void>;
+    refreshActiveBillingParameters: () => Promise<void>;
     refreshFees: () => Promise<void>;
+    refreshAdminServices: () => Promise<void>;
+    refreshAdminUnits: () => Promise<void>;
+    refreshCurrentUser: () => Promise<void>;
+    refreshCurrentUserReadings: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined);
@@ -62,6 +69,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const [currentUserReadings, setCurrentUserReadings] = useState<ReadReadingDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const loadedSessionKeyRef = useRef<string | null>(null);
 
     const resetData = useCallback(() => {
         setOperatorUsers(emptyData.operatorUsers);
@@ -97,6 +105,48 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const feeData = await getData<FeeDto[]>("/operator/fee");
         setFees(feeData);
     }, []);
+
+    const refreshDiscounts = useCallback(async () => {
+        const discountData = await getData<DiscountDto[]>("/operator/discounts");
+        setDiscounts(discountData);
+    }, []);
+
+    const refreshActiveBillingParameters = useCallback(async () => {
+        const parameterData = await getData<BillingParameter[]>("/operator/billing-parameter/active");
+        setActiveBillingParameters(parameterData);
+    }, []);
+
+    const refreshAdminServices = useCallback(async () => {
+        const services = await getData<Service[]>("/admin/services");
+        setAdminServices(services);
+    }, []);
+
+    const refreshAdminUnits = useCallback(async () => {
+        const units = await getData<Unit[]>("/admin/unities");
+        setAdminUnits(units);
+    }, []);
+
+    const refreshCurrentUser = useCallback(async () => {
+        if (!userId) return;
+
+        const user = await getData<UserDto>(`/user/${userId}`);
+        setCurrentUser(user);
+    }, [userId]);
+
+    const refreshCurrentUserReadings = useCallback(async () => {
+        if (!userId) return;
+
+        const readings = await getData<ReadReadingDto[]>(`/user/readings/${userId}`);
+        setCurrentUserReadings(readings);
+    }, [userId]);
+
+    const refreshOperatorUserLists = useCallback(async () => {
+        await Promise.all([
+            refreshOperatorUsers(),
+            refreshOperatorActiveUsers(),
+            refreshOperatorReadingUsers(),
+        ]);
+    }, [refreshOperatorActiveUsers, refreshOperatorReadingUsers, refreshOperatorUsers]);
 
     const loadOperatorData = useCallback(async () => {
         const [
@@ -177,9 +227,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
     }, [isAuthenticated, loadAdminData, loadOperatorData, loadUserData, resetData, userRole]);
 
+    const sessionKey = isAuthenticated && userRole ? `${userRole}:${userId ?? ""}` : null;
+
     useEffect(() => {
+        if (!sessionKey) {
+            loadedSessionKeyRef.current = null;
+            resetData();
+            return;
+        }
+
+        if (loadedSessionKeyRef.current === sessionKey) {
+            return;
+        }
+
+        loadedSessionKeyRef.current = sessionKey;
         refreshAppData();
-    }, [refreshAppData]);
+    }, [refreshAppData, resetData, sessionKey]);
 
     return (
         <AppContext.Provider
@@ -198,10 +261,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                 loading,
                 error,
                 refreshAppData,
+                refreshOperatorUserLists,
                 refreshOperatorUsers,
                 refreshOperatorActiveUsers,
                 refreshOperatorReadingUsers,
+                refreshDiscounts,
+                refreshActiveBillingParameters,
                 refreshFees,
+                refreshAdminServices,
+                refreshAdminUnits,
+                refreshCurrentUser,
+                refreshCurrentUserReadings,
             }}
         >
             {children}

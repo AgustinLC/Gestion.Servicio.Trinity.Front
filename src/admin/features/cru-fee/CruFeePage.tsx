@@ -1,39 +1,19 @@
-import { useEffect, useState } from "react";
-import { addData, getData, updateData } from "../../../core/services/apiService";
+import { useState } from "react";
+import { addData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { Button, Spinner } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { FeeDto } from "../../../core/models/dto/FeeDto";
 import AddEditFeeModal from "./AddEditFeeModal";
+import useAppData from "../../../hooks/useAppData";
 
 const CrudFeePage = () => {
 
     //Estados
-    const [feeData, setFeeData] = useState<FeeDto[]>([])
     const [selectedFee, setSelectedFee] = useState<FeeDto | null>(null);
     const [showModal, setShowModal] = useState(false);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-
-    // Obtener datos al cargar el componente
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    //Obtener informacion de la api
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const response = await getData<FeeDto[]>("/operator/fee");
-            setFeeData(response);
-        } catch (error) {
-            console.error("Error fetching FEE data:", error);
-            setError("Error al cargar las tarifas.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { fees, loading, error, refreshFees } = useAppData();
 
     // Manejar añadir/editar
     const handleSave = async (fee: FeeDto) => {
@@ -50,7 +30,7 @@ const CrudFeePage = () => {
             }
             setSelectedFee(fee);
             setShowModal(false);
-            fetchData();
+            await refreshFees();
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al guardar la tarifa");
@@ -95,7 +75,7 @@ const CrudFeePage = () => {
 
                     {/* Tabla */}
                     <ReusableTable<FeeDto>
-                        data={feeData}
+                        data={fees}
                         columns={columns}
                         defaultSort="price"
                     />

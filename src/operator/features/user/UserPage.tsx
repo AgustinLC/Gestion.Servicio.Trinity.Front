@@ -16,12 +16,12 @@ const UserPage = () => {
     //Estados
     const [showModal, setShowModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
-    const { operatorUsers, locations, fees, loading, error, refreshAppData } = useAppData();
+    const { operatorUsers, locations, fees, loading, error, refreshOperatorUsers, refreshOperatorActiveUsers } = useAppData();
 
     // Hook para buscar por columnas 
     const { filteredData, handleSearch } = useSearch<UserDto>(
         operatorUsers,
-        ["firstName", "lastName", "idUser"] 
+        ["firstName", "lastName", "idUser"]
     );
 
     // Manejar añadir/editar
@@ -38,8 +38,10 @@ const UserPage = () => {
             // Solo se ejecuta si no hubo error
             setSelectedUser(user);
             setShowModal(false);
-            await refreshAppData();
-
+            // Se refresca para tablas que muestran todos los usuarios
+            await refreshOperatorUsers();
+            // Se refresca para tablas que muestran usuarios activos
+            await refreshOperatorActiveUsers();
         } catch (error: any) {
             console.error(error);
             toast.error(error.message || "Error al guardar el usuario");
