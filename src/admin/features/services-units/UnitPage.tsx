@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { addData, deleteData, getData, updateData } from "../../../core/services/apiService";
+import { addData, deleteData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { Button, Spinner } from "react-bootstrap";
@@ -8,40 +8,20 @@ import ReusableTable from "../../../shared/components/table/ReusableTable";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { Unit } from "../../../core/models/dto/Unit";
 import AddEditUnitModal from "./AddEditUnitModal";
+import useAppData from "../../../hooks/useAppData";
 
 const UnitPage = () => {
 
     //Estados
-    const [unitData, setUnitData] = useState<Unit[]>([])
     const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [unitToDelete, setUnitToDelete] = useState<Unit | null>(null);
     const [showModal, setShowModal] = useState(false);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const { adminUnits, loading, error, refreshAdminUnits } = useAppData();
 
     // Constantes
     const navigate = useNavigate();
-
-    // Obtener datos al cargar el componente
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    //Obtener informacion de la api
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const response = await getData<Unit[]>("/admin/unities");
-            setUnitData(response);
-        } catch (error) {
-            console.error("Error fetching feature data:", error);
-            setError("Error al cargar las unidades.");
-        } finally {
-            setLoading(false);
-        }
-    };
 
     //Manejar eliminación
     const handleDelete = async () => {
@@ -50,7 +30,7 @@ const UnitPage = () => {
         try {
             await deleteData("/admin/delete-unit?idUnit", unitToDelete.idUnit);
             toast.success("Unidad eliminada exitosamente");
-            fetchData();
+            await refreshAdminUnits();
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al eliminar la unidad");
@@ -76,7 +56,7 @@ const UnitPage = () => {
             }
             setSelectedUnit(unit);
             setShowModal(false);
-            fetchData();
+            await refreshAdminUnits();
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al guardar la unidad");
@@ -126,7 +106,7 @@ const UnitPage = () => {
 
                     {/* Tabla */}
                     <ReusableTable<Unit>
-                        data={unitData}
+                        data={adminUnits}
                         columns={columns}
                         defaultSort="idUnit"
                     />

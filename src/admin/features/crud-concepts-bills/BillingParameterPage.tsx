@@ -52,7 +52,7 @@ const BillingParameterPage = () => {
             }
             setSelectedBillingParameter(billingParameter);
             setShowModal(false);
-            fetchData();
+            await fetchData();
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al guardar el parametro de facturación");

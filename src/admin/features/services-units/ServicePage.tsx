@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { addData, deleteData, getData, updateData } from "../../../core/services/apiService";
+import { addData, deleteData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { Button, Spinner } from "react-bootstrap";
@@ -8,40 +8,20 @@ import ReusableTable from "../../../shared/components/table/ReusableTable";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { Service } from "../../../core/models/dto/Service";
 import AddEditServiceModal from "./AddEditServiceModal";
+import useAppData from "../../../hooks/useAppData";
 
 const ServicePage = () => {
 
     //Estados
-    const [serviceData, setServiceData] = useState<Service[]>([])
     const [selectedService, setSelectedService] = useState<Service | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
     const [showModal, setShowModal] = useState(false);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const { adminServices, loading, error, refreshAdminServices } = useAppData();
 
     // Constantes
     const navigate = useNavigate();
-
-    // Obtener datos al cargar el componente
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    //Obtener informacion de la api
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const response = await getData<Service[]>("/admin/services");
-            setServiceData(response);
-        } catch (error) {
-            console.error("Error fetching feature data:", error);
-            setError("Error al cargar los servicios.");
-        } finally {
-            setLoading(false);
-        }
-    };
 
     //Manejar eliminación
     const handleDelete = async () => {
@@ -50,7 +30,7 @@ const ServicePage = () => {
         try {
             await deleteData("/admin/delete-service?idService", serviceToDelete.idService);
             toast.success("Servicio eliminado exitosamente");
-            fetchData();
+            await refreshAdminServices();
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al eliminar el servicio");
@@ -76,7 +56,7 @@ const ServicePage = () => {
             }
             setSelectedService(service);
             setShowModal(false);
-            fetchData();
+            await refreshAdminServices();
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al guardar el servicio");
@@ -125,7 +105,7 @@ const ServicePage = () => {
 
                     {/* Tabla */}
                     <ReusableTable<Service>
-                        data={serviceData}
+                        data={adminServices}
                         columns={columns}
                         defaultSort="idService"
                     />

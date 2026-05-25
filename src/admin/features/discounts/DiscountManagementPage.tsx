@@ -1,43 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DiscountDto } from "../../../core/models/dto/Discount";
-import { addData, getData, updateData } from "../../../core/services/apiService";
+import { addData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { Button, Spinner } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import AddEditDiscountModal from "./AddEditDiscountModal";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
+import useAppData from "../../../hooks/useAppData";
 
 const DiscountManagementPage = () => {
 
     // Estados 
-    const [discount, setDiscount] = useState<DiscountDto[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const [selectedDiscount, setSelectedDiscount] = useState<DiscountDto | null>(null);
     const [showModal, setShowModal] = useState(false);
-
-    // Obtener datos al cargar el componente
-    useEffect(() => {
-        fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    //Obtener datos de la api 
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            // Obtener descuentos 
-            const discounts = await getData<DiscountDto[]>("/operator/discounts");
-            setDiscount(discounts);
-        } catch (error) {
-            console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al obtener la información");
-            setError("Error al cargar la información principal");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { discounts, loading, error, refreshDiscounts } = useAppData();
 
     // Manejar añadir/editar
     const handleSave = async (discount: DiscountDto) => {
@@ -55,7 +32,7 @@ const DiscountManagementPage = () => {
             // Solo se ejecuta si no hubo error
             setSelectedDiscount(discount);
             setShowModal(false);
-            fetchData();
+            await refreshDiscounts();
 
         } catch (error: any) {
             console.error(error);
@@ -98,7 +75,7 @@ const DiscountManagementPage = () => {
 
                     {/* Tabla */}
                     <ReusableTable<DiscountDto>
-                        data={discount}
+                        data={discounts}
                         columns={columns}
                         defaultSort="idDiscount"
                     />

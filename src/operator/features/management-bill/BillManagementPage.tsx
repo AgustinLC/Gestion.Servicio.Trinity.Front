@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button, Spinner } from "react-bootstrap";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
-import { addData, getData } from "../../../core/services/apiService";
+import { addData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
@@ -9,12 +9,11 @@ import ReusableTable from "../../../shared/components/table/ReusableTable";
 import BillActiveModal from "./BillActiveModal";
 import BillNullModal from "./BillNullModal";
 import { useSearch } from "../../../hooks/useSearch";
+import useAppData from "../../../hooks/useAppData";
 
 const BillManagementPage = () => {
     // Estados existentes
-    const [users, setUsers] = useState<UserDto[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const { operatorUsers, loading, error } = useAppData();
     const [showBillActiveModal, setShowBillActiveModal] = useState(false);
     const [showBillNullModal, setShowBillNullModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
@@ -23,37 +22,10 @@ const BillManagementPage = () => {
     // Hook para generar PDFs
     //const { isGenerating: pdfLoading, generateMultiplePdf } = useBillPdfGenerator();
 
-    // Obtener datos al cargar el componente
-    useEffect(() => {
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    // Obtener datos de la api
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const users = await getData<UserDto[]>("/operator/users");
-            setUsers(users);
-            setFilteredData(users);
-        } catch (error) {
-            handleError(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Manejar error genérico
-    const handleError = (error: unknown) => {
-        console.error(error);
-        const errorMessage = error instanceof Error ? error.message : "Error desconocido";
-        toast.error(errorMessage);
-        setError("Error al cargar la información principal");
-    };
 
     // Hook para buscar por columnas 
-    const { filteredData, handleSearch, setFilteredData } = useSearch<UserDto>(
-        users,
+    const { filteredData, handleSearch } = useSearch<UserDto>(
+        operatorUsers,
         ["firstName", "lastName", "idUser"] // columnas filtrables
     );
 

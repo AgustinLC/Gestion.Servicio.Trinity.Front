@@ -1,8 +1,8 @@
 // components/UserSearchInput.tsx
 import { useState, useEffect, useMemo } from 'react';
 import { Form, Spinner, ListGroup, Button, Alert } from 'react-bootstrap';
-import { getData } from '../../../core/services/apiService';
 import { UserDto } from '../../../core/models/dto/UserDto';
+import useAppData from '../../../hooks/useAppData';
 
 interface UserSearchInputProps { onUserSelected: (userId: number | null) => void; }
 
@@ -10,28 +10,9 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
 
     // Estados
     const [searchTerm, setSearchTerm] = useState('');
-    const [allUsers, setAllUsers] = useState<UserDto[]>([]);
     const [filteredUsers, setFilteredUsers] = useState<UserDto[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState('');
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
-
-    // Obtener datos de la api al montar el componente
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const users = await getData<UserDto[]>("/operator/users-actives");
-                setAllUsers(users);
-                setError('');
-            } catch (error) {
-                setError(`Error cargando usuarios: ${error instanceof Error ? error.message : 'Error desconocido'}`);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
+    const { operatorActiveUsers, loading: isLoading, error } = useAppData();
 
     const filteredResults = useMemo(() => {
         if (searchTerm.length < 1) return [];
@@ -39,7 +20,7 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
         const term = searchTerm.trim().toLowerCase();
         const numericTerm = searchTerm.replace(/\D/g, ""); // solo números
 
-        return allUsers.filter(user => {
+        return operatorActiveUsers.filter(user => {
             const conexMatch = numericTerm
                 ? user.idUser.toString().includes(numericTerm)
                 : false;
@@ -49,7 +30,7 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
 
             return conexMatch || nameMatch;
         }).slice(0, 5);
-    }, [searchTerm, allUsers]);
+    }, [searchTerm, operatorActiveUsers]);
 
     // Filtrar usuarios localmente con debounce
     useEffect(() => {
@@ -86,7 +67,7 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
                 </div>
             )}
 
-            {error && <Alert variant="danger" className="mb-2">{error}</Alert>}
+            {error && <Alert variant="danger" className="mb-2">{`Error cargando usuarios: ${error}`}</Alert>}
 
             <Form.Control
                 type="search"
