@@ -1,6 +1,5 @@
 export interface PeriodSelectorDto {
     idPeriod: number;
-    periodNumber: number;
-    dateRegister: string;
+    label: string;
     active: boolean;
 }

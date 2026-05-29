@@ -115,18 +115,6 @@ const Resume = () => {
         { name: "Impagas", value: billChartData?.unpaidBills || 0, color: "#dc3545" },
     ], [billChartData]);
 
-    // Función para formatear la fecha del periodo
-    const formatPeriodLabel = (date: string) => {
-        const formatted = new Date(date).toLocaleDateString(
-            "es-AR",
-            {
-                month: "long",
-                year: "numeric"
-            }
-        );
-        return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-    };
-
     // Render
     return (
         <div>
@@ -197,7 +185,7 @@ const Resume = () => {
                                                     key={period.idPeriod}
                                                     value={period.idPeriod}
                                                 >
-                                                    {formatPeriodLabel(period.dateRegister)}
+                                                    {period.label}
                                                     {period.active ? " (Actual)" : ""}
 
                                                 </option>
