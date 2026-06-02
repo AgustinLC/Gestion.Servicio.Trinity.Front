@@ -3,6 +3,8 @@ import { Card, Row, Col, Spinner } from "react-bootstrap";
 import { useEffect, useMemo, useState } from "react";
 import { ResumeDto } from "../../../core/models/dto/ResumeDto";
 import { getData } from "../../../core/services/apiService";
+import { PeriodSelectorDto } from "../../../core/models/dto/PeriodSelectorDto";
+import { BillCountsDto } from "../../../core/models/dto/BillCountDto";
 
 const Resume = () => {
     //Estados
@@ -10,6 +12,10 @@ const Resume = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [chartSize, setChartSize] = useState({ width: 500, height: 300 })
+    const [periods, setPeriods] = useState<PeriodSelectorDto[]>([]);
+    const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null);
+    const [billChartData, setBillChartData] = useState<BillCountsDto | null>(null);
+    const [loadingChart, setLoadingChart] = useState(false);
 
     // Función para actualizar el tamaño de los gráficos
     const updateChartSize = () => {
@@ -28,7 +34,7 @@ const Resume = () => {
     }, []);
 
     // Función para obtener el resumen de los datos
-    const fetchResumes = async () => {
+    const fetchResume = async () => {
         setLoading(true);
         try {
             const resume = await getData<ResumeDto>('/operator/resume-supplier');
@@ -41,10 +47,49 @@ const Resume = () => {
         }
     };
 
-    // Hook para obtener el resumen al cargar el componente
+    // Función para obtener los periodos al cargar el componente
+    const fetchPeriods = async () => {
+        try {
+            const response = await getData<PeriodSelectorDto[]>('/operator/periods');
+            setPeriods(response);
+            const activePeriod = response.find(p => p.active);
+            if (activePeriod) {
+                setSelectedPeriod(activePeriod.idPeriod);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error al obtener los períodos");
+        }
+    };
+
+    // Función para obtener las facturas por periodo
+    const fetchBillChart = async (idPeriod: number) => {
+        setLoadingChart(true);
+        try {
+            const response = await getData<BillCountsDto>(
+                `/operator/bill-counts/${idPeriod}`
+            );
+            setBillChartData(response);
+        } catch (error) {
+            console.error(error);
+            alert("Error al obtener gráfico de facturas");
+        } finally {
+            setLoadingChart(false);
+        }
+    };
+
+    // Efecto para obtener el resumen al cargar el componente
     useEffect(() => {
-        fetchResumes();
+        fetchResume();
+        fetchPeriods();
     }, []);
+
+    // Efecto para obtener el gráfico de facturas al seleccionar un periodo
+    useEffect(() => {
+        if (selectedPeriod) {
+            fetchBillChart(selectedPeriod);
+        }
+    }, [selectedPeriod]);
 
     // Datos para las tarjetas
     const summaryData = useMemo(() => [
@@ -66,10 +111,9 @@ const Resume = () => {
 
     // Datos para el gráfico de pastel
     const invoicesData = useMemo(() => [
-        { name: "Pagas en término", value: data?.billsPaid || 0, color: "#28a745" },
-        { name: "Pagas fuera de término", value: data?.billsPaidLate || 0, color: "#ffc707" },
-        { name: "Impagas", value: data?.unpaidBills || 0, color: "#dc3545" },
-    ], [data]);
+        { name: "Pagas", value: billChartData?.paidBills || 0, color: "#28a745" },
+        { name: "Impagas", value: billChartData?.unpaidBills || 0, color: "#dc3545" },
+    ], [billChartData]);
 
     // Render
     return (
@@ -106,7 +150,7 @@ const Resume = () => {
                     <Row>
                         {/* Gráfico de barras: Lecturas realizadas por mes */}
                         <Col md={8} className="mb-4">
-                            <Card>
+                            <Card className="h-100">
                                 <Card.Body>
                                     <Card.Title>Cantidad de usuarios x tarifa</Card.Title>
                                     <ResponsiveContainer width="100%" height={chartSize.height}>
@@ -124,20 +168,64 @@ const Resume = () => {
 
                         {/* Gráfico de pastel: Facturas pagas vs impagas */}
                         <Col md={4} className="mb-4">
-                            <Card>
+                            <Card className="h-100">
                                 <Card.Body>
-                                    <Card.Title>Facturas Pagas vs Impagas</Card.Title>
-                                    <ResponsiveContainer width="100%" height={chartSize.height}>
-                                        <PieChart>
-                                            <Pie data={invoicesData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8" label>
-                                                {invoicesData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip />
-                                            <Legend />
-                                        </PieChart>
-                                    </ResponsiveContainer>
+                                    {/* Header */}
+                                    <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                                        <Card.Title className="mb-0"> Facturas Pagas/Impagas</Card.Title>
+                                        <select
+                                            className="form-select w-auto"
+                                            value={selectedPeriod ?? ""}
+                                            onChange={(e) =>
+                                                setSelectedPeriod(Number(e.target.value))
+                                            }
+                                        >
+                                            {periods.map((period) => (
+                                                <option
+                                                    key={period.idPeriod}
+                                                    value={period.idPeriod}
+                                                >
+                                                    {period.label}
+                                                    {period.active ? " (Actual)" : ""}
+
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* Gráfico */}
+                                    {loadingChart ? (
+                                        <div className="d-flex justify-content-center align-items-center" style={{ height: chartSize.height }}>
+                                            <Spinner animation="border" />
+                                        </div>
+                                    ) : (
+                                        <ResponsiveContainer width="100%" height={chartSize.height}>
+                                            <PieChart>
+                                                <Pie
+                                                    data={invoicesData}
+                                                    dataKey="value"
+                                                    nameKey="name"
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    outerRadius={80}
+                                                    fill="#8884d8"
+                                                    label
+                                                >
+
+                                                    {invoicesData.map((entry, index) => (
+
+                                                        <Cell
+                                                            key={`cell-${index}`}
+                                                            fill={entry.color}
+                                                        />
+
+                                                    ))}
+                                                </Pie>
+                                                <Tooltip />
+                                                <Legend />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    )}
                                 </Card.Body>
                             </Card>
                         </Col>
