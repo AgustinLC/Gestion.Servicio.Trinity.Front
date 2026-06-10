@@ -9,7 +9,7 @@ import ReusableTable from "../../../../shared/components/table/ReusableTable";
 import { useSearch } from "../../../../hooks/useSearch";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
-type AlertType = | "danger" | "warning" | "secondary" | null; //Tipos para alertas de estados de las lecturas
+type AlertType = | "decreasing" | "duplicate" | "jump" | "missing" | null; //Tipos para alertas de estados de las lecturas
 
 const ReadingControlPage = () => {
 
@@ -17,6 +17,7 @@ const ReadingControlPage = () => {
     const [data, setData] = useState<ReadingMatrixDto | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [alertFilter, setAlertFilter] = useState("all");
 
     // Funcion para obterner los datos
     const getReadingMatrix = async () => {
@@ -58,6 +59,100 @@ const ReadingControlPage = () => {
         tableData,
         ["idUser", "fullName"]
     );
+
+    // Funcion para determinar el estado de la lectura
+    const getReadingAlert = (
+        row: ReadingMatrixTableRow,
+        index: number
+    ): AlertType => {
+        const current = row[`period${index}`] as number | null;
+        // Lectura faltante
+        if (current === null) {
+            return "missing";
+        }
+        if (index === 0) {
+            return null;
+        }
+        const previous = row[`period${index - 1}`] as number | null;
+        if (previous === null) {
+            return null;
+        }
+        // Lectura menor
+        if (current < previous) {
+            return "decreasing";
+        }
+        // Lectura repetida
+        if (current === previous) {
+            return "duplicate";
+        }
+        // Salto grande
+        if (current - previous > 500) {
+            return "jump";
+        }
+        return null;
+    };
+
+    // Funcion para convertir el tipo de alerta a clase de bootstrap
+    const getAlertClass = (
+        alert: AlertType
+    ) => {
+
+        switch (alert) {
+
+            case "decreasing":
+                return "bg-danger text-white";
+            case "duplicate":
+                return "bg-dark text-white";
+            case "jump":
+                return "bg-warning";
+            case "missing":
+                return "bg-secondary text-white";
+            default:
+                return "";
+        }
+    };
+
+    const alertFilters = [
+        { value: "all", label: "Todas" },
+        { value: "anomalies", label: "Solo inconsistencias" },
+        { value: "decreasing", label: "Lecturas decrecientes" },
+        { value: "duplicate", label: "Lecturas repetidas" },
+        { value: "jump", label: "Saltos de consumo" },
+        { value: "missing", label: "Lecturas faltantes" }
+    ];
+
+    // Determina si la fila tiene una alerta
+    const hasAlertType = (
+        row: ReadingMatrixTableRow,
+        type: string
+    ) => {
+
+        if (!data) return false;
+
+        return data.periods.some((_, index) => {
+            const alert = getReadingAlert(row, index);
+
+            if (type === "anomalies")
+                return alert !== null;
+
+            return alert === type;
+        });
+    };
+
+    // Mostrar los datos segun el filtro de alerta seleccionado 
+    const visibleData = useMemo(() => {
+        const filtered = filteredData.filter(row => {
+
+            if (alertFilter === "all") {
+                return true;
+            }
+            return hasAlertType(row, alertFilter);
+        });
+        return filtered.sort(
+            (a, b) => a.idUser - b.idUser
+        );
+
+    }, [filteredData, alertFilter, data]);
 
     // Datos de las columnas para la tabla
     const columns: TableColumnDefinition<ReadingMatrixTableRow>[] = useMemo(() => {
@@ -104,16 +199,11 @@ const ReadingControlPage = () => {
 
     }, [data]);
 
-    // Ordenar los datos por numero de conexion 
-    const sortedData = [...filteredData].sort(
-        (a, b) => a.idUser - b.idUser
-    );
-
     // Funcion para exportar datos a excel 
     const exportToExcel = () => {
         if (!data || tableData.length === 0) return;
 
-        const excelData = sortedData.map(row => {
+        const excelData = visibleData.map(row => {
             const excelRow: Record<string, any> = {
                 "N° Conexión": row.idUser,
                 "Usuario": row.fullName
@@ -151,60 +241,6 @@ const ReadingControlPage = () => {
         );
     };
 
-    // Funcion para determinar el estado de la lectura
-    const getReadingAlert = (
-        row: ReadingMatrixTableRow,
-        index: number
-    ): AlertType => {
-
-        const current = row[`period${index}`] as number | null;
-
-        // Lectura faltante
-        if (current === null) {
-            return "secondary";
-        }
-        // Primera columna
-        if (index === 0) {
-            return null;
-        }
-        const previous = row[`period${index - 1}`] as number | null;
-
-        if (previous === null) {
-            return null;
-        }
-        // Lectura menor
-        if (current < previous) {
-            return "danger";
-        }
-        // Consumo anormal
-        if ((current - previous) > 500) {
-            return "warning";
-        }
-
-        return null;
-    };
-
-    // Funcion para convertir el tipo de alerta a clase de bootstrap
-    const getAlertClass = (
-        alert: AlertType
-    ) => {
-
-        switch (alert) {
-
-            case "danger":
-                return "bg-danger text-white";
-
-            case "warning":
-                return "bg-warning";
-
-            case "secondary":
-                return "bg-secondary text-white";
-
-            default:
-                return "";
-        }
-    };
-
     return (
         <div>
             <h1 className="text-center">Lecturas por período</h1>
@@ -220,13 +256,20 @@ const ReadingControlPage = () => {
                     {/* Barra de busqueda y filtros */}
                     <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
                         <SearchBar onSearch={handleSearch} />
+                        <select className="form-select" style={{ maxWidth: "250px" }} value={alertFilter} onChange={(e) => setAlertFilter(e.target.value)} >
+                            {alertFilters.map(filter => (
+                                <option key={filter.value} value={filter.value} >
+                                    {filter.label}
+                                </option>
+                            ))}
+                        </select>
                         <Button variant="success" onClick={exportToExcel}>
                             Exportar a Excel
                         </Button>
                     </div>
                     {/* Tabla de usuarios */}
                     <ReusableTable
-                        data={filteredData}
+                        data={visibleData}
                         columns={columns}
                         defaultSort="idUser"
                     />
