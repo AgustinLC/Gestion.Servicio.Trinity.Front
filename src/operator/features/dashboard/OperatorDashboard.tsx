@@ -174,11 +174,11 @@ const DashboardOperator: React.FC = () => {
                         </li>
                     </OverlayTrigger>
 
-                    {/* Avisos de Corte */}
+                    {/* Deudores */}
                     <li className="nav-item">
                         <Link to="/dashboard/operator/debt-disconnection" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/debt-disconnection" ? "active" : ""}`} onClick={() => setSidebarOpen(false)}>
                             <i className="bi bi-exclamation-triangle fs-4"></i>
-                            <span className="ms-2 d-lg-inline">Avisos de Corte</span>
+                            <span className="ms-2 d-lg-inline">Deudores</span>
                         </Link>
                     </li>
 

@@ -1,5 +1,5 @@
 import { Document, Page, View, Text, Font } from '@react-pdf/renderer';
-import { UserDto } from '../../../../core/models/dto/UserDto';
+import { UserDebtDto, DebtItemDto } from '../../../../core/models/dto/UserDebtDto';
 import { styles } from './styles';
 
 Font.registerHyphenationCallback(word => [word]);
@@ -10,7 +10,7 @@ Font.registerHyphenationCallback(word => [word]);
 
 export interface DebtPdfProps {
     debts: Array<{
-        user: UserDto;
+        user: UserDebtDto;
         date?: string | Date;
         periodsOwed?: number;
     }>;
@@ -38,54 +38,106 @@ const formatNumber = (value: number): string => {
     });
 };
 
-const getDebtGridData = (periodsOwed: number) => {
-    const grid2025 = {
-        'ENER/FEBR': 0,
-        'MAR/ABR': 0,
-        'MAYO/JUN': 0,
-        'JULIO/AGOS': 0,
-        'SEP/OCT': 0,
-        'NOV/DIC': 0
-    };
+const mapPeriodToColumn = (periodName: string): string | null => {
+    const p = periodName.toLowerCase();
+    if (p.includes('ener') || p.includes('febr')) return 'ENER/FEBR';
+    if (p.includes('marz') || p.includes('abril')) return 'MAR/ABR';
+    if (p.includes('mayo') || p.includes('jun')) return 'MAYO/JUN';
+    if (p.includes('jul') || p.includes('agos')) return 'JULIO/AGOS';
+    if (p.includes('sept') || p.includes('oct')) return 'SEP/OCT';
+    if (p.includes('nov') || p.includes('dic')) return 'NOV/DIC';
+    return null;
+};
 
-    const grid2024 = {
-        'ENER/FEBR': 0,
-        'MAR/ABR': 0,
-        'MAYO/JUN': 0,
-        'JULIO/AGOS': 0,
-        'SEP/OCT': 0,
-        'NOV/DIC': 0
-    };
-
+const getDebtGridData = (periodsOwed: number, debts?: DebtItemDto[]) => {
+    const grid: Record<number, Record<string, number>> = {};
     let totalAmount = 0;
 
-    // Distribución simulada para que coincida visualmente con el tipo de deuda
+    if (debts && debts.length > 0) {
+        debts.forEach(d => {
+            const date = d.expirationDate ? new Date(d.expirationDate) : new Date();
+            const year = date.getFullYear();
+            const col = mapPeriodToColumn(d.periodName);
+            if (col) {
+                if (!grid[year]) {
+                    grid[year] = {
+                        'ENER/FEBR': 0,
+                        'MAR/ABR': 0,
+                        'MAYO/JUN': 0,
+                        'JULIO/AGOS': 0,
+                        'SEP/OCT': 0,
+                        'NOV/DIC': 0
+                    };
+                }
+                grid[year][col] = (grid[year][col] || 0) + d.amount;
+            }
+            totalAmount += d.amount;
+        });
+
+        const years = Object.keys(grid).map(Number).sort((a, b) => b - a);
+        if (years.length === 0) {
+            const currentYear = new Date().getFullYear();
+            years.push(currentYear);
+            grid[currentYear] = {
+                'ENER/FEBR': 0,
+                'MAR/ABR': 0,
+                'MAYO/JUN': 0,
+                'JULIO/AGOS': 0,
+                'SEP/OCT': 0,
+                'NOV/DIC': 0
+            };
+        }
+
+        return { grid, years, totalAmount };
+    }
+
+    // Fallback: simulación original basada en el número de períodos adeudados
+    const currentYear = new Date().getFullYear();
+    const previousYear = currentYear - 1;
+
+    grid[currentYear] = {
+        'ENER/FEBR': 0,
+        'MAR/ABR': 0,
+        'MAYO/JUN': 0,
+        'JULIO/AGOS': 0,
+        'SEP/OCT': 0,
+        'NOV/DIC': 0
+    };
+    grid[previousYear] = {
+        'ENER/FEBR': 0,
+        'MAR/ABR': 0,
+        'MAYO/JUN': 0,
+        'JULIO/AGOS': 0,
+        'SEP/OCT': 0,
+        'NOV/DIC': 0
+    };
+
     if (periodsOwed === 1) {
-        grid2025['JULIO/AGOS'] = 25500.00;
+        grid[currentYear]['JULIO/AGOS'] = 25500.00;
         totalAmount = 25500.00;
     } else if (periodsOwed === 2) {
-        grid2025['MAYO/JUN'] = 12000.00;
-        grid2025['JULIO/AGOS'] = 13500.00;
+        grid[currentYear]['MAYO/JUN'] = 12000.00;
+        grid[currentYear]['JULIO/AGOS'] = 13500.00;
         totalAmount = 25500.00;
     } else if (periodsOwed >= 3) {
-        grid2025['MAR/ABR'] = 10000.00;
-        grid2025['MAYO/JUN'] = 12000.00;
-        grid2025['JULIO/AGOS'] = 13500.00;
+        grid[currentYear]['MAR/ABR'] = 10000.00;
+        grid[currentYear]['MAYO/JUN'] = 12000.00;
+        grid[currentYear]['JULIO/AGOS'] = 13500.00;
         totalAmount = 35500.00;
     }
 
-    return { grid2025, grid2024, totalAmount };
+    return { grid, years: [currentYear, previousYear], totalAmount };
 };
 
 // ============================================================================
 // COMPONENTE DE PÁGINA INDIVIDUAL - INTIMACIÓN
 // ============================================================================
 
-const DebtPage = ({ user, date, periodsOwed = 1 }: { user: UserDto; date?: string | Date; periodsOwed?: number }) => {
+const DebtPage = ({ user, date, periodsOwed = 1 }: { user: UserDebtDto; date?: string | Date; periodsOwed?: number }) => {
     const userFullName = `${user.lastName} ${user.firstName}`.toUpperCase();
     const domicile = `${user.residenceDto?.street || ''} ${user.residenceDto?.number || ''}`.trim() || 'SIN DOMICILIO';
 
-    const { grid2025, grid2024, totalAmount } = getDebtGridData(periodsOwed);
+    const { grid, years, totalAmount } = getDebtGridData(periodsOwed, user.debts);
     const administrativeExpenses = 1000.00;
     const finalTotal = totalAmount + administrativeExpenses;
 
@@ -144,26 +196,18 @@ const DebtPage = ({ user, date, periodsOwed = 1 }: { user: UserDto; date?: strin
                     <Text style={[styles.tableHeaderCell, styles.colGridBimestre]}>SEP/OCT</Text>
                     <Text style={[styles.tableHeaderCell, styles.colGridBimestre]}>NOV/DIC</Text>
                 </View>
-                {/* Fila 2025 */}
-                <View style={styles.tableRow}>
-                    <Text style={[styles.tableCell, styles.colGridAnio, styles.bold]}>2025</Text>
-                    <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid2025['ENER/FEBR'] > 0 ? `$ ${formatNumber(grid2025['ENER/FEBR'])}` : '-'}</Text>
-                    <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid2025['MAR/ABR'] > 0 ? `$ ${formatNumber(grid2025['MAR/ABR'])}` : '-'}</Text>
-                    <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid2025['MAYO/JUN'] > 0 ? `$ ${formatNumber(grid2025['MAYO/JUN'])}` : '-'}</Text>
-                    <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid2025['JULIO/AGOS'] > 0 ? `$ ${formatNumber(grid2025['JULIO/AGOS'])}` : '-'}</Text>
-                    <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid2025['SEP/OCT'] > 0 ? `$ ${formatNumber(grid2025['SEP/OCT'])}` : '-'}</Text>
-                    <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid2025['NOV/DIC'] > 0 ? `$ ${formatNumber(grid2025['NOV/DIC'])}` : '-'}</Text>
-                </View>
-                {/* Fila 2024 */}
-                <View style={styles.tableRow}>
-                    <Text style={[styles.tableCell, styles.colGridAnio, styles.bold]}>2024</Text>
-                    <Text style={[styles.tableCell, styles.colGridBimestre]}>-</Text>
-                    <Text style={[styles.tableCell, styles.colGridBimestre]}>-</Text>
-                    <Text style={[styles.tableCell, styles.colGridBimestre]}>-</Text>
-                    <Text style={[styles.tableCell, styles.colGridBimestre]}>-</Text>
-                    <Text style={[styles.tableCell, styles.colGridBimestre]}>-</Text>
-                    <Text style={[styles.tableCell, styles.colGridBimestre]}>-</Text>
-                </View>
+                {/* Filas de años */}
+                {years.map(yr => (
+                    <View style={styles.tableRow} key={yr}>
+                        <Text style={[styles.tableCell, styles.colGridAnio, styles.bold]}>{yr}</Text>
+                        <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid[yr]['ENER/FEBR'] > 0 ? `$ ${formatNumber(grid[yr]['ENER/FEBR'])}` : '-'}</Text>
+                        <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid[yr]['MAR/ABR'] > 0 ? `$ ${formatNumber(grid[yr]['MAR/ABR'])}` : '-'}</Text>
+                        <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid[yr]['MAYO/JUN'] > 0 ? `$ ${formatNumber(grid[yr]['MAYO/JUN'])}` : '-'}</Text>
+                        <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid[yr]['JULIO/AGOS'] > 0 ? `$ ${formatNumber(grid[yr]['JULIO/AGOS'])}` : '-'}</Text>
+                        <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid[yr]['SEP/OCT'] > 0 ? `$ ${formatNumber(grid[yr]['SEP/OCT'])}` : '-'}</Text>
+                        <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid[yr]['NOV/DIC'] > 0 ? `$ ${formatNumber(grid[yr]['NOV/DIC'])}` : '-'}</Text>
+                    </View>
+                ))}
             </View>
 
             {/* Intereses y Gastos */}

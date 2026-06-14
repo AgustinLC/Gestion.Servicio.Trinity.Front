@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { pdf } from '@react-pdf/renderer';
-import { UserDto } from '../../core/models/dto/UserDto';
+import { UserDebtDto } from '../../core/models/dto/UserDebtDto';
 import { DisconnectionPdfDocument, DebtPdfDocument } from '../components/debt-disconnection/pdf';
 import { toast } from 'react-toastify';
 
@@ -30,7 +30,7 @@ export const useDebtDisconnectionPdfs = () => {
      */
     const generateDisconnectionPdf = useCallback(
         async (
-            user: UserDto,
+            user: UserDebtDto,
             options: PdfGeneratorOptions = {}
         ): Promise<void> => {
             const {
@@ -69,7 +69,7 @@ export const useDebtDisconnectionPdfs = () => {
      */
     const generateWarningPdf = useCallback(
         async (
-            user: UserDto,
+            user: UserDebtDto,
             periodsOwed: number,
             options: PdfGeneratorOptions = {}
         ): Promise<void> => {
