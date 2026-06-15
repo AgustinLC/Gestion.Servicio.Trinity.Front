@@ -51,8 +51,8 @@ const DebtDisconnectionPage = () => {
             key: "periodsOwed",
             label: "Períodos Adeudados",
             sortable: true,
-            render: (value: any) => {
-                const periods = Number(value);
+            render: (row: UserDebtDto) => {
+                const periods = Number(row.periodsOwed);
                 const bg = periods >= 2 ? "danger" : "warning";
                 return (
                     <div className="text-center">
