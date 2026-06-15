@@ -55,10 +55,22 @@ const getDebtGridData = (periodsOwed: number, debts?: DebtItemDto[]) => {
 
     if (debts && debts.length > 0) {
         debts.forEach(d => {
-            const date = d.expirationDate ? new Date(d.expirationDate) : new Date();
-            const year = date.getFullYear();
             const col = mapPeriodToColumn(d.periodName);
             if (col) {
+                // Intentar extraer el año de 4 dígitos directamente del nombre del período (ej. "Noviembre/Diciembre 2025")
+                const yearMatch = d.periodName.match(/\b(20\d{2})\b/);
+                let year = yearMatch ? parseInt(yearMatch[1], 10) : null;
+
+                if (year === null) {
+                    const date = d.expirationDate ? new Date(d.expirationDate) : new Date();
+                    year = date.getFullYear();
+                    // Si el período es NOV/DIC, su vencimiento ocurre en enero/febrero del año siguiente,
+                    // por lo que el período real corresponde al año anterior.
+                    if (col === 'NOV/DIC') {
+                        year -= 1;
+                    }
+                }
+
                 if (!grid[year]) {
                     grid[year] = {
                         'ENER/FEBR': 0,
