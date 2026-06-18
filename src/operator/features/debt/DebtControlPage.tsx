@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Card, Col, Form, Row, Spinner } from "react-bootstrap";
+import { Button, Card, Col, Form, Row, Spinner } from "react-bootstrap";
 import { DebtStatus } from "../../../core/models/types/DebtStatus";
 import { DebtControlDto } from "../../../core/models/dto/DebtControlDto";
 import { getData } from "../../../core/services/apiService";
@@ -8,6 +8,8 @@ import { useSearch } from "../../../hooks/useSearch";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import SearchBar from "../../../shared/components/searcher/SearchBar";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
 
 type DebtStatusFilter =
     | "ALL"
@@ -171,6 +173,56 @@ const DebtControlPage = () => {
         periodFilter
     ]);
 
+    // Funcion para ordenar datos por numero de conexion
+    const sortedVisibleData = useMemo(() => {
+        return [...visibleData].sort(
+            (a, b) => a.idUser - b.idUser
+        );
+    }, [visibleData]);
+
+    // Funcion para exportar datos a Excel
+    const exportToExcel = () => {
+        if (sortedVisibleData.length === 0) return;
+
+        const excelData = sortedVisibleData.map(bill => ({
+            "N° Conexión": bill.idUser,
+            "Usuario": bill.fullName,
+            "Período": bill.periodName,
+            "Vencimiento": formatDate(bill.expirationDate),
+            "Total original": bill.total ?? 0,
+            "Monto con recargo": bill.maturityAmount ?? 0,
+            "Monto a pagar": bill.amountToPay ?? 0,
+            "Estado": getDebtStatusLabel(bill.debtStatus)
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "Deudas"
+        );
+
+        const excelBuffer = XLSX.write(workbook, {
+            bookType: "xlsx",
+            type: "array"
+        });
+
+        const blob = new Blob(
+            [excelBuffer],
+            {
+                type:
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            }
+        );
+
+        saveAs(
+            blob,
+            `Control_Deudas_${new Date().toISOString().split("T")[0]}.xlsx`
+        );
+    };
+
     // Resumen correspondiente a los filtros actuales
     const filteredSummary = useMemo(() => {
 
@@ -197,56 +249,32 @@ const DebtControlPage = () => {
     // Columnas de la tabla
     const columns: TableColumnDefinition<UnpaidBillDto>[] =
         useMemo(() => [
+            { key: "idUser", label: "N° Conexión", sortable: true },
+            { key: "fullName", label: "Usuario", sortable: true },
+            { key: "periodName", label: "Período", sortable: true },
             {
-                key: "idUser",
-                label: "N° Conexión",
-                sortable: true
-            },
-            {
-                key: "fullName",
-                label: "Usuario",
-                sortable: true
-            },
-            {
-                key: "periodName",
-                label: "Período",
-                sortable: true
-            },
-            {
-                key: "expirationDate",
-                label: "Vencimiento",
-                sortable: true,
-                render: (row: UnpaidBillDto) => (
+                key: "expirationDate", label: "Vencimiento", sortable: true, render: (row: UnpaidBillDto) => (
                     <span>
                         {formatDate(row.expirationDate)}
                     </span>
                 )
             },
             {
-                key: "total",
-                label: "Total original",
-                sortable: true,
-                render: (row: UnpaidBillDto) => (
+                key: "total", label: "Total original", sortable: true, render: (row: UnpaidBillDto) => (
                     <span>
                         {formatCurrency(row.total)}
                     </span>
                 )
             },
             {
-                key: "amountToPay",
-                label: "Monto a pagar",
-                sortable: true,
-                render: (row: UnpaidBillDto) => (
+                key: "amountToPay", label: "Monto a pagar", sortable: true, render: (row: UnpaidBillDto) => (
                     <span className="fw-bold">
                         {formatCurrency(row.amountToPay)}
                     </span>
                 )
             },
             {
-                key: "debtStatus",
-                label: "Estado",
-                sortable: true,
-                render: (row: UnpaidBillDto) => (
+                key: "debtStatus", label: "Estado", sortable: true, render: (row: UnpaidBillDto) => (
                     <span
                         className={`
                             badge
@@ -382,17 +410,21 @@ const DebtControlPage = () => {
                         Vencidas
                     </option>
                 </Form.Select>
+
+                <Button variant="success" onClick={exportToExcel} disabled={visibleData.length === 0}>
+                    Exportar a Excel
+                </Button>
             </div>
 
             {/* Cantidad de resultados */}
             <div className="mb-2 text-muted">
                 Resultados encontrados:{" "}
-                <strong>{visibleData.length}</strong>
+                <strong>{sortedVisibleData.length}</strong>
             </div>
 
             {/* Tabla */}
             <ReusableTable
-                data={visibleData}
+                data={sortedVisibleData}
                 columns={columns}
                 defaultSort="expirationDate"
             />
