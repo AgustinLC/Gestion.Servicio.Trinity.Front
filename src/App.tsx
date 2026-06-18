@@ -43,17 +43,18 @@ import DiscountManagementPage from "./admin/features/discounts/DiscountManagemen
 import DiscountsPage from "./operator/features/discounts/DiscountsPage";
 import BillGenerateFilteredPage from "./operator/features/generate-bill/BillGenerateFilteredPage";
 import NotFoundPage from "./shared/features/not-found-page/NotFoundPage";
+import DebtControlPage from "./operator/features/debt/DebtControlPage";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
 
   // Rutas donde queremos mostrar el Footer
   const showFooterPaths = ["/", "/faq", "/login", "/forgot-password", "/reset-password"];
-  
+
   // Verificar si es una ruta 404 (cualquier ruta que no esté en las rutas definidas)
-  const isNotFoundPage = !location.pathname.startsWith("/dashboard") && 
-                         !showFooterPaths.includes(location.pathname) &&
-                         location.pathname !== "/faq";
+  const isNotFoundPage = !location.pathname.startsWith("/dashboard") &&
+    !showFooterPaths.includes(location.pathname) &&
+    location.pathname !== "/faq";
 
   const shouldShowFooter = showFooterPaths.includes(location.pathname) || isNotFoundPage;
 
@@ -90,6 +91,7 @@ const AppContent: React.FC = () => {
           <Route path="bills/management" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillManagementPage /></RoleProtectedRoute>} />
           <Route path="reports" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReportsPage /></RoleProtectedRoute>} />
           <Route path="discounts" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DiscountsPage /></RoleProtectedRoute>} />
+          <Route path="debts" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DebtControlPage /></RoleProtectedRoute>} />
         </Route>
 
         {/* Rutas solo para usuario administrador */}
