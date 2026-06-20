@@ -8,12 +8,59 @@ Font.registerHyphenationCallback(word => [word]);
 // TIPOS E INTERFACES
 // ============================================================================
 
+export interface PdfParameters {
+    administrativeExpenses: number;
+    daysToPay: number;
+    daysToDisconnection: number;
+    reconnectionCost: number;
+    reconnectionTime: string;
+    claimsPhone: string;
+    attentionHours: string;
+    cbu: string;
+    alias: string;
+}
+
+export const DEFAULT_PARAMS: PdfParameters = {
+    administrativeExpenses: 1000,
+    daysToPay: 5,
+    daysToDisconnection: 10,
+    reconnectionCost: 3000,
+    reconnectionTime: '48hs',
+    claimsPhone: '2635036918',
+    attentionHours: 'de lunes a viernes de 8hs a 11:30hs',
+    cbu: '0110438120043811503456',
+    alias: 'BOMBO.PRIMO.NUDO',
+};
+
+const getDaysWord = (days: number): string => {
+    const words: Record<number, string> = {
+        1: 'UN', 2: 'DOS', 3: 'TRES', 4: 'CUATRO', 5: 'CINCO',
+        6: 'SEIS', 7: 'SIETE', 8: 'OCHO', 9: 'NUEVE', 10: 'DIEZ',
+        11: 'ONCE', 12: 'DOCE', 13: 'TRECE', 14: 'CATORCE', 15: 'QUINCE',
+        20: 'VEINTE', 30: 'TREINTA'
+    };
+    return words[days] || '';
+};
+
+const formatDaysToPay = (days: number): string => {
+    const pad = String(days).padStart(2, '0');
+    const word = getDaysWord(days);
+    return word ? `${pad} (${word}) DÍAS CORRIDOS` : `${pad} DÍAS CORRIDOS`;
+};
+
+const formatDaysToDisconnection = (days: number): string => {
+    const pad = String(days);
+    const word = getDaysWord(days);
+    return word ? `${pad} (${word}) DÍAS` : `${pad} DÍAS`;
+};
+
 export interface DebtPdfProps {
     debts: Array<{
         user: UserDebtDto;
         date?: string | Date;
         periodsOwed?: number;
     }>;
+    pdfParameters?: PdfParameters;
 }
 
 // ============================================================================
@@ -145,12 +192,22 @@ const getDebtGridData = (periodsOwed: number, debts?: DebtItemDto[]) => {
 // COMPONENTE DE PÁGINA INDIVIDUAL - INTIMACIÓN
 // ============================================================================
 
-const DebtPage = ({ user, date, periodsOwed = 1 }: { user: UserDebtDto; date?: string | Date; periodsOwed?: number }) => {
+const DebtPage = ({
+    user,
+    date,
+    periodsOwed = 1,
+    pdfParameters = DEFAULT_PARAMS,
+}: {
+    user: UserDebtDto;
+    date?: string | Date;
+    periodsOwed?: number;
+    pdfParameters?: PdfParameters;
+}) => {
     const userFullName = `${user.lastName} ${user.firstName}`.toUpperCase();
     const domicile = `${user.residenceDto?.street || ''} ${user.residenceDto?.number || ''}`.trim() || 'SIN DOMICILIO';
 
     const { grid, years, totalAmount } = getDebtGridData(periodsOwed, user.debts);
-    const administrativeExpenses = 1000.00;
+    const administrativeExpenses = pdfParameters.administrativeExpenses;
     const finalTotal = totalAmount + administrativeExpenses;
 
     return (
@@ -232,7 +289,7 @@ const DebtPage = ({ user, date, periodsOwed = 1 }: { user: UserDebtDto; date?: s
             <View style={styles.alertBox}>
                 <Text style={styles.alertText}>
                     <Text style={styles.bold}>POR LA PRESTACIÓN DEL SERVICIO DE AGUA POTABLE, SUMA TOTAL QUE ASCIENDE A PESOS </Text>
-                    <Text style={styles.bold}>$ {formatNumber(finalTotal)}</Text> ...SE LE <Text style={styles.bold}>INTIMA</Text> PARA QUE EN UN TÉRMINO PERENTORIO E IMPRORROGABLE DE <Text style={styles.bold}>05 (CINCO) DÍAS CORRIDOS</Text> A PARTIR DE LA NOTIFICACIÓN DE LA PRESENTE, PROCEDA A CANCELAR LA TOTALIDAD DE LAS SUMAS ANTES INDICADAS, CON MAS LOS INTERESES QUE CORRESPONDAN DESDE LA FECHA DEL VENCIMIENTO HASTA EL EFECTIVO PAGO CON MAS LOS GASTOS; TODO ELLO BAJO APERCIMIENTO DE PROCEDER SIN MAS A LA SUSPENSIÓN TOTAL DEL SERVICIO DE AGUA POTABLE.
+                    <Text style={styles.bold}>$ {formatNumber(finalTotal)}</Text> ...SE LE <Text style={styles.bold}>INTIMA</Text> PARA QUE EN UN TÉRMINO PERENTORIO E IMPRORROGABLE DE <Text style={styles.bold}>{formatDaysToPay(pdfParameters.daysToPay)}</Text> A PARTIR DE LA NOTIFICACIÓN DE LA PRESENTE, PROCEDA A CANCELAR LA TOTALIDAD DE LAS SUMAS ANTES INDICADAS, CON MAS LOS INTERESES QUE CORRESPONDAN DESDE LA FECHA DEL VENCIMIENTO HASTA EL EFECTIVO PAGO CON MAS LOS GASTOS; TODO ELLO BAJO APERCIMIENTO DE PROCEDER SIN MAS A LA SUSPENSIÓN TOTAL DEL SERVICIO DE AGUA POTABLE.
                 </Text>
             </View>
 
@@ -242,23 +299,23 @@ const DebtPage = ({ user, date, periodsOwed = 1 }: { user: UserDebtDto; date?: s
                     SE DEJA CONSTANCIA, QUE SE PROCEDE CONFORME LAS FACULTADES Y ATRIBUCIONES CONFERIDAS POR EL ARTÍCULO 1º DE LA LEY 6511, MODIFICATORIO DEL ARTÍCULO 20º DE LA LEY 6044, QUE EXPRESA:
                 </Text>
                 <Text style={styles.bodyText}>
-                    <Text style={styles.bold}>ARTICULO 20º RESTRICCIÓN Y SUSPENSIÓN.</Text> PODRA RESTRINGIRSE TRANSITORIAMENTE EL SERVICIO PARA USOS DOMÉSTICOS CUANDO SE HAYA PRODUCIDO EL VENCIMIENTO DE UNA FACTURA O HAYAN TRANSCURRIDO MAS DE 10 (DIEZ) DÍAS DESDE EL VENCIMIENTO ORIGINAL DE LA PRIMERA DE ELLAS O VENCIDO, IGUAL TÉRMINO DESDE EL AVISO PARA EL PAGO DE CONTRIBUCIONES DE MEJORAS, MULTAS Y LIQUIDACIONES ORIGINADAS EN LA PRESTACIÓN EN CUALQUIERA DE LOS SERVICIOS A TAL EFECTO EN CADA FACTURA QUE SE EMITA PARA EL COBRO NORMAL DE LOS SERVICIOS, SE DEBERÁ COMUNICAR LOS IMPORTES ADEUDADOS, LOS RECARGOS CORRESPONDIENTES Y LAS CONSECUENCIAS DE FALTA DE PAGO EN TÉRMINO.
+                    <Text style={styles.bold}>ARTICULO 20º RESTRICCIÓN Y SUSPENSIÓN.</Text> PODRA RESTRINGIRSE TRANSITORIAMENTE EL SERVICIO PARA USOS DOMÉSTICOS CUANDO SE HAYA PRODUCIDO EL VENCIMIENTO DE UNA FACTURA O HAYAN TRANSCURRIDO MAS DE <Text style={styles.bold}>{formatDaysToDisconnection(pdfParameters.daysToDisconnection)}</Text> DESDE EL VENCIMIENTO ORIGINAL DE LA PRIMERA DE ELLAS O VENCIDO, IGUAL TÉRMINO DESDE EL AVISO PARA EL PAGO DE CONTRIBUCIONES DE MEJORAS, MULTAS Y LIQUIDACIONES ORIGINADAS EN LA PRESTACIÓN EN CUALQUIERA DE LOS SERVICIOS A TAL EFECTO EN CADA FACTURA QUE SE EMITA PARA EL COBRO NORMAL DE LOS SERVICIOS, SE DEBERÁ COMUNICAR LOS IMPORTES ADEUDADOS, LOS RECARGOS CORRESPONDIENTES Y LAS CONSECUENCIAS DE FALTA DE PAGO EN TÉRMINO.
                 </Text>
                 <Text style={styles.bodyText}>
-                    PODRA SUSPENDERSE EL SERVICIO PARA USO DOMÉSTICO; O CORRIDO EL VENCIMIENTO IMPAGO Y TRASCURRIDOS 10 (DIEZ) DÍAS DEL VENCIMIENTO DEL PLAZO EN EL PÁRRAFO ANTERIOR.
+                    PODRA SUSPENDERSE EL SERVICIO PARA USO DOMÉSTICO; O CORRIDO EL VENCIMIENTO IMPAGO Y TRASCURRIDOS <Text style={styles.bold}>{formatDaysToDisconnection(pdfParameters.daysToDisconnection)}</Text> DEL VENCIMIENTO DEL PLAZO EN EL PÁRRAFO ANTERIOR.
                 </Text>
                 <Text style={styles.bodyText}>
-                    PROCEDERÁ, PREVIA NOTIFICACIÓN FEHACIENTE, LA SUSPENSIÓN DEL SERVICIO A USUARIOS INDUSTRIALES Y COMERCIALES, CUANDO SE ENCUENTRE IMPAGA UNA FACTURA Y HAYAN TRANSCURRIDO 10 (DIEZ) DÍAS DE SU VENCIMIENTO ORIGINAL. EN TODOS LOS CASOS; EL RESTABLECIMIENTO DEL SERVICIO TENDRA UN VALOR <Text style={styles.bold}>$ 3.000,00</Text> SE HARÁ EN UN LAPSO DE 48 HS UNA VEZ ABONADAS LAS DEUDAS.
+                    PROCEDERÁ, PREVIA NOTIFICACIÓN FEHACIENTE, LA SUSPENSIÓN DEL SERVICIO A USUARIOS INDUSTRIALES Y COMERCIALES, CUANDO SE ENCUENTRE IMPAGA UNA FACTURA Y HAYAN TRANSCURRIDO <Text style={styles.bold}>{formatDaysToDisconnection(pdfParameters.daysToDisconnection)}</Text> DE SU VENCIMIENTO ORIGINAL. EN TODOS LOS CASOS; EL RESTABLECIMIENTO DEL SERVICIO TENDRA UN VALOR <Text style={styles.bold}>$ {formatNumber(pdfParameters.reconnectionCost)}</Text> SE HARÁ EN UN LAPSO DE <Text style={styles.bold}>{pdfParameters.reconnectionTime.toUpperCase()}</Text> UNA VEZ ABONADAS LAS DEUDAS.
                 </Text>
             </View>
 
             {/* Reclamos, CBU y Datos Bancarios */}
             <View style={{ marginTop: 8, borderTop: '1px solid #ccc', paddingTop: 6 }}>
                 <Text style={styles.bodyText}>
-                    Reclamos y sugerencias al cel <Text style={styles.bold}>2635036918</Text> lunes a viernes de 8hs a 11:30hs por mensaje de WhatsApp.
+                    Reclamos y sugerencias al cel <Text style={styles.bold}>{pdfParameters.claimsPhone}</Text> {pdfParameters.attentionHours} por mensaje de WhatsApp.
                 </Text>
                 <Text style={styles.bodyText}>
-                    <Text style={styles.bold}>CBU 0110438120043811503456</Text> consorcio Vecinal de agua potable santa María de Oro. <Text style={styles.bold}>ALIAS : BOMBO.PRIMO.NUDO</Text>
+                    <Text style={styles.bold}>CBU {pdfParameters.cbu}</Text> consorcio Vecinal de agua potable santa María de Oro. <Text style={styles.bold}>ALIAS : {pdfParameters.alias.toUpperCase()}</Text>
                 </Text>
             </View>
 
@@ -289,7 +346,7 @@ const DebtPage = ({ user, date, periodsOwed = 1 }: { user: UserDebtDto; date?: s
 // DOCUMENTO PRINCIPAL
 // ============================================================================
 
-const DebtPdfDocument = ({ debts }: DebtPdfProps) => (
+const DebtPdfDocument = ({ debts, pdfParameters }: DebtPdfProps) => (
     <Document
         title="Cuadros de Aviso de Deuda"
         author="Consorcio Vecinal de Agua Potable - Santa María de Oro"
@@ -297,7 +354,7 @@ const DebtPdfDocument = ({ debts }: DebtPdfProps) => (
         creator="Sistema de Gestión Trinity"
     >
         {debts.map(({ user, date, periodsOwed }, index) => (
-            <DebtPage key={`debt-notice-${user.idUser}-${index}`} user={user} date={date} periodsOwed={periodsOwed} />
+            <DebtPage key={`debt-notice-${user.idUser}-${index}`} user={user} date={date} periodsOwed={periodsOwed} pdfParameters={pdfParameters} />
         ))}
     </Document>
 );

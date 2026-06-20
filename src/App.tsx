@@ -44,6 +44,7 @@ import DiscountsPage from "./operator/features/discounts/DiscountsPage";
 import BillGenerateFilteredPage from "./operator/features/generate-bill/BillGenerateFilteredPage";
 import DebtDisconnectionPage from "./operator/features/debt-disconnection/DebtDisconnectionPage";
 import NotFoundPage from "./shared/features/not-found-page/NotFoundPage";
+import PdfParametersPage from "./admin/features/pdf-parameters/PdfParametersPage";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -109,6 +110,7 @@ const AppContent: React.FC = () => {
           <Route path="new/period" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><NewPeriodPage /></RoleProtectedRoute>} />
           <Route path="modalities" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><ModalityPage /></RoleProtectedRoute>} />
           <Route path="discounts/management" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><DiscountManagementPage /></RoleProtectedRoute>} />
+          <Route path="pdf-parameters" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><PdfParametersPage /></RoleProtectedRoute>} />
         </Route>
 
         {/* Ruta catch-all para páginas no encontradas */}

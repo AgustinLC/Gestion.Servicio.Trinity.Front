@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { pdf } from '@react-pdf/renderer';
 import { UserDebtDto } from '../../core/models/dto/UserDebtDto';
-import { DisconnectionPdfDocument, DebtPdfDocument } from '../components/debt-disconnection/pdf';
+import { DisconnectionPdfDocument, DebtPdfDocument, PdfParameters, DEFAULT_PARAMS } from '../components/debt-disconnection/pdf';
 import { toast } from 'react-toastify';
+import { getData } from '../../core/services/apiService';
 
 export interface PdfGeneratorOptions {
     fileName?: string;
@@ -24,6 +25,21 @@ const downloadBlob = (blob: Blob, fileName: string): void => {
 
 export const useDebtDisconnectionPdfs = () => {
     const [isGenerating, setIsGenerating] = useState(false);
+    const [pdfParameters, setPdfParameters] = useState<PdfParameters | null>(null);
+
+    useEffect(() => {
+        const fetchParameters = async () => {
+            try {
+                const data = await getData<PdfParameters>("/info/pdf-parameters");
+                setPdfParameters(data);
+            } catch (error) {
+                console.error("Error al obtener los parámetros del PDF, usando valores por defecto:", error);
+            }
+        };
+        fetchParameters();
+    }, []);
+
+    const currentParams = pdfParameters || DEFAULT_PARAMS;
 
     /**
      * Genera la Orden de Corte de Servicio (cuando adeudan >= 2 períodos)
@@ -45,7 +61,7 @@ export const useDebtDisconnectionPdfs = () => {
 
             try {
                 const blob = await pdf(
-                    <DisconnectionPdfDocument disconnections={[{ user, date: new Date() }]} />
+                    <DisconnectionPdfDocument disconnections={[{ user, date: new Date() }]} pdfParameters={currentParams} />
                 ).toBlob();
 
                 downloadBlob(blob, fileName);
@@ -61,7 +77,7 @@ export const useDebtDisconnectionPdfs = () => {
                 setIsGenerating(false);
             }
         },
-        []
+        [currentParams]
     );
 
     /**
@@ -85,7 +101,7 @@ export const useDebtDisconnectionPdfs = () => {
 
             try {
                 const blob = await pdf(
-                    <DebtPdfDocument debts={[{ user, date: new Date(), periodsOwed }]} />
+                    <DebtPdfDocument debts={[{ user, date: new Date(), periodsOwed }]} pdfParameters={currentParams} />
                 ).toBlob();
 
                 downloadBlob(blob, fileName);
@@ -101,7 +117,7 @@ export const useDebtDisconnectionPdfs = () => {
                 setIsGenerating(false);
             }
         },
-        []
+        [currentParams]
     );
 
     return {

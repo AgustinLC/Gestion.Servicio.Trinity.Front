@@ -1,6 +1,7 @@
 import { Document, Page, View, Text, Font } from '@react-pdf/renderer';
 import { UserDto } from '../../../../core/models/dto/UserDto';
 import { styles } from './styles';
+import { PdfParameters, DEFAULT_PARAMS } from './DebtPdfDocument';
 
 // ============================================================================
 // CONFIGURACIÓN DE FUENTES - Deshabilitar silabación
@@ -16,11 +17,13 @@ export interface DisconnectionPdfProps {
         user: UserDto;
         date?: string | Date;
     }>;
+    pdfParameters?: PdfParameters;
 }
 
 interface SingleDisconnectionProps {
     user: UserDto;
     date?: string | Date;
+    pdfParameters?: PdfParameters;
 }
 
 // ============================================================================
@@ -81,7 +84,7 @@ const UserTable = ({ user }: { user: UserDto }) => {
     );
 };
 
-const BodyText = () => (
+const BodyText = ({ pdfParameters = DEFAULT_PARAMS }: { pdfParameters?: PdfParameters }) => (
     <View>
         <Text style={styles.bodyText}>
             POR LA PRESENTE LE COMUNICAMOS QUE EN LA FECHA HEMOS PROCEDIDO AL CORTE DEL SERVICIO AL INMUEBLE DE REFERENCIA.
@@ -90,7 +93,7 @@ const BodyText = () => (
             ESTA MEDIDA OBEDECE A LA MOROSIDAD QUE REGISTRA LA CUENTA CORRIENTE CORRESPONDIENTE AL INMUEBLE, CUYO DETALLE FUERA COMUNICADO POR INTIMACION DE CORTE DE FECHA Y EN CADA FACTURAS QUE SE DISTRIBUYE BIMESTRAL CONFORME, LO ESTABLECE EL ART. DE LA LEY 6044.
         </Text>
         <Text style={styles.bodyText}>
-            PARA SOLICITAR LA REHABILITACION DEL SERVICIO DEBERA RECURRIR EN EL DOMICILIO SITA EN CALLE VALENTIN VILLANUEVA S/N SANTA MARIA DE ORO RVIA. -MZA..., O CELULAR <Text style={styles.phoneText}>2635036918</Text>, PARA ACORDAR LAS FACTURAS DE LOS PERIODOS VENCIDOS E IMPAGOS DEL SERVICIO.
+            PARA SOLICITAR LA REHABILITACION DEL SERVICIO DEBERA RECURRIR EN EL DOMICILIO SITA EN CALLE VALENTIN VILLANUEVA S/N SANTA MARIA DE ORO RVIA. -MZA..., O CELULAR <Text style={styles.phoneText}>{pdfParameters.claimsPhone}</Text>, PARA ACORDAR LAS FACTURAS DE LOS PERIODOS VENCIDOS E IMPAGOS DEL SERVICIO.
         </Text>
         <Text style={styles.bodyText}>
             PODRA TENER ACCESO AL SUMINISTRO DE AGUA POTABLE EN LA NUEVA PLAZA DE SANTA MARIA DE ORO Y EN LAS INSTALACIONES DEL CONSORCIO VECINAL, UBICADO EN CALLE VALENTIN VILLANUEVA Y CALLE LINIER DE SANTA MARIA DE ORO RVIA. MZA.
@@ -130,13 +133,13 @@ const FooterSignatures = () => (
 // COMPONENTE PÁGINA INDIVIDUAL
 // ============================================================================
 
-const DisconnectionPage = ({ user, date }: SingleDisconnectionProps) => (
+const DisconnectionPage = ({ user, date, pdfParameters = DEFAULT_PARAMS }: SingleDisconnectionProps) => (
     <Page size="A4" style={styles.page}>
         <HeaderBox />
         <Title />
         <DateLine date={date} />
         <UserTable user={user} />
-        <BodyText />
+        <BodyText pdfParameters={pdfParameters} />
         <ImportantSection />
         <FooterSignatures />
     </Page>
@@ -146,7 +149,7 @@ const DisconnectionPage = ({ user, date }: SingleDisconnectionProps) => (
 // COMPONENTE PRINCIPAL (EXPORTACIÓN POR DEFECTO)
 // ============================================================================
 
-const DisconnectionPdfDocument = ({ disconnections }: DisconnectionPdfProps) => (
+const DisconnectionPdfDocument = ({ disconnections, pdfParameters }: DisconnectionPdfProps) => (
     <Document
         title="Avisos de Corte Consorcio de Agua"
         author="Consorcio Vecinal de Agua Potable - Santa María de Oro"
@@ -154,7 +157,7 @@ const DisconnectionPdfDocument = ({ disconnections }: DisconnectionPdfProps) => 
         creator="Sistema de Gestión Trinity"
     >
         {disconnections.map(({ user, date }, index) => (
-            <DisconnectionPage key={`disconnection-${user.idUser}-${index}`} user={user} date={date} />
+            <DisconnectionPage key={`disconnection-${user.idUser}-${index}`} user={user} date={date} pdfParameters={pdfParameters} />
         ))}
     </Document>
 );
