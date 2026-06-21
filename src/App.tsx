@@ -43,17 +43,18 @@ import DiscountManagementPage from "./admin/features/discounts/DiscountManagemen
 import DiscountsPage from "./operator/features/discounts/DiscountsPage";
 import BillGenerateFilteredPage from "./operator/features/generate-bill/BillGenerateFilteredPage";
 import NotFoundPage from "./shared/features/not-found-page/NotFoundPage";
+import ReadingControlPage from "./operator/features/reading/reading-control/ReadingControlPage";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
 
   // Rutas donde queremos mostrar el Footer
   const showFooterPaths = ["/", "/faq", "/login", "/forgot-password", "/reset-password"];
-  
+
   // Verificar si es una ruta 404 (cualquier ruta que no esté en las rutas definidas)
-  const isNotFoundPage = !location.pathname.startsWith("/dashboard") && 
-                         !showFooterPaths.includes(location.pathname) &&
-                         location.pathname !== "/faq";
+  const isNotFoundPage = !location.pathname.startsWith("/dashboard") &&
+    !showFooterPaths.includes(location.pathname) &&
+    location.pathname !== "/faq";
 
   const shouldShowFooter = showFooterPaths.includes(location.pathname) || isNotFoundPage;
 
@@ -83,6 +84,7 @@ const AppContent: React.FC = () => {
           <Route path="users" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><User /></RoleProtectedRoute>} />
           <Route path="readings/management" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReadingManagement /></RoleProtectedRoute>} />
           <Route path="readings/take" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReadingTake /></RoleProtectedRoute>} />
+          <Route path="readings/control" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReadingControlPage /></RoleProtectedRoute>} />
           <Route path="parameters/bills" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><PendigBillsParameterPage /></RoleProtectedRoute>} />
           <Route path="bills/generate" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillGeneratePage /></RoleProtectedRoute>} />
           <Route path="bills/generate-filtered" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillGenerateFilteredPage /></RoleProtectedRoute>} />

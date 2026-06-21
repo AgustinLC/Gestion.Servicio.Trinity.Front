@@ -2,7 +2,7 @@ export interface TableColumn<T> {
   key: keyof T;
   label: string;
   sortable?: boolean;
-  render?: (row: T ) => React.ReactNode;
+  render?: (row: T, key: keyof T) => React.ReactNode;
 }
 
 export interface ActionColumn<T> {
