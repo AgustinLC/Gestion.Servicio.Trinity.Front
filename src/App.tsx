@@ -44,6 +44,7 @@ import DiscountsPage from "./operator/features/discounts/DiscountsPage";
 import BillGenerateFilteredPage from "./operator/features/generate-bill/BillGenerateFilteredPage";
 import NotFoundPage from "./shared/features/not-found-page/NotFoundPage";
 import ReadingControlPage from "./operator/features/reading/reading-control/ReadingControlPage";
+import DebtControlPage from "./operator/features/debt/DebtControlPage";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -92,6 +93,7 @@ const AppContent: React.FC = () => {
           <Route path="bills/management" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillManagementPage /></RoleProtectedRoute>} />
           <Route path="reports" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReportsPage /></RoleProtectedRoute>} />
           <Route path="discounts" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DiscountsPage /></RoleProtectedRoute>} />
+          <Route path="debts" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DebtControlPage /></RoleProtectedRoute>} />
         </Route>
 
         {/* Rutas solo para usuario administrador */}
