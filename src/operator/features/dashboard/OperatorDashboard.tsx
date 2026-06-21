@@ -24,6 +24,7 @@ const DashboardOperator: React.FC = () => {
     const isReadingSection = [
         "/dashboard/operator/readings/management",
         "/dashboard/operator/readings/take",
+        "/dashboard/operator/readings/control",
     ].includes(currentPath);
 
     const isBillSection = [
@@ -50,6 +51,13 @@ const DashboardOperator: React.FC = () => {
                     onClick={() => setActivePopover(null)}
                 >
                     Tomar Lecturas
+                </Link>
+                <Link
+                    to="/dashboard/operator/readings/control"
+                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/readings/control" ? "active" : ""}`}
+                    onClick={() => setActivePopover(null)}
+                >
+                    Control de Lecturas
                 </Link>
             </Popover.Body>
         </Popover>
@@ -174,6 +182,14 @@ const DashboardOperator: React.FC = () => {
                         </li>
                     </OverlayTrigger>
 
+                    {/* Deudores */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/operator/debt-disconnection" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/debt-disconnection" ? "active" : ""}`} onClick={() => setSidebarOpen(false)}>
+                            <i className="bi bi-exclamation-triangle fs-4"></i>
+                            <span className="ms-2 d-lg-inline">Deudores</span>
+                        </Link>
+                    </li>
+
                     {/* Conceptos */}
                     <li>
                         <Link to="/dashboard/operator/parameters/bills" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/parameters/bills" ? "active" : ""}`}>
@@ -189,12 +205,20 @@ const DashboardOperator: React.FC = () => {
                             <span className="ms-2 d-lg-inline">Descuentos</span>
                         </Link>
                     </li>
-                    
+
                     {/* Reportes */}
                     <li className="nav-item">
                         <Link to="/dashboard/operator/reports" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/reports" ? "active" : ""}`}>
                             <i className="bi-clipboard-data fs-4"></i>
                             <span className="ms-2 d-lg-inline">Reportes</span>
+                        </Link>
+                    </li>
+
+                    {/* Deudas */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/operator/debts" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/reports" ? "active" : ""}`}>
+                            <i className="bi bi-graph-down-arrow fs-4"></i>
+                            <span className="ms-2 d-lg-inline">Deudas</span>
                         </Link>
                     </li>
                 </ul>

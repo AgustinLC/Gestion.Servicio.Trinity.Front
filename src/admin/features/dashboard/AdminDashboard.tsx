@@ -150,6 +150,14 @@ const AdminDashboard: React.FC = () => {
                             <span className="ms-2 d-lg-inline">Periodo</span>
                         </Link>
                     </li>
+
+                    {/* Parámetros PDF */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/admin/pdf-parameters" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/pdf-parameters' ? 'active' : ''}`} title="Parámetros Avisos PDF" onClick={() => setSidebarOpen(false)}>
+                            <i className="bi bi-file-pdf fs-4"></i>
+                            <span className="ms-2 d-lg-inline">Avisos PDF</span>
+                        </Link>
+                    </li>
                 </ul>
             </aside>
 

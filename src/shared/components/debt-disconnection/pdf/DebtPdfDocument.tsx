@@ -1,0 +1,362 @@
+import { Document, Page, View, Text, Font } from '@react-pdf/renderer';
+import { UserDebtDto, DebtItemDto } from '../../../../core/models/dto/UserDebtDto';
+import { styles } from './styles';
+
+Font.registerHyphenationCallback(word => [word]);
+
+// ============================================================================
+// TIPOS E INTERFACES
+// ============================================================================
+
+export interface PdfParameters {
+    administrativeExpenses: number;
+    daysToPay: number;
+    daysToDisconnection: number;
+    reconnectionCost: number;
+    reconnectionTime: string;
+    claimsPhone: string;
+    attentionHours: string;
+    cbu: string;
+    alias: string;
+}
+
+export const DEFAULT_PARAMS: PdfParameters = {
+    administrativeExpenses: 1000,
+    daysToPay: 5,
+    daysToDisconnection: 10,
+    reconnectionCost: 3000,
+    reconnectionTime: '48hs',
+    claimsPhone: '2635036918',
+    attentionHours: 'de lunes a viernes de 8hs a 11:30hs',
+    cbu: '0110438120043811503456',
+    alias: 'BOMBO.PRIMO.NUDO',
+};
+
+const getDaysWord = (days: number): string => {
+    const words: Record<number, string> = {
+        1: 'UN', 2: 'DOS', 3: 'TRES', 4: 'CUATRO', 5: 'CINCO',
+        6: 'SEIS', 7: 'SIETE', 8: 'OCHO', 9: 'NUEVE', 10: 'DIEZ',
+        11: 'ONCE', 12: 'DOCE', 13: 'TRECE', 14: 'CATORCE', 15: 'QUINCE',
+        20: 'VEINTE', 30: 'TREINTA'
+    };
+    return words[days] || '';
+};
+
+const formatDaysToPay = (days: number): string => {
+    const pad = String(days).padStart(2, '0');
+    const word = getDaysWord(days);
+    return word ? `${pad} (${word}) DÍAS CORRIDOS` : `${pad} DÍAS CORRIDOS`;
+};
+
+const formatDaysToDisconnection = (days: number): string => {
+    const pad = String(days);
+    const word = getDaysWord(days);
+    return word ? `${pad} (${word}) DÍAS` : `${pad} DÍAS`;
+};
+
+export interface DebtPdfProps {
+    debts: Array<{
+        user: UserDebtDto;
+        date?: string | Date;
+        periodsOwed?: number;
+    }>;
+    pdfParameters?: PdfParameters;
+}
+
+// ============================================================================
+// UTILIDADES
+// ============================================================================
+
+const formatDate = (dateInput?: Date | string): string => {
+    const d = dateInput
+        ? (typeof dateInput === 'string' ? new Date(dateInput) : dateInput)
+        : new Date();
+    return new Intl.DateTimeFormat('es-AR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    }).format(d);
+};
+
+const formatNumber = (value: number): string => {
+    return value.toLocaleString('es-AR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+};
+
+const mapPeriodToColumn = (periodName: string): string | null => {
+    const p = periodName.toLowerCase();
+    if (p.includes('ener') || p.includes('febr')) return 'ENER/FEBR';
+    if (p.includes('marz') || p.includes('abril')) return 'MAR/ABR';
+    if (p.includes('mayo') || p.includes('jun')) return 'MAYO/JUN';
+    if (p.includes('jul') || p.includes('agos')) return 'JULIO/AGOS';
+    if (p.includes('sept') || p.includes('oct')) return 'SEP/OCT';
+    if (p.includes('nov') || p.includes('dic')) return 'NOV/DIC';
+    return null;
+};
+
+const getDebtGridData = (periodsOwed: number, debts?: DebtItemDto[]) => {
+    const grid: Record<number, Record<string, number>> = {};
+    let totalAmount = 0;
+
+    if (debts && debts.length > 0) {
+        debts.forEach(d => {
+            const col = mapPeriodToColumn(d.periodName);
+            if (col) {
+                // Intentar extraer el año de 4 dígitos directamente del nombre del período (ej. "Noviembre/Diciembre 2025")
+                const yearMatch = d.periodName.match(/\b(20\d{2})\b/);
+                let year = yearMatch ? parseInt(yearMatch[1], 10) : null;
+
+                if (year === null) {
+                    const date = d.expirationDate ? new Date(d.expirationDate) : new Date();
+                    year = date.getFullYear();
+                    // Si el período es NOV/DIC, su vencimiento ocurre en enero/febrero del año siguiente,
+                    // por lo que el período real corresponde al año anterior.
+                    if (col === 'NOV/DIC') {
+                        year -= 1;
+                    }
+                }
+
+                if (!grid[year]) {
+                    grid[year] = {
+                        'ENER/FEBR': 0,
+                        'MAR/ABR': 0,
+                        'MAYO/JUN': 0,
+                        'JULIO/AGOS': 0,
+                        'SEP/OCT': 0,
+                        'NOV/DIC': 0
+                    };
+                }
+                grid[year][col] = (grid[year][col] || 0) + d.amount;
+            }
+            totalAmount += d.amount;
+        });
+
+        const years = Object.keys(grid).map(Number).sort((a, b) => b - a);
+        if (years.length === 0) {
+            const currentYear = new Date().getFullYear();
+            years.push(currentYear);
+            grid[currentYear] = {
+                'ENER/FEBR': 0,
+                'MAR/ABR': 0,
+                'MAYO/JUN': 0,
+                'JULIO/AGOS': 0,
+                'SEP/OCT': 0,
+                'NOV/DIC': 0
+            };
+        }
+
+        return { grid, years, totalAmount };
+    }
+
+    // Fallback: simulación original basada en el número de períodos adeudados
+    const currentYear = new Date().getFullYear();
+    const previousYear = currentYear - 1;
+
+    grid[currentYear] = {
+        'ENER/FEBR': 0,
+        'MAR/ABR': 0,
+        'MAYO/JUN': 0,
+        'JULIO/AGOS': 0,
+        'SEP/OCT': 0,
+        'NOV/DIC': 0
+    };
+    grid[previousYear] = {
+        'ENER/FEBR': 0,
+        'MAR/ABR': 0,
+        'MAYO/JUN': 0,
+        'JULIO/AGOS': 0,
+        'SEP/OCT': 0,
+        'NOV/DIC': 0
+    };
+
+    if (periodsOwed === 1) {
+        grid[currentYear]['JULIO/AGOS'] = 25500.00;
+        totalAmount = 25500.00;
+    } else if (periodsOwed === 2) {
+        grid[currentYear]['MAYO/JUN'] = 12000.00;
+        grid[currentYear]['JULIO/AGOS'] = 13500.00;
+        totalAmount = 25500.00;
+    } else if (periodsOwed >= 3) {
+        grid[currentYear]['MAR/ABR'] = 10000.00;
+        grid[currentYear]['MAYO/JUN'] = 12000.00;
+        grid[currentYear]['JULIO/AGOS'] = 13500.00;
+        totalAmount = 35500.00;
+    }
+
+    return { grid, years: [currentYear, previousYear], totalAmount };
+};
+
+// ============================================================================
+// COMPONENTE DE PÁGINA INDIVIDUAL - INTIMACIÓN
+// ============================================================================
+
+const DebtPage = ({
+    user,
+    date,
+    periodsOwed = 1,
+    pdfParameters = DEFAULT_PARAMS,
+}: {
+    user: UserDebtDto;
+    date?: string | Date;
+    periodsOwed?: number;
+    pdfParameters?: PdfParameters;
+}) => {
+    const userFullName = `${user.lastName} ${user.firstName}`.toUpperCase();
+    const domicile = `${user.residenceDto?.street || ''} ${user.residenceDto?.number || ''}`.trim() || 'SIN DOMICILIO';
+
+    const { grid, years, totalAmount } = getDebtGridData(periodsOwed, user.debts);
+    const administrativeExpenses = pdfParameters.administrativeExpenses;
+    const finalTotal = totalAmount + administrativeExpenses;
+
+    return (
+        <Page size="A4" style={styles.page}>
+            {/* Encabezado: Logo Izquierda, Cuadro Derecho */}
+            <View style={styles.headerRow}>
+                <View style={styles.logoContainer}>
+                    <Text style={styles.logoTextBold}>Consorcio de</Text>
+                    <Text style={styles.logoTextBold}>agua potable</Text>
+                    <Text style={styles.logoTextBold}>Santa Maria</Text>
+                    <Text style={styles.logoTextBold}>de Oro</Text>
+                    <Text style={styles.logoTextSub}>GESTIÓN DE AGUA VECINAL</Text>
+                </View>
+                <View style={styles.headerRightBox}>
+                    <Text style={styles.headerRightTextBold}>LINIERS S/N   SANTA MARIA DE ORO</Text>
+                    <Text style={styles.headerRightText}>C.P. 5577  -RVIA.- MZA</Text>
+                    <Text style={styles.headerRightTextBold}>C.U.I.T. NRO: 30-65481347-3</Text>
+                </View>
+            </View>
+
+            {/* Título de la Intimación y Fecha */}
+            <View style={styles.titleRow}>
+                <Text style={styles.titleLeft}>INTIMACIÓN DE CORTE DE SERVICIO</Text>
+                <Text style={styles.dateRight}>{formatDate(date)}</Text>
+            </View>
+
+            {/* Tabla del Usuario Notificado */}
+            <View style={styles.table}>
+                <View style={styles.tableRow}>
+                    <Text style={[styles.tableHeaderCell, styles.colUsuario]}>USUARIO</Text>
+                    <Text style={[styles.tableHeaderCell, styles.colNombre]}>APELLIDO Y NOMBRE</Text>
+                    <Text style={[styles.tableHeaderCell, styles.colDomicilio]}>DOMICILIO</Text>
+                </View>
+                <View style={styles.tableRow}>
+                    <Text style={[styles.tableCell, styles.colUsuario]}>{user.idUser}</Text>
+                    <Text style={[styles.tableCell, styles.colNombre]}>{userFullName}</Text>
+                    <Text style={[styles.tableCell, styles.colDomicilio]}>{domicile.toUpperCase()}</Text>
+                </View>
+            </View>
+
+            {/* Línea Informativa */}
+            <Text style={styles.infoLine}>
+                ATENTO QUE SEGÚN NUESTROS REGISTROS SE ENCUENTRA AL DÍA DE LA FECHA IMPAGOS LOS PERÍODOS
+            </Text>
+
+            {/* Grilla Bimestral de Períodos de Deuda */}
+            <View style={styles.table}>
+                {/* Cabecera */}
+                <View style={styles.tableRow}>
+                    <Text style={[styles.tableHeaderCell, styles.colGridAnio]}>AÑO</Text>
+                    <Text style={[styles.tableHeaderCell, styles.colGridBimestre]}>ENER/FEBR</Text>
+                    <Text style={[styles.tableHeaderCell, styles.colGridBimestre]}>MAR/ABR</Text>
+                    <Text style={[styles.tableHeaderCell, styles.colGridBimestre]}>MAYO/JUN</Text>
+                    <Text style={[styles.tableHeaderCell, styles.colGridBimestre]}>JULIO/AGOS</Text>
+                    <Text style={[styles.tableHeaderCell, styles.colGridBimestre]}>SEP/OCT</Text>
+                    <Text style={[styles.tableHeaderCell, styles.colGridBimestre]}>NOV/DIC</Text>
+                </View>
+                {/* Filas de años */}
+                {years.map(yr => (
+                    <View style={styles.tableRow} key={yr}>
+                        <Text style={[styles.tableCell, styles.colGridAnio, styles.bold]}>{yr}</Text>
+                        <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid[yr]['ENER/FEBR'] > 0 ? `$ ${formatNumber(grid[yr]['ENER/FEBR'])}` : '-'}</Text>
+                        <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid[yr]['MAR/ABR'] > 0 ? `$ ${formatNumber(grid[yr]['MAR/ABR'])}` : '-'}</Text>
+                        <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid[yr]['MAYO/JUN'] > 0 ? `$ ${formatNumber(grid[yr]['MAYO/JUN'])}` : '-'}</Text>
+                        <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid[yr]['JULIO/AGOS'] > 0 ? `$ ${formatNumber(grid[yr]['JULIO/AGOS'])}` : '-'}</Text>
+                        <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid[yr]['SEP/OCT'] > 0 ? `$ ${formatNumber(grid[yr]['SEP/OCT'])}` : '-'}</Text>
+                        <Text style={[styles.tableCell, styles.colGridBimestre]}>{grid[yr]['NOV/DIC'] > 0 ? `$ ${formatNumber(grid[yr]['NOV/DIC'])}` : '-'}</Text>
+                    </View>
+                ))}
+            </View>
+
+            {/* Intereses y Gastos */}
+            <View style={styles.expensesRow}>
+                <Text style={styles.expensesText}>INTERESES Y GASTOS ADMINISTRATIVO</Text>
+                <Text style={styles.expensesText}>$ ... {formatNumber(administrativeExpenses)}</Text>
+            </View>
+
+            {/* Alerta de Intimación de Pago */}
+            <View style={styles.alertBox}>
+                <Text style={styles.alertText}>
+                    <Text style={styles.bold}>POR LA PRESTACIÓN DEL SERVICIO DE AGUA POTABLE, SUMA TOTAL QUE ASCIENDE A PESOS </Text>
+                    <Text style={styles.bold}>$ {formatNumber(finalTotal)}</Text> ...SE LE <Text style={styles.bold}>INTIMA</Text> PARA QUE EN UN TÉRMINO PERENTORIO E IMPRORROGABLE DE <Text style={styles.bold}>{formatDaysToPay(pdfParameters.daysToPay)}</Text> A PARTIR DE LA NOTIFICACIÓN DE LA PRESENTE, PROCEDA A CANCELAR LA TOTALIDAD DE LAS SUMAS ANTES INDICADAS, CON MAS LOS INTERESES QUE CORRESPONDAN DESDE LA FECHA DEL VENCIMIENTO HASTA EL EFECTIVO PAGO CON MAS LOS GASTOS; TODO ELLO BAJO APERCIMIENTO DE PROCEDER SIN MAS A LA SUSPENSIÓN TOTAL DEL SERVICIO DE AGUA POTABLE.
+                </Text>
+            </View>
+
+            {/* Artículos Legales Ley 6044 */}
+            <View>
+                <Text style={styles.bodyText}>
+                    SE DEJA CONSTANCIA, QUE SE PROCEDE CONFORME LAS FACULTADES Y ATRIBUCIONES CONFERIDAS POR EL ARTÍCULO 1º DE LA LEY 6511, MODIFICATORIO DEL ARTÍCULO 20º DE LA LEY 6044, QUE EXPRESA:
+                </Text>
+                <Text style={styles.bodyText}>
+                    <Text style={styles.bold}>ARTICULO 20º RESTRICCIÓN Y SUSPENSIÓN.</Text> PODRA RESTRINGIRSE TRANSITORIAMENTE EL SERVICIO PARA USOS DOMÉSTICOS CUANDO SE HAYA PRODUCIDO EL VENCIMIENTO DE UNA FACTURA O HAYAN TRANSCURRIDO MAS DE <Text style={styles.bold}>{formatDaysToDisconnection(pdfParameters.daysToDisconnection)}</Text> DESDE EL VENCIMIENTO ORIGINAL DE LA PRIMERA DE ELLAS O VENCIDO, IGUAL TÉRMINO DESDE EL AVISO PARA EL PAGO DE CONTRIBUCIONES DE MEJORAS, MULTAS Y LIQUIDACIONES ORIGINADAS EN LA PRESTACIÓN EN CUALQUIERA DE LOS SERVICIOS A TAL EFECTO EN CADA FACTURA QUE SE EMITA PARA EL COBRO NORMAL DE LOS SERVICIOS, SE DEBERÁ COMUNICAR LOS IMPORTES ADEUDADOS, LOS RECARGOS CORRESPONDIENTES Y LAS CONSECUENCIAS DE FALTA DE PAGO EN TÉRMINO.
+                </Text>
+                <Text style={styles.bodyText}>
+                    PODRA SUSPENDERSE EL SERVICIO PARA USO DOMÉSTICO; O CORRIDO EL VENCIMIENTO IMPAGO Y TRASCURRIDOS <Text style={styles.bold}>{formatDaysToDisconnection(pdfParameters.daysToDisconnection)}</Text> DEL VENCIMIENTO DEL PLAZO EN EL PÁRRAFO ANTERIOR.
+                </Text>
+                <Text style={styles.bodyText}>
+                    PROCEDERÁ, PREVIA NOTIFICACIÓN FEHACIENTE, LA SUSPENSIÓN DEL SERVICIO A USUARIOS INDUSTRIALES Y COMERCIALES, CUANDO SE ENCUENTRE IMPAGA UNA FACTURA Y HAYAN TRANSCURRIDO <Text style={styles.bold}>{formatDaysToDisconnection(pdfParameters.daysToDisconnection)}</Text> DE SU VENCIMIENTO ORIGINAL. EN TODOS LOS CASOS; EL RESTABLECIMIENTO DEL SERVICIO TENDRA UN VALOR <Text style={styles.bold}>$ {formatNumber(pdfParameters.reconnectionCost)}</Text> SE HARÁ EN UN LAPSO DE <Text style={styles.bold}>{pdfParameters.reconnectionTime.toUpperCase()}</Text> UNA VEZ ABONADAS LAS DEUDAS.
+                </Text>
+            </View>
+
+            {/* Reclamos, CBU y Datos Bancarios */}
+            <View style={{ marginTop: 8, borderTop: '1px solid #ccc', paddingTop: 6 }}>
+                <Text style={styles.bodyText}>
+                    Reclamos y sugerencias al cel <Text style={styles.bold}>{pdfParameters.claimsPhone}</Text> {pdfParameters.attentionHours} por mensaje de WhatsApp.
+                </Text>
+                <Text style={styles.bodyText}>
+                    <Text style={styles.bold}>CBU {pdfParameters.cbu}</Text> consorcio Vecinal de agua potable santa María de Oro. <Text style={styles.bold}>ALIAS : {pdfParameters.alias.toUpperCase()}</Text>
+                </Text>
+            </View>
+
+            {/* Sección de Firmas / Cargo */}
+            <View style={styles.footerSection}>
+                <View style={styles.footerColumn}>
+                    <Text style={[styles.footerLabel, { textAlign: 'left', width: '100%' }]}>ATTE.</Text>
+                    <View style={styles.dottedLine} />
+                    <Text style={styles.footerText}>CONSORCIO DE AGUA POTABLE</Text>
+                    <Text style={styles.footerSubText}>DE SANTA MARIA DE ORO</Text>
+                </View>
+                <View style={styles.footerColumn}>
+                    <Text style={styles.footerLabel}>CONSTANCIA DE RECEPCIÓN</Text>
+                    <View style={styles.dottedLine} />
+                    <View style={[styles.dottedLine, { marginTop: 10 }]} />
+                </View>
+            </View>
+
+            {/* Domicilio de Pago al Pie */}
+            <Text style={styles.bottomNotice}>
+                DICHA INTIMACIÓN PODRÁ ABONARLA EN LA OFICINA DE PAGO EN LA SEDE, UBICADO EN CALLE LINIERS S/N Y V. VILLANUEVA LOS DÍAS SÁBADOS EN HORARIO DE 8 A 12:30HS
+            </Text>
+        </Page>
+    );
+};
+
+// ============================================================================
+// DOCUMENTO PRINCIPAL
+// ============================================================================
+
+const DebtPdfDocument = ({ debts, pdfParameters }: DebtPdfProps) => (
+    <Document
+        title="Cuadros de Aviso de Deuda"
+        author="Consorcio Vecinal de Agua Potable - Santa María de Oro"
+        subject="Aviso de deuda pendiente"
+        creator="Sistema de Gestión Trinity"
+    >
+        {debts.map(({ user, date, periodsOwed }, index) => (
+            <DebtPage key={`debt-notice-${user.idUser}-${index}`} user={user} date={date} periodsOwed={periodsOwed} pdfParameters={pdfParameters} />
+        ))}
+    </Document>
+);
+
+export default DebtPdfDocument;
