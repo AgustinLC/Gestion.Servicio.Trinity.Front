@@ -57,7 +57,7 @@ const ReusableTable = <T,>({
             return column.actions(row);
         }
         if (column.render) {
-            return column.render(row);
+            return column.render(row, column.key);
         }
         return String(row[column.key as keyof T]);
     };
