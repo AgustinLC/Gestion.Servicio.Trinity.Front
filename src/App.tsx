@@ -42,9 +42,11 @@ import RoleProtectedRoute from "./auth/features/protected-route/RoleProtectedRou
 import DiscountManagementPage from "./admin/features/discounts/DiscountManagementPage";
 import DiscountsPage from "./operator/features/discounts/DiscountsPage";
 import BillGenerateFilteredPage from "./operator/features/generate-bill/BillGenerateFilteredPage";
+import DebtDisconnectionPage from "./operator/features/debt-disconnection/DebtDisconnectionPage";
 import NotFoundPage from "./shared/features/not-found-page/NotFoundPage";
 import ReadingControlPage from "./operator/features/reading/reading-control/ReadingControlPage";
 import DebtControlPage from "./operator/features/debt/DebtControlPage";
+import PdfParametersPage from "./admin/features/pdf-parameters/PdfParametersPage";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -94,6 +96,7 @@ const AppContent: React.FC = () => {
           <Route path="reports" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReportsPage /></RoleProtectedRoute>} />
           <Route path="discounts" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DiscountsPage /></RoleProtectedRoute>} />
           <Route path="debts" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DebtControlPage /></RoleProtectedRoute>} />
+          <Route path="debt-disconnection" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DebtDisconnectionPage /></RoleProtectedRoute>} />
         </Route>
 
         {/* Rutas solo para usuario administrador */}
@@ -111,6 +114,7 @@ const AppContent: React.FC = () => {
           <Route path="new/period" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><NewPeriodPage /></RoleProtectedRoute>} />
           <Route path="modalities" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><ModalityPage /></RoleProtectedRoute>} />
           <Route path="discounts/management" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><DiscountManagementPage /></RoleProtectedRoute>} />
+          <Route path="pdf-parameters" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><PdfParametersPage /></RoleProtectedRoute>} />
         </Route>
 
         {/* Ruta catch-all para páginas no encontradas */}
