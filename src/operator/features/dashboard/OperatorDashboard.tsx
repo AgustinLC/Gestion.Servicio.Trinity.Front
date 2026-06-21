@@ -24,6 +24,7 @@ const DashboardOperator: React.FC = () => {
     const isReadingSection = [
         "/dashboard/operator/readings/management",
         "/dashboard/operator/readings/take",
+        "/dashboard/operator/readings/control",
     ].includes(currentPath);
 
     const isBillSection = [
@@ -50,6 +51,13 @@ const DashboardOperator: React.FC = () => {
                     onClick={() => setActivePopover(null)}
                 >
                     Tomar Lecturas
+                </Link>
+                <Link
+                    to="/dashboard/operator/readings/control"
+                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/readings/control" ? "active" : ""}`}
+                    onClick={() => setActivePopover(null)}
+                >
+                    Control de Lecturas
                 </Link>
             </Popover.Body>
         </Popover>

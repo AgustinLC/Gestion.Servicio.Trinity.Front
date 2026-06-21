@@ -43,6 +43,7 @@ import DiscountManagementPage from "./admin/features/discounts/DiscountManagemen
 import DiscountsPage from "./operator/features/discounts/DiscountsPage";
 import BillGenerateFilteredPage from "./operator/features/generate-bill/BillGenerateFilteredPage";
 import NotFoundPage from "./shared/features/not-found-page/NotFoundPage";
+import ReadingControlPage from "./operator/features/reading/reading-control/ReadingControlPage";
 import DebtControlPage from "./operator/features/debt/DebtControlPage";
 
 const AppContent: React.FC = () => {
@@ -84,6 +85,7 @@ const AppContent: React.FC = () => {
           <Route path="users" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><User /></RoleProtectedRoute>} />
           <Route path="readings/management" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReadingManagement /></RoleProtectedRoute>} />
           <Route path="readings/take" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReadingTake /></RoleProtectedRoute>} />
+          <Route path="readings/control" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReadingControlPage /></RoleProtectedRoute>} />
           <Route path="parameters/bills" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><PendigBillsParameterPage /></RoleProtectedRoute>} />
           <Route path="bills/generate" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillGeneratePage /></RoleProtectedRoute>} />
           <Route path="bills/generate-filtered" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillGenerateFilteredPage /></RoleProtectedRoute>} />
