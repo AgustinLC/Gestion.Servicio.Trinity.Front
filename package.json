@@ -47,6 +47,7 @@
   },
   "trustedDependencies": [
     "@swc/core",
-    "core-js"
+    "core-js",
+    "esbuild"
   ]
 }
