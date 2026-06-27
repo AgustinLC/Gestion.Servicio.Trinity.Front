@@ -126,7 +126,7 @@ const AdminDashboard: React.FC = () => {
                             <span className="ms-2 d-lg-inline">Serv./Unid.</span>
                         </Link>
                     </li>
-                    
+
                     {/* Conceptos */}
                     <li className="nav-item">
                         <Link to="/dashboard/admin/billing-parameters" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/billing-parameters' ? 'active' : ''}`} title="Gestión de Parametros de Facturación" onClick={() => setSidebarOpen(false)}>
@@ -135,14 +135,14 @@ const AdminDashboard: React.FC = () => {
                         </Link>
                     </li>
 
-                     {/* Descuentos */}
+                    {/* Descuentos */}
                     <li className="nav-item">
                         <Link to="/dashboard/admin/discounts/management" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/discounts' ? 'active' : ''}`} title="Gestion de descuentos" onClick={() => setSidebarOpen(false)}>
                             <i className="bi bi-plus-slash-minus fs-4"></i>
                             <span className="ms-2 d-lg-inline">Descuentos</span>
                         </Link>
                     </li>
-                    
+
                     {/* Periodo */}
                     <li className="nav-item">
                         <Link to="/dashboard/admin/new/period" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/new/period' ? 'active' : ''}`} title="Generar nueva modalidad" onClick={() => setSidebarOpen(false)}>
@@ -156,6 +156,14 @@ const AdminDashboard: React.FC = () => {
                         <Link to="/dashboard/admin/pdf-parameters" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/pdf-parameters' ? 'active' : ''}`} title="Parámetros Avisos PDF" onClick={() => setSidebarOpen(false)}>
                             <i className="bi bi-file-pdf fs-4"></i>
                             <span className="ms-2 d-lg-inline">Avisos PDF</span>
+                        </Link>
+                    </li>
+
+                    {/* Balance */}
+                    <li className="nav-item">
+                        <Link to="/dashboard/admin/balance" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/balance' ? 'active' : ''}`} title="Balance" onClick={() => setSidebarOpen(false)}>
+                            <i className="bi bi-graph-down-arrow fs-4"></i>
+                            <span className="ms-2 d-lg-inline">Balance</span>
                         </Link>
                     </li>
                 </ul>
