@@ -29,3 +29,30 @@ body {
 .custom-switch-container .form-check-input {
   cursor: pointer;
 }
+
+/* Navbar active link indicator */
+.navbar-active-link {
+  position: relative;
+}
+
+.navbar-active-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 80%;
+  height: 2px;
+  background-color: #ffffff;
+  border-radius: 2px;
+  transition: transform 0.2s ease;
+}
+
+.navbar-active-link:hover::after {
+  transform: translateX(-50%) scaleX(0.5);
+  opacity: 0.6;
+}
+
+.navbar-active-link.navbar-link-active::after {
+  transform: translateX(-50%) scaleX(1);
+}
