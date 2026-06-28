@@ -213,14 +213,6 @@ const DashboardOperator: React.FC = () => {
                             <span className="ms-2 d-lg-inline">Reportes</span>
                         </Link>
                     </li>
-
-                    {/* Deudas */}
-                    <li className="nav-item">
-                        <Link to="/dashboard/operator/debts" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/reports" ? "active" : ""}`}>
-                            <i className="bi bi-graph-down-arrow fs-4"></i>
-                            <span className="ms-2 d-lg-inline">Deudas</span>
-                        </Link>
-                    </li>
                 </ul>
             </aside>
 

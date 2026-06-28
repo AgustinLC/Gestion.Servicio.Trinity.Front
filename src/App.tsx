@@ -45,7 +45,7 @@ import BillGenerateFilteredPage from "./operator/features/generate-bill/BillGene
 import DebtDisconnectionPage from "./operator/features/debt-disconnection/DebtDisconnectionPage";
 import NotFoundPage from "./shared/features/not-found-page/NotFoundPage";
 import ReadingControlPage from "./operator/features/reading/reading-control/ReadingControlPage";
-import DebtControlPage from "./operator/features/debt/DebtControlPage";
+import DebtControlPage from "./admin/features/balance/DebtControlPage";
 import PdfParametersPage from "./admin/features/pdf-parameters/PdfParametersPage";
 
 const AppContent: React.FC = () => {
@@ -95,7 +95,6 @@ const AppContent: React.FC = () => {
           <Route path="bills/management" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillManagementPage /></RoleProtectedRoute>} />
           <Route path="reports" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReportsPage /></RoleProtectedRoute>} />
           <Route path="discounts" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DiscountsPage /></RoleProtectedRoute>} />
-          <Route path="debts" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DebtControlPage /></RoleProtectedRoute>} />
           <Route path="debt-disconnection" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DebtDisconnectionPage /></RoleProtectedRoute>} />
         </Route>
 
@@ -115,6 +114,7 @@ const AppContent: React.FC = () => {
           <Route path="modalities" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><ModalityPage /></RoleProtectedRoute>} />
           <Route path="discounts/management" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><DiscountManagementPage /></RoleProtectedRoute>} />
           <Route path="pdf-parameters" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><PdfParametersPage /></RoleProtectedRoute>} />
+          <Route path="balance" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><DebtControlPage /></RoleProtectedRoute>} />
         </Route>
 
         {/* Ruta catch-all para páginas no encontradas */}
