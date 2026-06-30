@@ -19,74 +19,12 @@ const BillManagementPage = () => {
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const [isSending, setIsSending] = useState(false);
 
-    // Hook para generar PDFs
-    //const { isGenerating: pdfLoading, generateMultiplePdf } = useBillPdfGenerator();
-
-
     // Hook para buscar por columnas 
     const { filteredData, handleSearch } = useSearch<UserDto>(
         operatorUsers,
         ["firstName", "lastName", "idUser"] // columnas filtrables
     );
 
-    /*
-    // Generar PDF
-    const handleGeneratePdf = async () => {
-        try {
-            console.log('[Inicio] Obteniendo facturas...');
-
-            const bills = await getData<BillDetailsDto[]>("/operator/latest-bill/active-users");
-            console.log('[Facturas obtenidas]', bills.length);
-
-            if (bills.length === 0) {
-                toast.warning("No existen facturas para generar");
-                return;
-            }
-
-            // Asegurar que tenemos todos los usuarios necesarios
-            let currentUsers = users;
-            const missingUsers = bills.filter(bill =>
-                !currentUsers.some(user => user.idUser === bill.idUser)
-            );
-
-            if (missingUsers.length > 0) {
-                console.log('[Obteniendo usuarios faltantes]', missingUsers.length);
-                const allUsers = await getData<UserDto[]>("/operator/users");
-                setUsers(allUsers);
-                currentUsers = allUsers;
-            }
-
-            // Filtrar facturas que tienen usuario correspondiente
-            const validBills = bills.filter(bill =>
-                currentUsers.some(user => user.idUser === bill.idUser)
-            );
-
-            console.log('[Facturas válidas para PDF]', validBills.length);
-
-            if (validBills.length === 0) {
-                toast.error("No se encontraron facturas con usuarios válidos");
-                return;
-            }
-
-            // Generar el PDF usando el hook reutilizable
-            const fecha = new Date().toISOString().split("T")[0];
-            const fileName = `facturas_consorcio_${fecha}`;
-            
-            toast.info("Generando PDF... Esto puede tomar varios minutos");
-            
-            await generateMultiplePdf(validBills, currentUsers, {
-                fileName,
-                onProgress: (processed, total) => {
-                    console.log(`Procesando ${processed}/${total}`);
-                },
-            });
-
-        } catch (error) {
-            console.error('[Error crítico]', error);
-            toast.error("Error en conexión con el servidor");
-        }
-    };
-    */
     const handleSendBillNotifications = async () => {
         setIsSending(true);
         try {
