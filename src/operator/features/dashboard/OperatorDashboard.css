@@ -1,0 +1,113 @@
+/* --- Layout general --- */
+.dashboard-container {
+    min-height: 100vh;
+}
+
+/* Sidebar fija */
+.sidebar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: 100vh;
+    width: 180px;
+    transition: all 0.3s ease-in-out;
+    z-index: 1030;
+}
+
+/* Contenido principal */
+.dashboard-main {
+    margin-left: 180px;
+    width: calc(100% - 180px);
+    min-height: 100vh;
+    overflow-x: auto;
+    transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+/* Responsive para móviles */
+@media (max-width: 991px) {
+    .sidebar {
+        width: 221px;
+        transform: translateX(-100%);
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    .dashboard-main {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+/* Sidebar colapsada o abierta en móvil */
+.sidebar.collapsed {
+    transform: translateX(-100%);
+}
+
+/* --- Estilos de navegación --- */
+.sidebar .nav-link {
+    height: 50px;
+    transition: all 0.3s ease;
+    position: relative;
+    border-radius: 4px;
+    margin: 6px -3px;
+}
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+    transform: translateX(3px);
+}
+.sidebar .nav-link.active,
+.sidebar .nav-link.active-submenu {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    border-left: 3px solid #fff;
+    margin-left: -15px;
+}
+
+/* --- Popovers --- */
+.submenu-popover {
+    background-color: #f8f9fa;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    margin-top: 2px;
+    min-width: 200px;
+    margin-left: 0.5rem;
+    max-width: min(300px, 90vw);
+}
+.text-indented {
+    padding-left: 1rem !important;
+}
+.chevron-icon {
+    transition: transform 0.3s ease;
+    transform: rotate(0deg);
+}
+.chevron-icon.rotate {
+    transform: rotate(180deg);
+}
+
+/* --- Botón flotante lateral --- */
+.sidebar-toggle-btn {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%); /* solo centrado vertical */
+    background-color: #0d6efc;
+    color: #fff;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    padding: 12px 2px;
+    cursor: pointer;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, left 0.4s;
+}
+.sidebar-toggle-btn i {
+    font-size: 1.2rem;
+}
+
+/* --- Animaciones --- */
+@keyframes border-glow {
+    0% { opacity: 0.5; }
+}

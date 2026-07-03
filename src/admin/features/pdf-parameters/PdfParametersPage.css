@@ -1,0 +1,61 @@
+.pdf-params-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.glass-card {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(220, 224, 230, 0.5);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid rgba(13, 110, 253, 0.1);
+    padding-bottom: 8px;
+}
+
+.form-label {
+    margin-bottom: 0.4rem;
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.input-group-text {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    background-color: #f8f9fa;
+    border-right: none;
+}
+
+.input-group .form-control {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.btn-submit {
+    transition: all 0.25s ease-in-out;
+    border-radius: 8px;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(13, 110, 253, 0.25) !important;
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
