@@ -1,7 +1,7 @@
 import { StyleSheet } from '@react-pdf/renderer';
 
 // ============================================================================
-// ESTILOS PRINCIPALES - Réplica exacta del Bill.css original
+// ESTILOS PRINCIPALES - Factura PDF (@react-pdf/renderer)
 // ============================================================================
 
 export const styles = StyleSheet.create({
@@ -170,6 +170,11 @@ export const styles = StyleSheet.create({
     },
     summaryRow: {
         flexDirection: 'row',
+        alignItems: 'center',
+    },
+    summaryTotalRow: {
+        flexDirection: 'row',
+        alignItems: 'stretch',
     },
     summaryLeftCell: {
         width: '55%',
@@ -193,6 +198,72 @@ export const styles = StyleSheet.create({
         borderRight: '1px solid #000',
         textAlign: 'right',
         fontSize: 8,
+    },
+    summaryLeftCellView: {
+        width: '55%',
+        padding: 4,
+        borderBottom: '1px solid #000',
+        borderRight: '1px solid #000',
+        justifyContent: 'center',
+    },
+    summarySideCellView: {
+        width: '22.5%',
+        padding: 4,
+        borderBottom: '1px solid #000',
+        borderRight: '1px solid #000',
+        justifyContent: 'center',
+    },
+    summaryDebtCellView: {
+        width: '55%',
+        padding: 4,
+        borderBottom: '1px solid #000',
+        borderRight: '1px solid #000',
+        backgroundColor: '#E8E8E8',
+        justifyContent: 'center',
+    },
+    summaryDebtText: {
+        fontSize: 9,
+    },
+    summaryDebtAmountText: {
+        fontSize: 10,
+        fontFamily: 'Helvetica-Bold',
+        marginTop: 2,
+    },
+    summarySideLabelText: {
+        fontSize: 8,
+        fontFamily: 'Helvetica-Bold',
+    },
+    summarySideValueText: {
+        fontSize: 8,
+        textAlign: 'right',
+    },
+    summaryTotalLabelView: {
+        width: '22.5%',
+        padding: 4,
+        borderBottom: '1px solid #000',
+        borderRight: '1px solid #000',
+        backgroundColor: '#E8E8E8',
+        justifyContent: 'center',
+    },
+    summaryTotalValueView: {
+        width: '22.5%',
+        padding: 4,
+        borderBottom: '1px solid #000',
+        borderRight: '1px solid #000',
+        backgroundColor: '#E8E8E8',
+        justifyContent: 'center',
+    },
+    summaryTotalText: {
+        fontSize: 10,
+        fontFamily: 'Helvetica-Bold',
+    },
+    summaryTotalValueText: {
+        fontSize: 10,
+        fontFamily: 'Helvetica-Bold',
+        textAlign: 'right',
+    },
+    highlightAmount: {
+        fontFamily: 'Helvetica-Bold',
     },
     summaryFullRow: {
         flexDirection: 'row',
@@ -331,6 +402,13 @@ export const styles = StyleSheet.create({
     },
     beadTotalValue: {
         fontSize: 7,
+    },
+    beadTotalValueHighlight: {
+        fontSize: 8,
+        fontFamily: 'Helvetica-Bold',
+    },
+    beadDebtAmount: {
+        fontFamily: 'Helvetica-Bold',
     },
 
     // Footer del talón

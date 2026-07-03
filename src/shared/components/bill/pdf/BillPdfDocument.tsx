@@ -345,15 +345,30 @@ const DebtSummary = ({ bill }: { bill: BillDetailsDto }) => (
             </View>
 
             {/* Fila 2 - Deuda + IVA 21% */}
-            <View style={styles.summaryRow}>
-                <Text style={styles.summaryLeftCell}>
-                    {bill.amountUnpaidInvoices > 0
-                        ? `Señor Usuario: A dicha fecha Ud. registra un monto pendiente de pago de $ ${bill.amountUnpaidInvoices}`
-                        : 'Señor Usuario: A dicha fecha Ud. no registra conceptos facturados pendientes de pago.'}
-                </Text>
-                <Text style={styles.summaryLabelCell}>IVA 21,00 %</Text>
-                <Text style={styles.summaryValueCell}>$ {bill.iva}</Text>
-            </View>
+            {bill.amountUnpaidInvoices > 0 ? (
+                <View style={styles.summaryTotalRow}>
+                    <View style={styles.summaryDebtCellView}>
+                        <Text style={styles.summaryDebtText}>
+                            Señor Usuario: A dicha fecha Ud. registra un monto pendiente de pago de
+                        </Text>
+                        <Text style={styles.summaryDebtAmountText}>$ {bill.amountUnpaidInvoices}</Text>
+                    </View>
+                    <View style={styles.summarySideCellView}>
+                        <Text style={styles.summarySideLabelText}>IVA 21,00 %</Text>
+                    </View>
+                    <View style={styles.summarySideCellView}>
+                        <Text style={styles.summarySideValueText}>$ {bill.iva}</Text>
+                    </View>
+                </View>
+            ) : (
+                <View style={styles.summaryRow}>
+                    <Text style={styles.summaryLeftCell}>
+                        Señor Usuario: A dicha fecha Ud. no registra conceptos facturados pendientes de pago.
+                    </Text>
+                    <Text style={styles.summaryLabelCell}>IVA 21,00 %</Text>
+                    <Text style={styles.summaryValueCell}>$ {bill.iva}</Text>
+                </View>
+            )}
 
             {/* Fila 3 - Pague en término + IVA RNI */}
             <View style={styles.summaryRow}>
@@ -370,10 +385,18 @@ const DebtSummary = ({ bill }: { bill: BillDetailsDto }) => (
             </View>
 
             {/* Fila 5 - Cuenta Bancaria + Total */}
-            <View style={styles.summaryRow}>
-                <Text style={styles.summaryLeftCell}>CUENTA BANCARIA. Bco Nacion Suc. Rivadavia Cuenta Corriente 11503/45</Text>
-                <Text style={styles.summaryLabelCell}>TOTAL A PAGAR</Text>
-                <Text style={styles.summaryValueCell}>$ {bill.total}</Text>
+            <View style={styles.summaryTotalRow}>
+                <View style={styles.summaryLeftCellView}>
+                    <Text style={{ fontSize: 8 }}>
+                        CUENTA BANCARIA. Bco Nacion Suc. Rivadavia Cuenta Corriente 11503/45
+                    </Text>
+                </View>
+                <View style={styles.summaryTotalLabelView}>
+                    <Text style={styles.summaryTotalText}>TOTAL A PAGAR</Text>
+                </View>
+                <View style={styles.summaryTotalValueView}>
+                    <Text style={styles.summaryTotalValueText}>$ {bill.total}</Text>
+                </View>
             </View>
 
             {/* Fila 6 - Son Pesos */}
@@ -386,7 +409,8 @@ const DebtSummary = ({ bill }: { bill: BillDetailsDto }) => (
             {/* Fila 7 - Monto Vencido */}
             <View style={styles.summaryFullRow}>
                 <Text style={styles.summaryFullCell}>
-                    PASADA LA FECHA DE VENCIMIENTO DEBERA PAGAR: <Text style={styles.bold}>$ {bill.maturityAmount}</Text>
+                    PASADA LA FECHA DE VENCIMIENTO DEBERA PAGAR:{' '}
+                    <Text style={styles.highlightAmount}>$ {bill.maturityAmount}</Text>
                 </Text>
             </View>
         </View>
@@ -406,7 +430,7 @@ const NotesSection = () => (
             CBU 0110438120043811503456 consorcio Vecinal de agua potable santa María de Oro. ALIAS: BOMBO.PRIMO.NUDO
         </Text>
         <Text style={styles.notesTextBold}>
-            RESTRICCIÓN DE USOS DEL AGUA POTABLE DE 8 A 20HS. Está prohibido utilizar agua potable para regar jardines, calles, lavar veredas, autos y llenar pileta. Disposición de DIRCAS para que no le aplique multa por derroche. Hagamos un uso responsable
+            PARA CONSULTAS COMUNICARSE AL: 2635036918
         </Text>
 
         <View style={styles.notesBottom}>
@@ -459,7 +483,12 @@ const BeadTicket = ({ bill, user, footer }: SingleBillProps & { footer: string }
                 <View style={styles.beadInfoCol}>
                     <Text style={styles.beadInfoText}><Text style={styles.bold}>Consumidor final</Text></Text>
                     <Text style={styles.beadInfoText}><Text style={styles.bold}>Consumo: </Text>{bill.consumption}m³</Text>
-                    <Text style={styles.beadInfoText}><Text style={styles.bold}>Monto deuda: </Text>${bill.amountUnpaidInvoices}</Text>
+                    <Text style={styles.beadInfoText}>
+                        <Text style={styles.bold}>Monto deuda: </Text>
+                        <Text style={bill.amountUnpaidInvoices > 0 ? styles.beadDebtAmount : undefined}>
+                            ${bill.amountUnpaidInvoices}
+                        </Text>
+                    </Text>
                     <Text style={styles.beadInfoText}><Text style={styles.bold}>Fecha de Emisión: </Text>{formatDate(bill.dateRegister)}</Text>
                     <Text style={styles.beadInfoText}><Text style={styles.bold}>Fecha de vencimiento: </Text>{formatDate(bill.expirationDate)}</Text>
                 </View>
@@ -482,11 +511,11 @@ const BeadTicket = ({ bill, user, footer }: SingleBillProps & { footer: string }
                     </View>
                     <View style={styles.beadTotalCell}>
                         <Text style={styles.beadTotalLabel}>TOTAL</Text>
-                        <Text style={styles.beadTotalValue}>$ {bill.total}</Text>
+                        <Text style={styles.beadTotalValueHighlight}>$ {bill.total}</Text>
                     </View>
                     <View style={styles.beadTotalCell}>
                         <Text style={styles.beadTotalLabel}>T. VENCIDA</Text>
-                        <Text style={styles.beadTotalValue}>$ {bill.maturityAmount}</Text>
+                        <Text style={styles.beadTotalValueHighlight}>$ {bill.maturityAmount}</Text>
                     </View>
                 </View>
             </View>
