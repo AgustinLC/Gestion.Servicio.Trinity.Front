@@ -20,7 +20,7 @@ const AdminDashboard: React.FC = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    const sidebarWidth = isMobile ? 220 : 180;
+    const sidebarWidth = isMobile ? 240 : 200;
     const buttonLeft = sidebarOpen ? sidebarWidth : 0;
 
     const isWebSection = [

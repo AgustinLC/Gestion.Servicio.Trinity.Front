@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import MainPage from "./shared/features/main-page/MainPage";
 import LoginPage from "./auth/features/login-page/LoginPage";
@@ -50,6 +50,11 @@ import PdfParametersPage from "./admin/features/pdf-parameters/PdfParametersPage
 
 const AppContent: React.FC = () => {
   const location = useLocation();
+
+  // Restaurar el scroll arriba de la página al cambiar de ruta
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   // Rutas donde queremos mostrar el Footer
   const showFooterPaths = ["/", "/faq", "/login", "/forgot-password", "/reset-password"];

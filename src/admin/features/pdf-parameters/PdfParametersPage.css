@@ -4,17 +4,17 @@
 }
 
 .glass-card {
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(220, 224, 230, 0.5);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    background: #ffffff;
+    border: 1px solid rgba(220, 224, 230, 0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 8px rgba(0, 0, 0, 0.02);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .section-title {
     font-size: 1.15rem;
     font-weight: 700;
     letter-spacing: 0.5px;
-    border-bottom: 2px solid rgba(13, 110, 253, 0.1);
+    border-bottom: 2px solid rgba(0, 119, 255, 0.1);
     padding-bottom: 8px;
 }
 
@@ -30,8 +30,8 @@
 }
 
 .form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    border-color: #80bfff;
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
 }
 
 .input-group-text {
@@ -53,7 +53,7 @@
 
 .btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(13, 110, 253, 0.25) !important;
+    box-shadow: 0 6px 12px rgba(0, 119, 255, 0.25) !important;
 }
 
 .btn-submit:active {

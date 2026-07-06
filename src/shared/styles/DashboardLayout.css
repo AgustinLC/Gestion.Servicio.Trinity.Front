@@ -1,0 +1,181 @@
+/*
+  Estilos compartidos de layout para los dashboards (Admin, Operator, User).
+  Sidebar, popovers, botón flotante mobile y animaciones asociadas.
+  Importado desde AdminDashboard.css, OperatorDashboard.css y UserDashboard.css
+  para evitar mantener 3 copias idénticas.
+*/
+
+/* --- Layout general --- */
+.dashboard-container {
+    min-height: 100vh;
+}
+
+/* Sidebar fija */
+.sidebar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: 100vh;
+    width: 200px;
+    background-color: #0f172a !important; /* Premium Slate 900 */
+    border-right: 1px solid rgba(226, 232, 240, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1030;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.02);
+}
+
+/* Contenido principal */
+.dashboard-main {
+    margin-left: 200px;
+    width: calc(100% - 200px);
+    min-height: 100vh;
+    overflow-x: auto;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive para móviles */
+@media (max-width: 991px) {
+    .sidebar {
+        width: 240px;
+        transform: translateX(-100%);
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    .dashboard-main {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+/* Sidebar colapsada o abierta en móvil */
+.sidebar.collapsed {
+    transform: translateX(-100%);
+}
+
+/* --- Estilos de navegación --- */
+.sidebar .nav-link {
+    height: auto;
+    padding: 0.7rem 0.9rem !important;
+    color: #94a3b8 !important; /* Slate 400 (Gris suave) */
+    transition: var(--transition-smooth);
+    position: relative;
+    border-radius: 8px;
+    margin: 4px 8px;
+    display: flex;
+    align-items: center;
+    border: none !important;
+}
+
+.sidebar .nav-link i {
+    font-size: 1.25rem;
+    margin-right: 0.75rem;
+    transition: var(--transition-smooth);
+}
+
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    color: #ffffff !important;
+    transform: translateX(2px);
+}
+
+.sidebar .nav-link:hover i {
+    color: var(--bs-primary);
+}
+
+.sidebar .nav-link.active,
+.sidebar .nav-link.active-submenu {
+    background-color: var(--bs-primary) !important; /* Water Blue */
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px 0 rgba(0, 119, 255, 0.35);
+    font-weight: 600;
+}
+
+.sidebar .nav-link.active i,
+.sidebar .nav-link.active-submenu i {
+    color: #ffffff !important;
+}
+
+/* --- Popovers (Submenús flotantes) --- */
+.submenu-popover {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    box-shadow: var(--shadow-md) !important;
+    margin-top: 2px;
+    min-width: 190px;
+    margin-left: 0.5rem;
+    max-width: min(300px, 90vw);
+    padding: 0.4rem;
+}
+
+.submenu-popover .popover-body {
+    padding: 0 !important;
+}
+
+.text-indented {
+    padding-left: 0.75rem !important;
+}
+
+.submenu-popover .nav-link {
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem !important;
+    color: #475569 !important;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+    margin: 2px 0;
+}
+
+.submenu-popover .nav-link:hover {
+    background-color: #f1f5f9 !important;
+    color: var(--bs-primary) !important;
+    transform: none;
+}
+
+.submenu-popover .nav-link.active {
+    background-color: rgba(0, 119, 255, 0.08) !important;
+    color: var(--bs-primary) !important;
+    font-weight: 600;
+}
+
+.chevron-icon {
+    transition: transform 0.3s ease;
+    transform: rotate(0deg);
+}
+
+.chevron-icon.rotate {
+    transform: rotate(90deg); /* Modern right chevron turns to down/right */
+}
+
+/* --- Botón flotante lateral --- */
+.sidebar-toggle-btn {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--bs-primary);
+    color: #fff;
+    border: none;
+    border-radius: 0 50% 50% 0;
+    padding: 14px 10px 14px 6px;
+    cursor: pointer;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, left 0.4s, box-shadow 0.3s;
+    box-shadow: 0 4px 12px rgba(0, 119, 255, 0.3);
+}
+
+.sidebar-toggle-btn:hover {
+    background-color: #0055cc;
+    box-shadow: 0 6px 16px rgba(0, 119, 255, 0.45);
+}
+
+.sidebar-toggle-btn i {
+    font-size: 1.2rem;
+}
+
+/* --- Animaciones --- */
+@keyframes border-glow {
+    0% { opacity: 0.5; }
+}

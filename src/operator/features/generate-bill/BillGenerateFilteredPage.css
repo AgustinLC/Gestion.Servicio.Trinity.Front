@@ -30,7 +30,7 @@
 
 .form-label {
     font-weight: 600;
-    color: #4a5568;
+    color: #475569;
     font-size: 0.9rem;
     margin-bottom: 0.4rem;
 }
@@ -44,8 +44,8 @@
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: #4299e1;
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+    border-color: #80bfff;
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
 }
 
 /* Autocomplete Street Dropdown */
@@ -82,8 +82,8 @@
 }
 
 .street-suggestion-item:hover, .street-suggestion-item.active {
-    background-color: #ebf8ff;
-    color: #2b6cb0;
+    background-color: rgba(0, 119, 255, 0.08);
+    color: #0077ff;
 }
 
 /* Input clear button */
@@ -110,7 +110,7 @@
 
 .input-clear-btn:hover {
     background-color: #edf2f7;
-    color: #4a5568;
+    color: #475569;
 }
 
 /* Stats Cards */
@@ -144,7 +144,7 @@
 }
 
 .stat-card-blue {
-    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    background: linear-gradient(135deg, #0077ff 0%, #0055cc 100%);
 }
 
 .stat-card-green {
