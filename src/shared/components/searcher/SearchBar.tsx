@@ -3,9 +3,10 @@ import { Form } from "react-bootstrap";
 
 interface SearchBarProps {
     onSearch: (query: string) => void;
+    placeholder?: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Buscar..." }) => {
     const [query, setQuery] = useState("");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -15,9 +16,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
 
     return (
         <Form.Control
-            className="w-50"
+            className="search-bar-input"
             type="text"
-            placeholder="Buscar..."
+            placeholder={placeholder}
             value={query}
             onChange={handleChange}
         />

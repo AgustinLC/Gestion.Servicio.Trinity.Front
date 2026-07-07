@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Card, Col, Form, Row, Spinner, Nav } from "react-bootstrap";
+import { Button, Card, Col, Row, Spinner, Nav } from "react-bootstrap";
 import { DebtStatus } from "../../../core/models/types/DebtStatus";
 import { BalanceControlDto } from "../../../core/models/dto/BalanceControlDto";
 import { CollectedBillDto } from "../../../core/models/dto/CollectedBillDto";
@@ -7,8 +7,9 @@ import { PaymentStatus } from "../../../core/models/dto/PaymentStatus";
 import { getData } from "../../../core/services/apiService";
 import { UnpaidBillDto } from "../../../core/models/dto/UnpaidBillDto";
 import { useSearch } from "../../../hooks/useSearch";
+import { useTableFilters } from "../../../hooks/useTableFilters";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
@@ -96,9 +97,7 @@ const DebtControlPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<"DEBTS" | "COLLECTED">("DEBTS");
 
-    // Estados de los filtros
-    const [statusFilter, setStatusFilter] = useState<string>("ALL");
-    const [periodFilter, setPeriodFilter] = useState<string>("ALL");
+    // Estados de los filtros (se migran a useTableFilters después de periodOptions)
 
     // Obtener datos del backend
     const getBalanceControl = async () => {
@@ -186,17 +185,46 @@ const DebtControlPage = () => {
         );
     }, [unpaidBillsData, collectedBillsData]);
 
+    // Filtros activables con checkbox (período y estado)
+    const filterConfigs = useMemo(() => [
+        {
+            id: "period",
+            label: "Período",
+            emptyLabel: "Todos los períodos",
+            defaultValue: "ALL",
+            options: periodOptions.map(p => ({ value: String(p.idPeriod), label: p.periodName })),
+        },
+        {
+            id: "status",
+            label: activeTab === "DEBTS" ? "Estado deuda" : "Estado pago",
+            emptyLabel: activeTab === "DEBTS" ? "Todas las facturas" : "Todos los pagos",
+            defaultValue: "ALL",
+            options: activeTab === "DEBTS"
+                ? [
+                    { value: "PENDING", label: "Pendientes" },
+                    { value: "OVERDUE", label: "Vencidas" },
+                ]
+                : [
+                    { value: "PAID_ON_TIME", label: "En término" },
+                    { value: "PAID_LATE", label: "Fuera de término" },
+                ],
+        },
+    ], [periodOptions, activeTab]);
+    const filterState = useTableFilters(filterConfigs);
+
     // Aplicar filtros de período y estado para deudas
     const visibleData = useMemo(() => {
+        const periodActive = filterState.getActiveValue("period");
+        const statusActive = filterState.getActiveValue("status");
         return filteredUnpaid
             .filter(bill => {
                 const matchesStatus =
-                    statusFilter === "ALL" ||
-                    bill.debtStatus === statusFilter;
+                    !statusActive ||
+                    bill.debtStatus === statusActive;
 
                 const matchesPeriod =
-                    periodFilter === "ALL" ||
-                    bill.idPeriod === Number(periodFilter);
+                    !periodActive ||
+                    bill.idPeriod === Number(periodActive);
 
                 return matchesStatus && matchesPeriod;
             })
@@ -205,19 +233,21 @@ const DebtControlPage = () => {
                 const dateB = new Date(b.expirationDate).getTime();
                 return dateA - dateB;
             });
-    }, [filteredUnpaid, statusFilter, periodFilter]);
+    }, [filteredUnpaid, filterState]);
 
     // Aplicar filtros de período y estado para cobros
     const visibleDataCollected = useMemo(() => {
+        const periodActive = filterState.getActiveValue("period");
+        const statusActive = filterState.getActiveValue("status");
         return filteredCollected
             .filter(bill => {
                 const matchesStatus =
-                    statusFilter === "ALL" ||
-                    bill.paymentStatus === statusFilter;
+                    !statusActive ||
+                    bill.paymentStatus === statusActive;
 
                 const matchesPeriod =
-                    periodFilter === "ALL" ||
-                    bill.idPeriod === Number(periodFilter);
+                    !periodActive ||
+                    bill.idPeriod === Number(periodActive);
 
                 return matchesStatus && matchesPeriod;
             })
@@ -226,7 +256,7 @@ const DebtControlPage = () => {
                 const dateB = new Date(b.paymentDate).getTime();
                 return dateA - dateB;
             });
-    }, [filteredCollected, statusFilter, periodFilter]);
+    }, [filteredCollected, filterState]);
 
     // Ordenar datos visibles por número de conexión
     const sortedVisibleData = useMemo(() => {
@@ -414,7 +444,7 @@ const DebtControlPage = () => {
                 activeKey={activeTab}
                 onSelect={(k) => {
                     setActiveTab(k as "DEBTS" | "COLLECTED");
-                    setStatusFilter("ALL");
+                    filterState.setFilterValue("status", "ALL");
                 }}
                 className="mb-4"
             >
@@ -479,41 +509,11 @@ const DebtControlPage = () => {
             </Row>
 
             {/* Barra de búsqueda y filtros */}
-            <div className="d-flex flex-column flex-lg-row align-items-center justify-content-between gap-2 mb-3">
-                <SearchBar onSearch={handleSearchCombined} />
-
-                <Form.Select
-                    value={periodFilter}
-                    onChange={(event) => setPeriodFilter(event.target.value)}
-                    style={{ maxWidth: "260px" }}
-                >
-                    <option value="ALL">Todos los períodos</option>
-                    {periodOptions.map(period => (
-                        <option key={period.idPeriod} value={period.idPeriod}>
-                            {period.periodName}
-                        </option>
-                    ))}
-                </Form.Select>
-
-                <Form.Select
-                    value={statusFilter}
-                    onChange={(event) => setStatusFilter(event.target.value)}
-                    style={{ maxWidth: "220px" }}
-                >
-                    <option value="ALL">Todas las facturas</option>
-                    {activeTab === "DEBTS" ? (
-                        <>
-                            <option value="PENDING">Pendientes</option>
-                            <option value="OVERDUE">Vencidas</option>
-                        </>
-                    ) : (
-                        <>
-                            <option value="PAID_ON_TIME">En término</option>
-                            <option value="PAID_LATE">Fuera de término</option>
-                        </>
-                    )}
-                </Form.Select>
-
+            <TableToolbar
+                onSearch={handleSearchCombined}
+                filters={filterConfigs}
+                filterState={filterState}
+            >
                 <Button
                     variant="success"
                     onClick={exportToExcel}
@@ -521,7 +521,7 @@ const DebtControlPage = () => {
                 >
                     Exportar a Excel
                 </Button>
-            </div>
+            </TableToolbar>
 
             {/* Cantidad de resultados */}
             <div className="mb-2 text-muted">

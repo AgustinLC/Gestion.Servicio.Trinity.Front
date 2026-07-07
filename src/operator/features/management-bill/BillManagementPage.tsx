@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button, Spinner } from "react-bootstrap";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
-import { addData } from "../../../core/services/apiService";
-import { toast } from "react-toastify";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+// import { addData } from "../../../core/services/apiService"; // Solo lo usaba el envío de notificaciones (deshabilitado, ver nota más abajo)
+// import { toast } from "react-toastify"; // Idem
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import BillActiveModal from "./BillActiveModal";
 import BillNullModal from "./BillNullModal";
 import { useSearch } from "../../../hooks/useSearch";
+import { useTableFilters } from "../../../hooks/useTableFilters";
 import useAppData from "../../../hooks/useAppData";
 
 const BillManagementPage = () => {
@@ -17,26 +18,52 @@ const BillManagementPage = () => {
     const [showBillActiveModal, setShowBillActiveModal] = useState(false);
     const [showBillNullModal, setShowBillNullModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
-    const [isSending, setIsSending] = useState(false);
+    // const [isSending, setIsSending] = useState(false); // Solo lo usaba el envío de notificaciones (deshabilitado, ver nota más abajo)
+
+    // Calles únicas para el filtro
+    const uniqueStreets = useMemo(
+        () => Array.from(new Set(operatorUsers.map(u => u.residenceDto?.street).filter(Boolean))) as string[],
+        [operatorUsers]
+    );
+
+    // Filtros activables con checkbox
+    const filterConfigs = useMemo(
+        () => [
+            {
+                id: "street",
+                label: "Calle",
+                emptyLabel: "Todas las calles",
+                options: uniqueStreets.map((street) => ({ value: street, label: street })),
+            },
+        ],
+        [uniqueStreets]
+    );
+    const filterState = useTableFilters(filterConfigs);
 
     // Hook para buscar por columnas 
     const { filteredData, handleSearch } = useSearch<UserDto>(
         operatorUsers,
-        ["firstName", "lastName", "idUser"] // columnas filtrables
+        ["firstName", "lastName", "idUser"],
+        { "residenceDto.street": filterState.getActiveValue("street") }
     );
 
-    const handleSendBillNotifications = async () => {
-        setIsSending(true);
-        try {
-            await addData(`/operator/bill/send-notifications`, {});
-            toast.success("Envío de correos electrónicos realizado exitosamente");
-        } catch (error) {
-            console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al enviar correos electrónicos");
-        } finally {
-            setIsSending(false);
-        }
-    };
+    // NOTA (pendiente): este botón enviaba notificaciones de facturas a TODOS los usuarios
+    // de la tabla en un único envío masivo, sin posibilidad de elegir destinatarios,
+    // previsualizar el mensaje ni ver un historial de envíos. Se comenta hasta contemplar
+    // una vista particular de "Envío de Notificaciones" (selección de usuarios/filtros,
+    // plantilla y confirmación) en lugar de dispararlo directamente desde esta pantalla.
+    // const handleSendBillNotifications = async () => {
+    //     setIsSending(true);
+    //     try {
+    //         await addData(`/operator/bill/send-notifications`, {});
+    //         toast.success("Envío de correos electrónicos realizado exitosamente");
+    //     } catch (error) {
+    //         console.error(error);
+    //         toast.error(error instanceof Error ? error.message : "Error al enviar correos electrónicos");
+    //     } finally {
+    //         setIsSending(false);
+    //     }
+    // };
 
     // Columnas para ReusableTable
     const columns: TableColumnDefinition<UserDto>[] = [
@@ -71,32 +98,11 @@ const BillManagementPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
-                        <SearchBar onSearch={handleSearch} />
-                        <Button
-                            variant="primary"
-                            onClick={handleSendBillNotifications}
-                            disabled={isSending}
-                        >
-                            {isSending ? "Enviando..." : "Enviar notificaciones de facturas"}
-                        </Button>
-                        {/* 
-                        
-                        <Button
-                            onClick={handleGeneratePdf}
-                            disabled={pdfLoading}
-                            variant="primary"
-                        >
-                            {pdfLoading ? (
-                                <>
-                                    <Spinner animation="border" size="sm" className="me-2" />
-                                    Generando PDF...
-                                </>
-                            ) : "Generar PDF de facturas"}
-                        </Button>
-                        
-                        */}
-                    </div>
+                    <TableToolbar
+                        onSearch={handleSearch}
+                        filters={filterConfigs}
+                        filterState={filterState}
+                    />
 
                     {/* Tabla principal */}
                     <ReusableTable<UserDto>

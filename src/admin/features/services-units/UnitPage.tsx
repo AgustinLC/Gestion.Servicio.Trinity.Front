@@ -9,6 +9,8 @@ import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { Unit } from "../../../core/models/dto/Unit";
 import AddEditUnitModal from "./AddEditUnitModal";
 import useAppData from "../../../hooks/useAppData";
+import SearchBar from "../../../shared/components/searcher/SearchBar";
+import { useSearch } from "../../../hooks/useSearch";
 
 const UnitPage = () => {
 
@@ -19,6 +21,12 @@ const UnitPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const { adminUnits, loading, error, refreshAdminUnits } = useAppData();
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<Unit>(
+        adminUnits,
+        ["name", "symbol"]
+    );
 
     // Constantes
     const navigate = useNavigate();
@@ -95,7 +103,8 @@ const UnitPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <SearchBar onSearch={handleSearch} />
                     <Button variant="secondary" onClick={() => navigate(-1)}>
                             Volver
                         </Button>
@@ -106,7 +115,7 @@ const UnitPage = () => {
 
                     {/* Tabla */}
                     <ReusableTable<Unit>
-                        data={adminUnits}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="idUnit"
                     />

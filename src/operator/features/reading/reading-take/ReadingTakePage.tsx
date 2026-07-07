@@ -1,13 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { Button, Form, Spinner } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { UserDto } from "../../../../core/models/dto/UserDto";
 import { addData } from "../../../../core/services/apiService";
 import ReusableTable from "../../../../shared/components/table/ReusableTable";
 import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
 import AddReadingModal from "./AddReadingModal";
-import SearchBar from "../../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../../shared/components/table-toolbar/TableToolbar";
 import { useSearch } from "../../../../hooks/useSearch";
+import { useTableFilters } from "../../../../hooks/useTableFilters";
 import useAppData from "../../../../hooks/useAppData";
 
 const ReadingTakePage: React.FC = () => {
@@ -15,9 +16,6 @@ const ReadingTakePage: React.FC = () => {
     // Estados
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const [showAddReadingModal, setShowAddReadingModal] = useState(false);
-    // Filtros
-    const [selectedStreet, setSelectedStreet] = useState<string>("");
-    const [selectedDistrict, setSelectedDistrict] = useState<string>("");
     const { operatorReadingUsers, loading, error, refreshOperatorReadingUsers } = useAppData();
 
     const uniqueStreets = useMemo(
@@ -29,12 +27,29 @@ const ReadingTakePage: React.FC = () => {
         [operatorReadingUsers]
     );
 
+    // Filtros activables
+    const filterConfigs = useMemo(
+        () => [
+            {
+                id: "street",
+                label: "Calle",
+                emptyLabel: "Todas las calles",
+                options: uniqueStreets.map((street) => ({ value: street, label: street })),
+            },
+        ],
+        [uniqueStreets, uniqueDistricts]
+    );
+    const filterState = useTableFilters(filterConfigs);
+
     // Hook reutilizable de búsqueda + filtros
-  const { filteredData, handleSearch } = useSearch<UserDto>(
-    operatorReadingUsers,
-    [ "firstName", "lastName", "idUser" ],
-    { "residenceDto.street": selectedStreet || null, "residenceDto.district": selectedDistrict || null, }
-  );
+    const { filteredData, handleSearch } = useSearch<UserDto>(
+        operatorReadingUsers,
+        ["firstName", "lastName", "idUser"],
+        {
+            "residenceDto.street": filterState.getActiveValue("street"),
+            "residenceDto.district": filterState.getActiveValue("district"),
+        }
+    );
 
     // Manejar añadir nueva lectura
     const handleAddReading = async (idUser: number, readingValue: number) => {
@@ -87,21 +102,11 @@ const ReadingTakePage: React.FC = () => {
             ) : (
                 <div>
                     {/* Barra de busqueda y filtros */}
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
-                        <SearchBar onSearch={handleSearch} />
-                        {/* Añadir filtros */}
-                        <div className="d-flex gap-2">
-                            <Form.Select value={selectedStreet} onChange={(e) => setSelectedStreet(e.target.value)}>
-                                <option value="">Todas las calles</option>
-                                {uniqueStreets.map(street => (<option key={street} value={street}>{street}</option>))}
-                            </Form.Select>
-
-                            <Form.Select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)}>
-                                <option value="">Todos los distritos</option>
-                                {uniqueDistricts.map(district => (<option key={district} value={district}>{district}</option>))}
-                            </Form.Select>
-                        </div>
-                    </div>
+                    <TableToolbar
+                        onSearch={handleSearch}
+                        filters={filterConfigs}
+                        filterState={filterState}
+                    />
                     {/* Tabla de usuarios */}
                     <ReusableTable
                         data={filteredData}
@@ -113,7 +118,7 @@ const ReadingTakePage: React.FC = () => {
                         <AddReadingModal
                             show={showAddReadingModal}
                             onHide={handleCloseAddReadingModal}
-                            user= {selectedUser.idUser}
+                            user={selectedUser.idUser}
                             onSave={(readingValue) => handleAddReading(selectedUser.idUser, readingValue)}
                         />
                     )}

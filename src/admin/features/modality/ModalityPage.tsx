@@ -6,6 +6,8 @@ import { TableColumnDefinition } from '../../../core/models/types/TableTypes';
 import { Form, Spinner } from 'react-bootstrap';
 import { getData, updateData } from '../../../core/services/apiService';
 import ConfirmModal from '../../../shared/components/confirm/ConfirmModal';
+import SearchBar from '../../../shared/components/searcher/SearchBar';
+import { useSearch } from '../../../hooks/useSearch';
 
 const ModalityPage = () => {
 
@@ -15,6 +17,12 @@ const ModalityPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [showConfirmActiveModal, setShowConfirmActiveModal] = useState(false);
     const [modalityToUpdate, setModalityToUpdate] = useState<Modality | null>(null);
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<Modality>(
+        modalities,
+        ["name"]
+    );
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -88,10 +96,13 @@ const ModalityPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
+                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                        <SearchBar onSearch={handleSearch} />
+                    </div>
 
                     {/* Tabla */}
                     <ReusableTable<Modality>
-                        data={modalities}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="idModality"
                     />

@@ -71,8 +71,8 @@ const ReusableTable = <T,>({
     }
 
     return (
-        <div className="mt-2">
-            <Table striped bordered hover responsive>
+        <div className="mt-2 reusable-table">
+            <Table hover responsive>
                 <thead>
                     <tr className="text-center">
                         {columns.map((column) => (

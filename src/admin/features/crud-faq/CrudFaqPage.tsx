@@ -7,6 +7,8 @@ import { Button, Spinner } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import AddEditFaqModal from "./AddEditFaqModal";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
+import SearchBar from "../../../shared/components/searcher/SearchBar";
+import { useSearch } from "../../../hooks/useSearch";
 
 const CrudFaqPage = () => {
 
@@ -19,6 +21,12 @@ const CrudFaqPage = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<FaqDto>(
+        faqData,
+        ["question", "answer"]
+    );
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -111,7 +119,8 @@ const CrudFaqPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                        <SearchBar onSearch={handleSearch} />
                         <Button onClick={() => { setSelectedFaq(null); setShowModal(true); }}>
                             Añadir Faq
                         </Button>
@@ -119,7 +128,7 @@ const CrudFaqPage = () => {
 
                     {/* Tabla */}
                     <ReusableTable<FaqDto>
-                        data={faqData}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="idFaq"
                     />

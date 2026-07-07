@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Button, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { UserDto } from "../../../../core/models/dto/UserDto";
@@ -6,9 +6,10 @@ import { addData } from "../../../../core/services/apiService";
 import ReusableTable from "../../../../shared/components/table/ReusableTable";
 import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
 import AddReadingModal from "./AddReadingModal";
-import SearchBar from "../../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../../shared/components/table-toolbar/TableToolbar";
 import UserReadingsModal from "./UserReadingModal";
 import { useSearch } from "../../../../hooks/useSearch";
+import { useTableFilters } from "../../../../hooks/useTableFilters";
 import useAppData from "../../../../hooks/useAppData";
 
 const ReadingManagementPage: React.FC = () => {
@@ -19,10 +20,31 @@ const ReadingManagementPage: React.FC = () => {
     const { operatorActiveUsers, loading, error } = useAppData();
 
 
+    // Calles únicas para el filtro
+    const uniqueStreets = useMemo(
+        () => Array.from(new Set(operatorActiveUsers.map(u => u.residenceDto?.street).filter(Boolean))) as string[],
+        [operatorActiveUsers]
+    );
+
+    // Filtros activables con checkbox
+    const filterConfigs = useMemo(
+        () => [
+            {
+                id: "street",
+                label: "Calle",
+                emptyLabel: "Todas las calles",
+                options: uniqueStreets.map((street) => ({ value: street, label: street })),
+            },
+        ],
+        [uniqueStreets]
+    );
+    const filterState = useTableFilters(filterConfigs);
+
     // Hook para buscar por columnas 
     const { filteredData, handleSearch } = useSearch<UserDto>(
         operatorActiveUsers,
-        ["firstName", "lastName", "idUser"] // columnas filtrables
+        ["firstName", "lastName", "idUser"],
+        { "residenceDto.street": filterState.getActiveValue("street") }
     );
 
 
@@ -81,9 +103,11 @@ const ReadingManagementPage: React.FC = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
-                        <SearchBar onSearch={handleSearch} />
-                    </div>
+                    <TableToolbar
+                        onSearch={handleSearch}
+                        filters={filterConfigs}
+                        filterState={filterState}
+                    />
                     {/* Tabla de usuarios */}
                     <ReusableTable<UserDto>
                         data={filteredData}

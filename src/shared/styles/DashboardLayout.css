@@ -17,8 +17,7 @@
     left: 0;
     height: 100vh;
     width: 200px;
-    background-color: #0f172a !important; /* Premium Slate 900 */
-    border-right: 1px solid rgba(226, 232, 240, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1030;
     box-shadow: 4px 0 10px rgba(0, 0, 0, 0.02);
@@ -57,7 +56,7 @@
 .sidebar .nav-link {
     height: auto;
     padding: 0.7rem 0.9rem !important;
-    color: #94a3b8 !important; /* Slate 400 (Gris suave) */
+    color: rgba(255, 255, 255, 0.85) !important;
     transition: var(--transition-smooth);
     position: relative;
     border-radius: 8px;
@@ -74,20 +73,21 @@
 }
 
 .sidebar .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.06) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
     color: #ffffff !important;
     transform: translateX(2px);
 }
 
 .sidebar .nav-link:hover i {
-    color: var(--bs-primary);
+    color: #ffffff !important;
 }
 
 .sidebar .nav-link.active,
 .sidebar .nav-link.active-submenu {
-    background-color: var(--bs-primary) !important; /* Water Blue */
+    background-color: rgba(255, 255, 255, 0.15) !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 14px 0 rgba(0, 119, 255, 0.35);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    border-left: 3px solid #fff;
     font-weight: 600;
 }
 

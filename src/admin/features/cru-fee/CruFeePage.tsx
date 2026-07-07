@@ -7,6 +7,8 @@ import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { FeeDto } from "../../../core/models/dto/FeeDto";
 import AddEditFeeModal from "./AddEditFeeModal";
 import useAppData from "../../../hooks/useAppData";
+import SearchBar from "../../../shared/components/searcher/SearchBar";
+import { useSearch } from "../../../hooks/useSearch";
 
 const CrudFeePage = () => {
 
@@ -14,6 +16,12 @@ const CrudFeePage = () => {
     const [selectedFee, setSelectedFee] = useState<FeeDto | null>(null);
     const [showModal, setShowModal] = useState(false);
     const { fees, loading, error, refreshFees } = useAppData();
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<FeeDto>(
+        fees,
+        ["name", "description"]
+    );
 
     // Manejar añadir/editar
     const handleSave = async (fee: FeeDto) => {
@@ -67,7 +75,8 @@ const CrudFeePage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                        <SearchBar onSearch={handleSearch} />
                         <Button onClick={() => { setSelectedFee(null); setShowModal(true); }}>
                             Añadir Tarifa
                         </Button>
@@ -75,7 +84,7 @@ const CrudFeePage = () => {
 
                     {/* Tabla */}
                     <ReusableTable<FeeDto>
-                        data={fees}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="price"
                     />

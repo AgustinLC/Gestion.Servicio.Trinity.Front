@@ -64,7 +64,7 @@ const DiscountsPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
                         <SearchBar onSearch={handleSearch} />
                     </div>
                     {/* Tabla */}

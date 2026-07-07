@@ -110,10 +110,8 @@ const DebtDisconnectionPage = () => {
                 <div className="text-center py-5 text-danger">{errorDebtors}</div>
             ) : (
                 <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 mb-4 p-3 bg-white border rounded shadow-sm">
-                        <div className="w-100 style={{ maxWidth: '400px' }}">
-                            <SearchBar onSearch={handleSearch} />
-                        </div>
+                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                        <SearchBar onSearch={handleSearch} />
                     </div>
 
                     <div className="text-muted small mb-3">

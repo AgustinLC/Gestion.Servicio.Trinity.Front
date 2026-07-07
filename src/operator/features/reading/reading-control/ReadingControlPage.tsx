@@ -1,16 +1,44 @@
 import { useEffect, useMemo, useState } from "react";
 import { ReadingMatrixDto } from "../../../../core/models/dto/ReadingMatrixDto";
 import { getData } from "../../../../core/services/apiService";
-import { Spinner, Button, OverlayTrigger, Tooltip, Dropdown, Form } from "react-bootstrap";
+import { Spinner, Button, OverlayTrigger, Tooltip, Dropdown } from "react-bootstrap";
 import { ReadingMatrixTableRow } from "../../../../core/models/types/ReadingMatrixTableRow";
 import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
-import SearchBar from "../../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../../shared/components/table-toolbar/TableToolbar";
 import ReusableTable from "../../../../shared/components/table/ReusableTable";
 import { useSearch } from "../../../../hooks/useSearch";
+import { useTableFilters } from "../../../../hooks/useTableFilters";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 import useAppData from "../../../../hooks/useAppData";
-type AlertType = | "decreasing" | "duplicate" | "jump" | "missing" | "noMeter" | null; //Tipos para alertas de estados de las lecturas
+type AlertType = | "decreasing" | "duplicate" | "jump" | "missing" | "noMeter" | null;
+
+const ALERT_FILTERS: { value: string; label: string; alert?: Exclude<AlertType, null> }[] = [
+    { value: "all", label: "Todas" },
+    { value: "anomalies", label: "Solo inconsistencias" },
+    { value: "decreasing", label: "Lecturas decrecientes", alert: "decreasing" },
+    { value: "duplicate", label: "Lecturas repetidas", alert: "duplicate" },
+    { value: "jump", label: "Saltos de consumo", alert: "jump" },
+    { value: "missing", label: "Lecturas faltantes", alert: "missing" },
+    { value: "noMeter", label: "Lecturas sin medidor", alert: "noMeter" }
+];
+
+const getAlertClass = (alert: AlertType) => {
+    switch (alert) {
+        case "decreasing":
+            return "bg-danger text-white";
+        case "duplicate":
+            return "bg-dark text-white";
+        case "jump":
+            return "bg-warning";
+        case "missing":
+            return "bg-secondary text-white";
+        case "noMeter":
+            return "bg-info text-dark";
+        default:
+            return "";
+    }
+};
 
 const ReadingControlPage = () => {
 
@@ -18,8 +46,6 @@ const ReadingControlPage = () => {
     const [data, setData] = useState<ReadingMatrixDto | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [alertFilter, setAlertFilter] = useState("all");
-    const [selectedStreet, setSelectedStreet] = useState("");
     const { operatorReadingUsers } = useAppData();
 
     // Funcion para obterner los datos
@@ -71,11 +97,75 @@ const ReadingControlPage = () => {
         });
     }, [data, usersById]);
 
+    const filterConfigs = useMemo(
+        () => [
+            {
+                id: "street",
+                label: "Calle",
+                emptyLabel: "Todas las calles",
+                options: uniqueStreets.map((street) => ({ value: street, label: street })),
+            },
+            {
+                id: "alert",
+                label: "Inconsistencias",
+                type: "custom" as const,
+                defaultValue: "all",
+                maxWidth: "250px",
+                render: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => {
+                    const selectedFilter = ALERT_FILTERS.find((filter) => filter.value === value);
+
+                    return (
+                        <Dropdown className="w-100">
+                            <Dropdown.Toggle
+                                variant="outline-secondary"
+                                className="w-100 d-flex align-items-center justify-content-between bg-white text-dark"
+                            >
+                                <span className="d-inline-flex align-items-center gap-2">
+                                    {selectedFilter?.alert && (
+                                        <span
+                                            className={`d-inline-block rounded-circle ${getAlertClass(selectedFilter.alert)}`}
+                                            style={{ width: "12px", height: "12px" }}
+                                            aria-hidden="true"
+                                        ></span>
+                                    )}
+                                    <span>{selectedFilter?.label ?? "Todas"}</span>
+                                </span>
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu className="w-100">
+                                {ALERT_FILTERS.map((filter) => (
+                                    <Dropdown.Item
+                                        key={filter.value}
+                                        active={value === filter.value}
+                                        onClick={() => onChange(filter.value)}
+                                        className="d-flex align-items-center gap-2"
+                                    >
+                                        <span
+                                            className={`d-inline-block rounded-circle ${filter.alert ? getAlertClass(filter.alert) : ""}`}
+                                            style={{ width: "12px", height: "12px", opacity: filter.alert ? 1 : 0 }}
+                                            aria-hidden="true"
+                                        ></span>
+                                        <span>{filter.label}</span>
+                                    </Dropdown.Item>
+                                ))}
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    );
+                },
+            },
+        ],
+        [uniqueStreets]
+    );
+    const filterState = useTableFilters(filterConfigs);
+
+    const alertFilter = filterState.isFilterEnabled("alert")
+        ? (filterState.values.alert ?? "all")
+        : "all";
+
     // Hook para buscar por columnas 
     const { filteredData, handleSearch } = useSearch<ReadingMatrixTableRow>(
         tableData,
         ["idUser", "fullName"],
-        { street: selectedStreet || null }
+        { street: filterState.getActiveValue("street") }
     );
 
     // Funcion para determinar el estado de la lectura
@@ -114,27 +204,7 @@ const ReadingControlPage = () => {
         return null;
     };
 
-    // Funcion para convertir el tipo de alerta a clase de bootstrap
-    const getAlertClass = (
-        alert: AlertType
-    ) => {
-
-        switch (alert) {
-
-            case "decreasing":
-                return "bg-danger text-white";
-            case "duplicate":
-                return "bg-dark text-white";
-            case "jump":
-                return "bg-warning";
-            case "missing":
-                return "bg-secondary text-white";
-            case "noMeter":
-                return "bg-info text-dark";
-            default:
-                return "";
-        }
-    };
+    // Funcion para convertir el tipo de alerta a clase de bootstrap — ver getAlertClass (módulo)
 
     const alertLegendItems: { alert: Exclude<AlertType, null>; label: string }[] = [
         { alert: "decreasing", label: "Lectura decreciente" },
@@ -144,20 +214,10 @@ const ReadingControlPage = () => {
         { alert: "noMeter", label: "Lectura sin medidor" }
     ];
 
-    const alertFilters: { value: string; label: string; alert?: Exclude<AlertType, null> }[] = [
-        { value: "all", label: "Todas" },
-        { value: "anomalies", label: "Solo inconsistencias" },
-        { value: "decreasing", label: "Lecturas decrecientes", alert: "decreasing" },
-        { value: "duplicate", label: "Lecturas repetidas", alert: "duplicate" },
-        { value: "jump", label: "Saltos de consumo", alert: "jump" },
-        { value: "missing", label: "Lecturas faltantes", alert: "missing" },
-        { value: "noMeter", label: "Lecturas sin medidor", alert: "noMeter" }
-    ];
-
     const getAlertLabel = (alert: AlertType) =>
         alertLegendItems.find(item => item.alert === alert)?.label;
 
-    const selectedAlertFilter = alertFilters.find(filter => filter.value === alertFilter);
+    const selectedAlertFilter = ALERT_FILTERS.find(filter => filter.value === alertFilter);
 
     const sanitizeFileNamePart = (value: string) =>
         value
@@ -298,7 +358,7 @@ const ReadingControlPage = () => {
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             }
         );
-        const streetFileName = sanitizeFileNamePart(selectedStreet || "Todas_las_calles");
+        const streetFileName = sanitizeFileNamePart(filterState.getActiveValue("street") || "Todas_las_calles");
         const alertFilterFileName = alertFilter === "all"
             ? ""
             : `_${sanitizeFileNamePart(selectedAlertFilter?.label || "Inconsistencias")}`;
@@ -323,55 +383,11 @@ const ReadingControlPage = () => {
             ) : (
                 <div>
                     {/* Barra de busqueda y filtros */}
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
-                        <SearchBar onSearch={handleSearch} />
-                        <Form.Select
-                            className="w-100"
-                            style={{ maxWidth: "250px" }}
-                            value={selectedStreet}
-                            onChange={(e) => setSelectedStreet(e.target.value)}
-                        >
-                            <option value="">Todas las calles</option>
-                            {uniqueStreets.map(street => (
-                                <option key={street} value={street}>
-                                    {street}
-                                </option>
-                            ))}
-                        </Form.Select>
-                        <Dropdown className="w-100" style={{ maxWidth: "250px" }}>
-                            <Dropdown.Toggle
-                                variant="outline-secondary"
-                                className="w-100 d-flex align-items-center justify-content-between bg-white text-dark"
-                            >
-                                <span className="d-inline-flex align-items-center gap-2">
-                                    {selectedAlertFilter?.alert && (
-                                        <span
-                                            className={`d-inline-block rounded-circle ${getAlertClass(selectedAlertFilter.alert)}`}
-                                            style={{ width: "12px", height: "12px" }}
-                                            aria-hidden="true"
-                                        ></span>
-                                    )}
-                                    <span>{selectedAlertFilter?.label}</span>
-                                </span>
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu className="w-100">
-                                {alertFilters.map(filter => (
-                                    <Dropdown.Item
-                                        key={filter.value}
-                                        active={alertFilter === filter.value}
-                                        onClick={() => setAlertFilter(filter.value)}
-                                        className="d-flex align-items-center gap-2"
-                                    >
-                                        <span
-                                            className={`d-inline-block rounded-circle ${filter.alert ? getAlertClass(filter.alert) : ""}`}
-                                            style={{ width: "12px", height: "12px", opacity: filter.alert ? 1 : 0 }}
-                                            aria-hidden="true"
-                                        ></span>
-                                        <span>{filter.label}</span>
-                                    </Dropdown.Item>
-                                ))}
-                            </Dropdown.Menu>
-                        </Dropdown>
+                    <TableToolbar
+                        onSearch={handleSearch}
+                        filters={filterConfigs}
+                        filterState={filterState}
+                    >
                         <Button
                             variant="success"
                             onClick={exportToExcel}
@@ -379,7 +395,7 @@ const ReadingControlPage = () => {
                         >
                             Exportar a Excel
                         </Button>
-                    </div>
+                    </TableToolbar>
                     {/* Tabla de usuarios */}
                     <ReusableTable
                         data={visibleData}

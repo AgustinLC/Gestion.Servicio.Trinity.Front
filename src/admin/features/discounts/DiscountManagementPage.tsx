@@ -8,6 +8,8 @@ import ReusableTable from "../../../shared/components/table/ReusableTable";
 import AddEditDiscountModal from "./AddEditDiscountModal";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 import useAppData from "../../../hooks/useAppData";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import { useSearch } from "../../../hooks/useSearch";
 
 const DiscountManagementPage = () => {
 
@@ -15,6 +17,12 @@ const DiscountManagementPage = () => {
     const [selectedDiscount, setSelectedDiscount] = useState<DiscountDto | null>(null);
     const [showModal, setShowModal] = useState(false);
     const { discounts, loading, error, refreshDiscounts } = useAppData();
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<DiscountDto>(
+        discounts,
+        ["name", "description"]
+    );
 
     // Manejar añadir/editar
     const handleSave = async (discount: DiscountDto) => {
@@ -67,15 +75,15 @@ const DiscountManagementPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                    <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedDiscount(null); setShowModal(true); }}>
                             Añadir Descuento
                         </Button>
-                    </div>
+                    </TableToolbar>
 
                     {/* Tabla */}
                     <ReusableTable<DiscountDto>
-                        data={discounts}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="idDiscount"
                     />

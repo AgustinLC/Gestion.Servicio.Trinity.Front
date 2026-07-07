@@ -7,6 +7,8 @@ import ReusableTable from "../../../shared/components/table/ReusableTable";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { FeatureDto } from "../../../core/models/dto/FeatureDto";
 import AddEditFeatureModal from "./AddEditFeatureModal";
+import SearchBar from "../../../shared/components/searcher/SearchBar";
+import { useSearch } from "../../../hooks/useSearch";
 
 const CrudFeaturePage = () => {
 
@@ -19,6 +21,12 @@ const CrudFeaturePage = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<FeatureDto>(
+        featureData,
+        ["name", "description"]
+    );
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -111,7 +119,8 @@ const CrudFeaturePage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                        <SearchBar onSearch={handleSearch} />
                         <Button onClick={() => { setSelectedFeature(null); setShowModal(true); }}>
                             Añadir Función
                         </Button>
@@ -119,7 +128,7 @@ const CrudFeaturePage = () => {
 
                     {/* Tabla */}
                     <ReusableTable<FeatureDto>
-                        data={featureData}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="idFeature"
                     />

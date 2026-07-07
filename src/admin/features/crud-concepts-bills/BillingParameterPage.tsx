@@ -8,6 +8,8 @@ import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import AddEditBillingParameterModal from "./AddEditBillingParameterModal";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 import statusLabels from "../../../shared/components/labels-traductor/statusLabels";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import { useSearch } from "../../../hooks/useSearch";
 
 const BillingParameterPage = () => {
 
@@ -17,6 +19,12 @@ const BillingParameterPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<BillingParameter>(
+        billingParameterData,
+        ["name", "description"]
+    );
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -90,15 +98,15 @@ const BillingParameterPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                    <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedBillingParameter(null); setShowModal(true); }}>
                             Añadir concepto
                         </Button>
-                    </div>
+                    </TableToolbar>
 
                     {/* Tabla */}
                     <ReusableTable<BillingParameter>
-                        data={billingParameterData}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="idBillingParameter"
                     />

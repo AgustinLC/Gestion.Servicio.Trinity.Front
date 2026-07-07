@@ -9,6 +9,8 @@ import AddEditServiceUnitModal from "./AddEditServiceUnitModal";
 import { Link } from "react-router-dom";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import useAppData from "../../../hooks/useAppData";
+import SearchBar from "../../../shared/components/searcher/SearchBar";
+import { useSearch } from "../../../hooks/useSearch";
 
 const ServicesUnitsPage = () => {
 
@@ -24,6 +26,12 @@ const ServicesUnitsPage = () => {
     const [showConfirmActiveModal, setShowConfirmActiveModal] = useState(false);
     const [serviceUnitToUpdate, setServiceUnitToUpdate] = useState<ServiceUnitDto | null>(null);
     const { adminServices, adminUnits } = useAppData();
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<ServiceUnitDto>(
+        serviceUnitData,
+        ["serviceUnitName"]
+    );
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -150,7 +158,8 @@ const ServicesUnitsPage = () => {
             ) : (
                 <div>
                     <div>
-                        <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                        <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                            <SearchBar onSearch={handleSearch} />
                             <Button onClick={() => { setSelectedServiceUnit(null); setShowServiceEditModal(true); }}>
                                 Añadir Servicio/Unidad
                             </Button>
@@ -158,7 +167,7 @@ const ServicesUnitsPage = () => {
 
                         {/* Tabla */}
                         <ReusableTable<ServiceUnitDto>
-                            data={serviceUnitData}
+                            data={filteredData}
                             columns={columns}
                             defaultSort="idServiceUnit"
                         />
