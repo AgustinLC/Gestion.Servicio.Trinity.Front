@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { useSidebar } from '../../../context/SidebarContext';
+import logo from '../../../assets/img/logoNavbar.svg';
 import './AdminDashboard.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -8,20 +10,9 @@ const AdminDashboard: React.FC = () => {
 
     //Estados
     const [activePopover, setActivePopover] = useState<string | null>(null);
-    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-    const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 992);
+    const { isMobile, sidebarOpen, closeSidebar } = useSidebar();
     const location = useLocation();
     const currentPath = location.pathname;
-
-    // Detecta cambios de tamaño de pantalla
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 992);
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    const sidebarWidth = isMobile ? 240 : 200;
-    const buttonLeft = sidebarOpen ? sidebarWidth : 0;
 
     const isWebSection = [
         '/dashboard/admin/faq',
@@ -51,27 +42,15 @@ const AdminDashboard: React.FC = () => {
     // Render
     return (
         <div className="dashboard-container d-flex">
-            {/* Botón flotante solo en móvil */}
-            {isMobile && (
-                <button
-                    className="sidebar-toggle-btn"
-                    style={{ left: `${buttonLeft}px` }}
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                >
-                    <i className={`bi ${sidebarOpen ? "bi-chevron-left" : "bi-chevron-right"}`}></i>
-                </button>
-            )}
-
             {/* Sidebar */}
             <aside
-                className={`sidebar bg-primary text-light d-flex flex-column align-items-center p-3 ${isMobile ? (sidebarOpen ? "open" : "collapsed") : "open"
-                    }`}
+                className={`sidebar d-flex flex-column p-3 ${isMobile ? (sidebarOpen ? "open" : "collapsed") : "open"}`}
             >
                 <ul className="nav nav-pills flex-column w-100">
 
                     {/* Operarios */}
                     <li className="nav-item">
-                        <Link to="/dashboard/admin/workers" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/workers' ? 'active' : ''}`} title="Gestión de operarios" onClick={() => setSidebarOpen(false)}>
+                        <Link to="/dashboard/admin/workers" className={`nav-link py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/workers' ? 'active' : ''}`} title="Gestión de operarios" onClick={closeSidebar}>
                             <i className="bi bi-person-fill-gear fs-4"></i>
                             <span className="ms-2 d-lg-inline">Operarios</span>
                         </Link>
@@ -79,7 +58,7 @@ const AdminDashboard: React.FC = () => {
 
                     {/* Administradores */}
                     <li className="nav-item">
-                        <Link to="/dashboard/admin/administrators" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/administrators' ? 'active' : ''}`} title="Gestión de administradores" onClick={() => setSidebarOpen(false)}>
+                        <Link to="/dashboard/admin/administrators" className={`nav-link py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/administrators' ? 'active' : ''}`} title="Gestión de administradores" onClick={closeSidebar}>
                             <i className="bi bi-person-fill fs-4"></i>
                             <span className="ms-2 d-lg-inline">Admins</span>
                         </Link>
@@ -95,7 +74,7 @@ const AdminDashboard: React.FC = () => {
                         rootClose
                     >
                         <li className="nav-item popover-trigger">
-                            <div className={`nav-link link-light py-3 d-flex align-items-center ${isWebSection ? 'active-submenu' : ''}`} role="button">
+                            <div className={`nav-link py-3 d-flex align-items-center ${isWebSection ? 'active-submenu' : ''}`} role="button" title="Web">
                                 <i className="bi bi-file-break fs-4"></i>
                                 <span className="ms-2 d-lg-inline">Web</span>
                                 <i className={`bi-chevron-right ms-1 mt-1 chevron-icon d-none d-lg-inline ${activePopover === 'web' ? 'rotate' : ''}`}></i>
@@ -105,7 +84,7 @@ const AdminDashboard: React.FC = () => {
 
                     {/* Tarifas */}
                     <li className="nav-item">
-                        <Link to="/dashboard/admin/fee" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/fee' ? 'active' : ''}`} title="Gestión de Tarifas" onClick={() => setSidebarOpen(false)}>
+                        <Link to="/dashboard/admin/fee" className={`nav-link py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/fee' ? 'active' : ''}`} title="Gestión de Tarifas" onClick={closeSidebar}>
                             <i className="bi bi-clipboard2-pulse fs-4"></i>
                             <span className="ms-2 d-lg-inline">Tarifas</span>
                         </Link>
@@ -113,7 +92,7 @@ const AdminDashboard: React.FC = () => {
 
                     {/* Modalidad */}
                     <li className="nav-item">
-                        <Link to="/dashboard/admin/modalities" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/modalities' ? 'active' : ''}`} title="Gestion de modalidad" onClick={() => setSidebarOpen(false)}>
+                        <Link to="/dashboard/admin/modalities" className={`nav-link py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/modalities' ? 'active' : ''}`} title="Gestion de modalidad" onClick={closeSidebar}>
                             <i className="bi bi-arrow-down-up fs-4"></i>
                             <span className="ms-2 d-lg-inline">Modalidad</span>
                         </Link>
@@ -121,7 +100,7 @@ const AdminDashboard: React.FC = () => {
 
                     {/* Servicio/Unidad */}
                     <li className="nav-item">
-                        <Link to="/dashboard/admin/services-units" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/services-units' ? 'active' : ''}`} title="Gestión de Relación Servicio/Unidad" onClick={() => setSidebarOpen(false)}>
+                        <Link to="/dashboard/admin/services-units" className={`nav-link py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/services-units' ? 'active' : ''}`} title="Gestión de Relación Servicio/Unidad" onClick={closeSidebar}>
                             <i className="bi bi-calculator fs-4"></i>
                             <span className="ms-2 d-lg-inline">Serv./Unid.</span>
                         </Link>
@@ -129,7 +108,7 @@ const AdminDashboard: React.FC = () => {
 
                     {/* Conceptos */}
                     <li className="nav-item">
-                        <Link to="/dashboard/admin/billing-parameters" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/billing-parameters' ? 'active' : ''}`} title="Gestión de Parametros de Facturación" onClick={() => setSidebarOpen(false)}>
+                        <Link to="/dashboard/admin/billing-parameters" className={`nav-link py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/billing-parameters' ? 'active' : ''}`} title="Gestión de Parametros de Facturación" onClick={closeSidebar}>
                             <i className="bi bi-receipt fs-4"></i>
                             <span className="ms-2 d-lg-inline">Conceptos</span>
                         </Link>
@@ -137,7 +116,7 @@ const AdminDashboard: React.FC = () => {
 
                     {/* Descuentos */}
                     <li className="nav-item">
-                        <Link to="/dashboard/admin/discounts/management" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/discounts' ? 'active' : ''}`} title="Gestion de descuentos" onClick={() => setSidebarOpen(false)}>
+                        <Link to="/dashboard/admin/discounts/management" className={`nav-link py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/discounts' ? 'active' : ''}`} title="Gestion de descuentos" onClick={closeSidebar}>
                             <i className="bi bi-plus-slash-minus fs-4"></i>
                             <span className="ms-2 d-lg-inline">Descuentos</span>
                         </Link>
@@ -145,7 +124,7 @@ const AdminDashboard: React.FC = () => {
 
                     {/* Periodo */}
                     <li className="nav-item">
-                        <Link to="/dashboard/admin/new/period" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/new/period' ? 'active' : ''}`} title="Generar nueva modalidad" onClick={() => setSidebarOpen(false)}>
+                        <Link to="/dashboard/admin/new/period" className={`nav-link py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/new/period' ? 'active' : ''}`} title="Generar nueva modalidad" onClick={closeSidebar}>
                             <i className="bi bi-calendar-plus fs-4"></i>
                             <span className="ms-2 d-lg-inline">Periodo</span>
                         </Link>
@@ -153,7 +132,7 @@ const AdminDashboard: React.FC = () => {
 
                     {/* Parámetros PDF */}
                     <li className="nav-item">
-                        <Link to="/dashboard/admin/pdf-parameters" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/pdf-parameters' ? 'active' : ''}`} title="Parámetros Avisos PDF" onClick={() => setSidebarOpen(false)}>
+                        <Link to="/dashboard/admin/pdf-parameters" className={`nav-link py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/pdf-parameters' ? 'active' : ''}`} title="Parámetros Avisos PDF" onClick={closeSidebar}>
                             <i className="bi bi-file-pdf fs-4"></i>
                             <span className="ms-2 d-lg-inline">Avisos PDF</span>
                         </Link>
@@ -161,17 +140,29 @@ const AdminDashboard: React.FC = () => {
 
                     {/* Balance */}
                     <li className="nav-item">
-                        <Link to="/dashboard/admin/balance" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/balance' ? 'active' : ''}`} title="Balance" onClick={() => setSidebarOpen(false)}>
+                        <Link to="/dashboard/admin/balance" className={`nav-link py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/balance' ? 'active' : ''}`} title="Balance" onClick={closeSidebar}>
                             <i className="bi bi-graph-down-arrow fs-4"></i>
                             <span className="ms-2 d-lg-inline">Balance</span>
                         </Link>
                     </li>
                 </ul>
+
+                {/* Tarjeta de marca */}
+                <div className="sidebar-footer mt-auto w-100">
+                    <div className="sidebar-footer-icon">
+                        <img src={logo} alt="Logo" />
+                    </div>
+                    <div className="sidebar-footer-text">
+                        <div className="sidebar-footer-title">Sistema de gestión</div>
+                        <div className="sidebar-footer-subtitle">Consorcio de Agua</div>
+                        <div className="sidebar-footer-version">Versión 1.0.0</div>
+                    </div>
+                </div>
             </aside>
 
 
             {/* Main Content */}
-            <main className="dashboard-main flex-grow-1 p-4 bg-light">
+            <main className="dashboard-main flex-grow-1 p-4">
                 <Outlet /> {/* Aquí se cargarán las secciones dinámicamente */}
             </main>
         </div>

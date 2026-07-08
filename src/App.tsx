@@ -47,6 +47,7 @@ import NotFoundPage from "./shared/features/not-found-page/NotFoundPage";
 import ReadingControlPage from "./operator/features/reading/reading-control/ReadingControlPage";
 import DebtControlPage from "./admin/features/balance/DebtControlPage";
 import PdfParametersPage from "./admin/features/pdf-parameters/PdfParametersPage";
+import { SidebarProvider } from "./context/SidebarContext";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -67,7 +68,7 @@ const AppContent: React.FC = () => {
   const shouldShowFooter = showFooterPaths.includes(location.pathname) || isNotFoundPage;
 
   return (
-    <>
+    <SidebarProvider>
       {/* Barra de navegacion */}
       <Navbar />
       <Routes>
@@ -142,7 +143,7 @@ const AppContent: React.FC = () => {
         pauseOnHover
         draggable
       />
-    </>
+    </SidebarProvider>
   );
 };
 

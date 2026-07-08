@@ -1,25 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { OverlayTrigger, Popover } from "react-bootstrap";
 import { Outlet, Link, useLocation } from "react-router-dom";
+import { useSidebar } from "../../../context/SidebarContext";
+import logo from "../../../assets/img/logoNavbar.svg";
 import "./OperatorDashboard.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const DashboardOperator: React.FC = () => {
     const [activePopover, setActivePopover] = useState<string | null>(null);
-    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-    const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 992);
+    const { isMobile, sidebarOpen, closeSidebar } = useSidebar();
     const location = useLocation();
     const currentPath = location.pathname;
-
-    // Detecta cambios de tamaño de pantalla
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 992);
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    const sidebarWidth = isMobile ? 240 : 200;
-    const buttonLeft = sidebarOpen ? sidebarWidth : 0;
 
     const isReadingSection = [
         "/dashboard/operator/readings/management",
@@ -100,28 +91,18 @@ const DashboardOperator: React.FC = () => {
 
     return (
         <div className="dashboard-container d-flex">
-            {/* Botón flotante solo en móvil */}
-            {isMobile && (
-                <button
-                    className="sidebar-toggle-btn"
-                    style={{ left: `${buttonLeft}px` }}
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                >
-                    <i className={`bi ${sidebarOpen ? "bi-chevron-left" : "bi-chevron-right"}`}></i>
-                </button>
-            )}
-
             {/* Sidebar */}
             <aside
-                className={`sidebar bg-primary text-light d-flex flex-column align-items-center p-3 ${isMobile ? (sidebarOpen ? "open" : "collapsed") : "open"
-                    }`}
+                className={`sidebar d-flex flex-column p-3 ${isMobile ? (sidebarOpen ? "open" : "collapsed") : "open"}`}
             >
                 <ul className="nav nav-pills flex-column w-100">
                     {/* Resumen */}
                     <li className="nav-item">
                         <Link
                             to="/dashboard/operator/resume"
-                            className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/resume" ? "active" : ""}`}
+                            className={`nav-link py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/resume" ? "active" : ""}`}
+                            title="Resumen"
+                            onClick={closeSidebar}
                         >
                             <i className="bi-person-lines-fill fs-4"></i>
                             <span className="ms-2 d-lg-inline">Resumen</span>
@@ -131,7 +112,9 @@ const DashboardOperator: React.FC = () => {
                     <li className="nav-item">
                         <Link
                             to="/dashboard/operator/users"
-                            className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/users" ? "active" : ""}`}
+                            className={`nav-link py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/users" ? "active" : ""}`}
+                            title="Usuarios"
+                            onClick={closeSidebar}
                         >
                             <i className="bi-people fs-4"></i>
                             <span className="ms-2 d-lg-inline">Usuarios</span>
@@ -149,8 +132,9 @@ const DashboardOperator: React.FC = () => {
                     >
                         <li className="nav-item popover-trigger">
                             <div
-                                className={`nav-link link-light py-3 d-flex align-items-center ${isReadingSection ? "active-submenu" : ""}`}
+                                className={`nav-link py-3 d-flex align-items-center ${isReadingSection ? "active-submenu" : ""}`}
                                 role="button"
+                                title="Lecturas"
                             >
                                 <i className="bi-speedometer2 fs-4"></i>
                                 <span className="ms-2  d-lg-inline">Lecturas</span>
@@ -170,8 +154,9 @@ const DashboardOperator: React.FC = () => {
                     >
                         <li className="nav-item popover-trigger">
                             <div
-                                className={`nav-link link-light py-3 d-flex align-items-center ${isBillSection ? "active-submenu" : ""}`}
+                                className={`nav-link py-3 d-flex align-items-center ${isBillSection ? "active-submenu" : ""}`}
                                 role="button"
+                                title="Facturas"
                             >
                                 <i className="bi bi-file-earmark-spreadsheet fs-4"></i>
                                 <span className="ms-2 d-lg-inline">Facturas</span>
@@ -184,7 +169,7 @@ const DashboardOperator: React.FC = () => {
 
                     {/* Deudores */}
                     <li className="nav-item">
-                        <Link to="/dashboard/operator/debt-disconnection" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/debt-disconnection" ? "active" : ""}`} onClick={() => setSidebarOpen(false)}>
+                        <Link to="/dashboard/operator/debt-disconnection" className={`nav-link py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/debt-disconnection" ? "active" : ""}`} title="Deudores" onClick={closeSidebar}>
                             <i className="bi bi-exclamation-triangle fs-4"></i>
                             <span className="ms-2 d-lg-inline">Deudores</span>
                         </Link>
@@ -192,7 +177,7 @@ const DashboardOperator: React.FC = () => {
 
                     {/* Conceptos */}
                     <li>
-                        <Link to="/dashboard/operator/parameters/bills" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/parameters/bills" ? "active" : ""}`}>
+                        <Link to="/dashboard/operator/parameters/bills" className={`nav-link py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/parameters/bills" ? "active" : ""}`} title="Conceptos" onClick={closeSidebar}>
                             <i className="bi bi-journal-plus fs-4"></i>
                             <span className="ms-2 d-lg-inline">Conceptos</span>
                         </Link>
@@ -200,7 +185,7 @@ const DashboardOperator: React.FC = () => {
 
                     {/* Descuentos */}
                     <li className="nav-item">
-                        <Link to="/dashboard/operator/discounts" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/operator/discounts' ? 'active' : ''}`} title="Gestion de modalidad" onClick={() => setSidebarOpen(false)}>
+                        <Link to="/dashboard/operator/discounts" className={`nav-link py-3 d-flex align-items-center ${currentPath === '/dashboard/operator/discounts' ? 'active' : ''}`} title="Descuentos" onClick={closeSidebar}>
                             <i className="bi bi-plus-slash-minus fs-4"></i>
                             <span className="ms-2 d-lg-inline">Descuentos</span>
                         </Link>
@@ -208,16 +193,28 @@ const DashboardOperator: React.FC = () => {
 
                     {/* Reportes */}
                     <li className="nav-item">
-                        <Link to="/dashboard/operator/reports" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/reports" ? "active" : ""}`}>
+                        <Link to="/dashboard/operator/reports" className={`nav-link py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/reports" ? "active" : ""}`} title="Reportes" onClick={closeSidebar}>
                             <i className="bi-clipboard-data fs-4"></i>
                             <span className="ms-2 d-lg-inline">Reportes</span>
                         </Link>
                     </li>
                 </ul>
+
+                {/* Tarjeta de marca */}
+                <div className="sidebar-footer mt-auto w-100">
+                    <div className="sidebar-footer-icon">
+                        <img src={logo} alt="Logo" />
+                    </div>
+                    <div className="sidebar-footer-text">
+                        <div className="sidebar-footer-title">Sistema de gestión</div>
+                        <div className="sidebar-footer-subtitle">Consorcio de Agua</div>
+                        <div className="sidebar-footer-version">Versión 1.0.0</div>
+                    </div>
+                </div>
             </aside>
 
             {/* Contenido principal */}
-            <main className="dashboard-main flex-grow-1 p-4 bg-light">
+            <main className="dashboard-main flex-grow-1 p-4">
                 <Outlet />
             </main>
         </div>

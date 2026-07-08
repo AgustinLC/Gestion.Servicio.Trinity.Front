@@ -19,6 +19,7 @@
   --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
   --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 8px rgba(0, 0, 0, 0.02);
   --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+  --navbar-height: 64px;
 }
 
 /* Global Root Configuration */
@@ -31,7 +32,7 @@
 body {
   position: relative;
   overflow-y: scroll;
-  margin-top: 70px;
+  margin-top: var(--navbar-height);
   background-color: var(--bs-body-bg);
   color: var(--bs-body-color);
   font-family: var(--bs-body-font-family);
@@ -96,6 +97,24 @@ body {
   background-color: #f1f5f9;
   color: #94a3b8;
   border-color: #e2e8f0;
+  cursor: not-allowed;
+}
+
+/* --- CURSOR: elementos interactivos deben mostrar mano, no flecha --- */
+button:not(:disabled),
+.btn:not(:disabled),
+.form-select,
+select,
+.page-link,
+.dropdown-toggle,
+.dropdown-item,
+.nav-link,
+[role="button"] {
+  cursor: pointer;
+}
+
+button:disabled,
+.btn:disabled {
   cursor: not-allowed;
 }
 
@@ -292,31 +311,125 @@ body {
   cursor: pointer;
 }
 
-/* Navbar active link indicator */
-.navbar-active-link {
-  position: relative;
+/* --- NAVBAR (Fase 1: marca, links con icono y menu de usuario) ---
+   OJO: la altura NO debe depender de --navbar-height (esa variable la
+   calcula JS midiendo el navbar ya renderizado, para que el sidebar/body se
+   alineen debajo). Si el navbar leyera su propia altura medida como
+   min-height, cualquier crecimiento quedaría "pegado" para siempre (nunca
+   podría volver a achicarse). La altura real sale solo del padding+contenido. */
+.navbar.fixed-top {
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
 }
 
-.navbar-active-link::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 50%;
-  transform: translateX(-50%) scaleX(0);
-  width: 80%;
-  height: 2px;
+.navbar-brand-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.navbar-brand-text {
+  line-height: 1.15;
+}
+
+.navbar-brand-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #ffffff;
+}
+
+.navbar-brand-subtitle {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 400;
+}
+
+/* Links del navbar como "pill" (reemplaza el subrayado anterior) */
+.navbar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.85) !important;
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem !important;
+  transition: var(--transition-smooth);
+}
+
+.navbar-link:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff !important;
+}
+
+.navbar-link.navbar-link-active {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* Botón de notificaciones */
+.navbar-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  transition: var(--transition-smooth);
+}
+
+.navbar-icon-btn:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+/* Menú de usuario */
+.navbar-user-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: transparent !important;
+  border: none !important;
+  padding: 0.35rem 0.75rem !important;
+  border-radius: 999px;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  transition: var(--transition-smooth);
+}
+
+.navbar-user-toggle:hover,
+.navbar-user-toggle:focus {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.navbar-user-toggle::after {
+  display: none;
+}
+
+.navbar-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   background-color: #ffffff;
-  border-radius: 2px;
-  transition: transform 0.2s ease;
+  color: var(--bs-primary);
+  font-weight: 700;
+  font-size: 0.9rem;
 }
 
-.navbar-active-link:hover::after {
-  transform: translateX(-50%) scaleX(0.5);
-  opacity: 0.6;
+.navbar-user-name {
+  font-weight: 500;
+  font-size: 0.9rem;
 }
 
-.navbar-active-link.navbar-link-active::after {
-  transform: translateX(-50%) scaleX(1);
+.navbar-user-chevron {
+  font-size: 0.8rem;
+  opacity: 0.85;
 }
 
 /* --- ANIMACIONES DE ENTRADA --- */
@@ -349,15 +462,29 @@ body {
 }
 
 /* --- BARRA DE FILTROS ESTANDARIZADA (buscadores de tableros) --- */
+/* El toolbar siempre precede a la tabla en este sistema, así que se estiliza
+   como la mitad superior de una única caja (como en el Figma): sin sombra
+   propia ni radio/borde inferior, separado solo por una línea divisoria. */
 .table-toolbar {
   background-color: #ffffff;
   border: 1px solid rgba(226, 232, 240, 0.8);
-  border-radius: var(--card-border-radius);
+  border-bottom: none;
+  border-top-left-radius: var(--card-border-radius);
+  border-top-right-radius: var(--card-border-radius);
   box-shadow: var(--shadow-sm);
   padding: 0.85rem 1.1rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  margin-bottom: 0;
+}
+
+/* Mitad inferior de la caja fusionada */
+.table-toolbar + .reusable-table-card {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  margin-top: 0;
 }
 
 .table-toolbar-main,
@@ -390,6 +517,59 @@ body {
   min-width: 200px;
 }
 
+/* --- FASE 3: buscador y selects como InputGroup con icono a la izquierda ---
+   Nota: en mobile el toolbar es flex-column, así que el eje principal pasa a
+   ser vertical. Por eso el flex-basis (pensado para el ancho en desktop) solo
+   se aplica desde el breakpoint lg en adelante; en mobile los grupos ocupan
+   simplemente el 100% del ancho disponible. */
+.search-bar-group {
+  width: 100%;
+  max-width: 380px;
+  min-width: 0;
+}
+
+.table-toolbar-filter-group {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 992px) {
+  .search-bar-group {
+    flex: 1 1 260px;
+    min-width: 220px;
+  }
+
+  .table-toolbar-filter-group {
+    flex: 1 1 220px;
+    min-width: 200px;
+  }
+}
+
+.search-bar-group .input-group-text,
+.table-toolbar-filter-group .input-group-text {
+  background-color: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-right: none;
+  color: #94a3b8;
+  padding-right: 0.4rem;
+}
+
+.search-bar-group .form-control,
+.table-toolbar-filter-group .form-select {
+  border-left: none;
+  padding-left: 0.4rem;
+  max-width: none;
+  min-width: 0;
+}
+
+/* Al enfocar el input/select, resaltar también el borde del icono para que
+   el grupo se vea como una sola pieza. */
+.search-bar-group:focus-within .input-group-text,
+.table-toolbar-filter-group:focus-within .input-group-text {
+  border-color: #80bfff;
+  color: var(--bs-primary);
+}
+
 .sort-arrow {
   font-size: 0.75rem;
   color: var(--bs-primary);
@@ -397,23 +577,17 @@ body {
   transition: var(--transition-smooth);
 }
 
-/* --- PAGE HEADER (top card) --- */
-.page-header {
-  background: #fff;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: var(--card-border-radius);
-  box-shadow: var(--shadow-sm);
-  padding: 1rem;
-}
-
+/* --- PAGE HEADER (título de sección, sin card propia: vive sobre el fondo gris de página) --- */
 .page-header-left { }
 
 .page-header-icon {
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(180deg,#eef2ff, #eff6ff);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+  width: 52px;
+  height: 52px;
+  background: rgba(0, 119, 255, 0.1);
+  color: var(--bs-primary);
+  border-radius: 50%;
+  font-size: 1.4rem;
+  flex-shrink: 0;
 }
 
 .page-header-title {
@@ -427,27 +601,79 @@ body {
   background: linear-gradient(180deg,#ffffff,#fbfdff);
   border: 1px solid rgba(226,232,240,0.8);
   border-radius: 10px;
-  min-width: 110px;
+  /* Sin ancho fijo: cada card ocupa lo que su propio contenido necesita
+     (una sola línea), y solo se re-acomoda si no entra en el ancho
+     disponible, gracias al flex-wrap del contenedor. */
+  flex-shrink: 0;
+}
+
+.stat-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.stat-label,
+.stat-value {
+  white-space: nowrap;
 }
 
 .stat-label { color: #64748b; }
 .stat-value { font-size: 1.15rem; }
 
 /* --- REUSABLE TABLE STYLES --- */
+/* Caja blanca que encierra toda la tabla (Fase 4: diferenciar del fondo gris de página) */
+.reusable-table-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+/* El header (fondo gris) llega hasta las esquinas redondeadas de la caja.
+   Se redondea el th en vez de recortar con overflow:hidden en la card, para
+   no cortar el menú de acciones (RowActions) cuando se abre en la última fila. */
+.reusable-table-card table thead th:first-child {
+  border-top-left-radius: var(--card-border-radius);
+}
+
+.reusable-table-card table thead th:last-child {
+  border-top-right-radius: var(--card-border-radius);
+}
+
+/* Cuando la card está fusionada con el toolbar de arriba, sus esquinas
+   superiores son cuadradas, así que el header tampoco debe redondearse. */
+.table-toolbar + .reusable-table-card table thead th:first-child {
+  border-top-left-radius: 0;
+}
+
+.table-toolbar + .reusable-table-card table thead th:last-child {
+  border-top-right-radius: 0;
+}
+
+.reusable-table-footer {
+  padding: 0 1.1rem 1.1rem;
+}
+
 .reusable-table table {
-  border-collapse: separate;
-  border-spacing: 0 12px;
+  border-collapse: collapse;
+  margin-bottom: 0;
 }
 
 .reusable-table tbody tr {
   background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 1px 2px rgba(15,23,42,0.03);
 }
 
 .reusable-table td, .reusable-table th {
   border: none !important;
+  border-bottom: 1px solid #f1f5f9 !important;
   vertical-align: middle !important;
+}
+
+.reusable-table tbody tr:last-child td {
+  border-bottom: none !important;
 }
 
 .status-badge {
@@ -462,3 +688,58 @@ body {
 .status-badge.ACTIVE { background: #dcfce7; color: #166534; }
 .status-badge.INACTIVE { background: #f1f5f9; color: #475569; }
 .status-badge.SUSPENDED { background: #fff7ed; color: #92400e; }
+
+/* --- FASE 4: pie de tabla (resultados + paginación a la derecha) --- */
+.reusable-table-count i {
+  color: #94a3b8;
+}
+
+/* --- FASE 4: acciones por fila (lápiz + menú de 3 puntos) --- */
+.row-actions-edit,
+.row-actions-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #64748b;
+  transition: var(--transition-smooth);
+}
+
+.row-actions-edit {
+  border-color: rgba(0, 119, 255, 0.25);
+  color: var(--bs-primary);
+}
+
+.row-actions-edit:hover {
+  background-color: rgba(0, 119, 255, 0.08);
+  border-color: #80bfff;
+  color: var(--bs-primary);
+}
+
+.row-actions-menu:hover,
+.row-actions-menu:focus {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.row-actions-menu::after {
+  display: none;
+}
+
+/* --- FASE 4: avatar pastel en filas de tabla --- */
+.row-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}

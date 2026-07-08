@@ -3,55 +3,56 @@ import { TableFilterConfig } from "../shared/components/table-toolbar/types";
 
 const EMPTY_SENTINELS = new Set(["", "ALL", "all"]);
 
+/**
+ * Hook para manejar el estado de los filtros del TableToolbar.
+ *
+ * A partir de la Fase 3 los filtros son SIEMPRE visibles (ya no hay un
+ * checkbox previo para habilitarlos). Un filtro se considera "activo"
+ * cuando su valor no es vacío ni un centinela (`""`, `"ALL"`, `"all"`).
+ */
 export function useTableFilters(configs: TableFilterConfig[] = []) {
-    const [enabledIds, setEnabledIds] = useState<Set<string>>(() => new Set());
     const [values, setValues] = useState<Record<string, string>>(() =>
         Object.fromEntries(configs.map((config) => [config.id, config.defaultValue ?? ""]))
     );
-
-    const toggleFilter = useCallback((id: string, enabled: boolean) => {
-        setEnabledIds((prev) => {
-            const next = new Set(prev);
-            if (enabled) {
-                next.add(id);
-            } else {
-                next.delete(id);
-            }
-            return next;
-        });
-
-        if (!enabled) {
-            const config = configs.find((item) => item.id === id);
-            setValues((prev) => ({ ...prev, [id]: config?.defaultValue ?? "" }));
-        }
-    }, [configs]);
 
     const setFilterValue = useCallback((id: string, value: string) => {
         setValues((prev) => ({ ...prev, [id]: value }));
     }, []);
 
-    const isFilterEnabled = useCallback((id: string) => enabledIds.has(id), [enabledIds]);
-
     const getActiveValue = useCallback((id: string): string | null => {
-        if (!enabledIds.has(id)) {
-            return null;
-        }
-
         const value = values[id];
         if (value === undefined || EMPTY_SENTINELS.has(value)) {
             return null;
         }
-
         return value;
-    }, [enabledIds, values]);
+    }, [values]);
+
+    const isFilterEnabled = useCallback((id: string) => {
+        return getActiveValue(id) !== null;
+    }, [getActiveValue]);
+
+    // Set derivado de ids con valor activo (útil para consumidores que quieran contar cuántos filtros están aplicados)
+    const enabledIds = useMemo(() => {
+        const set = new Set<string>();
+        Object.keys(values).forEach((id) => {
+            if (getActiveValue(id) !== null) set.add(id);
+        });
+        return set;
+    }, [values, getActiveValue]);
 
     const activeValues = useMemo(() => {
         const result: Record<string, string | null> = {};
-        enabledIds.forEach((id) => {
+        Object.keys(values).forEach((id) => {
             result[id] = getActiveValue(id);
         });
         return result;
-    }, [enabledIds, getActiveValue]);
+    }, [values, getActiveValue]);
+
+    // Se mantiene como no-op para no romper componentes que aún llamen a toggleFilter,
+    // pero ya no tiene efecto real: los filtros son siempre visibles.
+    const toggleFilter = useCallback((_id: string, _enabled: boolean) => {
+        // no-op: los filtros son siempre visibles a partir de Fase 3
+    }, []);
 
     return {
         enabledIds,

@@ -10,25 +10,32 @@
     min-height: 100vh;
 }
 
-/* Sidebar fija */
+/* Sidebar fija (Fase 2: tema claro) */
 .sidebar {
     position: fixed;
-    top: 56px;
+    top: var(--navbar-height);
     left: 0;
-    height: 100vh;
-    width: 200px;
-    border-right: 1px solid rgba(255, 255, 255, 0.12);
+    height: calc(100vh - var(--navbar-height));
+    width: 224px;
+    background-color: #ffffff !important;
+    border-right: 1px solid rgba(226, 232, 240, 0.9);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1030;
-    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.02);
+    box-shadow: 4px 0 14px rgba(15, 23, 42, 0.06);
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-/* Contenido principal */
+/* Contenido principal: fondo gris de página (--bs-body-bg), sin recuadro
+   blanco propio ni esquina redondeada, para que las secciones internas
+   (PageHeader, TableToolbar, tablas, KPI cards) se diferencien como
+   tarjetas blancas contra ese fondo (ver Figma). */
 .dashboard-main {
-    margin-left: 200px;
-    width: calc(100% - 200px);
-    min-height: 100vh;
+    margin-left: 224px;
+    width: calc(100% - 224px);
+    min-height: calc(100vh - var(--navbar-height));
     overflow-x: auto;
+    background-color: var(--bs-body-bg);
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -52,11 +59,11 @@
     transform: translateX(-100%);
 }
 
-/* --- Estilos de navegación --- */
+/* --- Estilos de navegación (Fase 2: texto oscuro sobre sidebar clara) --- */
 .sidebar .nav-link {
     height: auto;
     padding: 0.7rem 0.9rem !important;
-    color: rgba(255, 255, 255, 0.85) !important;
+    color: #475569 !important; /* Slate 600 */
     transition: var(--transition-smooth);
     position: relative;
     border-radius: 8px;
@@ -70,30 +77,30 @@
     font-size: 1.25rem;
     margin-right: 0.75rem;
     transition: var(--transition-smooth);
+    color: #94a3b8;
 }
 
 .sidebar .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
+    background-color: rgba(0, 119, 255, 0.06) !important;
+    color: var(--bs-primary) !important;
     transform: translateX(2px);
 }
 
 .sidebar .nav-link:hover i {
-    color: #ffffff !important;
+    color: var(--bs-primary);
 }
 
 .sidebar .nav-link.active,
 .sidebar .nav-link.active-submenu {
-    background-color: rgba(255, 255, 255, 0.15) !important;
-    color: #ffffff !important;
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
-    border-left: 3px solid #fff;
+    background-color: rgba(0, 119, 255, 0.08) !important;
+    color: var(--bs-primary) !important;
+    box-shadow: none;
     font-weight: 600;
 }
 
 .sidebar .nav-link.active i,
 .sidebar .nav-link.active-submenu i {
-    color: #ffffff !important;
+    color: var(--bs-primary) !important;
 }
 
 /* --- Popovers (Submenús flotantes) --- */
@@ -147,32 +154,60 @@
     transform: rotate(90deg); /* Modern right chevron turns to down/right */
 }
 
-/* --- Botón flotante lateral --- */
-.sidebar-toggle-btn {
-    position: fixed;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: var(--bs-primary);
-    color: #fff;
-    border: none;
-    border-radius: 0 50% 50% 0;
-    padding: 14px 10px 14px 6px;
-    cursor: pointer;
-    z-index: 1050;
+/* --- Tarjeta de marca al pie del sidebar (Fase 2) --- */
+.sidebar-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 0.6rem;
+    margin: 0.5rem 0.25rem 0.25rem;
+    border-top: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.sidebar-footer-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s, left 0.4s, box-shadow 0.3s;
-    box-shadow: 0 4px 12px rgba(0, 119, 255, 0.3);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: rgba(0, 119, 255, 0.08);
+    flex-shrink: 0;
 }
 
-.sidebar-toggle-btn:hover {
-    background-color: #0055cc;
-    box-shadow: 0 6px 16px rgba(0, 119, 255, 0.45);
+.sidebar-footer-icon img {
+    width: 18px;
+    height: 18px;
+    filter: invert(36%) sepia(93%) saturate(2661%) hue-rotate(199deg) brightness(103%) contrast(101%);
 }
 
-.sidebar-toggle-btn i {
-    font-size: 1.2rem;
+.sidebar-footer-text {
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-footer-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #334155;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-footer-subtitle {
+    font-size: 0.72rem;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-footer-version {
+    font-size: 0.68rem;
+    color: #94a3b8;
+    white-space: nowrap;
 }
 
 /* --- Animaciones --- */

@@ -18,6 +18,7 @@ export interface TableFilterConfig {
     emptyLabel?: string;
     defaultValue?: string;
     maxWidth?: string;
+    icon?: string; // Clase de Bootstrap Icons (ej: "bi bi-geo-alt"). Opcional.
     render?: (props: TableFilterRenderProps) => ReactNode;
 }
 

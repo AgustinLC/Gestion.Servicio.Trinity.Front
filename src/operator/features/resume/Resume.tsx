@@ -5,6 +5,8 @@ import { ResumeDto } from "../../../core/models/dto/ResumeDto";
 import { getData } from "../../../core/services/apiService";
 import { PeriodSelectorDto } from "../../../core/models/dto/PeriodSelectorDto";
 import { BillCountsDto } from "../../../core/models/dto/BillCountDto";
+import KpiCard, { KpiTrend } from "../../../shared/components/kpi-card/KpiCard";
+import PageHeader from "../../../shared/components/PageHeader";
 
 const Resume = () => {
     //Estados
@@ -91,17 +93,17 @@ const Resume = () => {
         }
     }, [selectedPeriod]);
 
-    // Datos para las tarjetas
+    // Datos para las tarjetas KPI (Fase 5)
     const summaryData = useMemo(() => [
-        { title: "Usuarios Activos", value: data?.activeUsers || 0, color: "#28a745" },
-        { title: "Usuarios Suspendidos", value: data?.suspendedUsers || 0, color: "#ffc707" },
-        { title: "Usuarios Inactivos", value: data?.inactiveUsers || 0, color: "#dc3545" },
-        { title: "Medidores faltantes", value: data?.missingMeters || 0, color: "#ffc707" },
-        { title: "Lecturas Realizadas", value: data?.fullReadings || 0, color: "#007bff" },
-        { title: "Lecturas Pendientes", value: data?.incompleteReadings || 0, color: "#" },
-        { title: "Modalidad activa", value: data?.activeModality || "No disponible", color: "#a15faf" },
-        { title: "Fecha de periodo (activo)", value: data?.dateActivePeriod ? new Date(data?.dateActivePeriod).toLocaleDateString() : "No disponible", color: "#ff5d00" },
-        { title: "Servicio/Unidad", value: data?.activeUnitService || "No disponible", color: "#05c1a1" }
+        { title: "Usuarios Activos", value: data?.activeUsers || 0, icon: "bi bi-people-fill", iconBg: "#dcfce7", color: "#16a34a", trend: "up" as KpiTrend },
+        { title: "Usuarios Suspendidos", value: data?.suspendedUsers || 0, icon: "bi bi-person-dash-fill", iconBg: "#ffedd5", color: "#ea580c", trend: "up" as KpiTrend },
+        { title: "Usuarios Inactivos", value: data?.inactiveUsers || 0, icon: "bi bi-person-x-fill", iconBg: "#fee2e2", color: "#dc2626", trend: "down" as KpiTrend },
+        { title: "Medidores faltantes", value: data?.missingMeters || 0, icon: "bi bi-exclamation-triangle-fill", iconBg: "#f3e8ff", color: "#9333ea", trend: "neutral" as KpiTrend },
+        { title: "Lecturas Realizadas", value: data?.fullReadings || 0, icon: "bi bi-file-earmark-text-fill", iconBg: "#dbeafe", color: "#2563eb", trend: "neutral" as KpiTrend },
+        { title: "Lecturas Pendientes", value: data?.incompleteReadings || 0, icon: "bi bi-clipboard-data-fill", iconBg: "#dbeafe", color: "#2563eb", trend: "up" as KpiTrend },
+        { title: "Modalidad activa", value: data?.activeModality || "No disponible", icon: "bi bi-arrow-repeat", iconBg: "#d1fae5", color: "#059669", trend: "neutral" as KpiTrend },
+        { title: "Fecha de periodo (activo)", value: data?.dateActivePeriod ? new Date(data?.dateActivePeriod).toLocaleDateString() : "No disponible", icon: "bi bi-calendar-event-fill", iconBg: "#ffedd5", color: "#ea580c", trend: "neutral" as KpiTrend },
+        { title: "Servicio/Unidad", value: data?.activeUnitService || "No disponible", icon: "bi bi-droplet-fill", iconBg: "#ccfbf1", color: "#0d9488", trend: "neutral" as KpiTrend },
     ], [data]);
 
     // Datos del gráfico de barras (Usuarios por tarifa)
@@ -118,7 +120,7 @@ const Resume = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Resumen</h1>
+            <PageHeader title="Resumen" subtitle="Información general del sistema al día de hoy." icon="bi bi-person-lines-fill" />
 
             {/* Mostrar el mensaje de carga mientras los datos se están cargando */}
             {loading ? (
@@ -131,18 +133,19 @@ const Resume = () => {
             ) : (
                 <div>
 
-                    {/* Tarjetas de resumen */}
+                    {/* Tarjetas de resumen (KPI) */}
                     <Row className="mb-2">
                         {summaryData.map((item, index) => (
-                            <Col key={index} md={4} className="mb-3">
-                                <Card>
-                                    <Card.Body>
-                                        <Card.Title>{item.title}</Card.Title>
-                                        <Card.Text style={{ color: item.color, fontSize: "1.3rem", fontWeight: "bold" }}>
-                                            {item.value}
-                                        </Card.Text>
-                                    </Card.Body>
-                                </Card>
+                            <Col key={index} xl={4} md={6} className="mb-3">
+                                <KpiCard
+                                    icon={item.icon}
+                                    iconBg={item.iconBg}
+                                    iconColor={item.color}
+                                    label={item.title}
+                                    value={item.value}
+                                    valueColor={item.color}
+                                    trend={item.trend}
+                                />
                             </Col>
                         ))}
                     </Row>

@@ -14,7 +14,10 @@ const ReusableTable = <T,>({
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">(defaultSortDirection);
 
     const itemsPerPage = 10;
-    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const totalItems = data.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const rangeStart = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+    const rangeEnd = Math.min(currentPage * itemsPerPage, totalItems);
 
     // Ordenar los datos
     const sortedData = [...data].sort((a, b) => {
@@ -64,14 +67,14 @@ const ReusableTable = <T,>({
 
     // Validacion de datos para que data y columns no esten vacios
     if (!data || data.length === 0) {
-        return <div>No hay datos para mostrar.</div>;
+        return <div className="reusable-table-card text-muted p-4">No hay datos para mostrar.</div>;
     }
     if (!columns || columns.length === 0) {
-        return <div>No hay columnas definidas.</div>;
+        return <div className="reusable-table-card text-muted p-4">No hay columnas definidas.</div>;
     }
 
     return (
-        <div className="mt-2 reusable-table">
+        <div className="reusable-table reusable-table-card">
             <Table hover responsive>
                 <thead>
                     <tr className="text-center">
@@ -112,8 +115,13 @@ const ReusableTable = <T,>({
                 </tbody>
             </Table>
 
-            {/* Paginación */}
-            <Pagination className="justify-content-center flex-wrap">
+            {/* Pie de tabla: resultados + paginación */}
+            <div className="reusable-table-footer d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mt-2">
+                <div className="reusable-table-count text-muted small d-flex align-items-center gap-2">
+                    <i className="bi bi-list-ul"></i>
+                    Mostrando {rangeStart} a {rangeEnd} de {totalItems} resultados
+                </div>
+                <Pagination className="justify-content-center flex-wrap mb-0">
                 <Pagination.Prev
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
@@ -177,7 +185,8 @@ const ReusableTable = <T,>({
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
                 />
-            </Pagination>
+                </Pagination>
+            </div>
         </div>
     );
 };

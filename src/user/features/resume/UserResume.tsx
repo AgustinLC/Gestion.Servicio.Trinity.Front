@@ -6,6 +6,8 @@ import { SummaryDto } from "../../../core/models/dto/SummaryDto";
 import { getData } from "../../../core/services/apiService";
 import useAuth from "../../../hooks/useAuth";
 import { toast } from "react-toastify";
+import KpiCard, { KpiTrend } from "../../../shared/components/kpi-card/KpiCard";
+import PageHeader from "../../../shared/components/PageHeader";
 
 const UserResume = () => {
     // Estados
@@ -78,14 +80,21 @@ const UserResume = () => {
         }
     }, [userId]);
 
-    // Datos para las tarjetas
+    // Datos para las tarjetas KPI (Fase 5)
     const summaryData = useMemo(() => [
-        { title: "Facturas Pagas", value: data?.billsPaid || 0, color: "#28a745" },
-        { title: "Facturas Impagas", value: data?.unpaidBills || 0, color: "#dc3545" },
-        { title: "Modalidad Activa", value: data?.activeModality || "No disponible", color: "#a15faf" },
-        { title: "Fecha de Periodo (Activo)", value: data?.activePeriod ? new Date(data.activePeriod).toLocaleDateString() : "No disponible", color: "#ff5d00" },
-        { title: "Servicio/Unidad", value: data?.activeUnitService || "No disponible", color: "#05c1a1" },
-        { title: "Estado de Cuenta", value: data?.statusUser === 1 ? "Activa" : "Inactiva", color: data?.statusUser === 1 ? "#28a745" : "#dc3545" }, // Nuevo cuadro para el estado de actividad
+        { title: "Facturas Pagas", value: data?.billsPaid || 0, icon: "bi bi-check-circle-fill", iconBg: "#dcfce7", color: "#16a34a", trend: "up" as KpiTrend },
+        { title: "Facturas Impagas", value: data?.unpaidBills || 0, icon: "bi bi-x-circle-fill", iconBg: "#fee2e2", color: "#dc2626", trend: "down" as KpiTrend },
+        { title: "Modalidad Activa", value: data?.activeModality || "No disponible", icon: "bi bi-arrow-repeat", iconBg: "#ede9fe", color: "#7c3aed", trend: "neutral" as KpiTrend },
+        { title: "Fecha de Periodo (Activo)", value: data?.activePeriod ? new Date(data.activePeriod).toLocaleDateString() : "No disponible", icon: "bi bi-calendar-event-fill", iconBg: "#ffedd5", color: "#ea580c", trend: "neutral" as KpiTrend },
+        { title: "Servicio/Unidad", value: data?.activeUnitService || "No disponible", icon: "bi bi-droplet-fill", iconBg: "#ccfbf1", color: "#0d9488", trend: "neutral" as KpiTrend },
+        {
+            title: "Estado de Cuenta",
+            value: data?.statusUser === 1 ? "Activa" : "Inactiva",
+            icon: data?.statusUser === 1 ? "bi bi-person-check-fill" : "bi bi-person-x-fill",
+            iconBg: data?.statusUser === 1 ? "#dcfce7" : "#fee2e2",
+            color: data?.statusUser === 1 ? "#16a34a" : "#dc2626",
+            trend: (data?.statusUser === 1 ? "up" : "down") as KpiTrend,
+        },
     ], [data]);
 
 
@@ -106,7 +115,7 @@ const UserResume = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Resumen de {data?.userName} {data?.userLastName}</h1>
+            <PageHeader title={`Resumen de ${data?.userName ?? ""} ${data?.userLastName ?? ""}`} subtitle="Información general de tu cuenta al día de hoy." icon="bi bi-person-lines-fill" />
 
             {/* Mostrar el mensaje de carga mientras los datos se están cargando */}
             {loading ? (
@@ -118,18 +127,19 @@ const UserResume = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    {/* Tarjetas de resumen */}
+                    {/* Tarjetas de resumen (KPI) */}
                     <Row className="mb-2">
                         {summaryData.map((item, index) => (
-                            <Col key={index} md={4} className="mb-3">
-                                <Card>
-                                    <Card.Body>
-                                        <Card.Title>{item.title}</Card.Title>
-                                        <Card.Text style={{ color: item.color, fontSize: "1.3rem", fontWeight: "bold" }}>
-                                            {item.value}
-                                        </Card.Text>
-                                    </Card.Body>
-                                </Card>
+                            <Col key={index} xl={4} md={6} className="mb-3">
+                                <KpiCard
+                                    icon={item.icon}
+                                    iconBg={item.iconBg}
+                                    iconColor={item.color}
+                                    label={item.title}
+                                    value={item.value}
+                                    valueColor={item.color}
+                                    trend={item.trend}
+                                />
                             </Col>
                         ))}
                     </Row>
