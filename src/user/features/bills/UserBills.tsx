@@ -5,7 +5,8 @@ import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
 import { getData } from "../../../core/services/apiService";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import useAuth from "../../../hooks/useAuth";
 import BillPdfGenerator, { BillPdfGeneratorRef } from "../../../shared/components/pdf/BillPdfGenerator";
 import { UserDto } from "../../../core/models/dto/UserDto";
@@ -136,9 +137,9 @@ const UserBills: React.FC = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Mis Facturas</h1>
+            <PageHeader title="Mis Facturas" subtitle="Consultá y visualizá tus facturas emitidas." icon="bi bi-file-earmark-spreadsheet" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>
@@ -146,9 +147,7 @@ const UserBills: React.FC = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                        <SearchBar onSearch={handleSearch} />
-                    </div>
+                    <TableToolbar onSearch={handleSearch} />
                     <ReusableTable
                         data={filteredData}
                         columns={columns}

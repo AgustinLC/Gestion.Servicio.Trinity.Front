@@ -7,7 +7,8 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 import AddParameterModal from "./AddParameterModal";
 import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
 import { toast } from "react-toastify";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import UserParametersModal from "./UserParameterModal";
 import { useSearch } from "../../../hooks/useSearch";
 import useAppData from "../../../hooks/useAppData";
@@ -63,9 +64,9 @@ const PendigBillsParameterPage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Gestión de Conceptos</h1>
+            <PageHeader title="Gestión de Conceptos" subtitle="Agregá conceptos pendientes de facturación por usuario." icon="bi bi-journal-plus" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>
@@ -73,9 +74,7 @@ const PendigBillsParameterPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                        <SearchBar onSearch={handleSearch} />
-                    </div>
+                    <TableToolbar onSearch={handleSearch} />
 
                     {/* Tabla */}
                     <ReusableTable<UserDto>

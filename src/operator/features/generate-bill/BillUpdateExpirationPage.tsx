@@ -3,6 +3,7 @@ import { Alert, Button, Spinner, Card, Form, Row, Col } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../../config/axiosConfig';
 import { WebApiResponse } from '../../../core/models/types/WebApiResponse';
+import PageHeader from '../../../shared/components/PageHeader';
 
 const BillUpdateExpirationPage = () => {
     // Estados
@@ -62,7 +63,7 @@ const BillUpdateExpirationPage = () => {
 
     return (
         <div>
-            <h1 className="text-center mb-4">Actualizar Fecha de Vencimiento</h1>
+            <PageHeader title="Actualizar Fecha de Vencimiento" subtitle="Modificá el vencimiento de las facturas de un período." icon="bi bi-calendar-event" />
 
             <Row className="justify-content-center">
                 <Col lg={8} xl={6}>

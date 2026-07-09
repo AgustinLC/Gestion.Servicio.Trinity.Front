@@ -81,7 +81,7 @@ export const useDebtDisconnectionPdfs = () => {
     );
 
     /**
-     * Genera el Cuadro de Aviso de Corte / Advertencia de Deuda
+     * Genera Aviso de Corte / Intimación de Corte
      */
     const generateWarningPdf = useCallback(
         async (
@@ -90,7 +90,7 @@ export const useDebtDisconnectionPdfs = () => {
             options: PdfGeneratorOptions = {}
         ): Promise<void> => {
             const {
-                fileName = `Aviso_Deuda_Usuario_${user.idUser}_${new Date().toISOString().split('T')[0]}`,
+                fileName = `Intimacion_Corte_Usuario_${user.idUser}_${new Date().toISOString().split('T')[0]}`,
                 onStart,
                 onComplete,
                 onError,
@@ -105,12 +105,12 @@ export const useDebtDisconnectionPdfs = () => {
                 ).toBlob();
 
                 downloadBlob(blob, fileName);
-                toast.success('Cuadro de aviso de corte generado exitosamente');
+                toast.success('Intimación de corte generada exitosamente');
                 onComplete?.();
             } catch (error) {
                 const err = error instanceof Error ? error : new Error('Error desconocido');
-                console.error('Error generando PDF de aviso de deuda:', err);
-                toast.error('Error al generar PDF de aviso de deuda');
+                console.error('Error generando PDF de intimación de corte:', err);
+                toast.error('Error al generar PDF de intimación de corte');
                 onError?.(err);
                 throw err;
             } finally {

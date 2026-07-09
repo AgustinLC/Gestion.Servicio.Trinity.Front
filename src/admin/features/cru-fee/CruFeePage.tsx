@@ -7,7 +7,8 @@ import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { FeeDto } from "../../../core/models/dto/FeeDto";
 import AddEditFeeModal from "./AddEditFeeModal";
 import useAppData from "../../../hooks/useAppData";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import { useSearch } from "../../../hooks/useSearch";
 
 const CrudFeePage = () => {
@@ -65,9 +66,9 @@ const CrudFeePage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Gestión de Tarifas</h1>
+            <PageHeader title="Gestión de Tarifas" subtitle="Administrá las tarifas del servicio." icon="bi bi-clipboard2-pulse" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>
@@ -75,12 +76,11 @@ const CrudFeePage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                        <SearchBar onSearch={handleSearch} />
+                    <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedFee(null); setShowModal(true); }}>
                             Añadir Tarifa
                         </Button>
-                    </div>
+                    </TableToolbar>
 
                     {/* Tabla */}
                     <ReusableTable<FeeDto>

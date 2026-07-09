@@ -22,22 +22,33 @@
   --navbar-height: 64px;
 }
 
-/* Global Root Configuration */
+/* Global Root Configuration.
+   min-height resta --navbar-height porque el body ya tiene ese mismo valor
+   como margin-top (para dejar lugar al navbar fijo); si acá se usara 100vh
+   completo, se sumarían ambos y el documento siempre mediría navbar-height
+   de más, generando un scroll vertical que no depende del contenido real. */
 #root {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: calc(100vh - var(--navbar-height));
 }
 
 body {
   position: relative;
-  overflow-y: scroll;
+  overflow-y: auto;
   margin-top: var(--navbar-height);
   background-color: var(--bs-body-bg);
   color: var(--bs-body-color);
   font-family: var(--bs-body-font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Estado de carga (spinner) dentro de .dashboard-main: usa la altura restante
+   bajo el navbar en vez de 100vh, para no sumar una pantalla completa extra
+   al contenido que ya está debajo de él (evita un scroll innecesario). */
+.loading-vh {
+  min-height: calc(100vh - var(--navbar-height));
 }
 
 /* --- CARDS MODERNIZADAS --- */
@@ -62,6 +73,16 @@ body {
 
 .card-body {
   padding: 1.5rem;
+}
+
+/* Cards de gráficos (Resumen): un poco más compactas para no sumar scroll
+   vertical innecesario en los tableros con muchas tarjetas KPI arriba. */
+.chart-card .card-body {
+  padding: 1.1rem 1.25rem;
+}
+
+.chart-card .card-title {
+  margin-bottom: 0.5rem;
 }
 
 /* --- FORMULARIOS E INPUTS MODERNIZADOS --- */
@@ -195,6 +216,30 @@ button:disabled,
   background-color: #d97706 !important;
   color: #1e293b !important;
   box-shadow: 0 6px 20px 0 rgba(245, 158, 11, 0.35) !important;
+}
+
+/* Variantes "outline": para acciones secundarias en una fila que ya tiene
+   color (badges, iconos), sin competir en saturación con el resto. */
+.btn-outline-warning {
+  color: #b45309;
+  border-color: #f59e0b;
+}
+
+.btn-outline-warning:hover, .btn-outline-warning:focus {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #f59e0b !important;
+}
+
+.btn-outline-danger {
+  color: #dc2626;
+  border-color: #ef4444;
+}
+
+.btn-outline-danger:hover, .btn-outline-danger:focus {
+  background-color: #fef2f2 !important;
+  color: #dc2626 !important;
+  border-color: #ef4444 !important;
 }
 
 /* --- ALERTAS DE ALTO CONTRASTE (WCAG AA) --- */
@@ -688,6 +733,26 @@ button:disabled,
 .status-badge.ACTIVE { background: #dcfce7; color: #166534; }
 .status-badge.INACTIVE { background: #f1f5f9; color: #475569; }
 .status-badge.SUSPENDED { background: #fff7ed; color: #92400e; }
+
+/* --- Badges "suaves" reutilizables (pill, fondo pastel + texto saturado):
+   mismo lenguaje de color que status-badge/KpiCard, para reemplazar los
+   badges de Bootstrap sin restylear (bg-danger/bg-warning sólidos) que
+   desentonan con el resto del sistema. --- */
+.badge-soft {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge-soft-success { background: #dcfce7; color: #166534; }
+.badge-soft-warning { background: #ffedd5; color: #c2410c; }
+.badge-soft-danger { background: #fee2e2; color: #b91c1c; }
+.badge-soft-info { background: #dbeafe; color: #1d4ed8; }
+.badge-soft-neutral { background: #f1f5f9; color: #475569; }
 
 /* --- FASE 4: pie de tabla (resultados + paginación a la derecha) --- */
 .reusable-table-count i {

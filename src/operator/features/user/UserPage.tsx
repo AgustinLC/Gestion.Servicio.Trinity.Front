@@ -164,7 +164,7 @@ const UserPage = () => {
                 ]}
             />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>

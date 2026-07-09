@@ -5,7 +5,8 @@ import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import ShowDiscountUserModal from "./ShowDiscountUserModal";
 import AddDiscountModal from "./AddDiscountModal";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import { useSearch } from "../../../hooks/useSearch";
 import useAppData from "../../../hooks/useAppData";
 
@@ -54,9 +55,9 @@ const DiscountsPage = () => {
 
     return (
         <div>
-            <h1 className="text-center">Gestión de Descuentos</h1>
+            <PageHeader title="Gestión de Descuentos" subtitle="Asigná descuentos a los usuarios." icon="bi bi-plus-slash-minus" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>
@@ -64,9 +65,7 @@ const DiscountsPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                        <SearchBar onSearch={handleSearch} />
-                    </div>
+                    <TableToolbar onSearch={handleSearch} />
                     {/* Tabla */}
                     <ReusableTable<UserDto>
                         data={filteredData}

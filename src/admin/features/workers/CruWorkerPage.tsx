@@ -4,7 +4,8 @@ import { addData, getData, updateData } from "../../../core/services/apiService"
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { Button, Spinner } from "react-bootstrap";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import AddEditWorkerModal from "./AddEditWorkerModal";
 import { useSearch } from "../../../hooks/useSearch";
@@ -88,9 +89,9 @@ const CruWorkerPage = () => {
 
     return (
         <div>
-            <h1 className="text-center">Gestión de Operarios</h1>
+            <PageHeader title="Gestión de Operarios" subtitle="Administrá los operarios del sistema." icon="bi bi-person-fill-gear" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>
@@ -98,12 +99,11 @@ const CruWorkerPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                        <SearchBar onSearch={handleSearch} />
+                    <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedWorker(null); setShowModal(true); }}>
                             Añadir Operario
                         </Button>
-                    </div>
+                    </TableToolbar>
                     <ReusableTable<UserDto>
                         data={filteredData}
                         columns={columns}

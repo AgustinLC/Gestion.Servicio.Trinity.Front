@@ -9,6 +9,7 @@ import AddEditDiscountModal from "./AddEditDiscountModal";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 import useAppData from "../../../hooks/useAppData";
 import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import { useSearch } from "../../../hooks/useSearch";
 
 const DiscountManagementPage = () => {
@@ -65,9 +66,9 @@ const DiscountManagementPage = () => {
 
     return (
         <div>
-            <h1 className="text-center">Gestión de Descuentos</h1>
+            <PageHeader title="Gestión de Descuentos" subtitle="Administrá los descuentos disponibles para los usuarios." icon="bi bi-plus-slash-minus" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>

@@ -5,6 +5,7 @@ import { Spinner, Button, OverlayTrigger, Tooltip, Dropdown } from "react-bootst
 import { ReadingMatrixTableRow } from "../../../../core/models/types/ReadingMatrixTableRow";
 import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
 import TableToolbar from "../../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../../shared/components/PageHeader";
 import ReusableTable from "../../../../shared/components/table/ReusableTable";
 import { useSearch } from "../../../../hooks/useSearch";
 import { useTableFilters } from "../../../../hooks/useTableFilters";
@@ -372,9 +373,9 @@ const ReadingControlPage = () => {
 
     return (
         <div>
-            <h1 className="text-center">Lecturas por período</h1>
+            <PageHeader title="Lecturas por período" subtitle="Control de inconsistencias en las lecturas registradas." icon="bi bi-speedometer2" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>

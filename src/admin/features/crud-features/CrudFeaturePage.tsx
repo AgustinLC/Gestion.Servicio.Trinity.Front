@@ -7,7 +7,8 @@ import ReusableTable from "../../../shared/components/table/ReusableTable";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { FeatureDto } from "../../../core/models/dto/FeatureDto";
 import AddEditFeatureModal from "./AddEditFeatureModal";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import { useSearch } from "../../../hooks/useSearch";
 
 const CrudFeaturePage = () => {
@@ -109,9 +110,9 @@ const CrudFeaturePage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Gestión de Funciones</h1>
+            <PageHeader title="Gestión de Funciones" subtitle="Administrá las funcionalidades del sistema." icon="bi bi-file-break" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>
@@ -119,12 +120,11 @@ const CrudFeaturePage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                        <SearchBar onSearch={handleSearch} />
+                    <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedFeature(null); setShowModal(true); }}>
                             Añadir Función
                         </Button>
-                    </div>
+                    </TableToolbar>
 
                     {/* Tabla */}
                     <ReusableTable<FeatureDto>

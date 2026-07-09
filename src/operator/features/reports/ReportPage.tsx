@@ -6,6 +6,7 @@ import { getData } from '../../../core/services/apiService';
 import { PeopleFill, Cash, FileEarmarkText, Activity } from 'react-bootstrap-icons';
 import './ReportPage.css';
 import { processReportData } from '../../../core/utils/flattenObject';
+import PageHeader from '../../../shared/components/PageHeader';
 
 // Tipos
 interface ReportConfig {
@@ -104,7 +105,7 @@ const ReportPage = () => {
     // Render
     return (
         <div className="report-page">
-            <h1 className="text-center mb-5">Generador de Reportes</h1>
+            <PageHeader title="Generador de Reportes" subtitle="Descargá reportes en Excel del sistema." icon="bi bi-clipboard-data" />
             <Container>
                 <Row className="g-4" xs={1} md={2} lg={4}>
                     {REPORTS.map((report) => (

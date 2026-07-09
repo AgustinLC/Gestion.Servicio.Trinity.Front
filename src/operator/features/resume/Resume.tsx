@@ -13,7 +13,7 @@ const Resume = () => {
     const [data, setData] = useState<ResumeDto | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [chartSize, setChartSize] = useState({ width: 500, height: 300 })
+    const [chartSize, setChartSize] = useState({ width: 500, height: 260 })
     const [periods, setPeriods] = useState<PeriodSelectorDto[]>([]);
     const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null);
     const [billChartData, setBillChartData] = useState<BillCountsDto | null>(null);
@@ -22,7 +22,7 @@ const Resume = () => {
     // Función para actualizar el tamaño de los gráficos
     const updateChartSize = () => {
         const width = window.innerWidth < 768 ? 300 : 500; // Ajusta el ancho para móviles
-        const height = window.innerWidth < 768 ? 200 : 300; // Ajusta el alto para móviles
+        const height = window.innerWidth < 768 ? 200 : 260; // Ajusta el alto para móviles
         setChartSize({ width, height });
     };
 
@@ -124,7 +124,7 @@ const Resume = () => {
 
             {/* Mostrar el mensaje de carga mientras los datos se están cargando */}
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>
@@ -136,7 +136,7 @@ const Resume = () => {
                     {/* Tarjetas de resumen (KPI) */}
                     <Row className="mb-2">
                         {summaryData.map((item, index) => (
-                            <Col key={index} xl={4} md={6} className="mb-3">
+                            <Col key={index} xl={4} md={6} className="mb-2">
                                 <KpiCard
                                     icon={item.icon}
                                     iconBg={item.iconBg}
@@ -152,8 +152,8 @@ const Resume = () => {
 
                     <Row>
                         {/* Gráfico de barras: Lecturas realizadas por mes */}
-                        <Col md={8} className="mb-4">
-                            <Card className="h-100">
+                        <Col md={8} className="mb-3">
+                            <Card className="h-100 chart-card">
                                 <Card.Body>
                                     <Card.Title>Cantidad de usuarios x tarifa</Card.Title>
                                     <ResponsiveContainer width="100%" height={chartSize.height}>
@@ -170,8 +170,8 @@ const Resume = () => {
                         </Col>
 
                         {/* Gráfico de pastel: Facturas pagas vs impagas */}
-                        <Col md={4} className="mb-4">
-                            <Card className="h-100">
+                        <Col md={4} className="mb-3">
+                            <Card className="h-100 chart-card">
                                 <Card.Body>
                                     {/* Header */}
                                     <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">

@@ -3,6 +3,7 @@ import { getData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { Spinner, Card, Button } from "react-bootstrap";
 import { Supplier } from "../../../core/models/dto/SupplierDto";
+import PageHeader from "../../../shared/components/PageHeader";
 
 const CruDataMainPage = () => {
     const [mainData, setMainData] = useState<Supplier | any>(null);
@@ -68,10 +69,10 @@ const CruDataMainPage = () => {
 
     return (
         <div>
-            <h1 className="text-center mb-4">Información de la página principal</h1>
+            <PageHeader title="Información de la página principal" subtitle="Editá los datos que se muestran en el sitio público." icon="bi bi-file-break" />
             <div className="d-flex flex-column justify-content-center align-items-center">
                 {loading ? (
-                    <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                    <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                         <span className="mb-2 fw-bold">CARGANDO...</span>
                         <Spinner animation="border" role="status" />
                     </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, Spinner, Alert, Card, Stack } from 'react-bootstrap';
 import { LightningChargeFill, InfoCircleFill } from 'react-bootstrap-icons';
 import { addData } from '../../../core/services/apiService';
+import PageHeader from '../../../shared/components/PageHeader';
 import './NewPeriodPage.css';
 
 const NewPeriodPage = () => {
@@ -31,7 +32,7 @@ const NewPeriodPage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Generar nuevo periodo</h1>
+            <PageHeader title="Generar nuevo periodo" subtitle="Iniciá el siguiente ciclo de facturación." icon="bi bi-calendar-plus" />
             <Card className="info-card mb-4 bg-light">
                 <Card.Body>
                     <Card.Title className="text-primary mb-3">

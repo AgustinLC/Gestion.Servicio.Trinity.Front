@@ -10,6 +10,7 @@ import { useSearch } from "../../../hooks/useSearch";
 import { useTableFilters } from "../../../hooks/useTableFilters";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
@@ -50,13 +51,13 @@ const getDebtStatusLabel = (status: DebtStatus): string => {
 const getDebtStatusClass = (status: DebtStatus): string => {
     switch (status) {
         case "PENDING":
-            return "bg-warning text-dark";
+            return "badge-soft-warning";
 
         case "OVERDUE":
-            return "bg-danger text-white";
+            return "badge-soft-danger";
 
         default:
-            return "bg-secondary text-white";
+            return "badge-soft-neutral";
     }
 };
 
@@ -79,13 +80,13 @@ const getPaymentStatusLabel = (status: PaymentStatus): string => {
 const getPaymentStatusClass = (status: PaymentStatus): string => {
     switch (status) {
         case PaymentStatus.PAID_ON_TIME:
-            return "bg-success text-white";
+            return "badge-soft-success";
 
         case PaymentStatus.PAID_LATE:
-            return "bg-info text-dark";
+            return "badge-soft-info";
 
         default:
-            return "bg-secondary text-white";
+            return "badge-soft-neutral";
     }
 };
 
@@ -376,7 +377,7 @@ const DebtControlPage = () => {
         },
         {
             key: "debtStatus", label: "Estado", sortable: true, render: (row: UnpaidBillDto) => (
-                <span className={`badge ${getDebtStatusClass(row.debtStatus)}`}>
+                <span className={`badge-soft ${getDebtStatusClass(row.debtStatus)}`}>
                     {getDebtStatusLabel(row.debtStatus)}
                 </span>
             )
@@ -410,7 +411,7 @@ const DebtControlPage = () => {
         },
         {
             key: "paymentStatus", label: "Estado", sortable: true, render: (row: CollectedBillDto) => (
-                <span className={`badge ${getPaymentStatusClass(row.paymentStatus)}`}>
+                <span className={`badge-soft ${getPaymentStatusClass(row.paymentStatus)}`}>
                     {getPaymentStatusLabel(row.paymentStatus)}
                 </span>
             )
@@ -419,7 +420,7 @@ const DebtControlPage = () => {
 
     if (loading) {
         return (
-            <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+            <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                 <span className="mb-2 fw-bold">CARGANDO...</span>
                 <Spinner animation="border" role="status" />
             </div>
@@ -436,7 +437,7 @@ const DebtControlPage = () => {
 
     return (
         <div>
-            <h1 className="text-center mb-4">Balance</h1>
+            <PageHeader title="Balance" subtitle="Control de deudas pendientes y montos recaudados." icon="bi bi-graph-down-arrow" />
 
             {/* Alternancia de pestañas */}
             <Nav
@@ -523,12 +524,7 @@ const DebtControlPage = () => {
                 </Button>
             </TableToolbar>
 
-            {/* Cantidad de resultados */}
-            <div className="mb-2 text-muted">
-                Resultados encontrados: <strong>{currentResultsCount}</strong>
-            </div>
-
-            {/* Tabla */}
+            {/* Tabla (el conteo de resultados ya lo muestra el pie de ReusableTable) */}
             {activeTab === "DEBTS" ? (
                 <ReusableTable
                     key="debts-table"

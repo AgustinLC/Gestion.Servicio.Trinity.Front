@@ -1,9 +1,12 @@
-/* Login Container */
+/* Login Container.
+   min-height resta --navbar-height: el body ya está desplazado ese mismo
+   valor (margin-top, para dejar lugar al navbar fijo), así que 100vh
+   completo sumaría un scroll vertical innecesario. */
 .login-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    min-height: calc(100vh - var(--navbar-height));
     background: linear-gradient(135deg, #0077ff, #0f172a);
   }
   

@@ -9,6 +9,7 @@ import { TableColumnDefinition } from '../../../core/models/types/TableTypes';
 import { useBillPdfGeneratorV2 } from '../../../shared/hooks/useBillPdfGeneratorV2';
 import useAppData from '../../../hooks/useAppData';
 import ReusableTable from '../../../shared/components/table/ReusableTable';
+import PageHeader from '../../../shared/components/PageHeader';
 import './BillGenerateFilteredPage.css';
 
 const BillGenerateFilteredPage = () => {
@@ -308,13 +309,13 @@ const BillGenerateFilteredPage = () => {
 
     return (
         <div className="generate-filtered-container">
-            <h2 className="mb-4 text-center fw-bold text-primary">Generación de Facturas por Filtros</h2>
+            <PageHeader title="Generación de Facturas por Filtros" subtitle="Buscá facturas por criterios y descargalas en PDF." icon="bi bi-funnel-fill" />
 
             <Form className="mb-4">
                 <Card className="filter-card border-0 shadow-sm">
                     <Row>
                         {/* Grupo 1: Ubicación e Identificación */}
-                        <Col lg={6} className="mb-4">
+                        <Col lg={6} className="mb-3">
                             <h5 className="filter-section-title">
                                 <i className="bi bi-geo-alt-fill text-primary"></i> Ubicación y Cliente
                             </h5>
@@ -395,7 +396,7 @@ const BillGenerateFilteredPage = () => {
                         </Col>
 
                         {/* Grupo 2: Fechas y Períodos */}
-                        <Col lg={6} className="mb-4">
+                        <Col lg={6} className="mb-3">
                             <h5 className="filter-section-title">
                                 <i className="bi bi-calendar3 text-primary"></i> Período y Fechas
                             </h5>
@@ -440,7 +441,7 @@ const BillGenerateFilteredPage = () => {
                         </Col>
 
                         {/* Grupo 3: Condiciones Financieras */}
-                        <Col lg={6} className="mb-4">
+                        <Col lg={6} className="mb-3">
                             <h5 className="filter-section-title">
                                 <i className="bi bi-cash-coin text-primary"></i> Facturación y Tarifas
                             </h5>
@@ -498,7 +499,7 @@ const BillGenerateFilteredPage = () => {
                         </Col>
 
                         {/* Grupo 4: Ordenamiento */}
-                        <Col lg={6} className="mb-4">
+                        <Col lg={6} className="mb-3">
                             <h5 className="filter-section-title">
                                 <i className="bi bi-sort-down text-primary"></i> Ordenamiento
                             </h5>

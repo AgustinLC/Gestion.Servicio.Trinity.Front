@@ -6,7 +6,8 @@ import { TableColumnDefinition } from '../../../core/models/types/TableTypes';
 import { Form, Spinner } from 'react-bootstrap';
 import { getData, updateData } from '../../../core/services/apiService';
 import ConfirmModal from '../../../shared/components/confirm/ConfirmModal';
-import SearchBar from '../../../shared/components/searcher/SearchBar';
+import TableToolbar from '../../../shared/components/table-toolbar/TableToolbar';
+import PageHeader from '../../../shared/components/PageHeader';
 import { useSearch } from '../../../hooks/useSearch';
 
 const ModalityPage = () => {
@@ -86,9 +87,9 @@ const ModalityPage = () => {
 
     return (
         <div>
-            <h1 className="text-center">Modalidad activa</h1>
+            <PageHeader title="Modalidad activa" subtitle="Administrá las modalidades de facturación." icon="bi bi-arrow-down-up" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>
@@ -96,9 +97,7 @@ const ModalityPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                        <SearchBar onSearch={handleSearch} />
-                    </div>
+                    <TableToolbar onSearch={handleSearch} />
 
                     {/* Tabla */}
                     <ReusableTable<Modality>

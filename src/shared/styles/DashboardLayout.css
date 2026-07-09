@@ -5,12 +5,18 @@
   para evitar mantener 3 copias idénticas.
 */
 
-/* --- Layout general --- */
+/* --- Layout general ---
+   Igual que en #root: se resta --navbar-height porque este contenedor ya
+   arranca desplazado por el margin-top del body (deja lugar al navbar fijo),
+   así que 100vh completo generaría siempre ese alto de más. */
 .dashboard-container {
-    min-height: 100vh;
+    min-height: calc(100vh - var(--navbar-height));
 }
 
-/* Sidebar fija (Fase 2: tema claro) */
+/* Sidebar fija (Fase 2: tema claro).
+   border-top-left-radius: redondea la esquina donde el sidebar se separa del
+   navbar, para que el panel de abajo se sienta "flotando" en vez de cortado
+   en ángulo recto contra la barra azul. */
 .sidebar {
     position: fixed;
     top: var(--navbar-height);
@@ -19,6 +25,7 @@
     width: 224px;
     background-color: #ffffff !important;
     border-right: 1px solid rgba(226, 232, 240, 0.9);
+    border-top-left-radius: 20px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1030;
     box-shadow: 4px 0 14px rgba(15, 23, 42, 0.06);
@@ -27,23 +34,37 @@
 }
 
 /* Contenido principal: fondo gris de página (--bs-body-bg), sin recuadro
-   blanco propio ni esquina redondeada, para que las secciones internas
-   (PageHeader, TableToolbar, tablas, KPI cards) se diferencien como
-   tarjetas blancas contra ese fondo (ver Figma). */
+   blanco propio, para que las secciones internas (PageHeader, TableToolbar,
+   tablas, KPI cards) se diferencien como tarjetas blancas contra ese fondo.
+   border-top-right-radius: mismo redondeo que el sidebar, del otro lado del
+   navbar. */
 .dashboard-main {
     margin-left: 224px;
     width: calc(100% - 224px);
     min-height: calc(100vh - var(--navbar-height));
     overflow-x: auto;
     background-color: var(--bs-body-bg);
+    border-top-right-radius: 20px;
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Responsive para móviles */
+/* Cada página renderiza un único div raíz dentro de <Outlet/>. Se le pone un
+   ancho máximo y se centra para que en monitores muy anchos el contenido no
+   se estire de punta a punta (quedaba "pegado" a los bordes del sidebar y
+   del navegador); en pantallas normales no cambia nada. */
+.dashboard-main > * {
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Responsive para móviles: el sidebar pasa a ser un drawer superpuesto y el
+   contenido ocupa todo el ancho, así que el redondeo "flotante" ya no aplica. */
 @media (max-width: 991px) {
     .sidebar {
         width: 240px;
         transform: translateX(-100%);
+        border-top-left-radius: 0;
     }
     .sidebar.open {
         transform: translateX(0);
@@ -51,6 +72,7 @@
     .dashboard-main {
         margin-left: 0;
         width: 100%;
+        border-top-right-radius: 0;
     }
 }
 
@@ -70,7 +92,12 @@
     margin: 4px 8px;
     display: flex;
     align-items: center;
-    border: none !important;
+    /* border-left reservado siempre (transparente) para que el ítem activo no
+       "salte" el contenido 3px al ganar el borde de color. */
+    border-top: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: 3px solid transparent !important;
 }
 
 .sidebar .nav-link i {
@@ -94,6 +121,7 @@
 .sidebar .nav-link.active-submenu {
     background-color: rgba(0, 119, 255, 0.08) !important;
     color: var(--bs-primary) !important;
+    border-left: 3px solid var(--bs-primary) !important;
     box-shadow: none;
     font-weight: 600;
 }
@@ -131,6 +159,7 @@
     font-weight: 500;
     transition: var(--transition-smooth);
     margin: 2px 0;
+    border-left: 3px solid transparent !important;
 }
 
 .submenu-popover .nav-link:hover {
@@ -142,6 +171,7 @@
 .submenu-popover .nav-link.active {
     background-color: rgba(0, 119, 255, 0.08) !important;
     color: var(--bs-primary) !important;
+    border-left: 3px solid var(--bs-primary) !important;
     font-weight: 600;
 }
 

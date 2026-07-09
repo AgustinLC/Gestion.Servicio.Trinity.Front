@@ -4,6 +4,7 @@ import DatePeriodSelector from './DatePeriodSelector';
 import UserSearchInput from './UserSearchInput';
 import { addData } from '../../../core/services/apiService';
 import { toast } from 'react-toastify';
+import PageHeader from '../../../shared/components/PageHeader';
 
 const BillGeneratePage = () => {
     // Estados para generación masiva
@@ -52,7 +53,7 @@ const BillGeneratePage = () => {
 
     return (
         <div>
-            <h1 className="text-center mb-4">Generación de Facturas</h1>
+            <PageHeader title="Generación de Facturas" subtitle="Generá facturas de forma masiva o individual." icon="bi bi-file-earmark-plus" />
 
             <Row className="g-4">
                 {/* Sección de Generación Masiva */}

@@ -9,6 +9,7 @@ import AddEditBillingParameterModal from "./AddEditBillingParameterModal";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 import statusLabels from "../../../shared/components/labels-traductor/statusLabels";
 import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import { useSearch } from "../../../hooks/useSearch";
 
 const BillingParameterPage = () => {
@@ -88,9 +89,9 @@ const BillingParameterPage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Gestión de Conceptos</h1>
+            <PageHeader title="Gestión de Conceptos" subtitle="Administrá los parámetros de facturación." icon="bi bi-receipt" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>

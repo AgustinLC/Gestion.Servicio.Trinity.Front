@@ -9,7 +9,8 @@ import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { Unit } from "../../../core/models/dto/Unit";
 import AddEditUnitModal from "./AddEditUnitModal";
 import useAppData from "../../../hooks/useAppData";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import { useSearch } from "../../../hooks/useSearch";
 
 const UnitPage = () => {
@@ -93,9 +94,9 @@ const UnitPage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Unidades</h1>
+            <PageHeader title="Unidades" subtitle="Administrá las unidades de medida disponibles." icon="bi bi-rulers" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>
@@ -103,15 +104,14 @@ const UnitPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                    <SearchBar onSearch={handleSearch} />
-                    <Button variant="secondary" onClick={() => navigate(-1)}>
+                    <TableToolbar onSearch={handleSearch}>
+                        <Button variant="secondary" onClick={() => navigate(-1)}>
                             Volver
                         </Button>
                         <Button onClick={() => { setSelectedUnit(null); setShowModal(true); }}>
                             Añadir Unidad
                         </Button>
-                    </div>
+                    </TableToolbar>
 
                     {/* Tabla */}
                     <ReusableTable<Unit>

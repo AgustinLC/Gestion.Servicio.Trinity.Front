@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Button, Spinner } from "react-bootstrap";
 import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 // import { addData } from "../../../core/services/apiService"; // Solo lo usaba el envío de notificaciones (deshabilitado, ver nota más abajo)
 // import { toast } from "react-toastify"; // Idem
 import { UserDto } from "../../../core/models/dto/UserDto";
@@ -88,9 +89,9 @@ const BillManagementPage = () => {
 
     return (
         <div>
-            <h1 className="text-center">Gestión de Facturas</h1>
+            <PageHeader title="Gestión de Facturas" subtitle="Consultá y administrá las facturas emitidas." icon="bi bi-file-earmark-spreadsheet" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>

@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { getData, updateData } from "../../../core/services/apiService";
 import useAuth from "../../../hooks/useAuth";
+import PageHeader from "../../../shared/components/PageHeader";
 
 const UserPersonalData: React.FC = () => {
     const { userId } = useAuth(); // Obtén el userId desde el hook useAuth
@@ -109,7 +110,7 @@ const UserPersonalData: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+            <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                 <span className="mb-2 fw-bold">CARGANDO...</span>
                 <Spinner animation="border" role="status"></Spinner>
             </div>
@@ -125,8 +126,8 @@ const UserPersonalData: React.FC = () => {
     }
 
     return (
-        <div className="container mt-4">
-            <h1 className="text-center">Actualizar Mis Datos Personales</h1>
+        <div>
+            <PageHeader title="Mis Datos" subtitle="Actualizá tus datos personales y contraseña." icon="bi bi-person-square" />
             <Form>
                 {/* Campo para el correo electrónico */}
                 <Form.Group className="mb-3">

@@ -3,6 +3,7 @@ import { Form, Button, Card, Row, Col, Spinner, InputGroup } from "react-bootstr
 import { toast } from "react-toastify";
 import axiosInstance from "../../../config/axiosConfig";
 import { PdfParameters, DEFAULT_PARAMS } from "../../../shared/components/debt-disconnection/pdf/DebtPdfDocument";
+import PageHeader from "../../../shared/components/PageHeader";
 import "./PdfParametersPage.css";
 
 const PdfParametersPage: React.FC = () => {
@@ -87,7 +88,7 @@ const PdfParametersPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="d-flex flex-column justify-content-center align-items-center min-vh-50 py-5">
+      <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
         <Spinner animation="border" variant="primary" role="status" className="mb-3" />
         <span className="text-muted fw-bold">Cargando parámetros de configuración...</span>
       </div>
@@ -95,19 +96,12 @@ const PdfParametersPage: React.FC = () => {
   }
 
   return (
-    <div className="pdf-params-container">
-      <Card className="shadow-lg border-0 rounded-4 overflow-hidden mb-4 glass-card animate__animated animate__fadeIn">
-        <Card.Header className="bg-primary text-white py-3 px-4 d-flex align-items-center">
-          <i className="bi bi-file-pdf fs-3 me-3"></i>
-          <div>
-            <Card.Title className="mb-0 fw-bold fs-4">Parámetros de Avisos PDF</Card.Title>
-            <Card.Text className="text-white-50 small mb-0">
-              Configura los valores, plazos y datos de contacto mostrados en los PDFs de deuda y corte.
-            </Card.Text>
-          </div>
-        </Card.Header>
-        <Card.Body className="p-4 bg-white">
-          <Form onSubmit={handleSubmit}>
+    <div>
+      <PageHeader title="Parámetros de Avisos PDF" subtitle="Configurá los valores, plazos y datos de contacto mostrados en los PDFs de deuda y corte." icon="bi bi-file-pdf" />
+      <div className="pdf-params-container">
+        <Card className="shadow-lg border-0 rounded-4 overflow-hidden mb-4 glass-card animate__animated animate__fadeIn">
+          <Card.Body className="p-4 bg-white">
+            <Form onSubmit={handleSubmit}>
 
             {/* Sección 1: Valores Económicos */}
             <h5 className="section-title text-primary mb-3">
@@ -317,9 +311,10 @@ const PdfParametersPage: React.FC = () => {
               </Button>
             </div>
 
-          </Form>
-        </Card.Body>
-      </Card>
+            </Form>
+          </Card.Body>
+        </Card>
+      </div>
     </div>
   );
 };

@@ -9,7 +9,8 @@ import AddEditServiceUnitModal from "./AddEditServiceUnitModal";
 import { Link } from "react-router-dom";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import useAppData from "../../../hooks/useAppData";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import { useSearch } from "../../../hooks/useSearch";
 
 const ServicesUnitsPage = () => {
@@ -147,9 +148,9 @@ const ServicesUnitsPage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Gestión de Servicios y Unidades</h1>
+            <PageHeader title="Gestión de Servicios y Unidades" subtitle="Administrá la relación entre servicios y unidades." icon="bi bi-calculator" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>
@@ -158,12 +159,11 @@ const ServicesUnitsPage = () => {
             ) : (
                 <div>
                     <div>
-                        <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                            <SearchBar onSearch={handleSearch} />
+                        <TableToolbar onSearch={handleSearch}>
                             <Button onClick={() => { setSelectedServiceUnit(null); setShowServiceEditModal(true); }}>
                                 Añadir Servicio/Unidad
                             </Button>
-                        </div>
+                        </TableToolbar>
 
                         {/* Tabla */}
                         <ReusableTable<ServiceUnitDto>

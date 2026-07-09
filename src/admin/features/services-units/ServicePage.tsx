@@ -9,7 +9,8 @@ import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { Service } from "../../../core/models/dto/Service";
 import AddEditServiceModal from "./AddEditServiceModal";
 import useAppData from "../../../hooks/useAppData";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import { useSearch } from "../../../hooks/useSearch";
 
 const ServicePage = () => {
@@ -92,9 +93,9 @@ const ServicePage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Servicios</h1>
+            <PageHeader title="Servicios" subtitle="Administrá los servicios disponibles." icon="bi bi-gear" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>
@@ -102,15 +103,14 @@ const ServicePage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <div className="table-toolbar d-flex flex-column flex-lg-row align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                        <SearchBar onSearch={handleSearch} />
+                    <TableToolbar onSearch={handleSearch}>
                         <Button variant="secondary" onClick={() => navigate(-1)}>
                             Volver
                         </Button>
                         <Button onClick={() => { setSelectedService(null); setShowModal(true); }}>
                             Añadir Servicio
                         </Button>
-                    </div>
+                    </TableToolbar>
 
                     {/* Tabla */}
                     <ReusableTable<Service>

@@ -7,6 +7,7 @@ import ReusableTable from "../../../../shared/components/table/ReusableTable";
 import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
 import AddReadingModal from "./AddReadingModal";
 import TableToolbar from "../../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../../shared/components/PageHeader";
 import { useSearch } from "../../../../hooks/useSearch";
 import { useTableFilters } from "../../../../hooks/useTableFilters";
 import useAppData from "../../../../hooks/useAppData";
@@ -91,9 +92,9 @@ const ReadingTakePage: React.FC = () => {
 
     return (
         <div>
-            <h1 className="text-center">Toma de Lecturas</h1>
+            <PageHeader title="Toma de Lecturas" subtitle="Cargá las lecturas de los medidores por usuario." icon="bi bi-speedometer2" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
+                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                     <span className="mb-2 fw-bold">CARGANDO...</span>
                     <Spinner animation="border" role="status"></Spinner>
                 </div>
