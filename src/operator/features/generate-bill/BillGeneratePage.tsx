@@ -52,9 +52,10 @@ const BillGeneratePage = () => {
     };
 
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Generación de Facturas" subtitle="Generá facturas de forma masiva o individual." icon="bi bi-file-earmark-plus" />
 
+            <div className="my-auto">
             <Row className="g-4">
                 {/* Sección de Generación Masiva */}
                 <Col lg={6}>
@@ -148,6 +149,7 @@ const BillGeneratePage = () => {
                 <strong>Nota:</strong> La generación de facturas puede tomar varios segundos.
                 No cierre la página durante el proceso.
             </Alert>
+            </div>
         </div>
     );
 };

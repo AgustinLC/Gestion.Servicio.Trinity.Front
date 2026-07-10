@@ -109,7 +109,7 @@ const CrudFaqPage = () => {
 
     // Render
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Gestión de FAQ" subtitle="Administrá las preguntas frecuentes del sitio." icon="bi bi-question-circle" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -119,7 +119,7 @@ const CrudFaqPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="my-auto">
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedFaq(null); setShowModal(true); }}>
                             Añadir Faq

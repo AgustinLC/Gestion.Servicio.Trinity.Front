@@ -436,9 +436,10 @@ const DebtControlPage = () => {
     const currentResultsCount = activeTab === "DEBTS" ? sortedVisibleData.length : sortedVisibleDataCollected.length;
 
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Balance" subtitle="Control de deudas pendientes y montos recaudados." icon="bi bi-graph-down-arrow" />
 
+            <div className="my-auto">
             {/* Alternancia de pestañas */}
             <Nav
                 variant="tabs"
@@ -540,6 +541,7 @@ const DebtControlPage = () => {
                     defaultSort="paymentDate"
                 />
             )}
+            </div>
         </div>
     );
 };

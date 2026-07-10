@@ -8,15 +8,21 @@
 /* --- Layout general ---
    Igual que en #root: se resta --navbar-height porque este contenedor ya
    arranca desplazado por el margin-top del body (deja lugar al navbar fijo),
-   así que 100vh completo generaría siempre ese alto de más. */
+   así que 100vh completo generaría siempre ese alto de más.
+   background-color azul: sidebar y dashboard-main lo tapan por completo salvo
+   en sus dos esquinas superiores redondeadas, que es donde este azul asoma
+   por detrás (mismo color que el navbar) generando la curva. */
 .dashboard-container {
     min-height: calc(100vh - var(--navbar-height));
+    background-color: var(--bs-primary);
 }
 
 /* Sidebar fija (Fase 2: tema claro).
-   border-top-left-radius: redondea la esquina donde el sidebar se separa del
-   navbar, para que el panel de abajo se sienta "flotando" en vez de cortado
-   en ángulo recto contra la barra azul. */
+   border-top-left-radius: redondea la esquina blanca; detrás asoma el azul
+   de .dashboard-container, dando el efecto de panel flotando bajo el navbar.
+   padding-left/right en 0 (pisando el p-3 de Bootstrap del <aside>): los
+   nav-link pasan a ocupar todo el ancho, para que no quede una franja muerta
+   entre el borde real del sidebar y la pill donde el mouse no hace nada. */
 .sidebar {
     position: fixed;
     top: var(--navbar-height);
@@ -26,6 +32,8 @@
     background-color: #ffffff !important;
     border-right: 1px solid rgba(226, 232, 240, 0.9);
     border-top-left-radius: 20px;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1030;
     box-shadow: 4px 0 14px rgba(15, 23, 42, 0.06);
@@ -36,8 +44,7 @@
 /* Contenido principal: fondo gris de página (--bs-body-bg), sin recuadro
    blanco propio, para que las secciones internas (PageHeader, TableToolbar,
    tablas, KPI cards) se diferencien como tarjetas blancas contra ese fondo.
-   border-top-right-radius: mismo redondeo que el sidebar, del otro lado del
-   navbar. */
+   border-top-right-radius: mismo redondeo que el sidebar, del otro lado. */
 .dashboard-main {
     margin-left: 224px;
     width: calc(100% - 224px);
@@ -81,15 +88,19 @@
     transform: translateX(-100%);
 }
 
-/* --- Estilos de navegación (Fase 2: texto oscuro sobre sidebar clara) --- */
+/* --- Estilos de navegación (Fase 2: texto oscuro sobre sidebar clara) ---
+   Fila a todo lo ancho (margin horizontal en 0, radius solo del lado
+   derecho): el hover/click y el borde de color del activo llegan hasta el
+   borde real del sidebar, sin la franja muerta que dejaba la pill flotante
+   con margen a los costados. */
 .sidebar .nav-link {
     height: auto;
-    padding: 0.7rem 0.9rem !important;
+    padding: 0.7rem 1.1rem 0.7rem 1.35rem !important;
     color: #475569 !important; /* Slate 600 */
     transition: var(--transition-smooth);
     position: relative;
-    border-radius: 8px;
-    margin: 4px 8px;
+    border-radius: 0 8px 8px 0;
+    margin: 4px 0;
     display: flex;
     align-items: center;
     /* border-left reservado siempre (transparente) para que el ítem activo no
@@ -107,10 +118,14 @@
     color: #94a3b8;
 }
 
+/* En vez de mover la fila (translateX), el "feedback" de hover ensancha el
+   borde izquierdo (3px -> 5px), que queda siempre anclado al borde real del
+   sidebar en vez de despegarse de él. */
 .sidebar .nav-link:hover {
     background-color: rgba(0, 119, 255, 0.06) !important;
     color: var(--bs-primary) !important;
-    transform: translateX(2px);
+    border-left-width: 5px !important;
+    border-left-color: rgba(0, 119, 255, 0.35) !important;
 }
 
 .sidebar .nav-link:hover i {
@@ -190,7 +205,7 @@
     align-items: center;
     gap: 0.6rem;
     padding: 0.85rem 0.6rem;
-    margin: 0.5rem 0.25rem 0.25rem;
+    margin: 0.5rem 0.75rem 0.25rem;
     border-top: 1px solid rgba(226, 232, 240, 0.9);
 }
 

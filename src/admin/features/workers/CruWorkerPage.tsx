@@ -88,7 +88,7 @@ const CruWorkerPage = () => {
     ];
 
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Gestión de Operarios" subtitle="Administrá los operarios del sistema." icon="bi bi-person-fill-gear" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -98,7 +98,7 @@ const CruWorkerPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="my-auto">
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedWorker(null); setShowModal(true); }}>
                             Añadir Operario

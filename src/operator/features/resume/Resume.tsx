@@ -1,4 +1,4 @@
-import { BarChart, Bar, YAxis, Tooltip, Legend, PieChart, Pie, Cell, XAxis, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, YAxis, Tooltip, Legend, PieChart, Pie, Cell, XAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { Card, Row, Col, Spinner } from "react-bootstrap";
 import { useEffect, useMemo, useState } from "react";
 import { ResumeDto } from "../../../core/models/dto/ResumeDto";
@@ -111,15 +111,22 @@ const Resume = () => {
         data?.usersForFee?.map(fee => ({ fee: fee.fee, cantidad: fee.count })) ?? [],
         [data]);
 
-    // Datos para el gráfico de pastel
+    // Datos para el gráfico de dona. Mismos tonos que ya usan las KpiCard de
+    // esta pantalla (Usuarios Activos/Inactivos), un poco más suaves que el
+    // verde/rojo puro de Bootstrap.
     const invoicesData = useMemo(() => [
-        { name: "Pagas", value: billChartData?.paidBills || 0, color: "#28a745" },
-        { name: "Impagas", value: billChartData?.unpaidBills || 0, color: "#dc3545" },
+        { name: "Pagas", value: billChartData?.paidBills || 0, color: "#16a34a" },
+        { name: "Impagas", value: billChartData?.unpaidBills || 0, color: "#dc2626" },
     ], [billChartData]);
 
-    // Render
+    // Render.
+    // El wrapper es flex-column con una altura mínima igual al alto visible
+    // (viewport - navbar - padding de .dashboard-main); el PageHeader queda
+    // como primer ítem (altura natural) y el contenido usa my-auto para
+    // centrarse en el espacio sobrante. Si el contenido no entra, my-auto se
+    // colapsa solo y el scroll funciona como siempre (no rompe nada).
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Resumen" subtitle="Información general del sistema al día de hoy." icon="bi bi-person-lines-fill" />
 
             {/* Mostrar el mensaje de carga mientras los datos se están cargando */}
@@ -131,7 +138,7 @@ const Resume = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="my-auto">
 
                     {/* Tarjetas de resumen (KPI) */}
                     <Row className="mb-2">
@@ -154,17 +161,22 @@ const Resume = () => {
                         {/* Gráfico de barras: Lecturas realizadas por mes */}
                         <Col md={8} className="mb-3">
                             <Card className="h-100 chart-card">
-                                <Card.Body>
-                                    <Card.Title>Cantidad de usuarios x tarifa</Card.Title>
-                                    <ResponsiveContainer width="100%" height={chartSize.height}>
-                                        <BarChart data={usersForFeeData}>
-                                            <XAxis dataKey="fee" className="d-none d-md-block" />
-                                            <YAxis />
-                                            <Tooltip />
-                                            <Legend />
-                                            <Bar dataKey="cantidad" fill="#007bff" />
-                                        </BarChart>
-                                    </ResponsiveContainer>
+                                <Card.Body className="d-flex flex-column">
+                                    <Card.Title>Cantidad de usuarios por tarifa</Card.Title>
+                                    <div className="flex-grow-1 d-flex align-items-center">
+                                        <ResponsiveContainer width="100%" height={chartSize.height}>
+                                            <BarChart data={usersForFeeData}>
+                                                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#e2e8f0" />
+                                                <XAxis dataKey="fee" tickLine={false} axisLine={{ stroke: "#e2e8f0" }} tick={{ fill: "#64748b", fontSize: 12 }} />
+                                                <YAxis tickLine={false} axisLine={false} tick={{ fill: "#64748b", fontSize: 12 }} allowDecimals={false} />
+                                                <Tooltip
+                                                    cursor={false}
+                                                    contentStyle={{ borderRadius: 10, border: "1px solid #e2e8f0", boxShadow: "0 10px 30px rgba(0,0,0,0.08)" }}
+                                                />
+                                                <Bar name="Usuarios" dataKey="cantidad" fill="#0077ff" radius={[8, 8, 0, 0]} maxBarSize={56} />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
                                 </Card.Body>
                             </Card>
                         </Col>
@@ -210,9 +222,13 @@ const Resume = () => {
                                                     nameKey="name"
                                                     cx="50%"
                                                     cy="50%"
+                                                    innerRadius={55}
                                                     outerRadius={80}
+                                                    paddingAngle={3}
+                                                    cornerRadius={6}
                                                     fill="#8884d8"
-                                                    label
+                                                    label={({ percent }) => `${Math.round((percent ?? 0) * 100)}%`}
+                                                    labelLine={false}
                                                 >
 
                                                     {invoicesData.map((entry, index) => (

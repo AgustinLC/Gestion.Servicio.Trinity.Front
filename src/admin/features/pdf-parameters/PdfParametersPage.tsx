@@ -96,9 +96,9 @@ const PdfParametersPage: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
       <PageHeader title="Parámetros de Avisos PDF" subtitle="Configurá los valores, plazos y datos de contacto mostrados en los PDFs de deuda y corte." icon="bi bi-file-pdf" />
-      <div className="pdf-params-container">
+      <div className="pdf-params-container my-auto">
         <Card className="shadow-lg border-0 rounded-4 overflow-hidden mb-4 glass-card animate__animated animate__fadeIn">
           <Card.Body className="p-4 bg-white">
             <Form onSubmit={handleSubmit}>

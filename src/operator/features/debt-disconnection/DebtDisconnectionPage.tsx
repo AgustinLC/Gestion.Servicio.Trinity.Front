@@ -126,7 +126,7 @@ const DebtDisconnectionPage = () => {
     ];
 
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Gestión de Deudores" subtitle="Usuarios con períodos adeudados y generación de avisos." icon="bi bi-exclamation-triangle" />
             {loadingDebtors ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -136,7 +136,7 @@ const DebtDisconnectionPage = () => {
             ) : errorDebtors ? (
                 <div className="text-center py-5 text-danger">{errorDebtors}</div>
             ) : (
-                <div>
+                <div className="my-auto">
                     <TableToolbar onSearch={handleSearch} filters={filterConfigs} filterState={filterState} />
 
                     {/* Tabla principal (el conteo ya lo muestra el pie de ReusableTable) */}

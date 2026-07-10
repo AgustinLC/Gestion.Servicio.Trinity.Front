@@ -88,7 +88,7 @@ const BillManagementPage = () => {
     ];
 
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Gestión de Facturas" subtitle="Consultá y administrá las facturas emitidas." icon="bi bi-file-earmark-spreadsheet" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -98,7 +98,7 @@ const BillManagementPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="my-auto">
                     <TableToolbar
                         onSearch={handleSearch}
                         filters={filterConfigs}

@@ -93,7 +93,7 @@ const UnitPage = () => {
 
     // Render
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Unidades" subtitle="Administrá las unidades de medida disponibles." icon="bi bi-rulers" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -103,7 +103,7 @@ const UnitPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="my-auto">
                     <TableToolbar onSearch={handleSearch}>
                         <Button variant="secondary" onClick={() => navigate(-1)}>
                             Volver

@@ -88,7 +88,7 @@ const BillingParameterPage = () => {
 
     // Render
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Gestión de Conceptos" subtitle="Administrá los parámetros de facturación." icon="bi bi-receipt" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -98,7 +98,7 @@ const BillingParameterPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="my-auto">
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedBillingParameter(null); setShowModal(true); }}>
                             Añadir concepto

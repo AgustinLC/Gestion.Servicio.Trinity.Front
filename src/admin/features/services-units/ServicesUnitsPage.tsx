@@ -147,7 +147,7 @@ const ServicesUnitsPage = () => {
 
     // Render
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Gestión de Servicios y Unidades" subtitle="Administrá la relación entre servicios y unidades." icon="bi bi-calculator" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -157,7 +157,7 @@ const ServicesUnitsPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="my-auto">
                     <div>
                         <TableToolbar onSearch={handleSearch}>
                             <Button onClick={() => { setSelectedServiceUnit(null); setShowServiceEditModal(true); }}>

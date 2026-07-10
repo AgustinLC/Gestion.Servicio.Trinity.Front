@@ -62,9 +62,10 @@ const BillUpdateExpirationPage = () => {
     };
 
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Actualizar Fecha de Vencimiento" subtitle="Modificá el vencimiento de las facturas de un período." icon="bi bi-calendar-event" />
 
+            <div className="my-auto">
             <Row className="justify-content-center">
                 <Col lg={8} xl={6}>
                     <Card className="shadow-sm">
@@ -175,6 +176,7 @@ const BillUpdateExpirationPage = () => {
                     </Alert>
                 </Col>
             </Row>
+            </div>
         </div>
     );
 };

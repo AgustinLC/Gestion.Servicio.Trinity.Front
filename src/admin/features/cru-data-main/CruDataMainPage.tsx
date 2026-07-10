@@ -68,9 +68,9 @@ const CruDataMainPage = () => {
     };
 
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Información de la página principal" subtitle="Editá los datos que se muestran en el sitio público." icon="bi bi-file-break" />
-            <div className="d-flex flex-column justify-content-center align-items-center">
+            <div className="d-flex flex-column justify-content-center align-items-center my-auto">
                 {loading ? (
                     <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
                         <span className="mb-2 fw-bold">CARGANDO...</span>

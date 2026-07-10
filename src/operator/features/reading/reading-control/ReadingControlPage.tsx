@@ -24,21 +24,33 @@ const ALERT_FILTERS: { value: string; label: string; alert?: Exclude<AlertType, 
     { value: "noMeter", label: "Lecturas sin medidor", alert: "noMeter" }
 ];
 
+// Clases "suaves" (pastel) para las celdas de la tabla, mismo lenguaje de
+// color que el resto del sistema (badge-soft-*).
 const getAlertClass = (alert: AlertType) => {
     switch (alert) {
         case "decreasing":
-            return "bg-danger text-white";
+            return "badge-soft-danger";
         case "duplicate":
-            return "bg-dark text-white";
+            return "badge-soft-purple";
         case "jump":
-            return "bg-warning";
+            return "badge-soft-warning";
         case "missing":
-            return "bg-secondary text-white";
+            return "badge-soft-neutral";
         case "noMeter":
-            return "bg-info text-dark";
+            return "badge-soft-cyan";
         default:
             return "";
     }
+};
+
+// Mismos tonos, en versión sólida, para el punto indicador del selector de
+// inconsistencias (ahí un fondo pastel casi no se distinguiría en 12px).
+const ALERT_DOT_COLORS: Record<Exclude<AlertType, null>, string> = {
+    decreasing: "#dc2626",
+    duplicate: "#9333ea",
+    jump: "#ea580c",
+    missing: "#94a3b8",
+    noMeter: "#0d9488",
 };
 
 const ReadingControlPage = () => {
@@ -119,13 +131,14 @@ const ReadingControlPage = () => {
                         <Dropdown className="w-100">
                             <Dropdown.Toggle
                                 variant="outline-secondary"
-                                className="w-100 d-flex align-items-center justify-content-between bg-white text-dark"
+                                className="alert-filter-toggle w-100 d-flex align-items-center justify-content-between"
                             >
                                 <span className="d-inline-flex align-items-center gap-2">
+                                    <i className="bi bi-funnel text-secondary"></i>
                                     {selectedFilter?.alert && (
                                         <span
-                                            className={`d-inline-block rounded-circle ${getAlertClass(selectedFilter.alert)}`}
-                                            style={{ width: "12px", height: "12px" }}
+                                            className="d-inline-block rounded-circle"
+                                            style={{ width: "10px", height: "10px", backgroundColor: ALERT_DOT_COLORS[selectedFilter.alert] }}
                                             aria-hidden="true"
                                         ></span>
                                     )}
@@ -141,8 +154,12 @@ const ReadingControlPage = () => {
                                         className="d-flex align-items-center gap-2"
                                     >
                                         <span
-                                            className={`d-inline-block rounded-circle ${filter.alert ? getAlertClass(filter.alert) : ""}`}
-                                            style={{ width: "12px", height: "12px", opacity: filter.alert ? 1 : 0 }}
+                                            className="d-inline-block rounded-circle"
+                                            style={{
+                                                width: "10px",
+                                                height: "10px",
+                                                backgroundColor: filter.alert ? ALERT_DOT_COLORS[filter.alert] : "transparent",
+                                            }}
                                             aria-hidden="true"
                                         ></span>
                                         <span>{filter.label}</span>

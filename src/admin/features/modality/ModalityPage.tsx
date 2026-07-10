@@ -86,7 +86,7 @@ const ModalityPage = () => {
     ];
 
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Modalidad activa" subtitle="Administrá las modalidades de facturación." icon="bi bi-arrow-down-up" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -96,7 +96,7 @@ const ModalityPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="my-auto">
                     <TableToolbar onSearch={handleSearch} />
 
                     {/* Tabla */}

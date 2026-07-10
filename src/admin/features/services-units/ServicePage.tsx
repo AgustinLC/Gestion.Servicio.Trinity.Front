@@ -92,7 +92,7 @@ const ServicePage = () => {
 
     // Render
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Servicios" subtitle="Administrá los servicios disponibles." icon="bi bi-gear" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -102,7 +102,7 @@ const ServicePage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="my-auto">
                     <TableToolbar onSearch={handleSearch}>
                         <Button variant="secondary" onClick={() => navigate(-1)}>
                             Volver

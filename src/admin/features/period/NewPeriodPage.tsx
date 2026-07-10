@@ -31,8 +31,9 @@ const NewPeriodPage = () => {
 
     // Render
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Generar nuevo periodo" subtitle="Iniciá el siguiente ciclo de facturación." icon="bi bi-calendar-plus" />
+            <div className="my-auto">
             <Card className="info-card mb-4 bg-light">
                 <Card.Body>
                     <Card.Title className="text-primary mb-3">
@@ -86,6 +87,7 @@ const NewPeriodPage = () => {
                         Error: {error}
                     </Alert>
                 )}
+            </div>
             </div>
         </div >
     );

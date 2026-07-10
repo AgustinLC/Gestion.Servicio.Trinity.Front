@@ -63,7 +63,7 @@ const PendigBillsParameterPage = () => {
 
     // Render
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Gestión de Conceptos" subtitle="Agregá conceptos pendientes de facturación por usuario." icon="bi bi-journal-plus" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -73,7 +73,7 @@ const PendigBillsParameterPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="my-auto">
                     <TableToolbar onSearch={handleSearch} />
 
                     {/* Tabla */}

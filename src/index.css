@@ -753,6 +753,30 @@ button:disabled,
 .badge-soft-danger { background: #fee2e2; color: #b91c1c; }
 .badge-soft-info { background: #dbeafe; color: #1d4ed8; }
 .badge-soft-neutral { background: #f1f5f9; color: #475569; }
+.badge-soft-purple { background: #f3e8ff; color: #9333ea; }
+.badge-soft-cyan { background: #ccfbf1; color: #0d9488; }
+
+/* Selector custom de "Inconsistencias" (Lecturas por período): mismo look
+   que los selects estándar del TableToolbar (borde, radius, alto), aunque
+   por sus opciones con punto de color no puede ser un <Form.Select> nativo. */
+.alert-filter-toggle.btn {
+  background-color: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: var(--input-border-radius) !important;
+  color: #1e293b !important;
+  font-weight: 400;
+  padding: 0.6rem 0.9rem !important;
+  box-shadow: none !important;
+}
+
+.alert-filter-toggle.btn:hover,
+.alert-filter-toggle.btn:focus,
+.alert-filter-toggle.btn:active {
+  background-color: #ffffff !important;
+  border-color: #80bfff !important;
+  color: #1e293b !important;
+  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15) !important;
+}
 
 /* --- FASE 4: pie de tabla (resultados + paginación a la derecha) --- */
 .reusable-table-count i {

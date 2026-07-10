@@ -109,7 +109,7 @@ const CrudFeaturePage = () => {
 
     // Render
     return (
-        <div>
+        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Gestión de Funciones" subtitle="Administrá las funcionalidades del sistema." icon="bi bi-file-break" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -119,7 +119,7 @@ const CrudFeaturePage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="my-auto">
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedFeature(null); setShowModal(true); }}>
                             Añadir Función
