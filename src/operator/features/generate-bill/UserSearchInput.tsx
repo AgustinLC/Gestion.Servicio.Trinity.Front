@@ -15,7 +15,14 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
     const { operatorActiveUsers, loading: isLoading, error } = useAppData();
 
     const filteredResults = useMemo(() => {
-        if (searchTerm.length < 1) return [];
+        // Con un usuario ya seleccionado, el input pasa a mostrar "idUser -
+        // Nombre" (para que se lea el resumen de la selección), pero ese
+        // mismo texto se reinterpretaba como una búsqueda nueva: el número
+        // de conexión suelto (ej. "1") matcheaba por substring a cualquier
+        // usuario cuyo ID lo contuviera (1, 21, 31...), repoblando la lista
+        // de sugerencias 300ms después de elegir. Cortarlo acá evita que
+        // "vuelva a pedir" seleccionar.
+        if (selectedUser || searchTerm.length < 1) return [];
 
         const term = searchTerm.trim().toLowerCase();
         const numericTerm = searchTerm.replace(/\D/g, ""); // solo números
@@ -30,7 +37,7 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
 
             return conexMatch || nameMatch;
         }).slice(0, 5);
-    }, [searchTerm, operatorActiveUsers]);
+    }, [searchTerm, operatorActiveUsers, selectedUser]);
 
     // Filtrar usuarios localmente con debounce
     useEffect(() => {
@@ -95,7 +102,7 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
                                     <div className="text-muted">
-                                        <strong>{user.firstName} {user.lastName}</strong>
+                                        <strong>{user.idUser} - {user.firstName} {user.lastName}</strong>
                                     </div>
                                     <div className="text-muted extra-small">
                                         {user.residenceDto?.street} {user.residenceDto?.number}
@@ -111,7 +118,7 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
             )}
 
             {selectedUser && (
-                <div className="mt-2 p-2 bg-light rounded">
+                <div className="selected-user-box mt-2">
                     <div className="d-flex justify-content-between align-items-center">
                         <div>
                             <strong>Seleccionado:</strong> {selectedUser.firstName} {selectedUser.lastName}

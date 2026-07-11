@@ -9,18 +9,19 @@ const DatePeriodSelector = ({
   onDateChange: (date: Date | null) => void;
 }) => {
   return (
-    <Form.Group className="mb-3">
-      <Form.Label>Seleccionar Periodo (Opcional)</Form.Label>
+    <Form.Group className="mb-0">
+      <Form.Label>Seleccionar período <span className="text-muted fw-normal">(opcional)</span></Form.Label>
       <Form.Control
         type="date"
         value={selectedDate?.toISOString().split('T')[0] || ''}
-        onChange={(e) => 
+        onChange={(e) =>
           onDateChange(e.target.value ? new Date(e.target.value) : null)
         }
       />
-      <Form.Text className="text-muted">
-        <i>Nota</i>: Dejar en blanco para usar el periodo activo actual
-      </Form.Text>
+      <div className="hint-box mt-3">
+        <i className="bi bi-info-circle-fill"></i>
+        <span><strong>Nota:</strong> Dejá en blanco para usar el período activo actual.</span>
+      </div>
     </Form.Group>
   );
 };
