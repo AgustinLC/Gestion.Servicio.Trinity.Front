@@ -126,7 +126,7 @@ const UserBills: React.FC = () => {
                             Pagar
                         </Button>
                     )}*/}
-                    <Button variant="primary" onClick={() => handleViewInvoice(row)}>
+                    <Button variant="outline-primary" onClick={() => handleViewInvoice(row)}>
                         Visualizar
                     </Button>
                 </div>

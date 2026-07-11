@@ -83,7 +83,7 @@ const ReadingTakePage: React.FC = () => {
         { key: "meterNumber" as keyof UserDto, label: "N° Medidor", sortable: false, render: (row: UserDto) => row.residenceDto?.serialNumber || "Sin número" },
         {
             key: "actions", label: "Acciones", actions: (row: UserDto) => (
-                <Button className="text-nowrap" variant="primary" onClick={() => { setSelectedUser(row); setShowAddReadingModal(true); }}>
+                <Button className="text-nowrap" variant="outline-primary" onClick={() => { setSelectedUser(row); setShowAddReadingModal(true); }}>
                     Cargar lectura
                 </Button>
             ),

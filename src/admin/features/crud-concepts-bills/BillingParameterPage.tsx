@@ -78,7 +78,7 @@ const BillingParameterPage = () => {
         {
             key: "actions", label: "Acciones", actions: (row: BillingParameter) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="warning" onClick={() => { setSelectedBillingParameter(row); setShowModal(true); }}>
+                    <Button variant="outline-warning" onClick={() => { setSelectedBillingParameter(row); setShowModal(true); }}>
                         Editar
                     </Button>
                 </div>
@@ -88,7 +88,7 @@ const BillingParameterPage = () => {
 
     // Render
     return (
-        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+        <div>
             <PageHeader title="Gestión de Conceptos" subtitle="Administrá los parámetros de facturación." icon="bi bi-receipt" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -98,7 +98,7 @@ const BillingParameterPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div className="my-auto">
+                <div>
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedBillingParameter(null); setShowModal(true); }}>
                             Añadir concepto

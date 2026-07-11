@@ -11,12 +11,19 @@ import { useDebtDisconnectionPdfs } from "../../../shared/hooks/useDebtDisconnec
 import { getData } from "../../../core/services/apiService";
 
 const DebtDisconnectionPage = () => {
-    const { isGenerating: pdfLoading, generateDisconnectionPdf, generateWarningPdf } = useDebtDisconnectionPdfs();
+    const { generateDisconnectionPdf, generateWarningPdf } = useDebtDisconnectionPdfs();
 
     // Estados locales para la conexión con el backend
     const [debtors, setDebtors] = useState<UserDebtDto[]>([]);
     const [loadingDebtors, setLoadingDebtors] = useState(false);
     const [errorDebtors, setErrorDebtors] = useState<string | null>(null);
+
+    // Qué botón puntual está generando un PDF ("warning-<idUser>" o "cut-<idUser>").
+    // El hook expone un solo isGenerating compartido por toda la tabla; si lo
+    // usáramos para deshabilitar, un click en una fila apagaba los botones de
+    // TODAS las filas a la vez. Con esta key solo se deshabilita/marca el
+    // botón realmente clickeado.
+    const [processingKey, setProcessingKey] = useState<string | null>(null);
 
     // Efecto para consultar el endpoint real
     useEffect(() => {
@@ -93,30 +100,50 @@ const DebtDisconnectionPage = () => {
             label: "Generar Documentos",
             actions: (row: UserDebtDto) => {
                 const canCut = row.periodsOwed >= 2;
+                const warningKey = `warning-${row.idUser}`;
+                const cutKey = `cut-${row.idUser}`;
+                const isWarningProcessing = processingKey === warningKey;
+                const isCutProcessing = processingKey === cutKey;
                 return (
                     <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
                         <Button
                             variant="outline-warning"
                             size="sm"
-                            disabled={pdfLoading}
-                            onClick={() => generateWarningPdf(row, row.periodsOwed)}
+                            disabled={isWarningProcessing}
+                            onClick={() => generateWarningPdf(row, row.periodsOwed, {
+                                onStart: () => setProcessingKey(warningKey),
+                                onComplete: () => setProcessingKey(null),
+                                onError: () => setProcessingKey(null),
+                            })}
                             title="Generar Intimación de Corte"
                         >
-                            <i className="bi bi-file-earmark-text me-1"></i>
+                            {isWarningProcessing ? (
+                                <Spinner animation="border" size="sm" className="me-1" />
+                            ) : (
+                                <i className="bi bi-file-earmark-text me-1"></i>
+                            )}
                             Intimación
                         </Button>
                         <Button
                             variant="outline-danger"
                             size="sm"
-                            disabled={pdfLoading || !canCut}
-                            onClick={() => generateDisconnectionPdf(row)}
+                            disabled={isCutProcessing || !canCut}
+                            onClick={() => generateDisconnectionPdf(row, {
+                                onStart: () => setProcessingKey(cutKey),
+                                onComplete: () => setProcessingKey(null),
+                                onError: () => setProcessingKey(null),
+                            })}
                             title={
                                 !canCut
                                     ? "Se requiere adeudar 2 o más períodos para emitir aviso de corte"
                                     : "Generar Aviso de Corte de Servicio"
                             }
                         >
-                            <i className="bi bi-exclamation-octagon me-1"></i>
+                            {isCutProcessing ? (
+                                <Spinner animation="border" size="sm" className="me-1" />
+                            ) : (
+                                <i className="bi bi-exclamation-octagon me-1"></i>
+                            )}
                             Aviso de Corte
                         </Button>
                     </div>
@@ -126,7 +153,7 @@ const DebtDisconnectionPage = () => {
     ];
 
     return (
-        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+        <div>
             <PageHeader title="Gestión de Deudores" subtitle="Usuarios con períodos adeudados y generación de avisos." icon="bi bi-exclamation-triangle" />
             {loadingDebtors ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -136,7 +163,7 @@ const DebtDisconnectionPage = () => {
             ) : errorDebtors ? (
                 <div className="text-center py-5 text-danger">{errorDebtors}</div>
             ) : (
-                <div className="my-auto">
+                <div>
                     <TableToolbar onSearch={handleSearch} filters={filterConfigs} filterState={filterState} />
 
                     {/* Tabla principal (el conteo ya lo muestra el pie de ReusableTable) */}

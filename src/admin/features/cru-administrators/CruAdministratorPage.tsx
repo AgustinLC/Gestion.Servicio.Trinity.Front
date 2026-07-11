@@ -80,7 +80,7 @@ const CruAdministratorPage = () => {
         { key: "phone", label: "Teléfono", sortable: false },
         {
             key: "actions", label: "Acciones", actions: (row: UserDto) => (
-                <Button variant="warning" onClick={() => { setSelectedAdministrator(row); setShowModal(true); }}>
+                <Button variant="outline-warning" onClick={() => { setSelectedAdministrator(row); setShowModal(true); }}>
                     Editar
                 </Button>
             ),
@@ -88,7 +88,7 @@ const CruAdministratorPage = () => {
     ];
 
     return (
-        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+        <div>
             <PageHeader title="Gestión de administradores" subtitle="Administrá los usuarios con rol administrador." icon="bi bi-person-fill" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -98,7 +98,7 @@ const CruAdministratorPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div className="my-auto">
+                <div>
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedAdministrator(null); setShowModal(true); }}>
                             Añadir Administrador

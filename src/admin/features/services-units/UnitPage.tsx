@@ -80,10 +80,10 @@ const UnitPage = () => {
         {
             key: "actions", label: "Acciones", actions: (row: Unit) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="warning" onClick={() => { setSelectedUnit(row); setShowModal(true); }}>
+                    <Button variant="outline-warning" onClick={() => { setSelectedUnit(row); setShowModal(true); }}>
                         Editar
                     </Button>
-                    <Button variant="danger" onClick={() => { setUnitToDelete(row); setShowDeleteModal(true); }}>
+                    <Button variant="outline-danger" onClick={() => { setUnitToDelete(row); setShowDeleteModal(true); }}>
                         Eliminar
                     </Button>
                 </div>
@@ -93,7 +93,7 @@ const UnitPage = () => {
 
     // Render
     return (
-        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+        <div>
             <PageHeader title="Unidades" subtitle="Administrá las unidades de medida disponibles." icon="bi bi-rulers" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -103,7 +103,7 @@ const UnitPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div className="my-auto">
+                <div>
                     <TableToolbar onSearch={handleSearch}>
                         <Button variant="secondary" onClick={() => navigate(-1)}>
                             Volver

@@ -103,6 +103,17 @@ body {
   transition: var(--transition-smooth);
 }
 
+/* El <select> nativo dibuja su flecha como background-image a la derecha;
+   con el mismo padding parejo de .form-control esa flecha queda pisando el
+   texto cuando el select es angosto (p. ej. el selector de "X por página").
+   Se reafirma el padding-right que Bootstrap reserva para el ícono.
+   !important: form-select-sm (variantes "size=sm" de react-bootstrap) trae
+   su propio padding-right más chico desde bootstrap.min.css, que en algunas
+   rutas se reinyecta después de este archivo y gana por orden de cascada. */
+.form-select {
+  padding-right: 2.25rem !important;
+}
+
 .form-control:focus, .form-select:focus {
   border-color: #80bfff;
   box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
@@ -218,8 +229,100 @@ button:disabled,
   box-shadow: 0 6px 20px 0 rgba(245, 158, 11, 0.35) !important;
 }
 
-/* Variantes "outline": para acciones secundarias en una fila que ya tiene
-   color (badges, iconos), sin competir en saturación con el resto. */
+/* Variantes "outline" (regla de botones Figma, aplicable a TODOS los
+   variant="outline-*" del sistema): fondo blanco + borde de color en reposo,
+   relleno pastel suave en hover, relleno pastel un poco más saturado en
+   active/pressed. El texto/ícono mantiene siempre el mismo tono saturado,
+   solo cambia el fondo. Border-width 2px (igual que los inputs) para que el
+   borde de color se note bien sobre fondo blanco. */
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-success,
+.btn-outline-danger,
+.btn-outline-warning,
+.btn-outline-info {
+  background-color: #ffffff !important;
+  /* !important porque algunas rutas re-importan bootstrap.min.css en su
+     propio chunk (dashboards), lo que puede reordenar el CSS final y hacer
+     ganar el border-width:1px de Bootstrap por encima de este archivo. */
+  border-width: 1.5px !important;
+  /* .btn resetea "border: none" (border-style: none) para las variantes
+     sólidas; acá hay que reafirmar el estilo para que el borde de color se
+     vea (si no, border-width computa 0 aunque se declare un valor). */
+  border-style: solid !important;
+}
+
+/* .btn:hover trae un translateY(-1px) global (efecto "lift" de los botones
+   sólidos). En estos outline, al vivir muchas veces dentro de contenedores
+   con overflow:auto/hidden (acciones de fila en tablas), ese desplazamiento
+   corta el borde superior contra el límite del contenedor. El Figma tampoco
+   pide movimiento acá, solo cambio de color, así que se anula. */
+[class*="btn-outline-"]:hover,
+[class*="btn-outline-"]:focus,
+[class*="btn-outline-"]:active {
+  transform: none !important;
+}
+
+.btn-outline-primary:active, .btn-outline-primary.active,
+.btn-outline-secondary:active, .btn-outline-secondary.active,
+.btn-outline-success:active, .btn-outline-success.active,
+.btn-outline-danger:active, .btn-outline-danger.active,
+.btn-outline-warning:active, .btn-outline-warning.active,
+.btn-outline-info:active, .btn-outline-info.active {
+  box-shadow: none !important;
+}
+
+.btn-outline-primary {
+  color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+  background-color: #eff6ff !important;
+  color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+}
+
+.btn-outline-primary:active, .btn-outline-primary.active {
+  background-color: #dbeafe !important;
+  color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+}
+
+.btn-outline-secondary {
+  color: #475569;
+  border-color: #64748b;
+}
+
+.btn-outline-secondary:hover, .btn-outline-secondary:focus {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #64748b !important;
+}
+
+.btn-outline-secondary:active, .btn-outline-secondary.active {
+  background-color: #e2e8f0 !important;
+  color: #334155 !important;
+  border-color: #64748b !important;
+}
+
+.btn-outline-success {
+  color: #15803d;
+  border-color: #22c55e;
+}
+
+.btn-outline-success:hover, .btn-outline-success:focus {
+  background-color: #ecfdf5 !important;
+  color: #15803d !important;
+  border-color: #22c55e !important;
+}
+
+.btn-outline-success:active, .btn-outline-success.active {
+  background-color: #bbf7d0 !important;
+  color: #15803d !important;
+  border-color: #22c55e !important;
+}
+
 .btn-outline-warning {
   color: #b45309;
   border-color: #f59e0b;
@@ -227,6 +330,12 @@ button:disabled,
 
 .btn-outline-warning:hover, .btn-outline-warning:focus {
   background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #f59e0b !important;
+}
+
+.btn-outline-warning:active, .btn-outline-warning.active {
+  background-color: #fde68a !important;
   color: #b45309 !important;
   border-color: #f59e0b !important;
 }
@@ -240,6 +349,29 @@ button:disabled,
   background-color: #fef2f2 !important;
   color: #dc2626 !important;
   border-color: #ef4444 !important;
+}
+
+.btn-outline-danger:active, .btn-outline-danger.active {
+  background-color: #fecaca !important;
+  color: #dc2626 !important;
+  border-color: #ef4444 !important;
+}
+
+.btn-outline-info {
+  color: #0d9488;
+  border-color: #2dd4bf;
+}
+
+.btn-outline-info:hover, .btn-outline-info:focus {
+  background-color: #f0fdfa !important;
+  color: #0d9488 !important;
+  border-color: #2dd4bf !important;
+}
+
+.btn-outline-info:active, .btn-outline-info.active {
+  background-color: #ccfbf1 !important;
+  color: #0d9488 !important;
+  border-color: #2dd4bf !important;
 }
 
 /* --- ALERTAS DE ALTO CONTRASTE (WCAG AA) --- */
@@ -304,36 +436,75 @@ button:disabled,
   background-color: #f8fafc;
 }
 
+/* Tinte celeste muy suave (en vez del gris plano de Bootstrap) para que el
+   hover de fila entone con el resto de la paleta pastel/celeste del sistema
+   (mismo lenguaje que el hover del sidebar y de row-actions-edit). */
 .table-hover tbody tr:hover {
-  background-color: #f1f5f9;
+  background-color: rgba(0, 119, 255, 0.045);
 }
 
-.pagination .page-link {
-  border: 1px solid #e2e8f0;
-  color: #0077ff;
-  padding: 0.5rem 0.85rem;
-  margin: 0 2px;
-  border-radius: 8px;
+/* --- Paginación de ReusableTable (regla Figma) ---
+   Flechas prev/next circulares + números en cuadrados redondeados, la
+   página activa en azul sólido, puntos suspensivos como texto simple (sin
+   botón). Reemplaza el <Pagination> de Bootstrap por markup propio, así que
+   estas clases son las únicas que gobiernan el look de la paginación. */
+.table-pagination-nav,
+.table-pagination-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 0.4rem;
+  border: 1.5px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #475569;
   font-weight: 600;
+  font-size: 0.9rem;
   transition: var(--transition-smooth);
 }
 
-.pagination .page-link:hover {
-  background-color: #f1f5f9;
-  border-color: #cbd5e1;
-  color: #0055cc;
+.table-pagination-nav {
+  border-radius: 50%;
+  color: #64748b;
 }
 
-.pagination .page-item.active .page-link {
-  background-color: #0077ff;
-  border-color: #0077ff;
+.table-pagination-item {
+  border-radius: 8px;
+}
+
+.table-pagination-nav:hover:not(:disabled),
+.table-pagination-item:hover:not(.active) {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: var(--bs-primary);
+}
+
+.table-pagination-nav:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.table-pagination-item.active {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
   color: #ffffff;
 }
 
-.pagination .page-item.disabled .page-link {
+.table-pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 34px;
   color: #94a3b8;
-  border-color: #f1f5f9;
-  background-color: #f8fafc;
+  font-weight: 600;
+}
+
+.table-page-size-select {
+  width: auto;
+  min-width: 130px;
+  flex-shrink: 0;
 }
 
 /* --- DETALLES ANTERIORES PRESERVADOS --- */

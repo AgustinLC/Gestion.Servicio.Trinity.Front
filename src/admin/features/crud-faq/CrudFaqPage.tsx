@@ -96,10 +96,10 @@ const CrudFaqPage = () => {
         {
             key: "actions", label: "Acciones", actions: (row: FaqDto) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="warning" onClick={() => { setSelectedFaq(row); setShowModal(true); }}>
+                    <Button variant="outline-warning" onClick={() => { setSelectedFaq(row); setShowModal(true); }}>
                         Editar
                     </Button>
-                    <Button variant="danger" onClick={() => { setFaqToDelete(row); setShowDeleteModal(true); }}>
+                    <Button variant="outline-danger" onClick={() => { setFaqToDelete(row); setShowDeleteModal(true); }}>
                         Eliminar
                     </Button>
                 </div>
@@ -109,7 +109,7 @@ const CrudFaqPage = () => {
 
     // Render
     return (
-        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+        <div>
             <PageHeader title="Gestión de FAQ" subtitle="Administrá las preguntas frecuentes del sitio." icon="bi bi-question-circle" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -119,7 +119,7 @@ const CrudFaqPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div className="my-auto">
+                <div>
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedFaq(null); setShowModal(true); }}>
                             Añadir Faq

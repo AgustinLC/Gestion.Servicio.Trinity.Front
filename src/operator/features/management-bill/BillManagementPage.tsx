@@ -76,10 +76,10 @@ const BillManagementPage = () => {
         {
             key: "actions", label: "Facturas", actions: (row: UserDto) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="success" onClick={() => { setSelectedUser(row); setShowBillActiveModal(true); }}>
+                    <Button variant="outline-success" onClick={() => { setSelectedUser(row); setShowBillActiveModal(true); }}>
                         Activas
                     </Button>
-                    <Button variant="danger" onClick={() => { setSelectedUser(row); setShowBillNullModal(true); }}>
+                    <Button variant="outline-danger" onClick={() => { setSelectedUser(row); setShowBillNullModal(true); }}>
                         Anuladas
                     </Button>
                 </div>
@@ -88,7 +88,7 @@ const BillManagementPage = () => {
     ];
 
     return (
-        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+        <div>
             <PageHeader title="Gestión de Facturas" subtitle="Consultá y administrá las facturas emitidas." icon="bi bi-file-earmark-spreadsheet" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -98,7 +98,7 @@ const BillManagementPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div className="my-auto">
+                <div>
                     <TableToolbar
                         onSearch={handleSearch}
                         filters={filterConfigs}

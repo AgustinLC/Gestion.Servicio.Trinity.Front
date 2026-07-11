@@ -56,7 +56,7 @@ const CrudFeePage = () => {
         { key: "maturityAmount", label: "Costo por Vencimiento", sortable: false },
         {
             key: "actions", label: "Acciones", actions: (row: FeeDto) => (
-                <Button variant="warning" onClick={() => { setSelectedFee(row); setShowModal(true); }}>
+                <Button variant="outline-warning" onClick={() => { setSelectedFee(row); setShowModal(true); }}>
                     Editar
                 </Button>
             ),
@@ -65,7 +65,7 @@ const CrudFeePage = () => {
 
     // Render
     return (
-        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+        <div>
             <PageHeader title="Gestión de Tarifas" subtitle="Administrá las tarifas del servicio." icon="bi bi-clipboard2-pulse" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -75,7 +75,7 @@ const CrudFeePage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div className="my-auto">
+                <div>
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedFee(null); setShowModal(true); }}>
                             Añadir Tarifa

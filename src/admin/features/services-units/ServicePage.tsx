@@ -79,10 +79,10 @@ const ServicePage = () => {
         {
             key: "actions", label: "Acciones", actions: (row: Service) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="warning" onClick={() => { setSelectedService(row); setShowModal(true); }}>
+                    <Button variant="outline-warning" onClick={() => { setSelectedService(row); setShowModal(true); }}>
                         Editar
                     </Button>
-                    <Button variant="danger" onClick={() => { setServiceToDelete(row); setShowDeleteModal(true); }}>
+                    <Button variant="outline-danger" onClick={() => { setServiceToDelete(row); setShowDeleteModal(true); }}>
                         Eliminar
                     </Button>
                 </div>
@@ -92,7 +92,7 @@ const ServicePage = () => {
 
     // Render
     return (
-        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+        <div>
             <PageHeader title="Servicios" subtitle="Administrá los servicios disponibles." icon="bi bi-gear" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -102,7 +102,7 @@ const ServicePage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div className="my-auto">
+                <div>
                     <TableToolbar onSearch={handleSearch}>
                         <Button variant="secondary" onClick={() => navigate(-1)}>
                             Volver

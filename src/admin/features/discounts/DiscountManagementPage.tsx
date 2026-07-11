@@ -57,7 +57,7 @@ const DiscountManagementPage = () => {
         { key: "applyCondition", label: "Condición", sortable: false, render: (row) => applyConditionLabels[row.applyCondition] || row.applyCondition },
         {
             key: "actions", label: "Acciones", actions: (row: DiscountDto) => (
-                <Button variant="warning" onClick={() => { setSelectedDiscount(row); setShowModal(true); }}>
+                <Button variant="outline-warning" onClick={() => { setSelectedDiscount(row); setShowModal(true); }}>
                     Editar
                 </Button>
             ),
@@ -65,7 +65,7 @@ const DiscountManagementPage = () => {
     ];
 
     return (
-        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+        <div>
             <PageHeader title="Gestión de Descuentos" subtitle="Administrá los descuentos disponibles para los usuarios." icon="bi bi-plus-slash-minus" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -75,7 +75,7 @@ const DiscountManagementPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div className="my-auto">
+                <div>
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedDiscount(null); setShowModal(true); }}>
                             Añadir Descuento

@@ -50,10 +50,10 @@ const PendigBillsParameterPage = () => {
         {
             key: "actions", label: "Acciones", actions: (row: UserDto) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="warning" onClick={() => { setSelectedUser(row); setShowAddParameterModal(true); }}>
+                    <Button variant="outline-warning" onClick={() => { setSelectedUser(row); setShowAddParameterModal(true); }}>
                         Añadir Concepto
                     </Button>
-                    <Button variant="primary" onClick={() => { setSelectedUser(row); setShowUserParameters(true); }}>
+                    <Button variant="outline-primary" onClick={() => { setSelectedUser(row); setShowUserParameters(true); }}>
                         Ver existentes
                     </Button>
                 </div>
@@ -63,7 +63,7 @@ const PendigBillsParameterPage = () => {
 
     // Render
     return (
-        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+        <div>
             <PageHeader title="Gestión de Conceptos" subtitle="Agregá conceptos pendientes de facturación por usuario." icon="bi bi-journal-plus" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -73,7 +73,7 @@ const PendigBillsParameterPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div className="my-auto">
+                <div>
                     <TableToolbar onSearch={handleSearch} />
 
                     {/* Tabla */}

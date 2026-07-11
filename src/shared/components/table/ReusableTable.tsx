@@ -1,7 +1,9 @@
-import { useState } from "react";
-import { Table, Pagination } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { Form, Table } from "react-bootstrap";
 import { ReusableTableProps, TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import React from "react";
+
+const PAGE_SIZE_OPTIONS = [5, 10, 20, 30];
 
 const ReusableTable = <T,>({
     data,
@@ -10,14 +12,23 @@ const ReusableTable = <T,>({
     defaultSortDirection = "desc",
 }: ReusableTableProps<T>) => {
     const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
     const [sortField, setSortField] = useState<keyof T | undefined>(defaultSort);
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">(defaultSortDirection);
 
-    const itemsPerPage = 10;
     const totalItems = data.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const rangeStart = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
     const rangeEnd = Math.min(currentPage * itemsPerPage, totalItems);
+
+    // Si el tamaño de página o un filtro externo reducen totalPages por debajo
+    // de la página en la que estábamos parados, la reacomoda para no mostrar
+    // una página vacía.
+    useEffect(() => {
+        if (totalPages > 0 && currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [totalPages, currentPage]);
 
     // Ordenar los datos
     const sortedData = [...data].sort((a, b) => {
@@ -42,6 +53,12 @@ const ReusableTable = <T,>({
     // Funcion para cambiar de pagina
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
+    };
+
+    // Funcion para cambiar la cantidad de resultados por página
+    const handlePageSizeChange = (size: number) => {
+        setItemsPerPage(size);
+        setCurrentPage(1);
     };
 
     // Funcion para ordenar de manera asc o desc
@@ -115,77 +132,110 @@ const ReusableTable = <T,>({
                 </tbody>
             </Table>
 
-            {/* Pie de tabla: resultados + paginación */}
+            {/* Pie de tabla: resultados + paginación + tamaño de página */}
             <div className="reusable-table-footer d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mt-2">
                 <div className="reusable-table-count text-muted small d-flex align-items-center gap-2">
                     <i className="bi bi-list-ul"></i>
                     Mostrando {rangeStart} a {rangeEnd} de {totalItems} resultados
                 </div>
-                <Pagination className="justify-content-center flex-wrap mb-0">
-                <Pagination.Prev
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                />
 
-                {(() => {
-                    const visiblePages = 5; // cantidad de botones visibles
-                    const pages = [];
+                <div className="table-pagination d-flex align-items-center gap-1 flex-wrap justify-content-center">
+                    <button
+                        type="button"
+                        className="table-pagination-nav"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        aria-label="Página anterior"
+                    >
+                        <i className="bi bi-chevron-left"></i>
+                    </button>
 
-                    let start = Math.max(1, currentPage - Math.floor(visiblePages / 2));
-                    const end = Math.min(totalPages, start + visiblePages - 1);
+                    {(() => {
+                        const visiblePages = 5; // cantidad de botones visibles
+                        const pages = [];
 
-                    if (end - start < visiblePages - 1) {
-                        start = Math.max(1, end - visiblePages + 1);
-                    }
+                        let start = Math.max(1, currentPage - Math.floor(visiblePages / 2));
+                        const end = Math.min(totalPages, start + visiblePages - 1);
 
-                    // Mostrar primer botón y puntos suspensivos
-                    if (start > 1) {
-                        pages.push(
-                            <Pagination.Item key={1} onClick={() => handlePageChange(1)}>
-                                1
-                            </Pagination.Item>
-                        );
-                        if (start > 2) {
-                            pages.push(<Pagination.Ellipsis key="start-ellipsis" disabled />);
+                        if (end - start < visiblePages - 1) {
+                            start = Math.max(1, end - visiblePages + 1);
                         }
-                    }
 
-                    // Páginas visibles
-                    for (let i = start; i <= end; i++) {
-                        pages.push(
-                            <Pagination.Item
-                                key={i}
-                                active={i === currentPage}
-                                onClick={() => handlePageChange(i)}
-                            >
-                                {i}
-                            </Pagination.Item>
-                        );
-                    }
-
-                    // Mostrar puntos suspensivos finales
-                    if (end < totalPages) {
-                        if (end < totalPages - 1) {
-                            pages.push(<Pagination.Ellipsis key="end-ellipsis" disabled />);
+                        // Mostrar primer botón y puntos suspensivos
+                        if (start > 1) {
+                            pages.push(
+                                <button key={1} type="button" className="table-pagination-item" onClick={() => handlePageChange(1)}>
+                                    1
+                                </button>
+                            );
+                            if (start > 2) {
+                                pages.push(
+                                    <span key="start-ellipsis" className="table-pagination-ellipsis">…</span>
+                                );
+                            }
                         }
-                        pages.push(
-                            <Pagination.Item
-                                key={totalPages}
-                                onClick={() => handlePageChange(totalPages)}
-                            >
-                                {totalPages}
-                            </Pagination.Item>
-                        );
-                    }
 
-                    return pages;
-                })()}
+                        // Páginas visibles
+                        for (let i = start; i <= end; i++) {
+                            pages.push(
+                                <button
+                                    key={i}
+                                    type="button"
+                                    className={`table-pagination-item${i === currentPage ? " active" : ""}`}
+                                    onClick={() => handlePageChange(i)}
+                                    aria-current={i === currentPage ? "page" : undefined}
+                                >
+                                    {i}
+                                </button>
+                            );
+                        }
 
-                <Pagination.Next
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                />
-                </Pagination>
+                        // Mostrar puntos suspensivos finales
+                        if (end < totalPages) {
+                            if (end < totalPages - 1) {
+                                pages.push(
+                                    <span key="end-ellipsis" className="table-pagination-ellipsis">…</span>
+                                );
+                            }
+                            pages.push(
+                                <button
+                                    key={totalPages}
+                                    type="button"
+                                    className="table-pagination-item"
+                                    onClick={() => handlePageChange(totalPages)}
+                                >
+                                    {totalPages}
+                                </button>
+                            );
+                        }
+
+                        return pages;
+                    })()}
+
+                    <button
+                        type="button"
+                        className="table-pagination-nav"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        aria-label="Página siguiente"
+                    >
+                        <i className="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+
+                <Form.Select
+                    size="sm"
+                    className="table-page-size-select"
+                    value={itemsPerPage}
+                    onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                    aria-label="Resultados por página"
+                >
+                    {PAGE_SIZE_OPTIONS.map((size) => (
+                        <option key={size} value={size}>
+                            {size} por página
+                        </option>
+                    ))}
+                </Form.Select>
             </div>
         </div>
     );

@@ -134,10 +134,10 @@ const ServicesUnitsPage = () => {
         {
             key: "actions", label: "Acciones", actions: (row: ServiceUnitDto) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="warning" onClick={() => { setSelectedServiceUnit(row); setShowServiceEditModal(true); }}>
+                    <Button variant="outline-warning" onClick={() => { setSelectedServiceUnit(row); setShowServiceEditModal(true); }}>
                         Editar
                     </Button>
-                    <Button variant="danger" onClick={() => { setServiceUnitToDelete(row); setShowDeleteModal(true); }}>
+                    <Button variant="outline-danger" onClick={() => { setServiceUnitToDelete(row); setShowDeleteModal(true); }}>
                         Eliminar
                     </Button>
                 </div>
@@ -147,7 +147,7 @@ const ServicesUnitsPage = () => {
 
     // Render
     return (
-        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+        <div>
             <PageHeader title="Gestión de Servicios y Unidades" subtitle="Administrá la relación entre servicios y unidades." icon="bi bi-calculator" />
             {loading ? (
                 <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
@@ -157,7 +157,7 @@ const ServicesUnitsPage = () => {
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div className="my-auto">
+                <div>
                     <div>
                         <TableToolbar onSearch={handleSearch}>
                             <Button onClick={() => { setSelectedServiceUnit(null); setShowServiceEditModal(true); }}>
