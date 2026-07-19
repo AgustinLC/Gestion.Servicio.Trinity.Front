@@ -1,0 +1,135 @@
+/* --- Encabezado personalizado del modal (icono + título + subtítulo + X) --- */
+.user-modal-content {
+  border-radius: var(--card-border-radius) !important;
+}
+
+/* Con scrollable, .modal-body es el único que scrollea; por default el eje
+   vertical en "auto" hace que el navegador compute también el horizontal
+   como "auto" (spec de overflow), permitiendo un scroll horizontal si algo
+   adentro se pasa por unos px. Se fuerza a hidden: mejor recortar ese
+   sobrante que arrastrar todo el modal para el costado. */
+.user-modal-content .modal-body {
+  overflow-x: hidden;
+}
+
+.user-modal-header {
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.user-modal-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(0, 119, 255, 0.1);
+  color: var(--bs-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.user-modal-title {
+  font-weight: 700;
+}
+
+.user-modal-close {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 1.1rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+  flex-shrink: 0;
+}
+
+.user-modal-close:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+/* --- Tarjeta resumen del usuario (avatar + estado/tarifa/medidor + domicilio):
+   info de solo lectura, fondo blanco para diferenciarla del gris de página
+   y del formulario editable de abajo. --- */
+.user-summary-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: var(--card-border-radius);
+  padding: 1.1rem 1.25rem;
+}
+
+/* --- Fondo detrás del modal ---
+   Se descarta el backdrop-filter: blur por completo (consumía demasiado con
+   la cantidad de nodos de esta página, con o sin animación). Vuelve el fade
+   normal de Bootstrap; lo único que se personaliza es el color del velo
+   (variable que Bootstrap ya consume en su propia regla), sin tocar
+   opacity/transition para no pelear contra su transición nativa. */
+.user-modal-backdrop {
+  --bs-backdrop-bg: #0f172a;
+}
+
+.user-summary-avatar {
+  width: 48px;
+  height: 48px;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.user-summary-stat-label {
+  margin-bottom: 0.2rem;
+  white-space: nowrap;
+}
+
+/* --- Encabezados de sección del formulario (icono + título) --- */
+.user-modal-section-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(0, 119, 255, 0.1);
+  color: var(--bs-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.user-modal-section-title {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* --- Caja de nota informativa (mismo lenguaje que hint-box de Generar Facturas) --- */
+.user-modal-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(0, 119, 255, 0.06);
+  color: #1e293b;
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.85rem;
+  /* En el footer comparte fila con los botones (Cancelar/Guardar): se le da
+     un ancho "preferido" para que en pantallas angostas pase a ocupar toda
+     la fila (flex-wrap del padre) en vez de quedar aplastada al lado de los
+     botones. */
+  flex: 1 1 320px;
+}
+
+.user-modal-hint i {
+  color: var(--bs-primary);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* --- Pie del modal --- */
+.user-modal-footer {
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  padding-top: 0.75rem;
+}

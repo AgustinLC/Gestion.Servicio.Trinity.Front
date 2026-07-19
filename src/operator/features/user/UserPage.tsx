@@ -10,6 +10,8 @@ import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import RowActions from "../../../shared/components/table/RowActions";
 import statusLabels from "../../../shared/components/labels-traductor/statusLabels";
+import { STATUS_BADGE_CLASS, STATUS_OPTIONS } from "../../../shared/components/labels-traductor/statusStyles";
+import DotDropdown from "../../../shared/components/dot-dropdown/DotDropdown";
 import { useSearch } from "../../../hooks/useSearch";
 import { useTableFilters } from "../../../hooks/useTableFilters";
 import useAppData from "../../../hooks/useAppData";
@@ -46,12 +48,16 @@ const UserPage = () => {
             {
                 id: "status",
                 label: "Estado",
-                emptyLabel: "Seleccionar Estado...",
-                options: [
-                    { value: "ACTIVE", label: "Activo" },
-                    { value: "SUSPENDED", label: "Suspendido" },
-                    { value: "INACTIVE", label: "Inactivo" },
-                ],
+                type: "custom" as const,
+                render: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
+                    <DotDropdown
+                        options={[{ value: "", label: "Todos" }, ...STATUS_OPTIONS]}
+                        value={value}
+                        onChange={onChange}
+                        placeholder="Seleccionar Estado..."
+                        icon="bi bi-funnel"
+                    />
+                ),
             },
         ],
         [uniqueStreets]
@@ -133,7 +139,9 @@ const UserPage = () => {
         { key: "dni", label: "DNI", sortable: false },
         { key: "phone", label: "Teléfono", sortable: false },
         { key: "status", label: "Estado", sortable: false, render: (row) => (
-            <span className={`status-badge ${row.status}`}>{statusLabels[row.status] || row.status}</span>
+            <span className={`badge-soft ${STATUS_BADGE_CLASS[row.status]}`}>
+                {statusLabels[row.status] || row.status}
+            </span>
         ) },
         {
             key: "actions", label: "Acciones", actions: (row: UserDto) => (
