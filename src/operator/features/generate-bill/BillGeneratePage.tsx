@@ -5,6 +5,7 @@ import UserSearchInput from './UserSearchInput';
 import { addData, getData } from '../../../core/services/apiService';
 import { toast } from 'react-toastify';
 import PageHeader from '../../../shared/components/PageHeader';
+import FormSectionHeader from '../../../shared/components/form-section-header/FormSectionHeader';
 import { PeriodSelectorDto } from '../../../core/models/dto/PeriodSelectorDto';
 import { Status } from '../../../core/models/dto/Status';
 import useAppData from '../../../hooks/useAppData';
@@ -155,33 +156,23 @@ const BillGeneratePage = () => {
                         <div className="p-4">
                             {mode === 'individual' && (
                                 <div className="form-section mb-4 pb-4 border-bottom">
-                                    <div className="d-flex align-items-start gap-3 mb-3">
-                                        <div className="section-icon">
-                                            <i className="bi bi-person"></i>
-                                        </div>
-                                        <div>
-                                            <h6 className="section-title-sm mb-1">Buscar usuario</h6>
-                                            <div className="text-muted small">Selecciona el usuario para el cual se generará la factura.</div>
-                                        </div>
-                                    </div>
+                                    <FormSectionHeader
+                                        icon="bi bi-person"
+                                        title="Buscar usuario"
+                                        subtitle="Selecciona el usuario para el cual se generará la factura."
+                                    />
                                     <UserSearchInput onUserSelected={(id) => setUserId(id)} />
                                 </div>
                             )}
 
                             <div className="form-section mb-4 pb-4 border-bottom">
-                                <div className="d-flex align-items-start gap-3 mb-3">
-                                    <div className="section-icon">
-                                        <i className="bi bi-calendar-week"></i>
-                                    </div>
-                                    <div>
-                                        <h6 className="section-title-sm mb-1">Período de facturación</h6>
-                                        <div className="text-muted small">
-                                            {mode === 'bulk'
-                                                ? 'Selecciona el período para el cual se generarán las facturas de todos los usuarios activos.'
-                                                : 'Selecciona el período para el cual se generará la factura.'}
-                                        </div>
-                                    </div>
-                                </div>
+                                <FormSectionHeader
+                                    icon="bi bi-calendar-week"
+                                    title="Período de facturación"
+                                    subtitle={mode === 'bulk'
+                                        ? 'Selecciona el período para el cual se generarán las facturas de todos los usuarios activos.'
+                                        : 'Selecciona el período para el cual se generará la factura.'}
+                                />
                                 <DatePeriodSelector
                                     selectedDate={mode === 'bulk' ? bulkSelectedDate : individualSelectedDate}
                                     onDateChange={mode === 'bulk' ? setBulkSelectedDate : setIndividualSelectedDate}
@@ -190,15 +181,11 @@ const BillGeneratePage = () => {
 
                             <div className="d-flex flex-column flex-md-row gap-4">
                                 <div className="form-section flex-fill">
-                                    <div className="d-flex align-items-start gap-3 mb-3">
-                                        <div className="section-icon">
-                                            <i className="bi bi-eye"></i>
-                                        </div>
-                                        <div>
-                                            <h6 className="section-title-sm mb-1">Vista previa</h6>
-                                            <div className="text-muted small">Resumen con los datos actuales del formulario.</div>
-                                        </div>
-                                    </div>
+                                    <FormSectionHeader
+                                        icon="bi bi-eye"
+                                        title="Vista previa"
+                                        subtitle="Resumen con los datos actuales del formulario."
+                                    />
                                     <div className="preview-list">
                                         {previewItems.map((item) => (
                                             <div key={item.label} className="preview-list-item">
@@ -210,15 +197,11 @@ const BillGeneratePage = () => {
                                 </div>
 
                                 <div className="form-section flex-fill">
-                                    <div className="d-flex align-items-start gap-3 mb-3">
-                                        <div className="section-icon">
-                                            <i className="bi bi-list-check"></i>
-                                        </div>
-                                        <div>
-                                            <h6 className="section-title-sm mb-1">Qué ocurrirá y qué no</h6>
-                                            <div className="text-muted small">Alcance de esta acción.</div>
-                                        </div>
-                                    </div>
+                                    <FormSectionHeader
+                                        icon="bi bi-list-check"
+                                        title="Qué ocurrirá y qué no"
+                                        subtitle="Alcance de esta acción."
+                                    />
                                     <ul className="outcome-list">
                                         <li className="outcome-list-item outcome-yes">
                                             <i className="bi bi-check-circle-fill"></i>
@@ -251,7 +234,7 @@ const BillGeneratePage = () => {
 
                         <div className="bill-generate-footer p-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
                             <div className="footer-note d-flex align-items-center gap-3">
-                                <div className="footer-note-icon">
+                                <div className="icon-badge">
                                     <i className="bi bi-clock-history"></i>
                                 </div>
                                 <div>

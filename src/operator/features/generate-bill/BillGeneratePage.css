@@ -64,25 +64,6 @@
     font-size: 0.8rem;
 }
 
-/* --- Cards de sección (icono + título + subtítulo) --- */
-.section-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: rgba(0, 119, 255, 0.1);
-    color: var(--bs-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.05rem;
-    flex-shrink: 0;
-}
-
-.section-title-sm {
-    font-weight: 700;
-    color: #1e293b;
-}
-
 /* --- Vista previa: lista de pares label/valor sobre fondo gris suave --- */
 .preview-list {
     display: flex;
@@ -151,24 +132,6 @@
     color: #94a3b8;
 }
 
-/* --- Caja de nota informativa dentro de un campo --- */
-.hint-box {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    background: rgba(0, 119, 255, 0.06);
-    color: #1e293b;
-    border-radius: 10px;
-    padding: 0.65rem 0.9rem;
-    font-size: 0.85rem;
-}
-
-.hint-box i {
-    color: var(--bs-primary);
-    font-size: 1rem;
-    flex-shrink: 0;
-}
-
 /* --- Caja de usuario seleccionado --- */
 .selected-user-box {
     background: #f8fafc;
@@ -184,19 +147,6 @@
 .bill-generate-footer {
     background: rgba(0, 119, 255, 0.05);
     border-top: 1px solid rgba(226, 232, 240, 0.8);
-}
-
-.footer-note-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: rgba(0, 119, 255, 0.12);
-    color: var(--bs-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.05rem;
-    flex-shrink: 0;
 }
 
 .footer-note-title {

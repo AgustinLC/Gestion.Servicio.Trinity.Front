@@ -9,6 +9,9 @@ import statusLabels from "../../../shared/components/labels-traductor/statusLabe
 import { STATUS_BADGE_CLASS, STATUS_DOT_COLORS, STATUS_OPTIONS } from "../../../shared/components/labels-traductor/statusStyles";
 import DotDropdown from "../../../shared/components/dot-dropdown/DotDropdown";
 import { getAvatarColor } from "../../../core/utils/avatarColors";
+import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import FormSectionHeader from "../../../shared/components/form-section-header/FormSectionHeader";
+import HintBox from "../../../shared/components/hint-box/HintBox";
 import "./AddEditUserModal.css";
 import { formatDate } from "../../../core/utils/formatters";
 
@@ -113,24 +116,15 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
 
   return (
     <Modal show={show} onHide={onHide} size="xl" centered scrollable contentClassName="user-modal-content" backdropClassName="user-modal-backdrop" aria-labelledby="user-modal-title">
-      <div className="user-modal-header d-flex align-items-start justify-content-between">
-        <div className="d-flex align-items-center gap-3">
-          <div className="user-modal-icon">
-            {user ? <i className="bi bi-person-gear"></i> : <i className="bi bi-person-add"></i>}
-          </div>
-          <div>
-            <h4 id="user-modal-title" className="user-modal-title mb-1">{user ? "Editar Usuario" : "Añadir Usuario"}</h4>
-            <div className="text-muted small">
-              {user
-                ? "Modificá la información del usuario y la configuración del servicio."
-                : "Completá los datos para registrar un nuevo usuario."}
-            </div>
-          </div>
-        </div>
-        <button type="button" className="user-modal-close" onClick={onHide} aria-label="Cerrar">
-          <i className="bi bi-x-lg"></i>
-        </button>
-      </div>
+      <FormModalHeader
+        icon={user ? "bi bi-person-gear" : "bi bi-person-add"}
+        title={user ? "Editar Usuario" : "Añadir Usuario"}
+        subtitle={user
+          ? "Modificá la información del usuario y la configuración del servicio."
+          : "Completá los datos para registrar un nuevo usuario."}
+        onClose={onHide}
+        titleId="user-modal-title"
+      />
 
       <Modal.Body>
         {user && (
@@ -179,12 +173,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
           {/* --- Información personal | Domicilio (lado a lado para evitar scroll vertical) --- */}
           <Row>
             <Col md={6}>
-              <div className="d-flex align-items-center gap-3 mb-2">
-                <div className="user-modal-section-icon">
-                  <i className="bi bi-person"></i>
-                </div>
-                <h6 className="user-modal-section-title mb-0">Información personal</h6>
-              </div>
+              <FormSectionHeader icon="bi bi-person" title="Información personal" />
 
               <Row>
                 <Col sm={6}>
@@ -239,12 +228,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
             </Col>
 
             <Col md={6}>
-              <div className="d-flex align-items-center gap-3 mb-2">
-                <div className="user-modal-section-icon">
-                  <i className="bi bi-geo-alt"></i>
-                </div>
-                <h6 className="user-modal-section-title mb-0">Domicilio</h6>
-              </div>
+              <FormSectionHeader icon="bi bi-geo-alt" title="Domicilio" />
 
               <Row>
                 <Col sm={6}>
@@ -312,12 +296,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
           </Row>
 
           {/* --- Estado y configuración: fila ancha de a 4 campos, para aprovechar el modal xl --- */}
-          <div className="d-flex align-items-center gap-3 mb-2 mt-1">
-            <div className="user-modal-section-icon">
-              <i className="bi bi-gear"></i>
-            </div>
-            <h6 className="user-modal-section-title mb-0">Estado y configuración</h6>
-          </div>
+          <FormSectionHeader icon="bi bi-gear" title="Estado y configuración" className="mt-1" />
 
           <Row>
             {user && (
@@ -417,14 +396,12 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
             </Col>
           </Row>
 
-          <div className="user-modal-footer d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div className="user-modal-hint">
-              <i className="bi bi-info-circle-fill"></i>
-              <span><strong>Importante: </strong>
+          <div className="form-modal-footer d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <HintBox>
+              <strong>Importante: </strong>
               {user ? "Los cambios realizados afectarán a todas las futuras facturas y operaciones del usuario."
               : "El usuario recién creado podrá iniciar sesión con su DNI como contraseña."}
-              </span>
-            </div>
+            </HintBox>
             <div className="d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
               <Button variant="outline-secondary" onClick={onHide} disabled={isSubmitting}>
                 <i className="bi bi-x-circle me-1"></i> Cancelar

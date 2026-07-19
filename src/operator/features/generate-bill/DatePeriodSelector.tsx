@@ -1,9 +1,10 @@
 // components/DatePeriodSelector.tsx
 import { Form } from 'react-bootstrap';
+import HintBox from '../../../shared/components/hint-box/HintBox';
 
-const DatePeriodSelector = ({ 
+const DatePeriodSelector = ({
   selectedDate,
-  onDateChange 
+  onDateChange
 }: {
   selectedDate: Date | null;
   onDateChange: (date: Date | null) => void;
@@ -18,10 +19,9 @@ const DatePeriodSelector = ({
           onDateChange(e.target.value ? new Date(e.target.value) : null)
         }
       />
-      <div className="hint-box mt-3">
-        <i className="bi bi-info-circle-fill"></i>
-        <span><strong>Nota:</strong> Dejá en blanco para usar el período activo actual.</span>
-      </div>
+      <HintBox className="mt-3">
+        <strong>Nota:</strong> Dejá en blanco para usar el período activo actual.
+      </HintBox>
     </Form.Group>
   );
 };

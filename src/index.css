@@ -793,18 +793,97 @@ button:disabled,
   transition: var(--transition-smooth);
 }
 
-/* --- PAGE HEADER (título de sección, sin card propia: vive sobre el fondo gris de página) --- */
-.page-header-left { }
-
-.page-header-icon {
-  width: 52px;
-  height: 52px;
+/* --- ÍCONOS CIRCULARES REUTILIZABLES ---
+   Mismo círculo celeste pastel + ícono que se repetía con nombres de clase
+   distintos en cada formulario/modal (header de página, header de modal,
+   encabezado de sección, nota destacada). Un solo lugar para el tamaño y el
+   color; .icon-badge-lg para headers de página/modal (52px), el tamaño base
+   (40px) para todo lo demás (secciones, notas). */
+.icon-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   background: rgba(0, 119, 255, 0.1);
   color: var(--bs-primary);
-  border-radius: 50%;
-  font-size: 1.4rem;
+  font-size: 1.05rem;
   flex-shrink: 0;
 }
+
+.icon-badge-lg {
+  width: 52px;
+  height: 52px;
+  font-size: 1.4rem;
+}
+
+/* --- FORMULARIOS/MODALES: patrones reutilizables ---
+   Header con ícono+título+subtítulo+cerrar, título de sección con ícono,
+   pie con línea divisoria, botón de cerrar circular. Antes cada modal
+   redefinía esto con su propio prefijo de clase (user-modal-*, etc.); ahora
+   viven acá una sola vez y los usan los componentes compartidos
+   FormModalHeader / FormSectionHeader (src/shared/components). */
+.form-modal-header {
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.form-modal-title {
+  font-weight: 700;
+}
+
+.form-section-title {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.form-modal-footer {
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  padding-top: 0.75rem;
+}
+
+.modal-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  color: #64748b;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  transition: var(--transition-smooth);
+}
+
+.modal-close-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+/* Caja de aviso/nota (ícono + texto sobre fondo celeste pastel): usada en
+   cualquier formulario para aclaraciones o notas importantes. */
+.hint-box {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(0, 119, 255, 0.06);
+  color: #1e293b;
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+.hint-box i {
+  color: var(--bs-primary);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* --- PAGE HEADER (título de sección, sin card propia: vive sobre el fondo gris de página) --- */
+.page-header-left { }
 
 .page-header-title {
   font-size: 1.5rem;

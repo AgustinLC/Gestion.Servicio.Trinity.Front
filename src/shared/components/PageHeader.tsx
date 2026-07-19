@@ -20,7 +20,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, icon = "bi bi-
     return (
         <div className="page-header d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-between mb-3">
             <div className="page-header-left d-flex align-items-center gap-3">
-                <div className="page-header-icon d-flex align-items-center justify-content-center">
+                <div className="icon-badge icon-badge-lg">
                     <i className={icon}></i>
                 </div>
                 <div>

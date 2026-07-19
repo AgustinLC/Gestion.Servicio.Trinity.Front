@@ -1,4 +1,9 @@
-/* --- Encabezado personalizado del modal (icono + título + subtítulo + X) --- */
+/* --- Estilos específicos de este modal ---
+   El header, los encabezados de sección, la caja de aviso y el pie
+   ("form-modal-*", "icon-badge", "hint-box") ahora son compartidos: ver
+   src/index.css y los componentes FormModalHeader/FormSectionHeader/HintBox
+   en src/shared/components. Acá solo queda lo que es propio de este modal
+   (tamaño del contenido, tarjeta resumen, fondo del backdrop). */
 .user-modal-content {
   border-radius: var(--card-border-radius) !important;
 }
@@ -10,48 +15,6 @@
    sobrante que arrastrar todo el modal para el costado. */
 .user-modal-content .modal-body {
   overflow-x: hidden;
-}
-
-.user-modal-header {
-  padding: 1.25rem 1.5rem 1rem;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-}
-
-.user-modal-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: rgba(0, 119, 255, 0.1);
-  color: var(--bs-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  flex-shrink: 0;
-}
-
-.user-modal-title {
-  font-weight: 700;
-}
-
-.user-modal-close {
-  border: none;
-  background: transparent;
-  color: #64748b;
-  font-size: 1.1rem;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition-smooth);
-  flex-shrink: 0;
-}
-
-.user-modal-close:hover {
-  background: #f1f5f9;
-  color: #1e293b;
 }
 
 /* --- Tarjeta resumen del usuario (avatar + estado/tarifa/medidor + domicilio):
@@ -86,50 +49,10 @@
   white-space: nowrap;
 }
 
-/* --- Encabezados de sección del formulario (icono + título) --- */
-.user-modal-section-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(0, 119, 255, 0.1);
-  color: var(--bs-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.user-modal-section-title {
-  font-weight: 700;
-  color: #1e293b;
-}
-
-/* --- Caja de nota informativa (mismo lenguaje que hint-box de Generar Facturas) --- */
-.user-modal-hint {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  background: rgba(0, 119, 255, 0.06);
-  color: #1e293b;
-  border-radius: 10px;
-  padding: 0.7rem 0.9rem;
-  font-size: 0.85rem;
-  /* En el footer comparte fila con los botones (Cancelar/Guardar): se le da
-     un ancho "preferido" para que en pantallas angostas pase a ocupar toda
-     la fila (flex-wrap del padre) en vez de quedar aplastada al lado de los
-     botones. */
+/* El HintBox comparte fila con los botones (Cancelar/Guardar cambios) en el
+   pie: se le da un ancho "preferido" para que en pantallas angostas pase a
+   ocupar toda la fila (flex-wrap del padre) en vez de quedar aplastado al
+   lado de los botones. */
+.form-modal-footer .hint-box {
   flex: 1 1 320px;
-}
-
-.user-modal-hint i {
-  color: var(--bs-primary);
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-/* --- Pie del modal --- */
-.user-modal-footer {
-  border-top: 1px solid rgba(226, 232, 240, 0.8);
-  padding-top: 0.75rem;
 }
