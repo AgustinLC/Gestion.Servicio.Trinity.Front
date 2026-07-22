@@ -6,6 +6,8 @@ export interface RowActionItem {
     icon?: string; // Clase de Bootstrap Icons (ej: "bi bi-trash")
     onClick: () => void;
     variant?: "default" | "danger";
+    disabled?: boolean;
+    title?: string; // Tooltip opcional, útil para explicar por qué está deshabilitado
 }
 
 interface RowActionsProps {
@@ -27,7 +29,7 @@ const RowActions: React.FC<RowActionsProps> = ({ onEdit, editTitle = "Editar", i
                 </button>
             )}
             {items.length > 0 && (
-                <Dropdown align="end">
+                <Dropdown align="end" drop="down" popperConfig={{ modifiers: [{ name: "flip", enabled: false }] }}>
                     <Dropdown.Toggle as="button" className="row-actions-menu" id={menuId}>
                         <i className="bi bi-three-dots-vertical"></i>
                     </Dropdown.Toggle>
@@ -36,6 +38,8 @@ const RowActions: React.FC<RowActionsProps> = ({ onEdit, editTitle = "Editar", i
                             <Dropdown.Item
                                 key={idx}
                                 onClick={item.onClick}
+                                disabled={item.disabled}
+                                title={item.title}
                                 className={item.variant === "danger" ? "text-danger" : undefined}
                             >
                                 {item.icon && <i className={`${item.icon} me-2`}></i>}

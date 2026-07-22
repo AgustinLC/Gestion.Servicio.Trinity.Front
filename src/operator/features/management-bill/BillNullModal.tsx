@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { Modal, Button, Table, Spinner, Badge } from "react-bootstrap";
+import { Modal, Spinner } from "react-bootstrap";
 import { getData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
 import BillPdfGenerator, { BillPdfGeneratorRef } from "../../../shared/components/pdf/BillPdfGenerator";
-import { formatCurrency } from "../../../core/utils/formatters";
+import { formatCurrency, formatDate } from "../../../core/utils/formatters";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import HintBox from "../../../shared/components/hint-box/HintBox";
+import ReusableTable from "../../../shared/components/table/ReusableTable";
+import RowActions from "../../../shared/components/table/RowActions";
+import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 
 interface BillNullModalProps {
     show: boolean;
@@ -53,65 +57,123 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
         }, 100);
     };
 
+    const getPaymentStatusBadge = (paid: boolean) =>
+        paid ? (
+            <span className="badge-soft badge-soft-success">
+                <i className="bi bi-check-circle-fill"></i> Pagada
+            </span>
+        ) : (
+            <span className="badge-soft badge-soft-warning">
+                <i className="bi bi-exclamation-circle-fill"></i> Impaga
+            </span>
+        );
+
+    // Totales para las tarjetas resumen
+    const totalConsumption = bills.reduce((sum, bill) => sum + (bill.consumption ?? 0), 0);
+    const totalAmount = bills.reduce((sum, bill) => sum + (bill.total ?? 0), 0);
+
+    // Columnas de la tabla de facturas anuladas
+    const columns: TableColumnDefinition<BillDetailsDto>[] = [
+        {
+            key: "idBill",
+            label: "N° Factura",
+            sortable: true,
+            render: (bill) => (
+                <div className="d-flex align-items-center gap-2 text-start">
+                    <div className="icon-badge" style={{ width: 34, height: 34, fontSize: "0.9rem" }}>
+                        <i className="bi bi-file-earmark-x"></i>
+                    </div>
+                    <div>
+                        <div className="fw-bold">{bill.idBill}</div>
+                        <div className="text-muted small">{formatDate(bill.dateRegister)}</div>
+                    </div>
+                </div>
+            ),
+        },
+        { key: "consumption", label: "Consumo (m³)", sortable: true, render: (bill) => bill.consumption.toFixed(2) },
+        { key: "surplus", label: "Excedente", render: (bill) => bill.surplus.toFixed(2) },
+        { key: "surplusPrice", label: "Precio excedente", render: (bill) => formatCurrency(bill.surplusPrice) },
+        { key: "total", label: "Total", sortable: true, render: (bill) => formatCurrency(bill.total) },
+        { key: "paidStatus", label: "Estado", render: (bill) => getPaymentStatusBadge(Boolean(bill.paidStatus)) },
+        {
+            key: "actions",
+            label: "Acciones",
+            actions: (bill) => (
+                <RowActions
+                    items={[
+                        {
+                            label: "Visualizar factura",
+                            icon: "bi bi-eye",
+                            onClick: () => handleViewInvoice(bill),
+                        },
+                    ]}
+                />
+            ),
+        },
+    ];
+
     // Render
     return (
         <>
-            <Modal show={show} onHide={onHide} size="xl" centered contentClassName="form-modal-content" aria-labelledby="bill-null-modal-title">
+            <Modal show={show} onHide={onHide} size="xl" centered scrollable contentClassName="form-modal-content" aria-labelledby="bill-null-modal-title">
                 <FormModalHeader
                     icon="bi bi-file-earmark-x"
-                    title={`Facturas Anuladas de ${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
+                    title={`Facturas Anuladas - ${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
+                    subtitle="Historial de facturas anuladas del usuario."
                     onClose={onHide}
                     titleId="bill-null-modal-title"
                 />
                 <Modal.Body>
                     {loading ? (
-                        <div className="d-flex justify-content-center">
+                        <div className="text-center py-4">
                             <Spinner animation="border" />
+                            <p className="mt-2">Cargando facturas...</p>
                         </div>
                     ) : bills.length === 0 ? (
                         <p className="text-center">No hay facturas anuladas</p>
                     ) : (
-                        <Table striped bordered hover responsive className="align-middle text-center text-nowrap">
-                            <thead>
-                                <tr>
-                                    <th>N° Factura</th>
-                                    <th>Consumo</th>
-                                    <th>Excedente</th>
-                                    <th>Precio Excedente</th>
-                                    <th>Total</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {bills.map((bill) => (
-                                    <tr key={bill.idBill}>
-                                        <td>{bill.idBill}</td>
-                                        <td>{bill.consumption.toFixed(2)}</td>
-                                        <td>{bill.surplus.toFixed(2)}</td>
-                                        <td>{formatCurrency(bill.surplusPrice)}</td>
-                                        <td>{formatCurrency(bill.total)}</td>
-                                        <td>
-                                            <Badge bg={bill.paidStatus ? 'success' : 'warning'}>
-                                                {bill.paidStatus ? 'Pagada' : 'Impaga'}
-                                            </Badge>
-                                        </td>
-                                        <td>
-                                            <Button variant="primary" size="sm" onClick={() => handleViewInvoice(bill)}>
-                                                Visualizar
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
+                        <>
+                            <ReusableTable<BillDetailsDto>
+                                data={[...bills].sort((a, b) => b.idBill - a.idBill)}
+                                columns={columns}
+                            />
+
+                            <div className="d-flex flex-wrap gap-3 mt-3">
+                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
+                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "rgba(0, 119, 255, 0.1)", color: "var(--bs-primary)" }}>
+                                        <i className="bi bi-file-earmark-x"></i>
+                                    </div>
+                                    <div>
+                                        <div className="stat-label text-muted small">Total de facturas anuladas</div>
+                                        <div className="stat-value fw-bold">{bills.length}</div>
+                                    </div>
+                                </div>
+                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
+                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "#dbeafe", color: "#1d4ed8" }}>
+                                        <i className="bi bi-droplet-fill"></i>
+                                    </div>
+                                    <div>
+                                        <div className="stat-label text-muted small">Consumo total</div>
+                                        <div className="stat-value fw-bold">{totalConsumption.toFixed(2)} m³</div>
+                                    </div>
+                                </div>
+                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
+                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "#ffedd5", color: "#c2410c" }}>
+                                        <i className="bi bi-cash-stack"></i>
+                                    </div>
+                                    <div>
+                                        <div className="stat-label text-muted small">Monto total anulado</div>
+                                        <div className="stat-value fw-bold">{formatCurrency(totalAmount)}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <HintBox className="mt-3">
+                                Las facturas anuladas quedan como registro histórico y no pueden reactivarse ni marcarse como pagadas.
+                            </HintBox>
+                        </>
                     )}
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={onHide}>
-                        Cerrar
-                    </Button>
-                </Modal.Footer>
             </Modal>
 
             {selectedBill && user && (

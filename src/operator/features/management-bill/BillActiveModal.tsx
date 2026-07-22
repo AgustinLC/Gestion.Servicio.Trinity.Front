@@ -1,14 +1,18 @@
 import { useEffect, useState, useRef } from "react";
-import { Modal, Button, Table, Spinner, Form, Badge } from "react-bootstrap";
+import { Modal, Button, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { getData, deleteData, updateData } from "../../../core/services/apiService";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import BillPdfGenerator, { BillPdfGeneratorRef } from "../../../shared/components/pdf/BillPdfGenerator";
-import { formatCurrency } from "../../../core/utils/formatters";
+import { formatCurrency, formatDate } from "../../../core/utils/formatters";
 import { PaymentStatus } from "../../../core/models/dto/PaymentStatus";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import HintBox from "../../../shared/components/hint-box/HintBox";
+import ReusableTable from "../../../shared/components/table/ReusableTable";
+import RowActions from "../../../shared/components/table/RowActions";
+import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 
 interface BillActiveModalProps {
     show: boolean;
@@ -140,13 +144,25 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     const getPaymentStatusBadge = (status: PaymentStatus) => {
         switch (status) {
             case PaymentStatus.UNPAID:
-                return <Badge bg="danger">Impaga</Badge>;
+                return (
+                    <span className="badge-soft badge-soft-danger">
+                        <i className="bi bi-exclamation-circle-fill"></i> Impaga
+                    </span>
+                );
             case PaymentStatus.PAID_ON_TIME:
-                return <Badge bg="success">Pagada en término</Badge>;
+                return (
+                    <span className="badge-soft badge-soft-success">
+                        <i className="bi bi-check-circle-fill"></i> Pagada en término
+                    </span>
+                );
             case PaymentStatus.PAID_LATE:
-                return <Badge bg="warning" text="dark">Pagada fuera de término</Badge>;
+                return (
+                    <span className="badge-soft badge-soft-warning">
+                        <i className="bi bi-clock-fill"></i> Pagada fuera de término
+                    </span>
+                );
             default:
-                return <Badge bg="secondary">Desconocido</Badge>;
+                return <span className="badge-soft badge-soft-neutral">Desconocido</span>;
         }
     };
 
@@ -158,12 +174,88 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
         }, 100);
     };
 
+    // Totales para las tarjetas resumen
+    const totalConsumption = bills.reduce((sum, bill) => sum + (bill.consumption ?? 0), 0);
+    const totalBilled = bills.reduce((sum, bill) => sum + (bill.total ?? 0), 0);
+    const totalDiscounts = bills.reduce((sum, bill) => sum + (bill.totalDiscounts ?? 0), 0);
+
+    // Columnas de la tabla de facturas activas
+    const columns: TableColumnDefinition<BillDetailsDto>[] = [
+        {
+            key: "idBill",
+            label: "N° Factura",
+            sortable: true,
+            render: (bill) => (
+                <div className="d-flex align-items-center gap-2 text-start">
+                    <div className="icon-badge" style={{ width: 34, height: 34, fontSize: "0.9rem" }}>
+                        <i className="bi bi-file-earmark-text"></i>
+                    </div>
+                    <div>
+                        <div className="fw-bold">{bill.idBill}</div>
+                        <div className="text-muted small">{formatDate(bill.dateRegister)}</div>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            key: "periodName",
+            label: "Período",
+            render: (bill) => (
+                <div className="text-start">
+                    <div>{bill.periodName}</div>
+                    {bill.readingsBillDto?.previousReadingDate && bill.readingsBillDto?.currentReadingDate && (
+                        <div className="text-muted small">
+                            <i className="bi bi-calendar3 me-1"></i>
+                            {formatDate(bill.readingsBillDto.previousReadingDate)} - {formatDate(bill.readingsBillDto.currentReadingDate)}
+                        </div>
+                    )}
+                </div>
+            ),
+        },
+        { key: "consumption", label: "Consumo (m³)", sortable: true, render: (bill) => bill.consumption.toFixed(2) },
+        { key: "subTotal", label: "Subtotal", sortable: true, render: (bill) => formatCurrency(bill.subTotal) },
+        { key: "totalDiscounts", label: "Descuento", render: (bill) => formatCurrency(bill.totalDiscounts) },
+        { key: "total", label: "Total", sortable: true, render: (bill) => formatCurrency(bill.total) },
+        { key: "paidStatus", label: "Estado de pago", render: (bill) => getPaymentStatusBadge(bill.paidStatus) },
+        {
+            key: "actions",
+            label: "Acciones",
+            actions: (bill) => (
+                <RowActions
+                    items={[
+                        {
+                            label: bill.paidStatus === PaymentStatus.UNPAID ? "Marcar como pagada" : "Marcar como impaga",
+                            icon: "bi bi-cash-coin",
+                            onClick: () => handleTogglePaidStatus(bill),
+                        },
+                        {
+                            label: "Visualizar factura",
+                            icon: "bi bi-eye",
+                            onClick: () => handleViewInvoice(bill),
+                        },
+                        ...(bill.paidStatus === PaymentStatus.UNPAID
+                            ? [
+                                {
+                                    label: "Anular factura",
+                                    icon: "bi bi-trash",
+                                    onClick: () => handleAnnularClick(bill.idBill),
+                                    variant: "danger" as const,
+                                },
+                            ]
+                            : []),
+                    ]}
+                />
+            ),
+        },
+    ];
+
     return (
         <>
-            <Modal show={show} onHide={onHide} size="xl" centered contentClassName="form-modal-content" aria-labelledby="bill-active-modal-title">
+            <Modal show={show} onHide={onHide} size="xl" centered scrollable dialogClassName="bill-active-modal-dialog" contentClassName="form-modal-content" aria-labelledby="bill-active-modal-title">
                 <FormModalHeader
                     icon="bi bi-file-earmark-spreadsheet"
                     title={`Facturas Activas - ${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
+                    subtitle="Consulta y gestiona las facturas activas del usuario."
                     onClose={onHide}
                     titleId="bill-active-modal-title"
                 />
@@ -177,74 +269,57 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                     ) : bills.length === 0 ? (
                         <p className="text-center">No hay facturas activas</p>
                     ) : (
-                        <Table striped bordered hover responsive className="align-middle text-center text-nowrap">
-                            <thead>
-                                <tr>
-                                    <th>N° Factura</th>
-                                    <th>Período</th>
-                                    <th>Consumo</th>
-                                    <th>Subtotal</th>
-                                    <th>Descuento</th>
-                                    <th>Total</th>
-                                    <th>Estado de pago</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {bills.map((bill) => (
-                                    <tr key={bill.idBill}>
-                                        <td>{bill.idBill}</td>
-                                        <td>{bill.periodName}</td>
-                                        <td>{bill.consumption.toFixed(2)}</td>
-                                        <td>{formatCurrency(bill.subTotal)}</td>
-                                        <td>{formatCurrency(bill.totalDiscounts)}</td>
-                                        <td>{formatCurrency(bill.total)}</td>
-                                        <td className="text-center">
-                                            {getPaymentStatusBadge(bill.paidStatus)}
-                                        </td>
-                                        <td className="text-center">
-                                            <Form.Check
-                                                type="switch"
-                                                id={`paidStatusSwitch-${bill.idBill}`}
-                                                checked={bill.paidStatus !== PaymentStatus.UNPAID}
-                                                onChange={() => handleTogglePaidStatus(bill)}
-                                                className="custom-switch-container"
-                                            />
-                                        </td>
-                                        <td>
-                                            <div className="d-flex gap-2 justify-content-center">
-                                                <Button 
-                                                    variant="danger" 
-                                                    size="sm" 
-                                                    onClick={() => handleAnnularClick(bill.idBill)} 
-                                                    disabled={bill.paidStatus !== PaymentStatus.UNPAID}
-                                                >
-                                                    Anular
-                                                </Button>
-                                                <Button 
-                                                    variant="primary" 
-                                                    size="sm" 
-                                                    onClick={() => handleViewInvoice(bill)}
-                                                >
-                                                    Visualizar
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
+                        <>
+                            <ReusableTable<BillDetailsDto>
+                                data={[...bills].sort((a, b) => b.idBill - a.idBill)}
+                                columns={columns}
+                            />
+
+                            <div className="d-flex flex-wrap gap-3 mt-3">
+                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
+                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "rgba(0, 119, 255, 0.1)", color: "var(--bs-primary)" }}>
+                                        <i className="bi bi-file-earmark-text"></i>
+                                    </div>
+                                    <div>
+                                        <div className="stat-label text-muted small">Total de facturas</div>
+                                        <div className="stat-value fw-bold">{bills.length}</div>
+                                    </div>
+                                </div>
+                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
+                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "#dbeafe", color: "#1d4ed8" }}>
+                                        <i className="bi bi-droplet-fill"></i>
+                                    </div>
+                                    <div>
+                                        <div className="stat-label text-muted small">Consumo total</div>
+                                        <div className="stat-value fw-bold">{totalConsumption.toFixed(2)} m³</div>
+                                    </div>
+                                </div>
+                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
+                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "#dcfce7", color: "#16a34a" }}>
+                                        <i className="bi bi-cash-stack"></i>
+                                    </div>
+                                    <div>
+                                        <div className="stat-label text-muted small">Total facturado</div>
+                                        <div className="stat-value fw-bold">{formatCurrency(totalBilled)}</div>
+                                    </div>
+                                </div>
+                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
+                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "#ffedd5", color: "#c2410c" }}>
+                                        <i className="bi bi-tag-fill"></i>
+                                    </div>
+                                    <div>
+                                        <div className="stat-label text-muted small">Descuentos totales</div>
+                                        <div className="stat-value fw-bold">{formatCurrency(totalDiscounts)}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <HintBox className="mt-3">
+                                Las facturas pagadas no pueden ser anuladas.
+                            </HintBox>
+                        </>
                     )}
                 </Modal.Body>
-
-                <Modal.Footer className="d-flex justify-content-between">
-                    <small className="text-muted">
-                        * Las facturas pagadas no pueden ser anuladas
-                    </small>
-                    <Button variant="secondary" onClick={onHide}>
-                        Cerrar
-                    </Button>
-                </Modal.Footer>
             </Modal>
 
             {/* Modal de Confirmación para Anular */}

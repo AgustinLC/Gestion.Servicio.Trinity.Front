@@ -831,6 +831,13 @@ button:disabled,
   border-radius: var(--card-border-radius) !important;
 }
 
+/* Para modales cuyo contenido (tablas anchas, etc.) no entra cómodo en el
+   .modal-xl de Bootstrap (1140px). Usar como dialogClassName. */
+.bill-active-modal-dialog {
+  --bs-modal-width: 1180px;
+  max-width: 95vw;
+}
+
 .form-modal-header {
   padding: 1.25rem 1.5rem 1rem;
   border-bottom: 1px solid rgba(226, 232, 240, 0.8);
