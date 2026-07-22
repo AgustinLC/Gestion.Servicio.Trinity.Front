@@ -8,6 +8,7 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import AddDiscountModal from "./AddDiscountModal";
 import { ApplyCondition } from "../../../core/models/dto/ApplyCondition";
+import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 
 interface ShowDiscountUserModalProps {
     show: boolean;
@@ -141,10 +142,13 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
 
     return (
         <>
-            <Modal show={show} size="lg" onHide={onHide} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Descuentos de {displayUserName}</Modal.Title>
-                </Modal.Header>
+            <Modal show={show} size="lg" onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="show-discount-modal-title">
+                <FormModalHeader
+                    icon="bi bi-plus-slash-minus"
+                    title={`Descuentos de ${displayUserName}`}
+                    onClose={onHide}
+                    titleId="show-discount-modal-title"
+                />
 
                 <Modal.Body>
                     {loading ? (

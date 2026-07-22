@@ -5,6 +5,7 @@ import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
 import { getData, updateData, deleteData } from "../../../core/services/apiService";
 import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
+import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 
 interface UserParametersModalProps {
     show: boolean;
@@ -129,10 +130,13 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
 
     return (
         <>
-            <Modal show={show} size="lg" onHide={onHide} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Conceptos de {userName}</Modal.Title>
-                </Modal.Header>
+            <Modal show={show} size="lg" onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="user-parameters-modal-title">
+                <FormModalHeader
+                    icon="bi bi-journal-plus"
+                    title={`Conceptos de ${userName}`}
+                    onClose={onHide}
+                    titleId="user-parameters-modal-title"
+                />
 
                 <Modal.Body>
                     {loading ? (

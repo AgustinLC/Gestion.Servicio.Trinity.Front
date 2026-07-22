@@ -824,6 +824,13 @@ button:disabled,
    redefinía esto con su propio prefijo de clase (user-modal-*, etc.); ahora
    viven acá una sola vez y los usan los componentes compartidos
    FormModalHeader / FormSectionHeader (src/shared/components). */
+/* Aplicar como contentClassName del <Modal> junto con FormModalHeader, para
+   que el modal tenga las mismas esquinas redondeadas que el resto del
+   sistema (Bootstrap por default las deja cuadradas). */
+.form-modal-content {
+  border-radius: var(--card-border-radius) !important;
+}
+
 .form-modal-header {
   padding: 1.25rem 1.5rem 1rem;
   border-bottom: 1px solid rgba(226, 232, 240, 0.8);

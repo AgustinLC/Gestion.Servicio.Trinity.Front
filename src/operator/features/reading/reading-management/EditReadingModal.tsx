@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
 
 interface EditReadingModalProps {
     show: boolean;
@@ -22,10 +23,13 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered>
-            <Modal.Header closeButton>
-                <Modal.Title>Editar Lectura</Modal.Title>
-            </Modal.Header>
+        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="edit-reading-modal-title">
+            <FormModalHeader
+                icon="bi bi-speedometer2"
+                title="Editar Lectura"
+                onClose={onHide}
+                titleId="edit-reading-modal-title"
+            />
             <Modal.Body>
                 <Form>
                     <Form.Group className="mb-3">
@@ -49,8 +53,12 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>Cancelar</Button>
-                <Button variant="primary" onClick={handleSubmit}>Guardar</Button>
+                <Button variant="outline-secondary" onClick={onHide}>
+                    <i className="bi bi-x-circle me-1"></i> Cancelar
+                </Button>
+                <Button variant="primary" onClick={handleSubmit}>
+                    <i className="bi bi-save me-1"></i> Guardar
+                </Button>
             </Modal.Footer>
         </Modal>
     );

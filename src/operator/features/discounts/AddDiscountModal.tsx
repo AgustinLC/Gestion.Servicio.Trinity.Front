@@ -6,6 +6,7 @@ import { DiscountDto } from "../../../core/models/dto/Discount";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { ApplyCondition } from "../../../core/models/dto/ApplyCondition";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
+import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 
 interface AddDiscountModalProps {
     show: boolean;
@@ -108,10 +109,13 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
     };
 
     return (
-        <Modal show={show} onHide={onHide} aria-labelledby="contained-modal-title-vcenter" centered>
-            <Modal.Header closeButton>
-                <Modal.Title>Agregar Descuento</Modal.Title>
-            </Modal.Header>
+        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="add-discount-modal-title">
+            <FormModalHeader
+                icon="bi bi-plus-slash-minus"
+                title="Agregar Descuento"
+                onClose={onHide}
+                titleId="add-discount-modal-title"
+            />
 
             <Modal.Body>
                 {loading ? (
@@ -163,11 +167,11 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
             </Modal.Body>
 
             <Modal.Footer>
-                <Button variant="secondary" onClick={onHide} disabled={assigning}>
-                    Cancelar
+                <Button variant="outline-secondary" onClick={onHide} disabled={assigning}>
+                    <i className="bi bi-x-circle me-1"></i> Cancelar
                 </Button>
                 <Button variant="primary" onClick={handleAssign} disabled={assigning || loading || !selectedDiscountId}>
-                    {assigning ? "Guardando..." : "Guardar"}
+                    <i className="bi bi-save me-1"></i> {assigning ? "Guardando..." : "Guardar"}
                 </Button>
             </Modal.Footer>
         </Modal>

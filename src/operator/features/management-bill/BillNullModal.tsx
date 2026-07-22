@@ -6,6 +6,7 @@ import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
 import BillPdfGenerator, { BillPdfGeneratorRef } from "../../../shared/components/pdf/BillPdfGenerator";
 import { formatCurrency } from "../../../core/utils/formatters";
 import { UserDto } from "../../../core/models/dto/UserDto";
+import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 
 interface BillNullModalProps {
     show: boolean;
@@ -55,10 +56,13 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
     // Render
     return (
         <>
-            <Modal show={show} onHide={onHide} size="xl" centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Facturas Anuladas de {user?.firstName} {user?.lastName}</Modal.Title>
-                </Modal.Header>
+            <Modal show={show} onHide={onHide} size="xl" centered contentClassName="form-modal-content" aria-labelledby="bill-null-modal-title">
+                <FormModalHeader
+                    icon="bi bi-file-earmark-x"
+                    title={`Facturas Anuladas de ${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
+                    onClose={onHide}
+                    titleId="bill-null-modal-title"
+                />
                 <Modal.Body>
                     {loading ? (
                         <div className="d-flex justify-content-center">

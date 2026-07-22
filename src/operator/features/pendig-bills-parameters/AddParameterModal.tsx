@@ -4,6 +4,7 @@ import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
 import { useForm } from "react-hook-form";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
+import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 
 interface AddParameterModalProps {
     show: boolean;
@@ -49,10 +50,13 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
     };
 
     return (
-        <Modal show={show} onHide={onHide} aria-labelledby="contained-modal-title-vcenter" centered>
-            <Modal.Header closeButton>
-                <Modal.Title>Agregar Concepto</Modal.Title>
-            </Modal.Header>
+        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="add-parameter-modal-title">
+            <FormModalHeader
+                icon="bi bi-journal-plus"
+                title="Agregar Concepto"
+                onClose={onHide}
+                titleId="add-parameter-modal-title"
+            />
             <Modal.Body>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     {/* Selector de parámetros */}
@@ -95,12 +99,12 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
                     </Form.Group>
 
                     {/* Botones del modal */}
-                    <div className="d-flex justify-content-end gap-2">
-                        <Button variant="secondary" onClick={onHide} disabled={isSubmitting}>
-                            Cancelar
+                    <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
+                        <Button variant="outline-secondary" onClick={onHide} disabled={isSubmitting}>
+                            <i className="bi bi-x-circle me-1"></i> Cancelar
                         </Button>
                         <Button type="submit" variant="primary" disabled={isSubmitting}>
-                            {isSubmitting ? "Guardando..." : "Guardar"}
+                            <i className="bi bi-save me-1"></i> {isSubmitting ? "Guardando..." : "Guardar"}
                         </Button>
                     </div>
                 </Form>

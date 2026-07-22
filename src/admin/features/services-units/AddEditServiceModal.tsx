@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { Service } from "../../../core/models/dto/Service";
+import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 
 interface AddEditModalProps {
     show: boolean;
@@ -34,10 +35,13 @@ const AddEditUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, s
     };
 
     return (
-        <Modal show={show} onHide={onHide} aria-labelledby="contained-modal-title-vcenter" centered>
-            <Modal.Header closeButton>
-                <Modal.Title>{service ? "Editar Service" : "Añadir Service"}</Modal.Title>
-            </Modal.Header>
+        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="service-modal-title">
+            <FormModalHeader
+                icon="bi bi-gear"
+                title={service ? "Editar Servicio" : "Añadir Servicio"}
+                onClose={onHide}
+                titleId="service-modal-title"
+            />
             <Modal.Body>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <Form.Group>
@@ -50,12 +54,14 @@ const AddEditUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, s
                             {errors.name?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
-                    <Button className="mt-2" type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? "Guardando..." : "Guardar"}
-                    </Button>
-                    <Button className="mt-2 ms-2" variant="secondary" onClick={onHide} disabled={isSubmitting}>
-                        Cancelar
-                    </Button>
+                    <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
+                        <Button variant="outline-secondary" onClick={onHide} disabled={isSubmitting}>
+                            <i className="bi bi-x-circle me-1"></i> Cancelar
+                        </Button>
+                        <Button type="submit" disabled={isSubmitting}>
+                            <i className="bi bi-save me-1"></i> {isSubmitting ? "Guardando..." : "Guardar"}
+                        </Button>
+                    </div>
                 </Form>
             </Modal.Body>
         </Modal>
