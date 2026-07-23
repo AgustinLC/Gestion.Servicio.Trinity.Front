@@ -1,0 +1,24 @@
+/* Track invisible (solo hit-area para permitir click-to-jump); el thumb es
+   lo único que se pinta. position:fixed para no depender del flujo/scroll
+   de #root ni de ningún ancestro. */
+.custom-scrollbar-track {
+    position: fixed;
+    right: 2px;
+    width: 10px;
+    z-index: 1000;
+}
+
+.custom-scrollbar-thumb {
+    position: absolute;
+    left: 2px;
+    width: 6px;
+    border-radius: 999px;
+    background-color: rgba(15, 23, 42, 0.22);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.custom-scrollbar-thumb:hover,
+.custom-scrollbar-thumb:active {
+    background-color: rgba(0, 119, 255, 0.4);
+}

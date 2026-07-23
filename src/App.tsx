@@ -48,13 +48,15 @@ import ReadingControlPage from "./operator/features/reading/reading-control/Read
 import DebtControlPage from "./admin/features/balance/DebtControlPage";
 import PdfParametersPage from "./admin/features/pdf-parameters/PdfParametersPage";
 import { SidebarProvider } from "./context/SidebarContext";
+import CustomScrollbar from "./shared/components/custom-scrollbar/CustomScrollbar";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
 
-  // Restaurar el scroll arriba de la página al cambiar de ruta
+  // Restaurar el scroll arriba de la página al cambiar de ruta.
+  // El scroll real de la app vive en #root, no en window/body (ver index.css).
   useEffect(() => {
-    window.scrollTo(0, 0);
+    document.getElementById("root")?.scrollTo(0, 0);
   }, [location.pathname]);
 
   // Rutas donde queremos mostrar el Footer
@@ -71,6 +73,9 @@ const AppContent: React.FC = () => {
     <SidebarProvider>
       {/* Barra de navegacion */}
       <Navbar />
+
+      {/* Scrollbar propia de #root (ver CustomScrollbar.tsx) */}
+      <CustomScrollbar targetId="root" />
       <Routes>
         {/* Rutas sin permisos comunes a cualquier usuario */}
         <Route path="/" element={<MainPage />} />

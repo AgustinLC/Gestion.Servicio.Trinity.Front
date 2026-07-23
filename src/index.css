@@ -23,25 +23,117 @@
 }
 
 /* Global Root Configuration.
-   min-height resta --navbar-height porque el body ya tiene ese mismo valor
-   como margin-top (para dejar lugar al navbar fijo); si acá se usara 100vh
-   completo, se sumarían ambos y el documento siempre mediría navbar-height
-   de más, generando un scroll vertical que no depende del contenido real. */
-#root {
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100vh - var(--navbar-height));
+   El scroll de toda la app vive en #root (no en html/body): así su propia
+   caja empieza justo debajo del navbar fijo y termina en el borde inferior
+   de la ventana, y la scrollbar (nativa o la estilizada de más abajo) queda
+   contenida ahí en vez de dibujarse en el borde de la ventana atravesando
+   el navbar. html/body quedan fijos al tamaño del viewport y sin scroll
+   propio; body además se desplaza navbar-height hacia abajo (margin-top)
+   y se achica esa misma medida (height) para no quedar recortado por el
+   overflow:hidden de html. */
+html {
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
   position: relative;
-  overflow-y: auto;
+  height: calc(100% - var(--navbar-height));
   margin-top: var(--navbar-height);
+  overflow: hidden;
   background-color: var(--bs-body-bg);
   color: var(--bs-body-color);
   font-family: var(--bs-body-font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none; /* Firefox: se reemplaza por CustomScrollbar.tsx */
+}
+
+/* Chrome/Edge en Windows tienen un bug ("Fluent scrollbars") que ignora el
+   ::-webkit-scrollbar personalizado en #root y muestra igual la nativa con
+   flechitas sin importar el CSS. Se oculta del todo y se reemplaza por
+   CustomScrollbar.tsx, que dibuja su propio thumb con un div y por eso es
+   inmune a ese bug. */
+#root::-webkit-scrollbar {
+  display: none;
+}
+
+/* Sin esto, los hijos flex de #root (contenido de cada página, footer, etc.)
+   se encogen para entrar en su altura fija en vez de desbordar y generar
+   scroll, que es exactamente lo que #root necesita poder hacer. */
+#root > * {
+  flex-shrink: 0;
+}
+
+/* --- SCROLLBAR ESTILIZADA ---
+   Sin scrollbar-gutter: stable a propósito, para que en las páginas sin
+   overflow no quede ningún espacio/franja reservada de más (ni gris ni de
+   color) donde no hay scroll real. La scrollbar solo ocupa lugar cuando
+   #root (u otro contenedor con su propio overflow: sidebar, tablas,
+   modales) realmente tiene contenido para scrollear; el resto del tiempo no
+   se ve nada. Este bloque solo la afina visualmente: delgada y con los
+   colores del sistema en vez de la gris por defecto del navegador. */
+* {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(15, 23, 42, 0.18) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Windows dibuja flechitas arriba/abajo del track por default en scrollbars
+   personalizadas; se ocultan para dejar solo la barrita. Se listan también
+   los pseudo-estados individuales (:single-button, :start/:end) porque en
+   Chrome/Edge de Windows pisan la regla genérica con más especificidad, y se
+   fuerza con !important porque este proyecto importa bootstrap.min.css
+   duplicado en varios chunks, lo que reordena el bundle final y hace ganar
+   empates de cascada a reglas que no deberían ganar. */
+::-webkit-scrollbar-button,
+::-webkit-scrollbar-button:single-button,
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(15, 23, 42, 0.22);
+  border-radius: 999px;
+  /* El grosor visible del thumb queda dado por width(10px) - 2*border(3px):
+     un pill delgado "flotando" centrado en el track, en vez de ocupar todo
+     el ancho de la scrollbar. */
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 119, 255, 0.4);
+}
+
+/* Con html/body sin scroll propio (ver arriba), Bootstrap nunca detecta una
+   scrollbar de ventana que compensar, pero se deja igual como resguardo por
+   si algún flujo puntual reactiva el scroll nativo del body. */
+body.modal-open {
+  padding-right: 0 !important;
 }
 
 /* Estado de carga (spinner) dentro de .dashboard-main: usa la altura restante

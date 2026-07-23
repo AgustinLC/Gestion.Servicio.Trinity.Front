@@ -270,12 +270,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                         <p className="text-center">No hay facturas activas</p>
                     ) : (
                         <>
-                            <ReusableTable<BillDetailsDto>
-                                data={[...bills].sort((a, b) => b.idBill - a.idBill)}
-                                columns={columns}
-                            />
-
-                            <div className="d-flex flex-wrap gap-3 mt-3">
+                            <div className="d-flex flex-wrap gap-3 mb-3">
                                 <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
                                     <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "rgba(0, 119, 255, 0.1)", color: "var(--bs-primary)" }}>
                                         <i className="bi bi-file-earmark-text"></i>
@@ -313,6 +308,11 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                                     </div>
                                 </div>
                             </div>
+
+                            <ReusableTable<BillDetailsDto>
+                                data={[...bills].sort((a, b) => b.idBill - a.idBill)}
+                                columns={columns}
+                            />
 
                             <HintBox className="mt-3">
                                 Las facturas pagadas no pueden ser anuladas.
