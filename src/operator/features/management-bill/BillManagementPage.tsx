@@ -12,6 +12,9 @@ import BillNullModal from "./BillNullModal";
 import { useSearch } from "../../../hooks/useSearch";
 import { useTableFilters } from "../../../hooks/useTableFilters";
 import useAppData from "../../../hooks/useAppData";
+import { withFullName } from "../../../core/utils/userUtils";
+
+type UserRow = UserDto & { fullName: string };
 
 const BillManagementPage = () => {
     // Estados existentes
@@ -41,10 +44,15 @@ const BillManagementPage = () => {
     );
     const filterState = useTableFilters(filterConfigs);
 
-    // Hook para buscar por columnas 
-    const { filteredData, handleSearch } = useSearch<UserDto>(
-        operatorUsers,
-        ["firstName", "lastName", "idUser"],
+    // Se agrega el nombre y apellido concatenados para poder listarlos en una sola columna
+    // y para que el buscador encuentre coincidencias sin importar si se busca por
+    // nombre, apellido o ambos juntos.
+    const usersWithFullName = useMemo(() => withFullName(operatorUsers), [operatorUsers]);
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<UserRow>(
+        usersWithFullName,
+        ["fullName", "idUser"],
         { "residenceDto.street": filterState.getActiveValue("street") }
     );
 
@@ -67,14 +75,12 @@ const BillManagementPage = () => {
     // };
 
     // Columnas para ReusableTable
-    const columns: TableColumnDefinition<UserDto>[] = [
+    const columns: TableColumnDefinition<UserRow>[] = [
         { key: "idUser", label: "N° Conexión.", sortable: true },
-        { key: "firstName", label: "Nombre", sortable: false },
-        { key: "lastName", label: "Apellido", sortable: false },
-        { key: "dni", label: "DNI", sortable: false },
-        { key: "phone", label: "Teléfono", sortable: false },
+        { key: "fullName", label: "Nombre y Apellido", sortable: false },
+        { key: "street" as keyof UserRow, label: "Calle", sortable: false, render: (row: UserRow) => row.residenceDto?.street || "Sin dirección" },
         {
-            key: "actions", label: "Facturas", actions: (row: UserDto) => (
+            key: "actions", label: "Facturas", actions: (row: UserRow) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
                     <Button variant="outline-success" onClick={() => { setSelectedUser(row); setShowBillActiveModal(true); }}>
                         Activas
@@ -106,7 +112,7 @@ const BillManagementPage = () => {
                     />
 
                     {/* Tabla principal */}
-                    <ReusableTable<UserDto>
+                    <ReusableTable<UserRow>
                         data={filteredData}
                         columns={columns}
                         defaultSort="idUser"

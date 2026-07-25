@@ -25,12 +25,13 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
         if (selectedUser || searchTerm.length < 1) return [];
 
         const term = searchTerm.trim().toLowerCase();
-        const numericTerm = searchTerm.replace(/\D/g, ""); // solo números
+
+        // Si el término es puramente numérico se interpreta como el N° de
+        // conexión exacto, para no traer 105 o 345 al buscar "5".
+        const conexQuery = /^\d+$/.test(term) ? Number(term) : null;
 
         return operatorActiveUsers.filter(user => {
-            const conexMatch = numericTerm
-                ? user.idUser.toString().includes(numericTerm)
-                : false;
+            const conexMatch = conexQuery !== null && user.idUser === conexQuery;
 
             const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
             const nameMatch = fullName.includes(term);

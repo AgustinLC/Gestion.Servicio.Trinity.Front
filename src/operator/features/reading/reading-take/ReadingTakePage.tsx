@@ -11,6 +11,9 @@ import PageHeader from "../../../../shared/components/PageHeader";
 import { useSearch } from "../../../../hooks/useSearch";
 import { useTableFilters } from "../../../../hooks/useTableFilters";
 import useAppData from "../../../../hooks/useAppData";
+import { withFullName } from "../../../../core/utils/userUtils";
+
+type UserRow = UserDto & { fullName: string };
 
 const ReadingTakePage: React.FC = () => {
 
@@ -42,10 +45,15 @@ const ReadingTakePage: React.FC = () => {
     );
     const filterState = useTableFilters(filterConfigs);
 
+    // Se agrega el nombre y apellido concatenados para poder listarlos en una sola columna
+    // y para que el buscador encuentre coincidencias sin importar si se busca por
+    // nombre, apellido o ambos juntos.
+    const usersWithFullName = useMemo(() => withFullName(operatorReadingUsers), [operatorReadingUsers]);
+
     // Hook reutilizable de búsqueda + filtros
-    const { filteredData, handleSearch } = useSearch<UserDto>(
-        operatorReadingUsers,
-        ["firstName", "lastName", "idUser"],
+    const { filteredData, handleSearch } = useSearch<UserRow>(
+        usersWithFullName,
+        ["fullName", "idUser"],
         {
             "residenceDto.street": filterState.getActiveValue("street"),
             "residenceDto.district": filterState.getActiveValue("district"),
@@ -73,16 +81,14 @@ const ReadingTakePage: React.FC = () => {
 
 
     // Columnas para la tabla
-    const columns: TableColumnDefinition<UserDto>[] = [
+    const columns: TableColumnDefinition<UserRow>[] = [
         { key: "idUser", label: "N° Conexión", sortable: false },
-        { key: "firstName", label: "Nombre", sortable: false },
-        { key: "lastName", label: "Apellido", sortable: false },
-        { key: "dni", label: "DNI", sortable: false },
-        { key: "street" as keyof UserDto, label: "Calle", sortable: false, render: (row: UserDto) => row.residenceDto?.street || "Sin dirección" },
-        { key: "houseNumber" as keyof UserDto, label: "N° Casa", sortable: false, render: (row: UserDto) => row.residenceDto?.number || "Sin número" },
-        { key: "meterNumber" as keyof UserDto, label: "N° Medidor", sortable: false, render: (row: UserDto) => row.residenceDto?.serialNumber || "Sin número" },
+        { key: "fullName", label: "Nombre y Apellido", sortable: false },
+        { key: "street" as keyof UserRow, label: "Calle", sortable: false, render: (row: UserRow) => row.residenceDto?.street || "Sin dirección" },
+        { key: "houseNumber" as keyof UserRow, label: "N° Casa", sortable: false, render: (row: UserRow) => row.residenceDto?.number || "Sin número" },
+        { key: "meterNumber" as keyof UserRow, label: "N° Medidor", sortable: false, render: (row: UserRow) => row.residenceDto?.serialNumber || "Sin número" },
         {
-            key: "actions", label: "Acciones", actions: (row: UserDto) => (
+            key: "actions", label: "Acciones", actions: (row: UserRow) => (
                 <Button className="text-nowrap" variant="outline-primary" onClick={() => { setSelectedUser(row); setShowAddReadingModal(true); }}>
                     Cargar lectura
                 </Button>

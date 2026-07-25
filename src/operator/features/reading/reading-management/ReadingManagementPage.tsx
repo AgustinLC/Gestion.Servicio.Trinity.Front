@@ -12,6 +12,9 @@ import UserReadingsModal from "./UserReadingModal";
 import { useSearch } from "../../../../hooks/useSearch";
 import { useTableFilters } from "../../../../hooks/useTableFilters";
 import useAppData from "../../../../hooks/useAppData";
+import { getFullName, withFullName } from "../../../../core/utils/userUtils";
+
+type UserRow = UserDto & { fullName: string };
 
 const ReadingManagementPage: React.FC = () => {
     // Estados
@@ -41,10 +44,15 @@ const ReadingManagementPage: React.FC = () => {
     );
     const filterState = useTableFilters(filterConfigs);
 
-    // Hook para buscar por columnas 
-    const { filteredData, handleSearch } = useSearch<UserDto>(
-        operatorActiveUsers,
-        ["firstName", "lastName", "idUser"],
+    // Se agrega el nombre y apellido concatenados para poder listarlos en una sola columna
+    // y para que el buscador encuentre coincidencias sin importar si se busca por
+    // nombre, apellido o ambos juntos.
+    const usersWithFullName = useMemo(() => withFullName(operatorActiveUsers), [operatorActiveUsers]);
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<UserRow>(
+        usersWithFullName,
+        ["fullName", "idUser"],
         { "residenceDto.street": filterState.getActiveValue("street") }
     );
 
@@ -69,17 +77,16 @@ const ReadingManagementPage: React.FC = () => {
 
 
     // Columnas para la tabla
-    const columns: TableColumnDefinition<UserDto>[] = [
+    const columns: TableColumnDefinition<UserRow>[] = [
         { key: "idUser", label: "N° Conexión", sortable: true },
-        { key: "firstName", label: "Nombre", sortable: false },
-        { key: "lastName", label: "Apellido", sortable: false },
-        { key: "dni", label: "DNI", sortable: false },
-        { key: "username", label: "Email", sortable: false },
-        { key: "residenceDto", label: "Calle", sortable: false, render: (row: UserDto) => row.residenceDto?.street || "Sin dirección" },
+        { key: "fullName", label: "Nombre y Apellido", sortable: false },
+        { key: "residenceDto", label: "Calle", sortable: false, render: (row: UserRow) => row.residenceDto?.street || "Sin dirección" },
+        { key: "houseNumber" as keyof UserRow, label: "N° Casa", sortable: false, render: (row: UserRow) => row.residenceDto?.number || "Sin número" },
+        { key: "meterNumber" as keyof UserRow, label: "N° Medidor", sortable: false, render: (row: UserRow) => row.residenceDto?.serialNumber || "Sin número" },
         {
             key: "actions",
             label: "Acciones",
-            actions: (row: UserDto) => (
+            actions: (row: UserRow) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
                     <Button variant="outline-primary" onClick={() => { setSelectedUser(row); setShowAddReadingModal(true); }}>
                         Cargar lectura
@@ -110,7 +117,7 @@ const ReadingManagementPage: React.FC = () => {
                         filterState={filterState}
                     />
                     {/* Tabla de usuarios */}
-                    <ReusableTable<UserDto>
+                    <ReusableTable<UserRow>
                         data={filteredData}
                         columns={columns}
                         defaultSort="idUser"
@@ -130,7 +137,7 @@ const ReadingManagementPage: React.FC = () => {
                         <UserReadingsModal
                             show={showUserReadings}
                             onHide={() => setShowUserReadings(false)}
-                            userName={`${selectedUser.firstName} ${selectedUser.lastName}`}
+                            userName={getFullName(selectedUser)}
                             userId={selectedUser.idUser}
                         />
                     )}

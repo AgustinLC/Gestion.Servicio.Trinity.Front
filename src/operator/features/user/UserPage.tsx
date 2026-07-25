@@ -16,6 +16,9 @@ import { useSearch } from "../../../hooks/useSearch";
 import { useTableFilters } from "../../../hooks/useTableFilters";
 import useAppData from "../../../hooks/useAppData";
 import { getAvatarColor } from "../../../core/utils/avatarColors";
+import { withFullName } from "../../../core/utils/userUtils";
+
+type UserRow = UserDto & { fullName: string };
 
 const UserPage = () => {
 
@@ -42,7 +45,7 @@ const UserPage = () => {
             {
                 id: "street",
                 label: "Calle",
-                emptyLabel: "Seleccionar Calle...",
+                emptyLabel: "Todas las calles",
                 options: uniqueStreets.map((street) => ({ value: street, label: street })),
             },
             {
@@ -51,10 +54,10 @@ const UserPage = () => {
                 type: "custom" as const,
                 render: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
                     <DotDropdown
-                        options={[{ value: "", label: "Todos" }, ...STATUS_OPTIONS]}
+                        options={[{ value: "", label: "Todos los estados" }, ...STATUS_OPTIONS]}
                         value={value}
                         onChange={onChange}
-                        placeholder="Seleccionar Estado..."
+                        placeholder="Todos los estados"
                         icon="bi bi-funnel"
                     />
                 ),
@@ -64,10 +67,15 @@ const UserPage = () => {
     );
     const filterState = useTableFilters(filterConfigs);
 
-    // Hook para buscar por columnas 
-    const { filteredData, handleSearch } = useSearch<UserDto>(
-        operatorUsers,
-        ["firstName", "lastName", "idUser"],
+    // Se agrega el nombre y apellido concatenados para poder listarlos en una sola columna
+    // y para que el buscador encuentre coincidencias sin importar si se busca por
+    // nombre, apellido o ambos juntos.
+    const usersWithFullName = useMemo(() => withFullName(operatorUsers), [operatorUsers]);
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<UserRow>(
+        usersWithFullName,
+        ["fullName", "idUser"],
         {
             "residenceDto.street": filterState.getActiveValue("street"),
             status: filterState.getActiveValue("status"),
@@ -114,11 +122,11 @@ const UserPage = () => {
     };
 
     // Columnas para ReusableTable
-    const columns: TableColumnDefinition<UserDto>[] = [
+    const columns: TableColumnDefinition<UserRow>[] = [
         { key: "idUser", label: "N° Conexión", sortable: true },
         {
-            key: "firstName",
-            label: "Nombre",
+            key: "fullName",
+            label: "Nombre y Apellido",
             sortable: false,
             render: (row) => {
                 const avatarColor = getAvatarColor(`${row.firstName ?? ""}${row.lastName ?? ""}${row.idUser ?? ""}`);
@@ -128,14 +136,13 @@ const UserPage = () => {
                             {(row.firstName?.[0] || "") + (row.lastName?.[0] || "")}
                         </div>
                         <div className="text-start">
-                            <div>{row.firstName}</div>
+                            <div>{row.fullName}</div>
                             <div className="text-muted small">{row.residenceDto?.street ?? ""}</div>
                         </div>
                     </div>
                 );
             },
         },
-        { key: "lastName", label: "Apellido", sortable: false, render: (row) => row.lastName },
         { key: "dni", label: "DNI", sortable: false },
         { key: "phone", label: "Teléfono", sortable: false },
         { key: "status", label: "Estado", sortable: false, render: (row) => (
@@ -144,7 +151,7 @@ const UserPage = () => {
             </span>
         ) },
         {
-            key: "actions", label: "Acciones", actions: (row: UserDto) => (
+            key: "actions", label: "Acciones", actions: (row: UserRow) => (
                 <RowActions
                     editTitle="Editar usuario"
                     onEdit={() => { setSelectedUser(row); setShowModal(true); }}
@@ -191,7 +198,7 @@ const UserPage = () => {
                     </TableToolbar>
 
                     {/* Tabla */}
-                    <ReusableTable<UserDto>
+                    <ReusableTable<UserRow>
                         data={filteredData}
                         columns={columns}
                         defaultSort="idUser"

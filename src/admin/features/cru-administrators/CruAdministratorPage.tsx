@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { addData, getData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
@@ -9,6 +9,9 @@ import PageHeader from "../../../shared/components/PageHeader";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import AddEditAdministratorModal from "./AddEditAdministratorModal";
 import { useSearch } from "../../../hooks/useSearch";
+import { withFullName } from "../../../core/utils/userUtils";
+
+type UserRow = UserDto & { fullName: string };
 
 const CruAdministratorPage = () => {
 
@@ -32,7 +35,6 @@ const CruAdministratorPage = () => {
             // Obtener administradores
             const administrators = await getData<UserDto[]>("/admin/users-admins");
             setAdministrators(administrators);
-            setFilteredData(administrators);
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : "Error al obtener los administradores");
@@ -42,10 +44,15 @@ const CruAdministratorPage = () => {
         }
     };
 
-    // Hook para buscar por columnas 
-    const { filteredData, handleSearch, setFilteredData } = useSearch<UserDto>(
-        administrators,
-        ["firstName", "lastName", "idUser"]
+    // Se agrega el nombre y apellido concatenados para poder listarlos en una sola columna
+    // y para que el buscador encuentre coincidencias sin importar si se busca por
+    // nombre, apellido o ambos juntos.
+    const administratorsWithFullName = useMemo(() => withFullName(administrators), [administrators]);
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<UserRow>(
+        administratorsWithFullName,
+        ["fullName", "idUser"]
     );
 
     // Manejar añadir/editar
@@ -71,15 +78,12 @@ const CruAdministratorPage = () => {
     };
 
     // Columnas para ReusableTable
-    const columns: TableColumnDefinition<UserDto>[] = [
+    const columns: TableColumnDefinition<UserRow>[] = [
         { key: "idUser", label: "ID", sortable: true },
-        { key: "firstName", label: "Nombre", sortable: false },
-        { key: "lastName", label: "Apellido", sortable: false },
+        { key: "fullName", label: "Nombre y Apellido", sortable: false },
         { key: "username", label: "Email/Username", sortable: false },
-        { key: "dni", label: "DNI", sortable: false },
-        { key: "phone", label: "Teléfono", sortable: false },
         {
-            key: "actions", label: "Acciones", actions: (row: UserDto) => (
+            key: "actions", label: "Acciones", actions: (row: UserRow) => (
                 <Button variant="outline-warning" onClick={() => { setSelectedAdministrator(row); setShowModal(true); }}>
                     Editar
                 </Button>
@@ -106,7 +110,7 @@ const CruAdministratorPage = () => {
                     </TableToolbar>
 
                     {/* Tabla */}
-                    <ReusableTable<UserDto>
+                    <ReusableTable<UserRow>
                         data={filteredData}
                         columns={columns}
                         defaultSort="idUser"

@@ -186,7 +186,7 @@ const DebtControlPage = () => {
         );
     }, [unpaidBillsData, collectedBillsData]);
 
-    // Filtros activables con checkbox (período y estado)
+    // Filtros activables con checkbox (período, estado y monto mínimo)
     const filterConfigs = useMemo(() => [
         {
             id: "period",
@@ -210,13 +210,22 @@ const DebtControlPage = () => {
                     { value: "PAID_LATE", label: "Fuera de término" },
                 ],
         },
+        {
+            id: "minAmount",
+            label: activeTab === "DEBTS" ? "Monto a pagar (mín.)" : "Monto cobrado (mín.)",
+            type: "number" as const,
+            icon: "bi bi-cash-stack",
+            min: 0,
+            placeholder: "Monto mínimo",
+        },
     ], [periodOptions, activeTab]);
     const filterState = useTableFilters(filterConfigs);
 
-    // Aplicar filtros de período y estado para deudas
+    // Aplicar filtros de período, estado y monto mínimo para deudas
     const visibleData = useMemo(() => {
         const periodActive = filterState.getActiveValue("period");
         const statusActive = filterState.getActiveValue("status");
+        const minAmountActive = filterState.getActiveValue("minAmount");
         return filteredUnpaid
             .filter(bill => {
                 const matchesStatus =
@@ -227,7 +236,11 @@ const DebtControlPage = () => {
                     !periodActive ||
                     bill.idPeriod === Number(periodActive);
 
-                return matchesStatus && matchesPeriod;
+                const matchesAmount =
+                    !minAmountActive ||
+                    (bill.amountToPay ?? 0) >= Number(minAmountActive);
+
+                return matchesStatus && matchesPeriod && matchesAmount;
             })
             .sort((a, b) => {
                 const dateA = new Date(a.expirationDate).getTime();
@@ -236,10 +249,11 @@ const DebtControlPage = () => {
             });
     }, [filteredUnpaid, filterState]);
 
-    // Aplicar filtros de período y estado para cobros
+    // Aplicar filtros de período, estado y monto mínimo para cobros
     const visibleDataCollected = useMemo(() => {
         const periodActive = filterState.getActiveValue("period");
         const statusActive = filterState.getActiveValue("status");
+        const minAmountActive = filterState.getActiveValue("minAmount");
         return filteredCollected
             .filter(bill => {
                 const matchesStatus =
@@ -250,7 +264,11 @@ const DebtControlPage = () => {
                     !periodActive ||
                     bill.idPeriod === Number(periodActive);
 
-                return matchesStatus && matchesPeriod;
+                const matchesAmount =
+                    !minAmountActive ||
+                    (bill.amountCollected ?? 0) >= Number(minAmountActive);
+
+                return matchesStatus && matchesPeriod && matchesAmount;
             })
             .sort((a, b) => {
                 const dateA = new Date(a.paymentDate).getTime();

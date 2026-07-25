@@ -9,6 +9,9 @@ import { useSearch } from "../../../hooks/useSearch";
 import { useTableFilters } from "../../../hooks/useTableFilters";
 import { useDebtDisconnectionPdfs } from "../../../shared/hooks/useDebtDisconnectionPdfs";
 import { getData } from "../../../core/services/apiService";
+import { withFullName } from "../../../core/utils/userUtils";
+
+type UserDebtRow = UserDebtDto & { fullName: string };
 
 const DebtDisconnectionPage = () => {
     const { generateDisconnectionPdf, generateWarningPdf } = useDebtDisconnectionPdfs();
@@ -49,41 +52,63 @@ const DebtDisconnectionPage = () => {
         [debtors]
     );
 
-    // Filtro de calle (siempre visible, Fase 3)
+    // Filtros siempre visibles (Fase 3): calle y mínimo de períodos adeudados
     const filterConfigs = useMemo(
         () => [
             {
                 id: "street",
                 label: "Calle",
-                emptyLabel: "Seleccionar Calle...",
+                emptyLabel: "Todas las calles",
                 options: uniqueStreets.map((street) => ({ value: street, label: street })),
+            },
+            {
+                id: "minPeriods",
+                label: "Períodos adeudados",
+                type: "number" as const,
+                icon: "bi bi-exclamation-circle",
+                min: 1,
+                placeholder: "Mín. períodos",
             },
         ],
         [uniqueStreets]
     );
     const filterState = useTableFilters(filterConfigs);
 
+    // Se agrega el nombre y apellido concatenados para poder listarlos en una sola columna
+    // y para que el buscador encuentre coincidencias sin importar si se busca por
+    // nombre, apellido o ambos juntos.
+    const debtorsWithFullName = useMemo(() => withFullName(debtors), [debtors]);
+
+    // El filtro de "mínimo de períodos" es un umbral (>=), no una igualdad exacta,
+    // así que se aplica acá en vez de en el objeto de filtros de useSearch (que solo
+    // soporta coincidencia exacta).
+    const minPeriods = filterState.getActiveValue("minPeriods");
+    const debtorsFilteredByPeriods = useMemo(() => {
+        const min = minPeriods !== null ? Number(minPeriods) : null;
+        return min !== null && !Number.isNaN(min)
+            ? debtorsWithFullName.filter((debtor) => debtor.periodsOwed >= min)
+            : debtorsWithFullName;
+    }, [debtorsWithFullName, minPeriods]);
+
     // Hook para buscar por columnas en los deudores
-    const { filteredData, handleSearch } = useSearch<UserDebtDto>(
-        debtors,
-        ["firstName", "lastName", "idUser"], // columnas filtrables
+    const { filteredData, handleSearch } = useSearch<UserDebtRow>(
+        debtorsFilteredByPeriods,
+        ["fullName", "idUser"], // columnas filtrables
         {
             "residenceDto.street": filterState.getActiveValue("street"),
         }
     );
 
     // Columnas para ReusableTable
-    const columns: TableColumnDefinition<UserDebtDto>[] = [
+    const columns: TableColumnDefinition<UserDebtRow>[] = [
         { key: "idUser", label: "N° Conexión", sortable: true },
-        { key: "firstName", label: "Nombre", sortable: false },
-        { key: "lastName", label: "Apellido", sortable: false },
-        { key: "dni", label: "DNI", sortable: false },
-        { key: "phone", label: "Teléfono", sortable: false },
+        { key: "fullName", label: "Nombre y Apellido", sortable: false },
+        { key: "street" as keyof UserDebtRow, label: "Calle", sortable: false, render: (row: UserDebtRow) => row.residenceDto?.street || "Sin dirección" },
         {
             key: "periodsOwed",
             label: "Períodos Adeudados",
             sortable: true,
-            render: (row: UserDebtDto) => {
+            render: (row: UserDebtRow) => {
                 const periods = Number(row.periodsOwed);
                 const severe = periods >= 2;
                 return (
@@ -98,7 +123,7 @@ const DebtDisconnectionPage = () => {
         {
             key: "actions",
             label: "Generar Documentos",
-            actions: (row: UserDebtDto) => {
+            actions: (row: UserDebtRow) => {
                 const canCut = row.periodsOwed >= 2;
                 const warningKey = `warning-${row.idUser}`;
                 const cutKey = `cut-${row.idUser}`;
@@ -167,7 +192,7 @@ const DebtDisconnectionPage = () => {
                     <TableToolbar onSearch={handleSearch} filters={filterConfigs} filterState={filterState} />
 
                     {/* Tabla principal (el conteo ya lo muestra el pie de ReusableTable) */}
-                    <ReusableTable<UserDebtDto>
+                    <ReusableTable<UserDebtRow>
                         data={filteredData}
                         columns={columns}
                         defaultSort="idUser"

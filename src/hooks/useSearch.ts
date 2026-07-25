@@ -31,10 +31,20 @@ export function useSearch<T extends Record<string, any>>(
 
     // Si hay texto de búsqueda, aplicarlo también
     if (q) {
+      // Si la búsqueda es puramente numérica, se interpreta como un ID exacto
+      // (ej: N° de conexión) para no traer 105 o 345 al buscar "5".
+      const numericQuery = /^\d+$/.test(q) ? Number(q) : null;
+
       result = result.filter((item) =>
         searchableKeys.some((key) => {
           const value = getNestedValue(item, key);
-          return value && String(value).toLowerCase().includes(q);
+          if (value === null || value === undefined) return false;
+
+          if (typeof value === "number") {
+            return numericQuery !== null && value === numericQuery;
+          }
+
+          return String(value).toLowerCase().includes(q);
         })
       );
     }

@@ -13,12 +13,15 @@ export interface TableFilterRenderProps {
 export interface TableFilterConfig {
     id: string;
     label: string;
-    type?: "select" | "custom";
+    type?: "select" | "custom" | "number";
     options?: TableFilterOption[];
     emptyLabel?: string;
     defaultValue?: string;
     maxWidth?: string;
     icon?: string; // Clase de Bootstrap Icons (ej: "bi bi-geo-alt"). Opcional.
+    min?: number; // Solo para type "number"
+    max?: number; // Solo para type "number"
+    placeholder?: string; // Solo para type "number"
     render?: (props: TableFilterRenderProps) => ReactNode;
 }
 

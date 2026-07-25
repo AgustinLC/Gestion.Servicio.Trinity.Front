@@ -863,7 +863,8 @@ button:disabled,
 }
 
 .search-bar-group .form-control,
-.table-toolbar-filter-group .form-select {
+.table-toolbar-filter-group .form-select,
+.table-toolbar-filter-group .form-control {
   border-left: none;
   padding-left: 0.4rem;
   max-width: none;

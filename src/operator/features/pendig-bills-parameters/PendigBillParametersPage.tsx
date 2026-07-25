@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { addData } from "../../../core/services/apiService";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { Button, Spinner } from "react-bootstrap";
@@ -11,7 +11,11 @@ import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar"
 import PageHeader from "../../../shared/components/PageHeader";
 import UserParametersModal from "./UserParameterModal";
 import { useSearch } from "../../../hooks/useSearch";
+import { useTableFilters } from "../../../hooks/useTableFilters";
 import useAppData from "../../../hooks/useAppData";
+import { getFullName, withFullName } from "../../../core/utils/userUtils";
+
+type UserRow = UserDto & { fullName: string };
 
 const PendigBillsParameterPage = () => {
 
@@ -22,10 +26,36 @@ const PendigBillsParameterPage = () => {
     const { operatorActiveUsers, activeBillingParameters, loading, error } = useAppData();
 
 
-    // Hook para buscar por columnas 
-    const { filteredData, handleSearch } = useSearch<UserDto>(
-            operatorActiveUsers,
-            ["firstName", "lastName", "idUser"]
+    // Se agrega el nombre y apellido concatenados para poder listarlos en una sola columna
+    // y para que el buscador encuentre coincidencias sin importar si se busca por
+    // nombre, apellido o ambos juntos.
+    const usersWithFullName = useMemo(() => withFullName(operatorActiveUsers), [operatorActiveUsers]);
+
+    // Calles únicas para el filtro
+    const uniqueStreets = useMemo(
+        () => Array.from(new Set(operatorActiveUsers.map(u => u.residenceDto?.street).filter(Boolean))) as string[],
+        [operatorActiveUsers]
+    );
+
+    // Filtro de calle (siempre visible, Fase 3)
+    const filterConfigs = useMemo(
+        () => [
+            {
+                id: "street",
+                label: "Calle",
+                emptyLabel: "Todas las calles",
+                options: uniqueStreets.map((street) => ({ value: street, label: street })),
+            },
+        ],
+        [uniqueStreets]
+    );
+    const filterState = useTableFilters(filterConfigs);
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<UserRow>(
+            usersWithFullName,
+            ["fullName", "idUser"],
+            { "residenceDto.street": filterState.getActiveValue("street") }
         );
 
     // Manejar añadir conceptos
@@ -42,13 +72,12 @@ const PendigBillsParameterPage = () => {
     };
 
     // Columnas para ReusableTable
-    const columns: TableColumnDefinition<UserDto>[] = [
+    const columns: TableColumnDefinition<UserRow>[] = [
         { key: "idUser", label: "N° Conexión", sortable: true},
-        { key: "firstName", label: "Nombre", sortable: false },
-        { key: "lastName", label: "Apellido", sortable: false },
-        { key: "street" as keyof UserDto, label: "Calle", sortable: false, render: (row: UserDto) => row.residenceDto?.street || "Sin dirección" },
+        { key: "fullName", label: "Nombre y Apellido", sortable: false },
+        { key: "street" as keyof UserRow, label: "Calle", sortable: false, render: (row: UserRow) => row.residenceDto?.street || "Sin dirección" },
         {
-            key: "actions", label: "Acciones", actions: (row: UserDto) => (
+            key: "actions", label: "Acciones", actions: (row: UserRow) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
                     <Button variant="outline-warning" onClick={() => { setSelectedUser(row); setShowAddParameterModal(true); }}>
                         Añadir Concepto
@@ -74,10 +103,10 @@ const PendigBillsParameterPage = () => {
                 <div className="text-center py-5">{error}</div>
             ) : (
                 <div>
-                    <TableToolbar onSearch={handleSearch} />
+                    <TableToolbar onSearch={handleSearch} filters={filterConfigs} filterState={filterState} />
 
                     {/* Tabla */}
-                    <ReusableTable<UserDto>
+                    <ReusableTable<UserRow>
                         data={filteredData}
                         columns={columns}
                         defaultSort="idUser"
@@ -98,7 +127,7 @@ const PendigBillsParameterPage = () => {
                             show={showUserParameters}
                             onHide={() => setShowUserParameters(false)}
                             parameters={activeBillingParameters}
-                            userName={`${selectedUser.firstName} ${selectedUser.lastName}`}
+                            userName={getFullName(selectedUser)}
                             userId={selectedUser.idUser}
                         />
                     )}

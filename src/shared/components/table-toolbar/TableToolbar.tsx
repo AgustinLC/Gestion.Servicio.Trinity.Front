@@ -60,6 +60,31 @@ const TableToolbar: React.FC<TableToolbarProps> = ({
 
                     const iconClass = filter.icon ?? DEFAULT_FILTER_ICONS[filter.id];
 
+                    if (filter.type === "number") {
+                        return (
+                            <InputGroup
+                                key={filter.id}
+                                className="table-toolbar-filter-group"
+                                style={{ maxWidth: filter.maxWidth ?? "260px" }}
+                            >
+                                {iconClass && (
+                                    <InputGroup.Text>
+                                        <i className={iconClass}></i>
+                                    </InputGroup.Text>
+                                )}
+                                <Form.Control
+                                    type="number"
+                                    min={filter.min}
+                                    max={filter.max}
+                                    placeholder={filter.placeholder ?? filter.label}
+                                    value={value}
+                                    onChange={(event) => onChange(event.target.value)}
+                                    aria-label={filter.label}
+                                />
+                            </InputGroup>
+                        );
+                    }
+
                     return (
                         <InputGroup
                             key={filter.id}
