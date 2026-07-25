@@ -280,6 +280,7 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
                 }
                 confirmText="Confirmar"
                 isLoading={isDeleting}
+                loadingText="Eliminando..."
                 onConfirm={handleConfirmDelete}
             />
 

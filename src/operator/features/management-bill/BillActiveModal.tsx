@@ -335,6 +335,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                 }
                 confirmText="Anular"
                 isLoading={anulando}
+                loadingText="Anulando..."
                 onConfirm={handleConfirmAnnular}
             />
 

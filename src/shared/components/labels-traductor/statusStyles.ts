@@ -31,3 +31,25 @@ export const STATUS_OPTIONS: { value: Status; label: string; color: string }[] =
     { value: Status.SUSPENDED, label: "Suspendido", color: STATUS_DOT_COLORS[Status.SUSPENDED] },
     { value: Status.INACTIVE, label: "Inactivo", color: STATUS_DOT_COLORS[Status.INACTIVE] },
 ];
+
+// Acciones rápidas de cambio de estado (menú de tres puntos de la tabla de
+// usuarios y cualquier otra tabla que en el futuro quiera ofrecer el mismo
+// acceso rápido): label, ícono y color por estado DESTINO. El color coincide
+// con STATUS_DOT_COLORS para que la acción se lea como "hacia qué estado
+// pasa" con el mismo lenguaje visual que el badge/punto de estado.
+export const STATUS_ACTION_CONFIG: Record<Status, { label: string; icon: string; color: string; confirmVariant: string }> = {
+    [Status.ACTIVE]: { label: "Activar usuario", icon: "bi bi-check-circle", color: STATUS_DOT_COLORS[Status.ACTIVE], confirmVariant: "success" },
+    [Status.SUSPENDED]: { label: "Suspender usuario", icon: "bi bi-slash-circle", color: STATUS_DOT_COLORS[Status.SUSPENDED], confirmVariant: "warning" },
+    [Status.INACTIVE]: { label: "Inactivar usuario", icon: "bi bi-x-circle", color: STATUS_DOT_COLORS[Status.INACTIVE], confirmVariant: "secondary" },
+};
+
+// Mensaje de confirmación (toast) al aplicar cada acción rápida de estado.
+export const STATUS_ACTION_SUCCESS_MESSAGE: Record<Status, string> = {
+    [Status.ACTIVE]: "Usuario activado",
+    [Status.SUSPENDED]: "Usuario suspendido",
+    [Status.INACTIVE]: "Usuario inactivado",
+};
+
+// Orden en que se ofrecen las acciones de cambio de estado en el menú
+// (se filtra el estado actual del usuario, quedan las otras dos).
+export const STATUS_TRANSITION_ORDER: Status[] = [Status.ACTIVE, Status.SUSPENDED, Status.INACTIVE];

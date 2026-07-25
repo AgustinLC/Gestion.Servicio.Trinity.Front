@@ -155,6 +155,7 @@ const CrudFeaturePage = () => {
                         }
                         confirmText="Confirmar"
                         isLoading={isDeleting}
+                        loadingText="Eliminando..."
                         onConfirm={handleDelete}
                     />
                 </div>

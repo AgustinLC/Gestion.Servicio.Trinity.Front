@@ -6,6 +6,7 @@ export interface RowActionItem {
     icon?: string; // Clase de Bootstrap Icons (ej: "bi bi-trash")
     onClick: () => void;
     variant?: "default" | "danger";
+    color?: string; // Color hex explícito (ej: para acciones de cambio de estado); tiene prioridad sobre `variant`
     disabled?: boolean;
     title?: string; // Tooltip opcional, útil para explicar por qué está deshabilitado
 }
@@ -40,7 +41,8 @@ const RowActions: React.FC<RowActionsProps> = ({ onEdit, editTitle = "Editar", i
                                 onClick={item.onClick}
                                 disabled={item.disabled}
                                 title={item.title}
-                                className={item.variant === "danger" ? "text-danger" : undefined}
+                                className={!item.color && item.variant === "danger" ? "text-danger" : undefined}
+                                style={item.color ? { color: item.color } : undefined}
                             >
                                 {item.icon && <i className={`${item.icon} me-2`}></i>}
                                 {item.label}

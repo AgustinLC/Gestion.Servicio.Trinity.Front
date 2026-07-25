@@ -261,6 +261,7 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
                 }
                 confirmText="Confirmar"
                 isLoading={isDeleting}
+                loadingText="Eliminando..."
                 onConfirm={handleConfirmDelete}
             />
         </>

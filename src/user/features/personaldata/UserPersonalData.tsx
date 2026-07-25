@@ -5,6 +5,7 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 import { getData, updateData } from "../../../core/services/apiService";
 import useAuth from "../../../hooks/useAuth";
 import PageHeader from "../../../shared/components/PageHeader";
+import { getPasswordRuleResults, isPasswordValid } from "../../../core/utils/passwordValidation";
 
 const UserPersonalData: React.FC = () => {
     const { userId } = useAuth(); // Obtén el userId desde el hook useAuth
@@ -67,6 +68,10 @@ const UserPersonalData: React.FC = () => {
 
     // Función para cambiar la contraseña
     const handleChangePassword = async () => {
+        if (!isPasswordValid(newPassword)) {
+            toast.error("La contraseña no cumple con los requisitos mínimos");
+            return;
+        }
         if (newPassword !== confirmPassword) {
             toast.error("Las contraseñas no coinciden");
             return;
@@ -202,6 +207,14 @@ const UserPersonalData: React.FC = () => {
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                             />
+                            <ul className="list-unstyled small mt-2 mb-0">
+                                {getPasswordRuleResults(newPassword).map((rule) => (
+                                    <li key={rule.key} className={rule.passed ? "text-success" : "text-muted"}>
+                                        <i className={`bi ${rule.passed ? "bi-check-circle-fill" : "bi-circle"} me-1`}></i>
+                                        {rule.label}
+                                    </li>
+                                ))}
+                            </ul>
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>Confirmar Contraseña</Form.Label>
@@ -214,7 +227,7 @@ const UserPersonalData: React.FC = () => {
                         <Button
                             variant="primary"
                             onClick={handleChangePassword}
-                            disabled={loading}
+                            disabled={loading || !isPasswordValid(newPassword)}
                         >
                             Actualizar Contraseña
                         </Button>

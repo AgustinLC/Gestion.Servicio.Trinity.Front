@@ -1,22 +1,32 @@
 import { useMemo, useState } from "react";
-import { Button, Spinner } from "react-bootstrap";
+import { Button, Form, Spinner } from "react-bootstrap";
 import AddEditUserModal from "./AddEditUserModal";
+import BillActiveModal from "../management-bill/BillActiveModal";
 import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
 import PageHeader from "../../../shared/components/PageHeader";
 import { addData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { UserDto } from "../../../core/models/dto/UserDto";
+import { Status } from "../../../core/models/dto/Status";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import RowActions from "../../../shared/components/table/RowActions";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import statusLabels from "../../../shared/components/labels-traductor/statusLabels";
-import { STATUS_BADGE_CLASS, STATUS_OPTIONS } from "../../../shared/components/labels-traductor/statusStyles";
+import {
+    STATUS_BADGE_CLASS,
+    STATUS_OPTIONS,
+    STATUS_ACTION_CONFIG,
+    STATUS_ACTION_SUCCESS_MESSAGE,
+    STATUS_TRANSITION_ORDER,
+} from "../../../shared/components/labels-traductor/statusStyles";
 import DotDropdown from "../../../shared/components/dot-dropdown/DotDropdown";
 import { useSearch } from "../../../hooks/useSearch";
 import { useTableFilters } from "../../../hooks/useTableFilters";
 import useAppData from "../../../hooks/useAppData";
 import { getAvatarColor } from "../../../core/utils/avatarColors";
 import { withFullName } from "../../../core/utils/userUtils";
+import { getPasswordRuleResults, isPasswordValid } from "../../../core/utils/passwordValidation";
 
 type UserRow = UserDto & { fullName: string };
 
@@ -25,6 +35,14 @@ const UserPage = () => {
     //Estados
     const [showModal, setShowModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
+    const [userToResetPassword, setUserToResetPassword] = useState<UserDto | null>(null);
+    const [isResettingPassword, setIsResettingPassword] = useState(false);
+    const [resetPasswordMode, setResetPasswordMode] = useState<"dni" | "custom">("dni");
+    const [customPassword, setCustomPassword] = useState("");
+    const [statusChangeRequest, setStatusChangeRequest] = useState<{ user: UserDto; nextStatus: Status } | null>(null);
+    const [isChangingStatus, setIsChangingStatus] = useState(false);
+    const [billsUser, setBillsUser] = useState<UserDto | null>(null);
+    const [showBillActiveModal, setShowBillActiveModal] = useState(false);
     const { operatorUsers, locations, fees, loading, error, refreshOperatorUsers, refreshOperatorActiveUsers } = useAppData();
 
     // Estadísticas para la cabecera
@@ -82,11 +100,17 @@ const UserPage = () => {
         }
     );
 
-    // Manejar añadir/editar
-    const handleSave = async (user: UserDto) => {
+    // Manejar añadir/editar. El blanqueo de contraseña desde el formulario de
+    // edición (AddEditUserModal) llega como segundo parámetro y se manda por
+    // separado a /user/change-password?idUser, ya que /user/update?idUser
+    // ignora el campo password al editar un usuario existente.
+    const handleSave = async (user: UserDto, newPassword?: string) => {
         try {
             if (user.idUser) {
                 await updateData("/user/update?idUser", user.idUser, user);
+                if (newPassword) {
+                    await updateData("/user/change-password?idUser", user.idUser, newPassword);
+                }
                 toast.success("Usuario actualizado exitosamente");
             } else {
                 await addData("/operator/register-user", user);
@@ -107,19 +131,60 @@ const UserPage = () => {
         }
     };
 
-    // Alterna Activo/Suspendido rápidamente desde el menú de acciones de la fila
-    const handleToggleStatus = async (user: UserDto) => {
-        const nextStatus = user.status === "SUSPENDED" ? "ACTIVE" : "SUSPENDED";
+    // Cambia el estado del usuario. Solo se llama después de confirmar el modal
+    // que dispara el menú rápido de la fila; el formulario de edición principal
+    // (handleSave) actualiza el estado directamente, sin pasar por acá.
+    const handleConfirmChangeStatus = async () => {
+        if (!statusChangeRequest) return;
+        const { user, nextStatus } = statusChangeRequest;
+        setIsChangingStatus(true);
         try {
             await updateData("/user/update?idUser", user.idUser, { ...user, status: nextStatus });
-            toast.success(nextStatus === "SUSPENDED" ? "Usuario suspendido" : "Usuario activado");
+            toast.success(STATUS_ACTION_SUCCESS_MESSAGE[nextStatus]);
             await refreshOperatorUsers();
             await refreshOperatorActiveUsers();
+            setStatusChangeRequest(null);
         } catch (error: any) {
             console.error(error);
             toast.error(error.message || "Error al cambiar el estado del usuario");
+        } finally {
+            setIsChangingStatus(false);
         }
     };
+
+    // Restablece la contraseña del usuario, ya sea al valor por defecto (su
+    // DNI, mismo criterio que se usa al dar de alta un usuario nuevo en
+    // AddEditUserModal) o a una contraseña nueva definida a mano.
+    // Usa el endpoint dedicado de cambio de contraseña (el mismo que
+    // UserPersonalData.tsx): /user/update?idUser ignora el campo password al
+    // editar un usuario existente, solo lo toma en el alta.
+    const handleConfirmResetPassword = async () => {
+        if (!userToResetPassword) return;
+        if (resetPasswordMode === "custom" && !isCustomPasswordValid) return;
+        const newPassword = resetPasswordMode === "dni" ? userToResetPassword.dni?.toString() : customPassword.trim();
+        setIsResettingPassword(true);
+        try {
+            await updateData("/user/change-password?idUser", userToResetPassword.idUser, newPassword);
+            toast.success(
+                resetPasswordMode === "dni"
+                    ? "Contraseña restablecida al DNI del usuario"
+                    : "Contraseña actualizada exitosamente"
+            );
+            setUserToResetPassword(null);
+        } catch (error: any) {
+            console.error(error);
+            toast.error(error.message || "Error al restablecer la contraseña");
+        } finally {
+            setIsResettingPassword(false);
+        }
+    };
+
+    // Validación de la contraseña personalizada (solo aplica cuando se elige
+    // "Definir una nueva contraseña"; el reseteo al DNI nunca pasa por acá).
+    const trimmedCustomPassword = customPassword.trim();
+    const passwordRuleResults = getPasswordRuleResults(trimmedCustomPassword);
+    const isCustomPasswordValid = isPasswordValid(trimmedCustomPassword);
+    const isCustomPasswordInvalid = trimmedCustomPassword.length > 0 && !isCustomPasswordValid;
 
     // Columnas para ReusableTable
     const columns: TableColumnDefinition<UserRow>[] = [
@@ -156,9 +221,28 @@ const UserPage = () => {
                     editTitle="Editar usuario"
                     onEdit={() => { setSelectedUser(row); setShowModal(true); }}
                     items={[
-                        row.status === "SUSPENDED"
-                            ? { label: "Activar usuario", icon: "bi bi-check-circle", onClick: () => handleToggleStatus(row) }
-                            : { label: "Suspender usuario", icon: "bi bi-slash-circle", onClick: () => handleToggleStatus(row), variant: "danger" },
+                        ...STATUS_TRANSITION_ORDER
+                            .filter((status) => status !== row.status)
+                            .map((status) => ({
+                                label: STATUS_ACTION_CONFIG[status].label,
+                                icon: STATUS_ACTION_CONFIG[status].icon,
+                                color: STATUS_ACTION_CONFIG[status].color,
+                                onClick: () => setStatusChangeRequest({ user: row, nextStatus: status }),
+                            })),
+                        {
+                            label: "Restablecer contraseña",
+                            icon: "bi bi-key",
+                            onClick: () => {
+                                setUserToResetPassword(row);
+                                setResetPasswordMode("dni");
+                                setCustomPassword("");
+                            },
+                        },
+                        {
+                            label: "Ver facturas",
+                            icon: "bi bi-receipt",
+                            onClick: () => { setBillsUser(row); setShowBillActiveModal(true); },
+                        },
                     ]}
                 />
             ),
@@ -213,6 +297,90 @@ const UserPage = () => {
                         user={selectedUser}
                         locations={locations}
                         fees={fees}
+                    />
+
+                    {/* Confirmación de restablecer contraseña */}
+                    <ConfirmModal
+                        show={!!userToResetPassword}
+                        onHide={() => setUserToResetPassword(null)}
+                        title="Restablecer contraseña"
+                        message={
+                            userToResetPassword ? (
+                                <>
+                                    <p className="mb-3">
+                                        Restablecer la contraseña de <strong>{userToResetPassword.firstName} {userToResetPassword.lastName}</strong>:
+                                    </p>
+                                    <Form.Check
+                                        type="radio"
+                                        id="reset-password-dni"
+                                        name="resetPasswordMode"
+                                        label={`Usar su DNI (${userToResetPassword.dni})`}
+                                        checked={resetPasswordMode === "dni"}
+                                        onChange={() => setResetPasswordMode("dni")}
+                                        className="mb-2"
+                                    />
+                                    <Form.Check
+                                        type="radio"
+                                        id="reset-password-custom"
+                                        name="resetPasswordMode"
+                                        label="Definir una nueva contraseña"
+                                        checked={resetPasswordMode === "custom"}
+                                        onChange={() => setResetPasswordMode("custom")}
+                                    />
+                                    {resetPasswordMode === "custom" && (
+                                        <>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Nueva contraseña"
+                                                value={customPassword}
+                                                onChange={(e) => setCustomPassword(e.target.value)}
+                                                isInvalid={isCustomPasswordInvalid}
+                                                className="mt-2"
+                                                autoFocus
+                                            />
+                                            <ul className="list-unstyled small mt-2 mb-0">
+                                                {passwordRuleResults.map((rule) => (
+                                                    <li key={rule.key} className={rule.passed ? "text-success" : "text-muted"}>
+                                                        <i className={`bi ${rule.passed ? "bi-check-circle-fill" : "bi-circle"} me-1`}></i>
+                                                        {rule.label}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </>
+                                    )}
+                                </>
+                            ) : ""
+                        }
+                        confirmText="Restablecer"
+                        confirmVariant="warning"
+                        isLoading={isResettingPassword}
+                        loadingText="Restableciendo..."
+                        confirmDisabled={resetPasswordMode === "custom" && !isCustomPasswordValid}
+                        onConfirm={handleConfirmResetPassword}
+                    />
+
+                    {/* Confirmación de cambio de estado (solo desde el menú rápido de la fila) */}
+                    <ConfirmModal
+                        show={!!statusChangeRequest}
+                        onHide={() => setStatusChangeRequest(null)}
+                        title="Cambiar estado del usuario"
+                        message={
+                            statusChangeRequest
+                                ? `¿Cambiar el estado de ${statusChangeRequest.user.firstName} ${statusChangeRequest.user.lastName} a "${STATUS_OPTIONS.find(o => o.value === statusChangeRequest.nextStatus)?.label}"?`
+                                : ""
+                        }
+                        confirmText={statusChangeRequest ? STATUS_ACTION_CONFIG[statusChangeRequest.nextStatus].label : "Confirmar"}
+                        confirmVariant={statusChangeRequest ? STATUS_ACTION_CONFIG[statusChangeRequest.nextStatus].confirmVariant : "primary"}
+                        isLoading={isChangingStatus}
+                        loadingText="Cambiando estado..."
+                        onConfirm={handleConfirmChangeStatus}
+                    />
+
+                    {/* Facturas del usuario, acceso rápido desde el menú de la fila */}
+                    <BillActiveModal
+                        show={showBillActiveModal}
+                        onHide={() => setShowBillActiveModal(false)}
+                        user={billsUser}
                     />
                 </div>
             )}

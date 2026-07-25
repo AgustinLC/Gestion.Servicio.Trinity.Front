@@ -142,6 +142,7 @@ const UnitPage = () => {
                         }
                         confirmText="Confirmar"
                         isLoading={isDeleting}
+                        loadingText="Eliminando..."
                         onConfirm={handleDelete}
                     />
                 </div>
