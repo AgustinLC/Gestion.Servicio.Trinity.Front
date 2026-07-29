@@ -5,6 +5,7 @@ import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
 import { useForm } from "react-hook-form";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddParameterModalProps {
     show: boolean;
@@ -16,6 +17,7 @@ interface AddParameterModalProps {
 const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onSave, parameters }) => {
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario
     const {register, handleSubmit, reset, watch, setValue, formState: { errors }, } = useForm<PendigBillDetail>({
@@ -50,7 +52,7 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="add-parameter-modal-title">
+        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="add-parameter-modal-title">
             <FormModalHeader
                 icon="bi bi-journal-plus"
                 title="Agregar Concepto"

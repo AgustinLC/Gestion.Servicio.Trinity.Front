@@ -3,6 +3,7 @@ import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
     show: boolean;
@@ -15,6 +16,7 @@ const AddEditBillingParameterModal: React.FC<AddEditModalProps> = ({ show, onHid
 
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<BillingParameter>({
@@ -35,7 +37,7 @@ const AddEditBillingParameterModal: React.FC<AddEditModalProps> = ({ show, onHid
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="billing-parameter-modal-title">
+        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="billing-parameter-modal-title">
             <FormModalHeader
                 icon="bi bi-receipt"
                 title={billingParameter ? "Editar Parametro" : "Añadir Parametro"}

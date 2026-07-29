@@ -3,6 +3,7 @@ import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { FeatureDto } from "../../../core/models/dto/FeatureDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
     show: boolean;
@@ -15,6 +16,7 @@ const AddEditFeatureModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave
 
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<FeatureDto>({
@@ -35,7 +37,7 @@ const AddEditFeatureModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="feature-modal-title">
+        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="feature-modal-title">
             <FormModalHeader
                 icon="bi bi-file-break"
                 title={feature ? "Editar Función" : "Añadir Función"}

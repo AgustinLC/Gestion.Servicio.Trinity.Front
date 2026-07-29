@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { Button, Form, Spinner } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 import AddEditUserModal from "./AddEditUserModal";
+import ResetPasswordModal from "./ResetPasswordModal";
 import BillActiveModal from "../management-bill/BillActiveModal";
 import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
 import PageHeader from "../../../shared/components/PageHeader";
@@ -26,7 +27,6 @@ import { useTableFilters } from "../../../hooks/useTableFilters";
 import useAppData from "../../../hooks/useAppData";
 import { getAvatarColor } from "../../../core/utils/avatarColors";
 import { withFullName } from "../../../core/utils/userUtils";
-import { getPasswordRuleResults, isPasswordValid } from "../../../core/utils/passwordValidation";
 
 type UserRow = UserDto & { fullName: string };
 
@@ -37,8 +37,6 @@ const UserPage = () => {
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const [userToResetPassword, setUserToResetPassword] = useState<UserDto | null>(null);
     const [isResettingPassword, setIsResettingPassword] = useState(false);
-    const [resetPasswordMode, setResetPasswordMode] = useState<"dni" | "custom">("dni");
-    const [customPassword, setCustomPassword] = useState("");
     const [statusChangeRequest, setStatusChangeRequest] = useState<{ user: UserDto; nextStatus: Status } | null>(null);
     const [isChangingStatus, setIsChangingStatus] = useState(false);
     const [billsUser, setBillsUser] = useState<UserDto | null>(null);
@@ -100,17 +98,14 @@ const UserPage = () => {
         }
     );
 
-    // Manejar añadir/editar. El blanqueo de contraseña desde el formulario de
-    // edición (AddEditUserModal) llega como segundo parámetro y se manda por
-    // separado a /user/change-password?idUser, ya que /user/update?idUser
-    // ignora el campo password al editar un usuario existente.
-    const handleSave = async (user: UserDto, newPassword?: string) => {
+    // Manejar añadir/editar. El blanqueo de contraseña es una acción aparte
+    // (menú de opciones del header en AddEditUserModal, o menú de la fila),
+    // que reutiliza el mismo flujo de handleConfirmResetPassword de acá
+    // abajo — este submit ya no lo toca.
+    const handleSave = async (user: UserDto) => {
         try {
             if (user.idUser) {
                 await updateData("/user/update?idUser", user.idUser, user);
-                if (newPassword) {
-                    await updateData("/user/change-password?idUser", user.idUser, newPassword);
-                }
                 toast.success("Usuario actualizado exitosamente");
             } else {
                 await addData("/operator/register-user", user);
@@ -152,24 +147,18 @@ const UserPage = () => {
         }
     };
 
-    // Restablece la contraseña del usuario, ya sea al valor por defecto (su
-    // DNI, mismo criterio que se usa al dar de alta un usuario nuevo en
-    // AddEditUserModal) o a una contraseña nueva definida a mano.
-    // Usa el endpoint dedicado de cambio de contraseña (el mismo que
-    // UserPersonalData.tsx): /user/update?idUser ignora el campo password al
-    // editar un usuario existente, solo lo toma en el alta.
-    const handleConfirmResetPassword = async () => {
+    // Restablece la contraseña del usuario. El método (temporal random, DNI,
+    // o definida a mano) y su validación viven en ResetPasswordModal; acá
+    // solo se recibe la contraseña ya resuelta y se manda al endpoint
+    // dedicado de cambio de contraseña (el mismo que UserPersonalData.tsx):
+    // /user/update?idUser ignora el campo password al editar un usuario
+    // existente, solo lo toma en el alta.
+    const handleConfirmResetPassword = async (newPassword: string) => {
         if (!userToResetPassword) return;
-        if (resetPasswordMode === "custom" && !isCustomPasswordValid) return;
-        const newPassword = resetPasswordMode === "dni" ? userToResetPassword.dni?.toString() : customPassword.trim();
         setIsResettingPassword(true);
         try {
             await updateData("/user/change-password?idUser", userToResetPassword.idUser, newPassword);
-            toast.success(
-                resetPasswordMode === "dni"
-                    ? "Contraseña restablecida al DNI del usuario"
-                    : "Contraseña actualizada exitosamente"
-            );
+            toast.success("Contraseña restablecida exitosamente");
             setUserToResetPassword(null);
         } catch (error: any) {
             console.error(error);
@@ -178,13 +167,6 @@ const UserPage = () => {
             setIsResettingPassword(false);
         }
     };
-
-    // Validación de la contraseña personalizada (solo aplica cuando se elige
-    // "Definir una nueva contraseña"; el reseteo al DNI nunca pasa por acá).
-    const trimmedCustomPassword = customPassword.trim();
-    const passwordRuleResults = getPasswordRuleResults(trimmedCustomPassword);
-    const isCustomPasswordValid = isPasswordValid(trimmedCustomPassword);
-    const isCustomPasswordInvalid = trimmedCustomPassword.length > 0 && !isCustomPasswordValid;
 
     // Columnas para ReusableTable
     const columns: TableColumnDefinition<UserRow>[] = [
@@ -232,11 +214,7 @@ const UserPage = () => {
                         {
                             label: "Restablecer contraseña",
                             icon: "bi bi-key",
-                            onClick: () => {
-                                setUserToResetPassword(row);
-                                setResetPasswordMode("dni");
-                                setCustomPassword("");
-                            },
+                            onClick: () => setUserToResetPassword(row),
                         },
                         {
                             label: "Ver facturas",
@@ -294,68 +272,21 @@ const UserPage = () => {
                         show={showModal}
                         onHide={() => setShowModal(false)}
                         onSave={handleSave}
+                        onResetPasswordClick={() => {
+                            if (!selectedUser) return;
+                            setUserToResetPassword(selectedUser);
+                        }}
                         user={selectedUser}
                         locations={locations}
                         fees={fees}
                     />
 
-                    {/* Confirmación de restablecer contraseña */}
-                    <ConfirmModal
+                    {/* Restablecer contraseña */}
+                    <ResetPasswordModal
                         show={!!userToResetPassword}
-                        onHide={() => setUserToResetPassword(null)}
-                        title="Restablecer contraseña"
-                        message={
-                            userToResetPassword ? (
-                                <>
-                                    <p className="mb-3">
-                                        Restablecer la contraseña de <strong>{userToResetPassword.firstName} {userToResetPassword.lastName}</strong>:
-                                    </p>
-                                    <Form.Check
-                                        type="radio"
-                                        id="reset-password-dni"
-                                        name="resetPasswordMode"
-                                        label={`Usar su DNI (${userToResetPassword.dni})`}
-                                        checked={resetPasswordMode === "dni"}
-                                        onChange={() => setResetPasswordMode("dni")}
-                                        className="mb-2"
-                                    />
-                                    <Form.Check
-                                        type="radio"
-                                        id="reset-password-custom"
-                                        name="resetPasswordMode"
-                                        label="Definir una nueva contraseña"
-                                        checked={resetPasswordMode === "custom"}
-                                        onChange={() => setResetPasswordMode("custom")}
-                                    />
-                                    {resetPasswordMode === "custom" && (
-                                        <>
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="Nueva contraseña"
-                                                value={customPassword}
-                                                onChange={(e) => setCustomPassword(e.target.value)}
-                                                isInvalid={isCustomPasswordInvalid}
-                                                className="mt-2"
-                                                autoFocus
-                                            />
-                                            <ul className="list-unstyled small mt-2 mb-0">
-                                                {passwordRuleResults.map((rule) => (
-                                                    <li key={rule.key} className={rule.passed ? "text-success" : "text-muted"}>
-                                                        <i className={`bi ${rule.passed ? "bi-check-circle-fill" : "bi-circle"} me-1`}></i>
-                                                        {rule.label}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </>
-                                    )}
-                                </>
-                            ) : ""
-                        }
-                        confirmText="Restablecer"
-                        confirmVariant="warning"
+                        user={userToResetPassword}
                         isLoading={isResettingPassword}
-                        loadingText="Restableciendo..."
-                        confirmDisabled={resetPasswordMode === "custom" && !isCustomPasswordValid}
+                        onHide={() => setUserToResetPassword(null)}
                         onConfirm={handleConfirmResetPassword}
                     />
 

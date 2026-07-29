@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Modal, Button, Dropdown } from "react-bootstrap";
 import useAuth from "../../../hooks/useAuth";
 import { useSidebar } from "../../../context/SidebarContext";
+import { useModalLayer } from "../../../context/ModalStackContext";
 import logo from "../../../assets/img/logoNavbar.svg";
 
 // Etiquetas legibles y accesos rápidos según el rol autenticado
@@ -18,6 +19,7 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const logoutModalZIndex = useModalLayer(showLogoutModal);
   const { toggleSidebar } = useSidebar();
   const navRef = useRef<HTMLElement>(null);
 
@@ -180,7 +182,7 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* Modal de confirmación de cierre de sesión */}
-      <Modal show={showLogoutModal} onHide={() => setShowLogoutModal(false)} centered>
+      <Modal show={showLogoutModal} onHide={() => setShowLogoutModal(false)} centered backdrop={false} style={{ zIndex: logoutModalZIndex }}>
         <Modal.Header closeButton>
           <Modal.Title>
             <i className="bi bi-box-arrow-left me-2 text-danger"></i>Cerrar sesión

@@ -13,6 +13,7 @@ import HintBox from "../../../shared/components/hint-box/HintBox";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import RowActions from "../../../shared/components/table/RowActions";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface BillActiveModalProps {
     show: boolean;
@@ -33,6 +34,9 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     const [billToUpdate, setBillToUpdate] = useState<BillDetailsDto | null>(null);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedStatus, setSelectedStatus] = useState<PaymentStatus | null>(null);
+    const modalZIndex = useModalLayer(show);
+    const paymentModalZIndex = useModalLayer(showPaymentModal);
+    const confirmStatusModalZIndex = useModalLayer(showConfirmStatusModal);
 
     // Ref para el generador de PDF
     const pdfGeneratorRef = useRef<BillPdfGeneratorRef>(null);
@@ -251,7 +255,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
 
     return (
         <>
-            <Modal show={show} onHide={onHide} size="xl" centered scrollable dialogClassName="bill-active-modal-dialog" contentClassName="form-modal-content" aria-labelledby="bill-active-modal-title">
+            <Modal show={show} onHide={onHide} size="xl" centered scrollable backdrop={false} style={{ zIndex: modalZIndex }} dialogClassName="bill-active-modal-dialog" contentClassName="form-modal-content" aria-labelledby="bill-active-modal-title">
                 <FormModalHeader
                     icon="bi bi-file-earmark-spreadsheet"
                     title={`Facturas Activas - ${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
@@ -340,7 +344,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
             />
 
             {/* Modal para seleccionar tipo de pago */}
-            <Modal show={showPaymentModal} onHide={() => setShowPaymentModal(false)} centered contentClassName="form-modal-content" aria-labelledby="payment-status-modal-title">
+            <Modal show={showPaymentModal} onHide={() => setShowPaymentModal(false)} centered backdrop={false} style={{ zIndex: paymentModalZIndex }} contentClassName="form-modal-content" aria-labelledby="payment-status-modal-title">
                 <FormModalHeader
                     icon="bi bi-credit-card"
                     title="Seleccionar estado de pago"
@@ -383,7 +387,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
             </Modal>
 
             {/* Modal de confirmación */}
-            <Modal show={showConfirmStatusModal} onHide={() => setShowConfirmStatusModal(false)} centered contentClassName="form-modal-content" aria-labelledby="confirm-status-modal-title">
+            <Modal show={showConfirmStatusModal} onHide={() => setShowConfirmStatusModal(false)} centered backdrop={false} style={{ zIndex: confirmStatusModalZIndex }} contentClassName="form-modal-content" aria-labelledby="confirm-status-modal-title">
                 <FormModalHeader
                     icon="bi bi-question-circle"
                     title="Confirmar cambio de estado"

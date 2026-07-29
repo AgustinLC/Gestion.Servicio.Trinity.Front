@@ -53,3 +53,12 @@ export const STATUS_ACTION_SUCCESS_MESSAGE: Record<Status, string> = {
 // Orden en que se ofrecen las acciones de cambio de estado en el menú
 // (se filtra el estado actual del usuario, quedan las otras dos).
 export const STATUS_TRANSITION_ORDER: Status[] = [Status.ACTIVE, Status.SUSPENDED, Status.INACTIVE];
+
+// Explicación en lenguaje llano de qué implica cada estado para el usuario,
+// para mostrar como leyenda debajo del selector de estado en el formulario
+// (StatusSegmentedControl). Reglas de negocio confirmadas por el cliente.
+export const STATUS_DESCRIPTIONS: Record<Status, string> = {
+    [Status.ACTIVE]: "Puede iniciar sesión y gestionar su cuenta con normalidad.",
+    [Status.SUSPENDED]: "Puede gestionar su cuenta, pero solo se le cobra un 30% de la tarifa para no perder el servicio.",
+    [Status.INACTIVE]: "No puede iniciar sesión, no se le genera lecturas ni facturas.",
+};

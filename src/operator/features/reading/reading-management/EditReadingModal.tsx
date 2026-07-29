@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../../context/ModalStackContext";
 
 interface EditReadingModalProps {
     show: boolean;
@@ -17,13 +18,14 @@ interface EditReadingModalProps {
 
 const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, reading, onSubmit }) => {
     const [readingValue, setReadingValue] = useState(reading.reading);
+    const modalZIndex = useModalLayer(show);
 
     const handleSubmit = () => {
         onSubmit(readingValue);
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="edit-reading-modal-title">
+        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="edit-reading-modal-title">
             <FormModalHeader
                 icon="bi bi-speedometer2"
                 title="Editar Lectura"

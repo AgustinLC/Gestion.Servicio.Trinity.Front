@@ -48,6 +48,7 @@ import ReadingControlPage from "./operator/features/reading/reading-control/Read
 import DebtControlPage from "./admin/features/balance/DebtControlPage";
 import PdfParametersPage from "./admin/features/pdf-parameters/PdfParametersPage";
 import { SidebarProvider } from "./context/SidebarContext";
+import { ModalStackProvider } from "./context/ModalStackContext";
 import CustomScrollbar from "./shared/components/custom-scrollbar/CustomScrollbar";
 
 const AppContent: React.FC = () => {
@@ -70,6 +71,7 @@ const AppContent: React.FC = () => {
   const shouldShowFooter = showFooterPaths.includes(location.pathname) || isNotFoundPage;
 
   return (
+    <ModalStackProvider>
     <SidebarProvider>
       {/* Barra de navegacion */}
       <Navbar />
@@ -149,6 +151,7 @@ const AppContent: React.FC = () => {
         draggable
       />
     </SidebarProvider>
+    </ModalStackProvider>
   );
 };
 

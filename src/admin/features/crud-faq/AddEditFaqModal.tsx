@@ -3,6 +3,7 @@ import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { FaqDto } from "../../../core/models/dto/FaqDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
     show: boolean;
@@ -15,6 +16,7 @@ const AddEditFaqModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, fa
 
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<FaqDto>({
@@ -35,7 +37,7 @@ const AddEditFaqModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, fa
     };
 
     return (
-        <Modal show={show} onHide={onHide} size="lg" centered contentClassName="form-modal-content" aria-labelledby="faq-modal-title">
+        <Modal show={show} onHide={onHide} size="lg" centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="faq-modal-title">
             <FormModalHeader
                 icon="bi bi-question-circle"
                 title={faq ? "Editar Faq" : "Añadir Faq"}

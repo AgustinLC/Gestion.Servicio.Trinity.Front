@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../../context/ModalStackContext";
 
 // Interfaces/modelos
 interface AddReadingModalProps {
@@ -19,6 +20,7 @@ const AddReadingModal: React.FC<AddReadingModalProps> = ({ show, onHide, onSave 
 
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const modalZIndex = useModalLayer(show);
 
     //Props para manejar el modal
     const { register, handleSubmit, formState: { errors }, reset, } = useForm<ReadingForm>();
@@ -37,7 +39,7 @@ const AddReadingModal: React.FC<AddReadingModalProps> = ({ show, onHide, onSave 
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="add-reading-modal-title">
+        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="add-reading-modal-title">
             <FormModalHeader
                 icon="bi bi-speedometer2"
                 title="Cargar Lectura"

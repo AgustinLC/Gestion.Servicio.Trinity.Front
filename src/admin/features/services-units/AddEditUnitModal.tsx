@@ -3,6 +3,7 @@ import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { Unit } from "../../../core/models/dto/Unit";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
     show: boolean;
@@ -15,6 +16,7 @@ const AddEditUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, u
 
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<Unit>({
@@ -35,7 +37,7 @@ const AddEditUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, u
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="unit-modal-title">
+        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="unit-modal-title">
             <FormModalHeader
                 icon="bi bi-rulers"
                 title={unit ? "Editar Unidad" : "Añadir Unidad"}

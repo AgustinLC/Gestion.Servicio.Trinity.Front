@@ -1,5 +1,6 @@
 import { Modal, Button, ModalProps } from "react-bootstrap";
 import FormModalHeader from "../form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 // Ícono por defecto según la variante, para no tener que pasarlo en cada uso.
 const DEFAULT_VARIANT_ICON: Record<string, string> = {
@@ -42,13 +43,15 @@ const ConfirmModal = ({
 }: ConfirmModalProps) => {
 
     const handleCancel = onCancel || (() => props.onHide?.());
+    const modalZIndex = useModalLayer(props.show ?? false);
 
     // Render
     return (
         <Modal
             {...props}
             centered
-            backdrop="static"
+            backdrop={false}
+            style={{ zIndex: modalZIndex }}
             contentClassName="form-modal-content"
             aria-labelledby="confirm-modal-title"
             aria-describedby="confirm-modal-description"

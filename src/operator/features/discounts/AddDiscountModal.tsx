@@ -7,6 +7,7 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 import { ApplyCondition } from "../../../core/models/dto/ApplyCondition";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddDiscountModalProps {
     show: boolean;
@@ -22,6 +23,7 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
     const [assigning, setAssigning] = useState(false);
     const [selectedDiscountId, setSelectedDiscountId] = useState<number | null>(null);
     const [amount, setAmount] = useState<number>(0);
+    const modalZIndex = useModalLayer(show);
 
     useEffect(() => {
         if (show) {
@@ -109,7 +111,7 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="add-discount-modal-title">
+        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="add-discount-modal-title">
             <FormModalHeader
                 icon="bi bi-plus-slash-minus"
                 title="Agregar Descuento"

@@ -6,6 +6,7 @@ import { getData, updateData, deleteData } from "../../../core/services/apiServi
 import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface UserParametersModalProps {
     show: boolean;
@@ -29,6 +30,7 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
     const [saving, setSaving] = useState(false);
     const [sortAsc, setSortAsc] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
+    const modalZIndex = useModalLayer(show);
 
     // Constantes
     const itemsPerPage = 5;
@@ -130,7 +132,7 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
 
     return (
         <>
-            <Modal show={show} size="lg" onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="user-parameters-modal-title">
+            <Modal show={show} size="lg" onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="user-parameters-modal-title">
                 <FormModalHeader
                     icon="bi bi-journal-plus"
                     title={`Conceptos de ${userName}`}

@@ -5,6 +5,7 @@ import { ServiceUnitDto } from "../../../core/models/dto/ServiceUnitDto";
 import { Service } from "../../../core/models/dto/Service";
 import { Unit } from "../../../core/models/dto/Unit";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
     show: boolean;
@@ -19,6 +20,7 @@ const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, on
 
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<ServiceUnitDto>({
@@ -39,7 +41,7 @@ const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, on
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="service-unit-modal-title">
+        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="service-unit-modal-title">
             <FormModalHeader
                 icon="bi bi-calculator"
                 title={serviceUnit ? "Editar Relación Servicio/Unidad" : "Añadir Relación Servicio/Unidad"}

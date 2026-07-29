@@ -26,3 +26,32 @@ export function getPasswordRuleResults(value: string): (PasswordRule & { passed:
 export function isPasswordValid(value: string): boolean {
     return PASSWORD_RULES.every((rule) => rule.test(value));
 }
+
+// Genera una contraseña temporal random que cumple PASSWORD_RULES por
+// construcción (un carácter de cada categoría + relleno, después mezclado).
+// Se excluyen caracteres ambiguos (I/O/0/1) para que sea más fácil de
+// transcribir a mano si el operador se la tiene que dictar al usuario.
+const TEMP_PASSWORD_UPPERCASE = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+const TEMP_PASSWORD_LOWERCASE = "abcdefghijkmnpqrstuvwxyz";
+const TEMP_PASSWORD_NUMBERS = "23456789";
+const TEMP_PASSWORD_SPECIALS = "!@#$%&*?";
+
+export function generateSecurePassword(length = 10): string {
+    const pick = (chars: string) => chars[Math.floor(Math.random() * chars.length)];
+    const allChars = TEMP_PASSWORD_UPPERCASE + TEMP_PASSWORD_LOWERCASE + TEMP_PASSWORD_NUMBERS + TEMP_PASSWORD_SPECIALS;
+
+    const required = [
+        pick(TEMP_PASSWORD_UPPERCASE),
+        pick(TEMP_PASSWORD_LOWERCASE),
+        pick(TEMP_PASSWORD_NUMBERS),
+        pick(TEMP_PASSWORD_SPECIALS),
+    ];
+    const filler = Array.from({ length: Math.max(0, length - required.length) }, () => pick(allChars));
+
+    const chars = [...required, ...filler];
+    for (let i = chars.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+    return chars.join("");
+}

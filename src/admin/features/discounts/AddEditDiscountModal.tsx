@@ -3,6 +3,7 @@ import { DiscountDto } from "../../../core/models/dto/Discount";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
     show: boolean;
@@ -15,6 +16,7 @@ const AddEditDiscountModal: React.FC<AddEditModalProps> = ({ show, onHide, onSav
 
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const modalZIndex = useModalLayer(show);
 
     // Props para manejar el mdoal 
     const { register, handleSubmit, formState: { errors }, reset } = useForm<DiscountDto>({
@@ -35,7 +37,7 @@ const AddEditDiscountModal: React.FC<AddEditModalProps> = ({ show, onHide, onSav
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="discount-modal-title">
+        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="discount-modal-title">
             <FormModalHeader
                 icon="bi bi-plus-slash-minus"
                 title={discount ? "Editar Descuento" : "Añadir Descuento"}

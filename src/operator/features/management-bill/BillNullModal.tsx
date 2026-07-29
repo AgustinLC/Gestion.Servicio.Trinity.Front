@@ -11,6 +11,7 @@ import HintBox from "../../../shared/components/hint-box/HintBox";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import RowActions from "../../../shared/components/table/RowActions";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface BillNullModalProps {
     show: boolean;
@@ -25,6 +26,7 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
     const [loading, setLoading] = useState(false);
     const [pdfLoading, setPdfLoading] = useState(false);
     const [selectedBill, setSelectedBill] = useState<BillDetailsDto | null>(null);
+    const modalZIndex = useModalLayer(show);
 
     // Ref para el generador de PDF
     const pdfGeneratorRef = useRef<BillPdfGeneratorRef>(null);
@@ -115,7 +117,7 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
     // Render
     return (
         <>
-            <Modal show={show} onHide={onHide} size="xl" centered scrollable contentClassName="form-modal-content" aria-labelledby="bill-null-modal-title">
+            <Modal show={show} onHide={onHide} size="xl" centered scrollable backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="bill-null-modal-title">
                 <FormModalHeader
                     icon="bi bi-file-earmark-x"
                     title={`Facturas Anuladas - ${user?.firstName ?? ""} ${user?.lastName ?? ""}`}

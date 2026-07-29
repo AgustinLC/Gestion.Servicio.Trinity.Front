@@ -3,6 +3,7 @@ import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { FeeDto } from "../../../core/models/dto/FeeDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
     show: boolean;
@@ -15,6 +16,7 @@ const AddEditFeeModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, fe
 
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<FeeDto>({
@@ -35,7 +37,7 @@ const AddEditFeeModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, fe
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="fee-modal-title">
+        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="fee-modal-title">
             <FormModalHeader
                 icon="bi bi-clipboard2-pulse"
                 title={fee ? "Editar Tarifa" : "Añadir Tarifa"}

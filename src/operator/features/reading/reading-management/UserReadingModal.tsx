@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { getData, updateData } from "../../../../core/services/apiService";
 import { ReadReadingDto } from "../../../../core/models/dto/ReadReadingDto";
 import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../../context/ModalStackContext";
 
 interface UserReadingsModalProps {
     show: boolean;
@@ -24,6 +25,7 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
     const [sortAsc, setSortAsc] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
+    const modalZIndex = useModalLayer(show);
 
     // Constantes
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -83,7 +85,7 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
 
     // Render
     return (
-        <Modal show={show} onHide={onHide} centered size="lg" contentClassName="form-modal-content" aria-labelledby="user-reading-modal-title">
+        <Modal show={show} onHide={onHide} centered size="lg" backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="user-reading-modal-title">
             <FormModalHeader
                 icon="bi bi-speedometer2"
                 title={`Lecturas de ${userName}`}

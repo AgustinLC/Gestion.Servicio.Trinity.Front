@@ -3,6 +3,7 @@ import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
     show: boolean;
@@ -15,6 +16,7 @@ const AddEditAdministratorModal: React.FC<AddEditModalProps> = ({ show, onHide, 
 
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario 
     const { register, handleSubmit, reset, formState: { errors }, setValue } = useForm<UserDto>({
@@ -47,7 +49,7 @@ const AddEditAdministratorModal: React.FC<AddEditModalProps> = ({ show, onHide, 
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="administrator-modal-title">
+        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="administrator-modal-title">
             <FormModalHeader
                 icon={administrator ? "bi bi-person-gear" : "bi bi-person-add"}
                 title={administrator ? "Editar Administrador" : "Añadir Administrador"}

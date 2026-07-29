@@ -9,6 +9,7 @@ import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import AddDiscountModal from "./AddDiscountModal";
 import { ApplyCondition } from "../../../core/models/dto/ApplyCondition";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface ShowDiscountUserModalProps {
     show: boolean;
@@ -33,6 +34,7 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
     const [sortAsc, setSortAsc] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [showAddModal, setShowAddModal] = useState(false);
+    const modalZIndex = useModalLayer(show);
 
     // Constantes
     const itemsPerPage = 5;
@@ -142,7 +144,7 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
 
     return (
         <>
-            <Modal show={show} size="lg" onHide={onHide} centered contentClassName="form-modal-content" aria-labelledby="show-discount-modal-title">
+            <Modal show={show} size="lg" onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="show-discount-modal-title">
                 <FormModalHeader
                     icon="bi bi-plus-slash-minus"
                     title={`Descuentos de ${displayUserName}`}

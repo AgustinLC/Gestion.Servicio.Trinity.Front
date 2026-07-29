@@ -6,15 +6,15 @@ import { LocationDto } from "../../../core/models/dto/LocationDto";
 import { FeeDto } from "../../../core/models/dto/FeeDto";
 import { Status } from "../../../core/models/dto/Status";
 import statusLabels from "../../../shared/components/labels-traductor/statusLabels";
-import { STATUS_BADGE_CLASS, STATUS_DOT_COLORS, STATUS_OPTIONS } from "../../../shared/components/labels-traductor/statusStyles";
-import DotDropdown from "../../../shared/components/dot-dropdown/DotDropdown";
+import { STATUS_BADGE_CLASS, STATUS_DESCRIPTIONS, STATUS_DOT_COLORS } from "../../../shared/components/labels-traductor/statusStyles";
+import StatusSegmentedControl from "../../../shared/components/status-segmented/StatusSegmentedControl";
 import { getAvatarColor } from "../../../core/utils/avatarColors";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FormSectionHeader from "../../../shared/components/form-section-header/FormSectionHeader";
 import HintBox from "../../../shared/components/hint-box/HintBox";
 import "./AddEditUserModal.css";
 import { formatDate } from "../../../core/utils/formatters";
-import { getPasswordRuleResults, isPasswordValid } from "../../../core/utils/passwordValidation";
+import { useModalLayer } from "../../../context/ModalStackContext";
 
 // Sobrescribimos los 3 campos para que en el formulario sean strings
 type FormValues = Omit<UserDto, "digitalInvoiceAdhered" | "ivaInvoiceAdhered" | "pdfInvoiceAdhered"> & {
@@ -26,18 +26,17 @@ type FormValues = Omit<UserDto, "digitalInvoiceAdhered" | "ivaInvoiceAdhered" | 
 interface AddEditModalProps {
   show: boolean;
   onHide: () => void;
-  onSave: (user: UserDto, newPassword?: string) => Promise<void>;
+  onSave: (user: UserDto) => Promise<void>;
+  onResetPasswordClick?: () => void;
   user?: UserDto | any;
   locations: LocationDto[];
   fees: FeeDto[];
 }
 
-const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user, locations, fees }) => {
-  
+const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onResetPasswordClick, user, locations, fees }) => {
+
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [resetPassword, setResetPassword] = useState(false);
-  const [passwordMode, setPasswordMode] = useState<"dni" | "custom">("dni");
-  const [customPassword, setCustomPassword] = useState("");
+  const modalZIndex = useModalLayer(show);
   const {
     register,
     handleSubmit,
@@ -82,13 +81,6 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
     } else {
       reset({});
     }
-
-    // El blanqueo de contraseña siempre arranca "apagado" al abrir el modal
-    // (para un usuario nuevo o distinto), así nunca se dispara sin que el
-    // operador lo pida explícitamente.
-    setResetPassword(false);
-    setPasswordMode("dni");
-    setCustomPassword("");
   }, [user, reset, setValue]);
 
   useEffect(() => {
@@ -113,24 +105,16 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
       }
 
       // El alta de usuario sí acepta password en el mismo payload (endpoint
-      // /operator/register-user). La edición, en cambio, lo ignora ahí: se
-      // manda por separado a /user/change-password?idUser (ver handleSave en
-      // UserPage.tsx), por eso se saca del payload general.
-      let newPasswordToSet: string | undefined;
+      // /operator/register-user). La edición no lo toca: el blanqueo de
+      // contraseña es una acción aparte, disponible desde el menú de
+      // opciones del header (onResetPasswordClick), no desde este submit.
       if (!user) {
         payload.password = payload.dni?.toString();
-      } else if (resetPassword) {
-        const candidate = passwordMode === "dni" ? payload.dni?.toString() : customPassword.trim();
-        if (passwordMode === "custom" && !isPasswordValid(candidate)) {
-          return;
-        }
-        newPasswordToSet = candidate;
-        delete payload.password;
       } else {
         delete payload.password;
       }
 
-      await onSave(payload as UserDto, newPasswordToSet);
+      await onSave(payload as UserDto);
       reset();
     } catch (error) {
       console.error(error);
@@ -140,7 +124,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
   };
 
   return (
-    <Modal show={show} onHide={onHide} size="xl" centered scrollable contentClassName="user-modal-content" backdropClassName="user-modal-backdrop" aria-labelledby="user-modal-title">
+    <Modal show={show} onHide={onHide} size="xl" centered scrollable backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="user-modal-content" aria-labelledby="user-modal-title">
       <FormModalHeader
         icon={user ? "bi bi-person-gear" : "bi bi-person-add"}
         title={user ? "Editar Usuario" : "Añadir Usuario"}
@@ -149,6 +133,11 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
           : "Completá los datos para registrar un nuevo usuario."}
         onClose={onHide}
         titleId="user-modal-title"
+        actions={
+          user && onResetPasswordClick
+            ? [{ label: "Restablecer contraseña", icon: "bi bi-key", onClick: onResetPasswordClick }]
+            : undefined
+        }
       />
 
       <Modal.Body>
@@ -198,7 +187,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
           {/* --- Información personal | Domicilio (lado a lado para evitar scroll vertical) --- */}
           <Row>
             <Col md={6}>
-              <FormSectionHeader icon="bi bi-person" title="Información personal" />
+              <FormSectionHeader icon="bi bi-person" title="Información personal" subtitle="Datos de contacto e identificación del usuario." />
 
               <Row>
                 <Col sm={6}>
@@ -253,7 +242,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
             </Col>
 
             <Col md={6}>
-              <FormSectionHeader icon="bi bi-geo-alt" title="Domicilio" />
+              <FormSectionHeader icon="bi bi-geo-alt" title="Domicilio" subtitle="Dirección donde se presta el servicio." />
 
               <Row>
                 <Col sm={6}>
@@ -320,172 +309,126 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
             </Col>
           </Row>
 
-          {/* --- Configuración | Estado y contraseña (lado a lado) --- */}
+          {/* --- Configuración | Estado y contraseña (lado a lado). Al crear
+              un usuario nuevo el estado no se puede elegir (arranca ACTIVO
+              por defecto), así que esa columna ni se muestra: Configuración
+              pasa a ocupar el ancho completo en vez de dejar un hueco vacío. --- */}
           <Row>
-            <Col md={6}>
-              <FormSectionHeader icon="bi bi-gear" title="Configuración" className="mt-1" />
+            <Col md={user ? 6 : 12}>
+              <div className="form-section-panel mt-1">
+                <FormSectionHeader icon="bi bi-gear" title="Configuración" subtitle="Tarifa y preferencias de facturación del servicio." />
 
-              <Row>
-                <Col sm={6}>
-                  <Form.Group className="mb-2">
-                    <Form.Label>Tarifa <span className="text-danger">*</span></Form.Label>
-                    <Form.Select {...register("residenceDto.idFee", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.idFee}>
-                      <option value="">Seleccione una tarifa</option>
-                      {fees.map((fee) => (
-                        <option key={fee.idFee} value={fee.idFee}>
-                          {fee.name}
-                        </option>
-                      ))}
-                    </Form.Select>
-                    <Form.Control.Feedback type="invalid">{errors.residenceDto?.idFee?.message}</Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
+                <Row>
+                  <Col sm={6}>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Tarifa <span className="text-danger">*</span></Form.Label>
+                      <Form.Select {...register("residenceDto.idFee", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.idFee}>
+                        <option value="">Seleccione una tarifa</option>
+                        {fees.map((fee) => (
+                          <option key={fee.idFee} value={fee.idFee}>
+                            {fee.name}
+                          </option>
+                        ))}
+                      </Form.Select>
+                      <Form.Control.Feedback type="invalid">{errors.residenceDto?.idFee?.message}</Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
 
-                <Col sm={6}>
-                  <Form.Group className="mb-2">
-                    <Form.Label>Enviar boleta al correo <span className="text-danger">*</span></Form.Label>
-                    <Controller
-                      control={control}
-                      name="digitalInvoiceAdhered"
-                      rules={{ required: "Este campo es obligatorio" }}
-                      defaultValue={""} // ahora es string y coincide con FormValues
-                      render={({ field }) => (
-                        <Form.Select {...field} isInvalid={!!errors.digitalInvoiceAdhered}>
-                          <option value="">Seleccione una opción</option>
-                          <option value="true">Sí</option>
-                          <option value="false">No</option>
-                        </Form.Select>
-                      )}
-                    />
-                    <Form.Control.Feedback type="invalid">{errors.digitalInvoiceAdhered?.message}</Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-              </Row>
+                  <Col sm={6}>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Enviar boleta al correo <span className="text-danger">*</span></Form.Label>
+                      <Controller
+                        control={control}
+                        name="digitalInvoiceAdhered"
+                        rules={{ required: "Este campo es obligatorio" }}
+                        defaultValue={""} // ahora es string y coincide con FormValues
+                        render={({ field }) => (
+                          <Form.Select {...field} isInvalid={!!errors.digitalInvoiceAdhered}>
+                            <option value="">Seleccione una opción</option>
+                            <option value="true">Sí</option>
+                            <option value="false">No</option>
+                          </Form.Select>
+                        )}
+                      />
+                      <Form.Control.Feedback type="invalid">{errors.digitalInvoiceAdhered?.message}</Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                </Row>
 
-              <Row>
-                <Col sm={6}>
-                  <Form.Group className="mb-2">
-                    <Form.Label>Generar PDF de facturas <span className="text-danger">*</span></Form.Label>
-                    <Controller
-                      control={control}
-                      name="pdfInvoiceAdhered"
-                      rules={{ required: "Este campo es obligatorio" }}
-                      defaultValue={""} // string
-                      render={({ field }) => (
-                        <Form.Select {...field} isInvalid={!!errors.pdfInvoiceAdhered}>
-                          <option value="">Seleccione una opción</option>
-                          <option value="true">Sí</option>
-                          <option value="false">No</option>
-                        </Form.Select>
-                      )}
-                    />
-                    <Form.Control.Feedback type="invalid">{errors.pdfInvoiceAdhered?.message}</Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
+                <Row>
+                  <Col sm={6}>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Generar PDF de facturas <span className="text-danger">*</span></Form.Label>
+                      <Controller
+                        control={control}
+                        name="pdfInvoiceAdhered"
+                        rules={{ required: "Este campo es obligatorio" }}
+                        defaultValue={""} // string
+                        render={({ field }) => (
+                          <Form.Select {...field} isInvalid={!!errors.pdfInvoiceAdhered}>
+                            <option value="">Seleccione una opción</option>
+                            <option value="true">Sí</option>
+                            <option value="false">No</option>
+                          </Form.Select>
+                        )}
+                      />
+                      <Form.Control.Feedback type="invalid">{errors.pdfInvoiceAdhered?.message}</Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
 
-                <Col sm={6}>
-                  <Form.Group className="mb-2">
-                    <Form.Label>Calcular IVA al consumo total <span className="text-danger">*</span></Form.Label>
-                    <Controller
-                      control={control}
-                      name="ivaInvoiceAdhered"
-                      rules={{ required: "Este campo es obligatorio" }}
-                      defaultValue={""} // string
-                      render={({ field }) => (
-                        <Form.Select {...field} isInvalid={!!errors.ivaInvoiceAdhered}>
-                          <option value="">Seleccione una opción</option>
-                          <option value="true">Sí</option>
-                          <option value="false">No</option>
-                        </Form.Select>
-                      )}
-                    />
-                    <Form.Control.Feedback type="invalid">{errors.ivaInvoiceAdhered?.message}</Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-              </Row>
+                  <Col sm={6}>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Calcular IVA al consumo total <span className="text-danger">*</span></Form.Label>
+                      <Controller
+                        control={control}
+                        name="ivaInvoiceAdhered"
+                        rules={{ required: "Este campo es obligatorio" }}
+                        defaultValue={""} // string
+                        render={({ field }) => (
+                          <Form.Select {...field} isInvalid={!!errors.ivaInvoiceAdhered}>
+                            <option value="">Seleccione una opción</option>
+                            <option value="true">Sí</option>
+                            <option value="false">No</option>
+                          </Form.Select>
+                        )}
+                      />
+                      <Form.Control.Feedback type="invalid">{errors.ivaInvoiceAdhered?.message}</Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </div>
             </Col>
 
-            <Col md={6}>
-              <FormSectionHeader icon="bi bi-shield-lock" title="Estado y contraseña" className="mt-1" />
+            {user && (
+              <Col md={6}>
+                <div className="form-section-panel mt-1">
+                  <FormSectionHeader
+                    icon="bi bi-toggle2-on"
+                    title="Estado del usuario"
+                    subtitle="Definí el estado actual del usuario en el sistema."
+                  />
 
-              {user && (
-                <Row>
-                  <Col sm={12}>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Estado del usuario <span className="text-danger">*</span></Form.Label>
+                  <div className="form-section-panel-content">
+                    <Form.Group className="mb-0">
                       <Controller
                         control={control}
                         name="status"
                         rules={{ required: "Este campo es obligatorio" }}
                         render={({ field }) => (
-                          <DotDropdown
-                            options={STATUS_OPTIONS}
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
+                          <>
+                            <StatusSegmentedControl value={field.value as Status} onChange={field.onChange} />
+                            {field.value && (
+                              <HintBox className="mt-3">{STATUS_DESCRIPTIONS[field.value as Status]}</HintBox>
+                            )}
+                          </>
                         )}
                       />
                       {errors.status && <div className="text-danger small mt-1">{errors.status.message}</div>}
                     </Form.Group>
-                  </Col>
-                </Row>
-              )}
-
-              {user && (
-                <>
-                  <Form.Check
-                    type="checkbox"
-                    id="reset-password-toggle"
-                    label="Blanquear contraseña del usuario"
-                    checked={resetPassword}
-                    onChange={(e) => setResetPassword(e.target.checked)}
-                    className="mb-2"
-                  />
-
-                  {resetPassword && (
-                    <div className="ms-1">
-                      <Form.Check
-                        type="radio"
-                        id="edit-password-dni"
-                        name="editPasswordMode"
-                        label={`Usar su DNI (${user.dni})`}
-                        checked={passwordMode === "dni"}
-                        onChange={() => setPasswordMode("dni")}
-                        className="mb-2"
-                      />
-                      <Form.Check
-                        type="radio"
-                        id="edit-password-custom"
-                        name="editPasswordMode"
-                        label="Definir una nueva contraseña"
-                        checked={passwordMode === "custom"}
-                        onChange={() => setPasswordMode("custom")}
-                      />
-                      {passwordMode === "custom" && (
-                        <>
-                          <Form.Control
-                            type="text"
-                            placeholder="Nueva contraseña"
-                            value={customPassword}
-                            onChange={(e) => setCustomPassword(e.target.value)}
-                            isInvalid={customPassword.trim().length > 0 && !isPasswordValid(customPassword.trim())}
-                            className="mt-2"
-                          />
-                          <ul className="list-unstyled small mt-2 mb-0">
-                            {getPasswordRuleResults(customPassword.trim()).map((rule) => (
-                              <li key={rule.key} className={rule.passed ? "text-success" : "text-muted"}>
-                                <i className={`bi ${rule.passed ? "bi-check-circle-fill" : "bi-circle"} me-1`}></i>
-                                {rule.label}
-                              </li>
-                            ))}
-                          </ul>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
-            </Col>
+                  </div>
+                </div>
+              </Col>
+            )}
           </Row>
 
           <div className="form-modal-footer d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -501,7 +444,7 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, user,
               <Button
                 variant="primary"
                 type="submit"
-                disabled={isSubmitting || (resetPassword && passwordMode === "custom" && !isPasswordValid(customPassword.trim()))}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <>

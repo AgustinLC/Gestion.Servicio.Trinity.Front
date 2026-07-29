@@ -931,6 +931,22 @@ button:disabled,
   max-width: 95vw;
 }
 
+/* Backdrop único y compartido para toda la app (ver
+   src/context/ModalStackContext.tsx): reemplaza el de cada <Modal>
+   individual (backdrop={false}), así con N modales apilados se sigue
+   pintando un solo <div> en vez de N. */
+.shared-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.5);
+  animation: shared-modal-backdrop-fade-in 0.15s ease-out;
+}
+
+@keyframes shared-modal-backdrop-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .form-modal-header {
   padding: 1.25rem 1.5rem 1rem;
   border-bottom: 1px solid rgba(226, 232, 240, 0.8);
@@ -968,6 +984,13 @@ button:disabled,
 .modal-close-btn:hover {
   background: #f1f5f9;
   color: #1e293b;
+}
+
+/* .modal-close-btn también se usa como Dropdown.Toggle para el menú de
+   opciones del header (ver FormModalHeader); sin esto Bootstrap le agrega
+   el caret triangular por defecto. */
+.modal-close-btn.dropdown-toggle::after {
+  display: none;
 }
 
 /* Caja de aviso/nota (ícono + texto sobre fondo celeste pastel): usada en
@@ -1111,6 +1134,174 @@ button:disabled,
   width: 7px;
   height: 7px;
   border-radius: 50%;
+}
+
+/* Selector de Estado del usuario en 3 botones (StatusSegmentedControl):
+   estado inactivo = tarjeta blanca neutra; el color de fondo/texto/borde del
+   activo lo pone el badge-soft-* correspondiente (ver STATUS_BADGE_CLASS),
+   así queda consistente con el resto de los chips de estado del sistema. */
+.status-segmented-control {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.status-segmented-option {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.5rem;
+  border: 1.5px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--btn-border-radius);
+  background-color: #ffffff;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: var(--transition-smooth);
+}
+
+.status-segmented-option:hover {
+  border-color: rgba(0, 119, 255, 0.35);
+}
+
+.status-segmented-option.active {
+  border-width: 1.5px;
+}
+
+/* Wrapper con padding uniforme para las 2 columnas de una fila de secciones
+   (ej. "Configuración" | "Estado del usuario" en AddEditUserModal). Se
+   aplica IGUAL en ambas columnas a propósito: así el ícono+título de las dos
+   arrancan siempre a la misma altura sin necesidad de ir calculando/ajustando
+   un offset a mano por cada combinación de textos (que se rompe apenas el
+   subtítulo de un lado ocupa distinta cantidad de líneas que el otro en
+   pantallas angostas). Sin color de fondo: solo resuelve el alineado. */
+.form-section-panel {
+  padding: 1rem 1.25rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Envuelve el contenido de un .form-section-panel que sea más corto que su
+   par (ej. los 3 botones de Estado del usuario vs. las 2 filas de campos de
+   Configuración): crece para ocupar el espacio sobrante debajo del header y
+   centra su contenido ahí, adaptándose a lo que mida el otro lado en cada
+   pantalla en vez de un margin fijo calculado a mano. */
+.form-section-panel-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* --- ResetPasswordModal: tarjetas de método (radio + ícono + texto) --- */
+.reset-method-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.reset-method-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  border: 1.5px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--card-border-radius);
+  padding: 1rem 1.1rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  margin: 0;
+}
+
+.reset-method-option:hover {
+  border-color: rgba(0, 119, 255, 0.35);
+}
+
+.reset-method-option.active {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.08);
+}
+
+.reset-method-option .reset-method-radio {
+  margin-top: 0.3rem;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--bs-primary);
+  cursor: pointer;
+}
+
+.reset-method-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* Campo de contraseña con ícono de candado fijo y botón de mostrar/ocultar */
+.password-reveal-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-reveal-icon-start {
+  position: absolute;
+  left: 0.9rem;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.password-reveal-input.form-control {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
+.password-reveal-toggle {
+  position: absolute;
+  right: 0.75rem;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+}
+
+.password-reveal-toggle:hover {
+  color: #475569;
+}
+
+/* Requisitos de contraseña como pills, en vez de lista con viñetas */
+.password-requirement-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.password-requirement-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  font-size: 0.78rem;
+  color: #64748b;
+  background-color: #ffffff;
+  transition: var(--transition-smooth);
+}
+
+.password-requirement-pill.passed {
+  color: #166534;
+  border-color: #bbf7d0;
+  background-color: #f0fdf4;
 }
 
 /* Selector custom de "Inconsistencias" (Lecturas por período): mismo look

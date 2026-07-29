@@ -27,16 +27,6 @@
   padding: 1.1rem 1.25rem;
 }
 
-/* --- Fondo detrás del modal ---
-   Se descarta el backdrop-filter: blur por completo (consumía demasiado con
-   la cantidad de nodos de esta página, con o sin animación). Vuelve el fade
-   normal de Bootstrap; lo único que se personaliza es el color del velo
-   (variable que Bootstrap ya consume en su propia regla), sin tocar
-   opacity/transition para no pelear contra su transición nativa. */
-.user-modal-backdrop {
-  --bs-backdrop-bg: #0f172a;
-}
-
 .user-summary-avatar {
   width: 48px;
   height: 48px;
