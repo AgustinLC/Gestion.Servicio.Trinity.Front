@@ -121,10 +121,10 @@ const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({ show, user, isL
 
                 <div className="fw-bold mb-2">Método de restablecimiento</div>
 
-                <div className="reset-method-list">
-                    <label className={`reset-method-option ${mode === "temporary" ? "active" : ""}`}>
-                        <input type="radio" className="reset-method-radio" name="reset-method" checked={mode === "temporary"} onChange={() => setMode("temporary")} />
-                        <div className="reset-method-icon" style={{ backgroundColor: "#dbeafe", color: "#1d4ed8" }}>
+                <div className="option-card-list">
+                    <label className={`option-card ${mode === "temporary" ? "active" : ""}`}>
+                        <input type="radio" className="option-card-radio" name="reset-method" checked={mode === "temporary"} onChange={() => setMode("temporary")} />
+                        <div className="option-card-icon" style={{ backgroundColor: "#dbeafe", color: "#1d4ed8" }}>
                             <i className="bi bi-shield-check"></i>
                         </div>
                         <div className="flex-grow-1">
@@ -154,9 +154,9 @@ const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({ show, user, isL
                         </div>
                     </label>
 
-                    <label className={`reset-method-option ${mode === "dni" ? "active" : ""}`}>
-                        <input type="radio" className="reset-method-radio" name="reset-method" checked={mode === "dni"} onChange={() => setMode("dni")} />
-                        <div className="reset-method-icon" style={{ backgroundColor: "#dcfce7", color: "#16a34a" }}>
+                    <label className={`option-card ${mode === "dni" ? "active" : ""}`}>
+                        <input type="radio" className="option-card-radio" name="reset-method" checked={mode === "dni"} onChange={() => setMode("dni")} />
+                        <div className="option-card-icon" style={{ backgroundColor: "#dcfce7", color: "#16a34a" }}>
                             <i className="bi bi-person-vcard-fill"></i>
                         </div>
                         <div className="flex-grow-1">
@@ -165,9 +165,9 @@ const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({ show, user, isL
                         </div>
                     </label>
 
-                    <label className={`reset-method-option ${mode === "custom" ? "active" : ""}`}>
-                        <input type="radio" className="reset-method-radio" name="reset-method" checked={mode === "custom"} onChange={() => setMode("custom")} />
-                        <div className="reset-method-icon" style={{ backgroundColor: "#f3e8ff", color: "#9333ea" }}>
+                    <label className={`option-card ${mode === "custom" ? "active" : ""}`}>
+                        <input type="radio" className="option-card-radio" name="reset-method" checked={mode === "custom"} onChange={() => setMode("custom")} />
+                        <div className="option-card-icon" style={{ backgroundColor: "#f3e8ff", color: "#9333ea" }}>
                             <i className="bi bi-key-fill"></i>
                         </div>
                         <div className="flex-grow-1">

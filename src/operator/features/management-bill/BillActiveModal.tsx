@@ -34,6 +34,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     const [billToUpdate, setBillToUpdate] = useState<BillDetailsDto | null>(null);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedStatus, setSelectedStatus] = useState<PaymentStatus | null>(null);
+    const [selectedPaymentType, setSelectedPaymentType] = useState<PaymentStatus | null>(null);
     const modalZIndex = useModalLayer(show);
     const paymentModalZIndex = useModalLayer(showPaymentModal);
     const confirmStatusModalZIndex = useModalLayer(showConfirmStatusModal);
@@ -127,9 +128,10 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     // Manejar el cambio de estado (abrir modal de confirmación)
     const handleTogglePaidStatus = (bill: BillDetailsDto) => {
         setBillToUpdate(bill);
-        
+
         // Si está impaga, mostrar modal para elegir tipo de pago
         if (bill.paidStatus === PaymentStatus.UNPAID) {
+            setSelectedPaymentType(null);
             setShowPaymentModal(true);
         } else {
             // Si está pagada, marcar directamente como impaga
@@ -138,9 +140,11 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
         }
     };
 
-    // Manejar la selección del tipo de pago
-    const handlePaymentTypeSelect = (status: PaymentStatus) => {
-        setSelectedStatus(status);
+    // Confirma la elección hecha en el modal "Seleccionar estado de pago"
+    // (el usuario primero elige la tarjeta, después confirma con el botón).
+    const handleConfirmPaymentType = () => {
+        if (!selectedPaymentType) return;
+        setSelectedStatus(selectedPaymentType);
         setShowPaymentModal(false);
         setShowConfirmStatusModal(true);
     };
@@ -177,6 +181,12 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
             pdfGeneratorRef.current?.generate();
         }, 100);
     };
+
+    // Si la fecha de vencimiento de la factura a marcar como pagada ya pasó,
+    // el aviso de esa fecha en el modal de selección se resalta en rojo.
+    const isPaymentOverdue = billToUpdate?.expirationDate
+        ? new Date(billToUpdate.expirationDate) < new Date()
+        : false;
 
     // Totales para las tarjetas resumen
     const totalConsumption = bills.reduce((sum, bill) => sum + (bill.consumption ?? 0), 0);
@@ -344,44 +354,76 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
             />
 
             {/* Modal para seleccionar tipo de pago */}
-            <Modal show={showPaymentModal} onHide={() => setShowPaymentModal(false)} centered backdrop={false} style={{ zIndex: paymentModalZIndex }} contentClassName="form-modal-content" aria-labelledby="payment-status-modal-title">
+            <Modal show={showPaymentModal} onHide={() => setShowPaymentModal(false)} centered size="lg" backdrop={false} style={{ zIndex: paymentModalZIndex }} contentClassName="form-modal-content" aria-labelledby="payment-status-modal-title">
                 <FormModalHeader
                     icon="bi bi-credit-card"
                     title="Seleccionar estado de pago"
+                    subtitle={`Elegí cómo marcar la factura #${billToUpdate?.idBill} como pagada.`}
                     onClose={() => setShowPaymentModal(false)}
                     titleId="payment-status-modal-title"
                 />
                 <Modal.Body>
-                    <p className="mb-3">
-                        ¿Cómo desea marcar la factura <strong>#{billToUpdate?.idBill}</strong>?
-                    </p>
-                    <div className="d-grid gap-2">
-                        <Button 
-                            variant="success" 
-                            size="lg"
-                            onClick={() => handlePaymentTypeSelect(PaymentStatus.PAID_ON_TIME)}
+                    <div className="fw-bold mb-3">¿Cómo deseas marcar esta factura como pagada?</div>
+
+                    <div className="option-card-list">
+                        <label
+                            className={`option-card ${selectedPaymentType === PaymentStatus.PAID_ON_TIME ? "active" : ""}`}
+                            style={selectedPaymentType === PaymentStatus.PAID_ON_TIME ? { borderColor: "#16a34a", boxShadow: "0 0 0 3px rgba(22, 163, 74, 0.08)" } : undefined}
                         >
-                            <i className="bi bi-check-circle me-2"></i>
-                            Pagada en término
-                        </Button>
-                        <Button 
-                            variant="warning" 
-                            size="lg"
-                            onClick={() => handlePaymentTypeSelect(PaymentStatus.PAID_LATE)}
+                            <input
+                                type="radio"
+                                className="option-card-radio"
+                                name="payment-type"
+                                checked={selectedPaymentType === PaymentStatus.PAID_ON_TIME}
+                                onChange={() => setSelectedPaymentType(PaymentStatus.PAID_ON_TIME)}
+                            />
+                            <div className="option-card-icon" style={{ backgroundColor: "#dcfce7", color: "#16a34a" }}>
+                                <i className="bi bi-check-circle-fill"></i>
+                            </div>
+                            <div className="flex-grow-1">
+                                <div className="fw-bold" style={{ color: "#16a34a" }}>Pagada en término</div>
+                                <div className="text-muted small">La factura se pagó antes o en la fecha de vencimiento.</div>
+                            </div>
+                            <span className="badge-soft badge-soft-success text-nowrap">
+                                <i className="bi bi-check-circle-fill"></i> En término
+                            </span>
+                        </label>
+
+                        <label
+                            className={`option-card ${selectedPaymentType === PaymentStatus.PAID_LATE ? "active" : ""}`}
+                            style={selectedPaymentType === PaymentStatus.PAID_LATE ? { borderColor: "#ea580c", boxShadow: "0 0 0 3px rgba(234, 88, 12, 0.08)" } : undefined}
                         >
-                            <i className="bi bi-clock-history me-2"></i>
-                            Pagada fuera de término
-                        </Button>
+                            <input
+                                type="radio"
+                                className="option-card-radio"
+                                name="payment-type"
+                                checked={selectedPaymentType === PaymentStatus.PAID_LATE}
+                                onChange={() => setSelectedPaymentType(PaymentStatus.PAID_LATE)}
+                            />
+                            <div className="option-card-icon" style={{ backgroundColor: "#ffedd5", color: "#c2410c" }}>
+                                <i className="bi bi-clock-fill"></i>
+                            </div>
+                            <div className="flex-grow-1">
+                                <div className="fw-bold" style={{ color: "#c2410c" }}>Pagada fuera de término</div>
+                                <div className="text-muted small">La factura se pagó después de la fecha de vencimiento.</div>
+                            </div>
+                            <span className="badge-soft badge-soft-warning text-nowrap">
+                                <i className="bi bi-clock-fill"></i> Fuera de término
+                            </span>
+                        </label>
                     </div>
-                    <p className="text-muted mt-3 small">
-                        <strong>Fecha de vencimiento:</strong> {billToUpdate?.expirationDate 
-                            ? new Date(billToUpdate.expirationDate).toLocaleDateString('es-AR')
-                            : 'N/A'}
-                    </p>
+
+                    <HintBox className="mt-3" variant={isPaymentOverdue ? "danger" : "info"}>
+                        <strong>Fecha de vencimiento:</strong>{" "}
+                        {billToUpdate?.expirationDate ? formatDate(billToUpdate.expirationDate) : "N/A"}
+                    </HintBox>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowPaymentModal(false)}>
-                        Cancelar
+                    <Button variant="outline-secondary" onClick={() => setShowPaymentModal(false)}>
+                        <i className="bi bi-x-circle me-1"></i> Cancelar
+                    </Button>
+                    <Button variant="primary" onClick={handleConfirmPaymentType} disabled={!selectedPaymentType}>
+                        <i className="bi bi-check-circle me-1"></i> Confirmar selección
                     </Button>
                 </Modal.Footer>
             </Modal>
