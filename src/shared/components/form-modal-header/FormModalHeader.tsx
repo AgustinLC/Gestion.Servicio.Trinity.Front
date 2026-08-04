@@ -3,9 +3,13 @@ import { Dropdown } from "react-bootstrap";
 import { RowActionItem } from "../table/RowActions";
 
 interface FormModalHeaderProps {
-    icon: string; // Clase de Bootstrap Icons (ej: "bi bi-person")
+    icon?: string; // Clase de Bootstrap Icons (ej: "bi bi-person"). Ignorado si se pasa iconContent.
+    // Reemplaza el icon-badge por defecto con un ícono a medida (ej. un
+    // ícono compuesto con una insignia superpuesta). Ver
+    // ChangeStatusConfirmModal para un ejemplo de uso.
+    iconContent?: React.ReactNode;
     title: string;
-    subtitle?: string;
+    subtitle?: React.ReactNode;
     onClose: () => void;
     titleId?: string;
     // Menú de opciones (3 puntos) entre el título y el botón de cerrar, para
@@ -18,14 +22,16 @@ interface FormModalHeaderProps {
 // subtítulo + botón de cerrar). Reemplaza el Modal.Header genérico de
 // Bootstrap para que todos los modales del sistema compartan el mismo look,
 // en vez de que cada uno redefina su propio "header a mano".
-const FormModalHeader: React.FC<FormModalHeaderProps> = ({ icon, title, subtitle, onClose, titleId, actions }) => {
+const FormModalHeader: React.FC<FormModalHeaderProps> = ({ icon, iconContent, title, subtitle, onClose, titleId, actions }) => {
     const menuId = useId();
     return (
         <div className="form-modal-header d-flex align-items-start justify-content-between">
             <div className="d-flex align-items-center gap-3">
-                <div className="icon-badge icon-badge-lg">
-                    <i className={icon}></i>
-                </div>
+                {iconContent ?? (
+                    <div className="icon-badge icon-badge-lg">
+                        <i className={icon}></i>
+                    </div>
+                )}
                 <div>
                     <h4 id={titleId} className="form-modal-title mb-1">{title}</h4>
                     {subtitle && <div className="text-muted small">{subtitle}</div>}

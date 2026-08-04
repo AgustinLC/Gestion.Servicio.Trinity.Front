@@ -12,7 +12,7 @@ import { Status } from "../../../core/models/dto/Status";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import RowActions from "../../../shared/components/table/RowActions";
-import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
+import ChangeStatusConfirmModal from "../../../shared/components/change-status-confirm/ChangeStatusConfirmModal";
 import statusLabels from "../../../shared/components/labels-traductor/statusLabels";
 import {
     STATUS_BADGE_CLASS,
@@ -291,20 +291,13 @@ const UserPage = () => {
                     />
 
                     {/* Confirmación de cambio de estado (solo desde el menú rápido de la fila) */}
-                    <ConfirmModal
+                    <ChangeStatusConfirmModal
                         show={!!statusChangeRequest}
-                        onHide={() => setStatusChangeRequest(null)}
-                        title="Cambiar estado del usuario"
-                        message={
-                            statusChangeRequest
-                                ? `¿Cambiar el estado de ${statusChangeRequest.user.firstName} ${statusChangeRequest.user.lastName} a "${STATUS_OPTIONS.find(o => o.value === statusChangeRequest.nextStatus)?.label}"?`
-                                : ""
-                        }
-                        confirmText={statusChangeRequest ? STATUS_ACTION_CONFIG[statusChangeRequest.nextStatus].label : "Confirmar"}
-                        confirmVariant={statusChangeRequest ? STATUS_ACTION_CONFIG[statusChangeRequest.nextStatus].confirmVariant : "primary"}
+                        userName={statusChangeRequest ? `${statusChangeRequest.user.firstName} ${statusChangeRequest.user.lastName}` : ""}
+                        nextStatus={statusChangeRequest?.nextStatus ?? null}
                         isLoading={isChangingStatus}
-                        loadingText="Cambiando estado..."
                         onConfirm={handleConfirmChangeStatus}
+                        onCancel={() => setStatusChangeRequest(null)}
                     />
 
                     {/* Facturas del usuario, acceso rápido desde el menú de la fila */}

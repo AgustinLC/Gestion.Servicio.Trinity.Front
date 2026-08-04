@@ -37,10 +37,14 @@ export const STATUS_OPTIONS: { value: Status; label: string; color: string }[] =
 // acceso rápido): label, ícono y color por estado DESTINO. El color coincide
 // con STATUS_DOT_COLORS para que la acción se lea como "hacia qué estado
 // pasa" con el mismo lenguaje visual que el badge/punto de estado.
-export const STATUS_ACTION_CONFIG: Record<Status, { label: string; icon: string; color: string; confirmVariant: string }> = {
-    [Status.ACTIVE]: { label: "Activar usuario", icon: "bi bi-check-circle", color: STATUS_DOT_COLORS[Status.ACTIVE], confirmVariant: "success" },
-    [Status.SUSPENDED]: { label: "Suspender usuario", icon: "bi bi-slash-circle", color: STATUS_DOT_COLORS[Status.SUSPENDED], confirmVariant: "warning" },
-    [Status.INACTIVE]: { label: "Inactivar usuario", icon: "bi bi-x-circle", color: STATUS_DOT_COLORS[Status.INACTIVE], confirmVariant: "secondary" },
+// actionLabel: verbo corto sin "usuario" al final, para el botón del modal
+// de confirmación de cambio de estado (ChangeStatusConfirmModal), donde el
+// sujeto ya es obvio por contexto. badgeIcon: ícono chico que se superpone
+// sobre el avatar de persona en ese mismo modal.
+export const STATUS_ACTION_CONFIG: Record<Status, { label: string; actionLabel: string; icon: string; badgeIcon: string; color: string; confirmVariant: string }> = {
+    [Status.ACTIVE]: { label: "Activar usuario", actionLabel: "Activar", icon: "bi bi-check-circle", badgeIcon: "bi-check-lg", color: STATUS_DOT_COLORS[Status.ACTIVE], confirmVariant: "success" },
+    [Status.SUSPENDED]: { label: "Suspender usuario", actionLabel: "Suspender", icon: "bi bi-slash-circle", badgeIcon: "bi-pause-fill", color: STATUS_DOT_COLORS[Status.SUSPENDED], confirmVariant: "warning" },
+    [Status.INACTIVE]: { label: "Inactivar usuario", actionLabel: "Inactivar", icon: "bi bi-x-circle", badgeIcon: "bi-dash-lg", color: STATUS_DOT_COLORS[Status.INACTIVE], confirmVariant: "secondary" },
 };
 
 // Mensaje de confirmación (toast) al aplicar cada acción rápida de estado.

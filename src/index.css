@@ -911,6 +911,48 @@ button:disabled,
   font-size: 1.4rem;
 }
 
+/* Ícono compuesto (persona + insignia superpuesta) para
+   ChangeStatusConfirmModal: el color de fondo/texto lo pone la clase
+   badge-soft-* que se le agregue (mismo criterio que el resto de chips de
+   estado), acá solo se define la forma. */
+.status-change-icon {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.9rem;
+  flex-shrink: 0;
+}
+
+.status-change-icon-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.75rem;
+  border: 3px solid #ffffff;
+}
+
+/* Un poco más de aire que el header de modal genérico: acá el ícono es más
+   grande (68px vs 52px) y el mensaje tiene más texto, así que el padding
+   por defecto de .form-modal-header se sentía apretado. */
+.change-status-header .form-modal-header {
+  padding: 1.75rem 1.75rem 1.5rem;
+}
+
+.change-status-header .form-modal-header > div:first-child {
+  gap: 1.25rem !important;
+}
+
 /* --- FORMULARIOS/MODALES: patrones reutilizables ---
    Header con ícono+título+subtítulo+cerrar, título de sección con ícono,
    pie con línea divisoria, botón de cerrar circular. Antes cada modal

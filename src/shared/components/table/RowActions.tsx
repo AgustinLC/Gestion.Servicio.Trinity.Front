@@ -30,11 +30,11 @@ const RowActions: React.FC<RowActionsProps> = ({ onEdit, editTitle = "Editar", i
                 </button>
             )}
             {items.length > 0 && (
-                <Dropdown align="end" drop="down" popperConfig={{ modifiers: [{ name: "flip", enabled: false }] }}>
+                <Dropdown align="end" drop="down">
                     <Dropdown.Toggle as="button" className="row-actions-menu" id={menuId}>
                         <i className="bi bi-three-dots-vertical"></i>
                     </Dropdown.Toggle>
-                    <Dropdown.Menu>
+                    <Dropdown.Menu popperConfig={{ modifiers: [{ name: "flip", enabled: false }] }}>
                         {items.map((item, idx) => (
                             <Dropdown.Item
                                 key={idx}
