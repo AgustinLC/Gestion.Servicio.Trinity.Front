@@ -57,7 +57,7 @@ const CrudFeePage = () => {
         {
             key: "actions", label: "Acciones", actions: (row: FeeDto) => (
                 <Button variant="outline-warning" onClick={() => { setSelectedFee(row); setShowModal(true); }}>
-                    Editar
+                    <i className="bi bi-pencil me-1"></i> Editar
                 </Button>
             ),
         },

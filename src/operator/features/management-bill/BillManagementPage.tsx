@@ -83,10 +83,10 @@ const BillManagementPage = () => {
             key: "actions", label: "Facturas", actions: (row: UserRow) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
                     <Button variant="outline-success" onClick={() => { setSelectedUser(row); setShowBillActiveModal(true); }}>
-                        Activas
+                        <i className="bi bi-file-earmark-text me-1"></i> Activas
                     </Button>
                     <Button variant="outline-danger" onClick={() => { setSelectedUser(row); setShowBillNullModal(true); }}>
-                        Anuladas
+                        <i className="bi bi-file-earmark-x me-1"></i> Anuladas
                     </Button>
                 </div>
             ),

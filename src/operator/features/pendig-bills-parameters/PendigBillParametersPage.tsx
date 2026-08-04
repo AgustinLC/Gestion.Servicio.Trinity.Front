@@ -80,10 +80,10 @@ const PendigBillsParameterPage = () => {
             key: "actions", label: "Acciones", actions: (row: UserRow) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
                     <Button variant="outline-warning" onClick={() => { setSelectedUser(row); setShowAddParameterModal(true); }}>
-                        Añadir Concepto
+                        <i className="bi bi-journal-plus me-1"></i> Añadir Concepto
                     </Button>
                     <Button variant="outline-primary" onClick={() => { setSelectedUser(row); setShowUserParameters(true); }}>
-                        Ver existentes
+                        <i className="bi bi-eye me-1"></i> Ver existentes
                     </Button>
                 </div>
             ),

@@ -58,7 +58,7 @@ const DiscountManagementPage = () => {
         {
             key: "actions", label: "Acciones", actions: (row: DiscountDto) => (
                 <Button variant="outline-warning" onClick={() => { setSelectedDiscount(row); setShowModal(true); }}>
-                    Editar
+                    <i className="bi bi-pencil me-1"></i> Editar
                 </Button>
             ),
         },

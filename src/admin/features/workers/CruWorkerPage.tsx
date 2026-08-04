@@ -85,7 +85,7 @@ const CruWorkerPage = () => {
         {
             key: "actions", label: "Acciones", actions: (row: UserRow) => (
                 <Button variant="outline-warning" onClick={() => { setSelectedWorker(row); setShowModal(true); }}>
-                    Editar
+                    <i className="bi bi-pencil me-1"></i> Editar
                 </Button>
             ),
         },

@@ -72,10 +72,10 @@ const DiscountsPage = () => {
             key: "actions", label: "Acciones", actions: (row: UserRow) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
                     <Button variant="outline-warning" onClick={() => { setSelectedUser(row); setShowAddDiscountModal(true); }}>
-                        Añadir Descuento
+                        <i className="bi bi-plus-slash-minus me-1"></i> Añadir Descuento
                     </Button>
                     <Button variant="outline-primary" onClick={() => handleViewDiscounts(row)}>
-                        Ver existentes
+                        <i className="bi bi-eye me-1"></i> Ver existentes
                     </Button>
                 </div>
             ),

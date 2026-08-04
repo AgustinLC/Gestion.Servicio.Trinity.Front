@@ -89,10 +89,10 @@ const ReadingManagementPage: React.FC = () => {
             actions: (row: UserRow) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
                     <Button variant="outline-primary" onClick={() => { setSelectedUser(row); setShowAddReadingModal(true); }}>
-                        Cargar lectura
+                        <i className="bi bi-speedometer2 me-1"></i> Cargar lectura
                     </Button>
                     <Button variant="outline-warning" onClick={() => { setSelectedUser(row); setShowUserReadings(true); }}>
-                        Ver lecturas
+                        <i className="bi bi-eye me-1"></i> Ver lecturas
                     </Button>
                 </div>
             ),

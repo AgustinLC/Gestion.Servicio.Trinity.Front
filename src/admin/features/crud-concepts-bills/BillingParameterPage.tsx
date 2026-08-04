@@ -79,7 +79,7 @@ const BillingParameterPage = () => {
             key: "actions", label: "Acciones", actions: (row: BillingParameter) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
                     <Button variant="outline-warning" onClick={() => { setSelectedBillingParameter(row); setShowModal(true); }}>
-                        Editar
+                        <i className="bi bi-pencil me-1"></i> Editar
                     </Button>
                 </div>
             ),

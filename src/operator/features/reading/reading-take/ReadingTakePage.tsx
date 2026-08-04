@@ -90,7 +90,7 @@ const ReadingTakePage: React.FC = () => {
         {
             key: "actions", label: "Acciones", actions: (row: UserRow) => (
                 <Button className="text-nowrap" variant="outline-primary" onClick={() => { setSelectedUser(row); setShowAddReadingModal(true); }}>
-                    Cargar lectura
+                    <i className="bi bi-speedometer2 me-1"></i> Cargar lectura
                 </Button>
             ),
         },

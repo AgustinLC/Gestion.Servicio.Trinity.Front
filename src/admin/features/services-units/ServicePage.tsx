@@ -80,10 +80,10 @@ const ServicePage = () => {
             key: "actions", label: "Acciones", actions: (row: Service) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
                     <Button variant="outline-warning" onClick={() => { setSelectedService(row); setShowModal(true); }}>
-                        Editar
+                        <i className="bi bi-pencil me-1"></i> Editar
                     </Button>
                     <Button variant="outline-danger" onClick={() => { setServiceToDelete(row); setShowDeleteModal(true); }}>
-                        Eliminar
+                        <i className="bi bi-trash me-1"></i> Eliminar
                     </Button>
                 </div>
             ),
