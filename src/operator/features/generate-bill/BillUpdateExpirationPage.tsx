@@ -1,9 +1,28 @@
 import { useState } from 'react';
-import { Alert, Button, Spinner, Card, Form, Row, Col } from 'react-bootstrap';
+import { Button, Spinner, Form, Row, Col } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../../config/axiosConfig';
 import { WebApiResponse } from '../../../core/models/types/WebApiResponse';
 import PageHeader from '../../../shared/components/PageHeader';
+import FormSectionHeader from '../../../shared/components/form-section-header/FormSectionHeader';
+import HintBox from '../../../shared/components/hint-box/HintBox';
+
+const MONTH_NAMES = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+];
+
+// Los períodos de facturación son bimestrales (Ene-Feb, Mar-Abr, ...);
+// dada cualquier fecha del período, se deriva el bimestre al que pertenece,
+// igual que hace el backend al recibir periodDate.
+const getPeriodLabel = (dateStr: string): string | null => {
+    if (!dateStr) return null;
+    const date = new Date(`${dateStr}T00:00:00`);
+    if (isNaN(date.getTime())) return null;
+    const month = date.getMonth();
+    const pairStart = month % 2 === 0 ? month : month - 1;
+    return `${MONTH_NAMES[pairStart]} - ${MONTH_NAMES[pairStart + 1]}`;
+};
 
 const BillUpdateExpirationPage = () => {
     // Estados
@@ -14,6 +33,7 @@ const BillUpdateExpirationPage = () => {
 
     // Validar formulario
     const isFormValid = periodDate !== '' && newExpirationDate !== '';
+    const periodLabel = getPeriodLabel(periodDate);
 
     // Manejar envío del formulario
     const handleSubmit = async () => {
@@ -40,9 +60,6 @@ const BillUpdateExpirationPage = () => {
             if (response.data.success) {
                 setUpdatedCount(response.data.data);
                 toast.success(response.data.message || `Se actualizaron ${response.data.data} facturas`);
-                // Limpiar formulario después de éxito
-                setPeriodDate('');
-                setNewExpirationDate('');
             } else {
                 throw new Error(response.data.message || response.data.error || 'Error desconocido');
             }
@@ -61,121 +78,142 @@ const BillUpdateExpirationPage = () => {
         setUpdatedCount(null);
     };
 
+    const impactStats = [
+        {
+            icon: 'bi bi-receipt',
+            iconBg: '#dcfce7',
+            iconColor: '#16a34a',
+            value: updatedCount !== null ? `${updatedCount}` : '—',
+            label: 'Facturas activas',
+            sublabel: updatedCount !== null ? 'Fueron actualizadas' : 'Se sabrá al confirmar',
+        },
+        {
+            icon: 'bi bi-calendar3',
+            iconBg: '#dcfce7',
+            iconColor: '#16a34a',
+            value: periodLabel ?? '—',
+            label: 'Período seleccionado',
+            sublabel: 'Período a modificar',
+        },
+        {
+            icon: 'bi bi-clock-history',
+            iconBg: '#dcfce7',
+            iconColor: '#16a34a',
+            value: 'Inmediato',
+            label: 'Aplicación del cambio',
+            sublabel: 'Se actualizará al confirmar',
+        },
+        {
+            icon: 'bi bi-file-earmark-text',
+            iconBg: '#dcfce7',
+            iconColor: '#16a34a',
+            value: 'Sin eliminar',
+            label: 'Las facturas',
+            sublabel: 'Solo se actualiza la fecha',
+        },
+    ];
+
     return (
-        <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+        <div>
             <PageHeader title="Actualizar Fecha de Vencimiento" subtitle="Modificá el vencimiento de las facturas de un período." icon="bi bi-calendar-event" />
 
-            <div className="my-auto">
-            <Row className="justify-content-center">
-                <Col lg={8} xl={6}>
-                    <Card className="shadow-sm">
-                        <Card.Header className="bg-primary text-white">
-                            <h5 className="mb-0">
-                                <i className="bi bi-calendar-event me-2"></i>
-                                Modificar Vencimiento por Período
-                            </h5>
-                        </Card.Header>
-                        <Card.Body>
-                            <p className="text-muted mb-4">
-                                Esta herramienta permite actualizar la fecha de vencimiento de todas las facturas
-                                activas de un período específico. Ingrese una fecha que corresponda al período
-                                que desea modificar y la nueva fecha de vencimiento.
-                            </p>
-
-                            <Form>
-                                {/* Fecha del Período */}
-                                <Form.Group className="mb-4">
-                                    <Form.Label>
-                                        <strong>Fecha del Período</strong>
-                                        <span className="text-danger ms-1">*</span>
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={periodDate}
-                                        onChange={(e) => setPeriodDate(e.target.value)}
-                                        disabled={isLoading}
-                                    />
-                                    <Form.Text className="text-muted">
-                                        Ingrese cualquier fecha que pertenezca al período que desea modificar.
-                                        El sistema identificará automáticamente el período correspondiente.
-                                    </Form.Text>
-                                </Form.Group>
-
-                                {/* Nueva Fecha de Vencimiento */}
-                                <Form.Group className="mb-4">
-                                    <Form.Label>
-                                        <strong>Nueva Fecha de Vencimiento</strong>
-                                        <span className="text-danger ms-1">*</span>
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={newExpirationDate}
-                                        onChange={(e) => setNewExpirationDate(e.target.value)}
-                                        min={new Date().toISOString().split('T')[0]}
-                                        disabled={isLoading}
-                                    />
-                                    <Form.Text className="text-muted">
-                                        Esta será la nueva fecha de vencimiento para todas las facturas del período.
-                                        No puede ser anterior a la fecha actual.
-                                    </Form.Text>
-                                </Form.Group>
-
-                                {/* Botones */}
-                                <div className="d-flex gap-2">
-                                    <Button
-                                        variant="primary"
-                                        onClick={handleSubmit}
-                                        disabled={isLoading || !isFormValid}
-                                        className="flex-grow-1"
-                                    >
-                                        {isLoading ? (
-                                            <>
-                                                <Spinner animation="border" size="sm" className="me-2" />
-                                                Actualizando...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <i className="bi bi-check-circle me-2"></i>
-                                                Actualizar Vencimiento
-                                            </>
-                                        )}
-                                    </Button>
-                                    <Button
-                                        variant="outline-secondary"
-                                        onClick={handleClear}
-                                        disabled={isLoading}
-                                    >
-                                        <i className="bi bi-x-circle me-2"></i>
-                                        Limpiar
-                                    </Button>
+            <div className="mx-auto" style={{ maxWidth: 1200 }}>
+            <div className="card">
+                <div className="card-body p-4">
+                    <Row className="g-4">
+                        <Col md={6}>
+                            <div className="d-flex align-items-center gap-2 mb-2">
+                                <div className="icon-badge">
+                                    <i className="bi bi-calendar3"></i>
                                 </div>
-                            </Form>
+                                <div className="fw-bold">Fecha del Período <span className="text-danger">*</span></div>
+                            </div>
+                            <div className="text-muted small mb-2">Seleccioná el período del cual querés modificar el vencimiento.</div>
+                            <Form.Control
+                                type="date"
+                                value={periodDate}
+                                onChange={(e) => setPeriodDate(e.target.value)}
+                                disabled={isLoading}
+                            />
+                            <HintBox className="mt-2">El sistema identificará automáticamente el período correspondiente.</HintBox>
+                        </Col>
 
-                            {/* Resultado */}
-                            {updatedCount !== null && (
-                                <Alert variant="success" className="mt-4 mb-0">
-                                    <i className="bi bi-check-circle-fill me-2"></i>
-                                    <strong>Operación exitosa:</strong> Se actualizaron {updatedCount} facturas.
-                                </Alert>
+                        <Col md={6}>
+                            <div className="d-flex align-items-center gap-2 mb-2">
+                                <div className="icon-badge">
+                                    <i className="bi bi-calendar-check"></i>
+                                </div>
+                                <div className="fw-bold">Nueva Fecha de Vencimiento <span className="text-danger">*</span></div>
+                            </div>
+                            <div className="text-muted small mb-2">Ingresá la nueva fecha de vencimiento para todas las facturas activas de este período.</div>
+                            <Form.Control
+                                type="date"
+                                value={newExpirationDate}
+                                onChange={(e) => setNewExpirationDate(e.target.value)}
+                                min={new Date().toISOString().split('T')[0]}
+                                disabled={isLoading}
+                            />
+                            <HintBox className="mt-2">La nueva fecha debe ser igual o posterior a la fecha actual.</HintBox>
+                        </Col>
+                    </Row>
+
+                    <div className="impact-panel mt-4">
+                        <FormSectionHeader icon="bi bi-activity" title="Impacto de la actualización" subtitle="Esta acción afectará:" />
+                        <div className="d-flex flex-wrap gap-3">
+                            {impactStats.map((stat, idx) => (
+                                <div key={idx} className="stat-card d-flex align-items-center gap-2 px-3 py-2">
+                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: stat.iconBg, color: stat.iconColor }}>
+                                        <i className={stat.icon}></i>
+                                    </div>
+                                    <div>
+                                        <div className="stat-value fw-bold">{stat.value}</div>
+                                        <div className="stat-label text-muted small">{stat.label}</div>
+                                        <div className="text-muted" style={{ fontSize: '0.72rem' }}>{stat.sublabel}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="d-flex justify-content-end gap-2 mt-4">
+                        <Button variant="outline-secondary" onClick={handleClear} disabled={isLoading}>
+                            <i className="bi bi-x-circle me-1"></i> Limpiar
+                        </Button>
+                        <Button variant="primary" onClick={handleSubmit} disabled={isLoading || !isFormValid}>
+                            {isLoading ? (
+                                <>
+                                    <Spinner animation="border" size="sm" className="me-2" />
+                                    Actualizando...
+                                </>
+                            ) : (
+                                <>
+                                    <i className="bi bi-check-circle me-1"></i> Actualizar Vencimiento
+                                </>
                             )}
-                        </Card.Body>
-                    </Card>
+                        </Button>
+                    </div>
+                </div>
+            </div>
 
-                    {/* Información adicional */}
-                    <Alert variant="info" className="mt-4">
-                        <Alert.Heading className="h6">
-                            <i className="bi bi-info-circle me-2"></i>
-                            Información importante
-                        </Alert.Heading>
-                        <ul className="mb-0 ps-3">
-                            <li>Solo se actualizarán las facturas <strong>activas</strong> (no eliminadas).</li>
-                            <li>La fecha de vencimiento debe ser igual o posterior a hoy.</li>
-                            <li>Si el período no existe o no tiene facturas, se mostrará un error.</li>
-                            <li>Esta acción afecta a todas las facturas del período seleccionado.</li>
-                        </ul>
-                    </Alert>
-                </Col>
-            </Row>
+            <div className="hint-box mt-3">
+                <div className="icon-badge">
+                    <i className="bi bi-info-circle-fill"></i>
+                </div>
+                <div className="fw-bold me-4" style={{ minWidth: 150, color: 'var(--bs-primary)' }}>Información importante</div>
+                <ul className="list-unstyled mb-0 flex-grow-1">
+                    {[
+                        <>Solo se actualizarán las facturas <strong>activas</strong> (no anuladas).</>,
+                        <>La fecha de vencimiento debe ser igual o posterior a hoy.</>,
+                        <>Si el período no existe o no tiene facturas, se mostrará un error.</>,
+                        <>Esta acción afecta a todas las facturas del período seleccionado.</>,
+                    ].map((text, idx) => (
+                        <li key={idx} className="d-flex align-items-start gap-2 mb-1">
+                            <i className="bi bi-check-circle-fill text-primary mt-1" style={{ fontSize: '0.8rem' }}></i>
+                            <span>{text}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
             </div>
         </div>
     );

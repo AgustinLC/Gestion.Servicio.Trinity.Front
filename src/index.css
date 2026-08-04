@@ -1205,6 +1205,35 @@ button:disabled,
   justify-content: center;
 }
 
+/* Panel con fondo verde suave para secciones tipo "resumen de impacto"
+   (ej. BillUpdateExpirationPage), mismo criterio que .hint-box pero en
+   verde para diferenciarlo como informativo-positivo en vez de neutro. */
+.impact-panel {
+  background-color: rgba(22, 163, 74, 0.04);
+  border: 1px solid rgba(22, 163, 74, 0.12);
+  border-radius: var(--card-border-radius);
+  padding: 1.25rem;
+}
+
+/* .stat-value a 1.15rem está pensado para números cortos (ej. "150"); acá
+   adentro los valores son palabras ("Inmediato", "Sin eliminar"), que a ese
+   tamaño se ven desproporcionadas frente al resto de la tarjeta. Se achica
+   solo dentro de .impact-panel, sin tocar el resto de usos de .stat-card. */
+.impact-panel .stat-card {
+  flex: 1 1 200px;
+}
+
+.impact-panel .stat-value {
+  font-size: 0.95rem;
+}
+
+/* El ícono del FormSectionHeader es celeste por default; acá adentro se
+   pisa a verde para que coincida con el resto del panel de impacto. */
+.impact-panel .icon-badge {
+  background: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
+}
+
 /* --- Tarjetas seleccionables tipo radio (ícono + texto), reutilizadas en
    ResetPasswordModal (método de restablecimiento) y en el selector de
    estado de pago de BillActiveModal. .active por default resalta en el
