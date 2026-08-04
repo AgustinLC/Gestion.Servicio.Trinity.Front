@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Spinner, Table, Form } from "react-bootstrap";
+import { Button, Modal, Spinner, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { getData, updateData } from "../../../../core/services/apiService";
 import { ReadReadingDto } from "../../../../core/models/dto/ReadReadingDto";
 import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
+import ReusableTable from "../../../../shared/components/table/ReusableTable";
+import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
+import { formatDate } from "../../../../core/utils/formatters";
 import { useModalLayer } from "../../../../context/ModalStackContext";
 
 interface UserReadingsModalProps {
@@ -22,18 +25,9 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
     const [editingId, setEditingId] = useState<number | null>(null);
     const [tempReading, setTempReading] = useState<number>(0);
     const [saving, setSaving] = useState(false);
-    const [sortAsc, setSortAsc] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
     const modalZIndex = useModalLayer(show);
 
-    // Constantes
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = readings.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(readings.length / itemsPerPage);
-
-    // Obtener datos de la API 
+    // Obtener datos de la API
     useEffect(() => {
         const fetchReadings = async () => {
             setLoading(true);
@@ -58,11 +52,16 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
         setTempReading(reading.reading);
     };
 
+    // Manejar boton de cancelar edición
+    const handleCancelEdit = () => {
+        setEditingId(null);
+    };
+
     // Manejar boton de guardar
     const handleSave = async (idReading: number) => {
         setSaving(true);
         try {
-            await updateData(`/operator/update-reading?idReading=${idReading}&reading`, tempReading , {});
+            await updateData(`/operator/update-reading?idReading=${idReading}&reading`, tempReading, {});
             toast.success("Lectura actualizada");
             setReadings(readings.map(r => (r.idReading === idReading ? { ...r, reading: tempReading } : r)));
             setEditingId(null);
@@ -74,14 +73,61 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
         }
     };
 
-    // Manejar orden asc/desc por fecha
-    const handleSort = () => {
-        const sortedReadings = [...readings].sort((a, b) =>
-            sortAsc ? new Date(a.date).getTime() - new Date(b.date).getTime() : new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-        setReadings(sortedReadings);
-        setSortAsc(!sortAsc);
-    };
+    const columns: TableColumnDefinition<ReadReadingDto>[] = [
+        {
+            key: "date",
+            label: "Fecha",
+            sortable: true,
+            render: (reading) => (
+                <div className="d-flex align-items-center gap-2 text-start">
+                    <div className="icon-badge" style={{ width: 32, height: 32, fontSize: "0.85rem" }}>
+                        <i className="bi bi-calendar3"></i>
+                    </div>
+                    {formatDate(reading.date)}
+                </div>
+            ),
+        },
+        {
+            key: "periodName",
+            label: "Período",
+            render: (reading) => reading.periodName || "—",
+        },
+        {
+            key: "reading",
+            label: "Valor de Lectura",
+            sortable: true,
+            render: (reading) =>
+                editingId === reading.idReading ? (
+                    <Form.Control
+                        type="number"
+                        className="text-center"
+                        value={tempReading}
+                        onChange={(e) => setTempReading(Number(e.target.value))}
+                    />
+                ) : (
+                    reading.reading
+                ),
+        },
+        {
+            key: "actions",
+            label: "Acciones",
+            actions: (reading) =>
+                editingId === reading.idReading ? (
+                    <div className="d-flex justify-content-center gap-2">
+                        <Button variant="outline-secondary" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={handleCancelEdit} disabled={saving}>
+                            <i className="bi bi-x-circle me-1"></i> Cancelar
+                        </Button>
+                        <Button variant="success" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={() => handleSave(reading.idReading)} disabled={saving}>
+                            {saving ? <Spinner as="span" animation="border" size="sm" /> : <><i className="bi bi-check-circle me-1"></i> Guardar</>}
+                        </Button>
+                    </div>
+                ) : (
+                    <Button variant="outline-warning" size="sm" onClick={() => handleEdit(reading)}>
+                        <i className="bi bi-pencil me-1"></i> Editar
+                    </Button>
+                ),
+        },
+    ];
 
     // Render
     return (
@@ -89,6 +135,7 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
             <FormModalHeader
                 icon="bi bi-speedometer2"
                 title={`Lecturas de ${userName}`}
+                subtitle="Consultá las lecturas registradas para este usuario."
                 onClose={onHide}
                 titleId="user-reading-modal-title"
             />
@@ -100,109 +147,17 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
                     </div>
                 ) : error ? (
                     <div className="text-danger text-center">{error}</div>
+                ) : readings.length === 0 ? (
+                    <p className="text-center">No hay lecturas disponibles</p>
                 ) : (
-                    <>
-                        <Table striped bordered hover>
-                            <thead>
-                                <tr className="text-center">
-                                    <th>
-                                        Fecha
-                                        <span
-                                            style={{ cursor: "pointer", marginLeft: "5px" }}
-                                            onClick={handleSort}
-                                        >
-                                            {sortAsc ? "▲" : "▼"}
-                                        </span>
-                                    </th>
-                                    <th>Período</th>
-                                    <th>Valor de Lectura</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {currentItems.length > 0 ? (
-                                    currentItems.map((reading) => (
-                                        <tr className="align-middle text-center" key={reading.idReading}>
-                                            <td>{reading.date}</td>
-                                            <td>{reading.periodName || "—"}</td>
-                                            <td>
-                                                {editingId === reading.idReading ? (
-                                                    <Form.Control
-                                                        className="text-center"
-                                                        type="number"
-                                                        value={tempReading}
-                                                        onChange={(e) =>
-                                                            setTempReading(Number(e.target.value))
-                                                        }
-                                                    />
-                                                ) : (
-                                                    reading.reading
-                                                )}
-                                            </td>
-                                            <td>
-                                                {editingId === reading.idReading ? (
-                                                    <Button
-                                                        variant="success"
-                                                        onClick={() => handleSave(reading.idReading)}
-                                                        disabled={saving}
-                                                    >
-                                                        {saving ? (
-                                                            <Spinner as="span" animation="border" size="sm" />
-                                                        ) : (
-                                                            "Guardar"
-                                                        )}
-                                                    </Button>
-                                                ) : (
-                                                    <Button
-                                                        variant="warning"
-                                                        onClick={() => handleEdit(reading)}
-                                                    >
-                                                        Editar
-                                                    </Button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={4} className="text-center">
-                                            No hay lecturas disponibles
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </Table>
-
-                        {/* Controles de paginación */}
-                        <div className="d-flex justify-content-between align-items-center">
-                            <Button
-                                variant="secondary"
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(prev => prev - 1)}
-                            >
-                                Anterior
-                            </Button>
-                            <span>
-                                Página {currentPage} de {totalPages}
-                            </span>
-                            <Button
-                                variant="secondary"
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage(prev => prev + 1)}
-                            >
-                                Siguiente
-                            </Button>
-                        </div>
-                    </>
+                    <ReusableTable<ReadReadingDto>
+                        data={readings}
+                        columns={columns}
+                        defaultSort="date"
+                        defaultSortDirection="desc"
+                    />
                 )}
             </Modal.Body>
-
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>
-                    Cerrar
-                </Button>
-            </Modal.Footer>
         </Modal>
     );
 };

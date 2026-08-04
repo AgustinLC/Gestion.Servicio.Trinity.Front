@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Spinner, Table, Form } from "react-bootstrap";
+import { Button, Modal, Spinner, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { UserDiscountDto } from "../../../core/models/dto/UserDiscountDto";
 import { getData, updateData, deleteData } from "../../../core/services/apiService";
@@ -9,6 +9,9 @@ import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import AddDiscountModal from "./AddDiscountModal";
 import { ApplyCondition } from "../../../core/models/dto/ApplyCondition";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import ReusableTable from "../../../shared/components/table/ReusableTable";
+import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
+import { formatDate, formatCurrency } from "../../../core/utils/formatters";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface ShowDiscountUserModalProps {
@@ -31,19 +34,10 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
     const [discountToDelete, setDiscountToDelete] = useState<number | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [sortAsc, setSortAsc] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
     const [showAddModal, setShowAddModal] = useState(false);
     const modalZIndex = useModalLayer(show);
 
-    // Constantes
-    const itemsPerPage = 5;
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = discounts.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(discounts.length / itemsPerPage);
-
-    // Obtener datos de la API 
+    // Obtener datos de la API
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
@@ -71,6 +65,11 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
         });
     };
 
+    // Manejar boton de cancelar edición
+    const handleCancelEdit = () => {
+        setEditingId(null);
+    };
+
     // Obtener el tipo de descuento (FIXED o MANUAL)
     const getDiscountType = (idDiscount: number): ApplyCondition | null => {
         const discount = billingDiscounts.find(d => d.idDiscount === idDiscount);
@@ -81,9 +80,9 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
     const handleSave = async (idUserDiscount: number) => {
         setSaving(true);
         try {
-            await updateData(`/operator/update-userDiscount?idUserDiscount`, idUserDiscount, { 
-                idDiscount: tempData.idDiscount, 
-                value: tempData.value 
+            await updateData(`/operator/update-userDiscount?idUserDiscount`, idUserDiscount, {
+                idDiscount: tempData.idDiscount,
+                value: tempData.value
             });
             toast.success("Descuento actualizado");
             setDiscounts(discounts.map(d => d.idUserDiscount === idUserDiscount ? {
@@ -126,15 +125,6 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
         }
     };
 
-    // Manejar orden asc/desc por ID
-    const handleSort = () => {
-        const sortedDiscounts = [...discounts].sort((a, b) =>
-            sortAsc ? a.idUserDiscount - b.idUserDiscount : b.idUserDiscount - a.idUserDiscount
-        );
-        setDiscounts(sortedDiscounts);
-        setSortAsc(!sortAsc);
-    };
-
     // Obtener nombre del descuento
     const getDiscountName = (idDiscount: number) => {
         return billingDiscounts.find(bd => bd.idDiscount === idDiscount)?.name || idDiscount;
@@ -142,12 +132,92 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
 
     const displayUserName = userName || `${user.firstName} ${user.lastName}`;
 
+    const columns: TableColumnDefinition<UserDiscountDto>[] = [
+        {
+            key: "dateRegister",
+            label: "Fecha de creación",
+            sortable: true,
+            render: (discount) => (
+                <div className="d-flex align-items-center gap-2 text-start">
+                    <div className="icon-badge" style={{ width: 32, height: 32, fontSize: "0.85rem" }}>
+                        <i className="bi bi-calendar3"></i>
+                    </div>
+                    {formatDate(discount.dateRegister)}
+                </div>
+            ),
+        },
+        {
+            key: "idDiscount",
+            label: "Descuento",
+            render: (discount) =>
+                editingId === discount.idUserDiscount ? (
+                    <Form.Select
+                        value={tempData.idDiscount}
+                        onChange={(e) => setTempData(prev => ({ ...prev, idDiscount: Number(e.target.value) }))}
+                    >
+                        {billingDiscounts.map((bd) => (
+                            <option key={bd.idDiscount} value={bd.idDiscount}>
+                                {bd.name}
+                            </option>
+                        ))}
+                    </Form.Select>
+                ) : (
+                    getDiscountName(discount.idDiscount)
+                ),
+        },
+        {
+            key: "value",
+            label: "Importe $",
+            sortable: true,
+            render: (discount) => {
+                const isEditing = editingId === discount.idUserDiscount;
+                const isFixed = getDiscountType(discount.idDiscount) === ApplyCondition.FIXED;
+                return isEditing ? (
+                    <Form.Control
+                        type="number"
+                        className="text-center"
+                        value={tempData.value}
+                        onChange={(e) => setTempData(prev => ({ ...prev, value: Number(e.target.value) }))}
+                        disabled={isFixed}
+                    />
+                ) : (
+                    formatCurrency(discount.value)
+                );
+            },
+        },
+        {
+            key: "actions",
+            label: "Acciones",
+            actions: (discount) =>
+                editingId === discount.idUserDiscount ? (
+                    <div className="d-flex justify-content-center gap-2">
+                        <Button variant="outline-secondary" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={handleCancelEdit} disabled={saving}>
+                            <i className="bi bi-x-circle me-1"></i> Cancelar
+                        </Button>
+                        <Button variant="success" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={() => handleSave(discount.idUserDiscount)} disabled={saving}>
+                            {saving ? <Spinner as="span" animation="border" size="sm" /> : <><i className="bi bi-check-circle me-1"></i> Guardar</>}
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="d-flex justify-content-center gap-2">
+                        <Button variant="outline-warning" size="sm" onClick={() => handleEdit(discount)}>
+                            <i className="bi bi-pencil me-1"></i> Editar
+                        </Button>
+                        <Button variant="outline-danger" size="sm" onClick={() => handleDeleteClick(discount.idUserDiscount)}>
+                            <i className="bi bi-trash me-1"></i> Eliminar
+                        </Button>
+                    </div>
+                ),
+        },
+    ];
+
     return (
         <>
             <Modal show={show} size="lg" onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="show-discount-modal-title">
                 <FormModalHeader
                     icon="bi bi-plus-slash-minus"
                     title={`Descuentos de ${displayUserName}`}
+                    subtitle="Consultá los descuentos registrados para este usuario."
                     onClose={onHide}
                     titleId="show-discount-modal-title"
                 />
@@ -160,115 +230,13 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
                     ) : error ? (
                         <div className="text-danger text-center">{error}</div>
                     ) : (
-                        <>
-                            <Table striped bordered hover>
-                                <thead>
-                                    <tr className="text-center align-middle">
-                                        <th>Fecha de creación
-                                            <span style={{ cursor: "pointer", marginLeft: "5px" }} onClick={handleSort}>
-                                                {sortAsc ? "▲" : "▼"}
-                                            </span>
-                                        </th>
-                                        <th>Descuento</th>
-                                        <th>Importe $</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    {currentItems.map((discount) => {
-                                        const discountType = getDiscountType(discount.idDiscount);
-                                        const isFixed = discountType === ApplyCondition.FIXED;
-                                        const isEditing = editingId === discount.idUserDiscount;
-
-                                        return (
-                                            <tr className="align-middle" key={discount.idUserDiscount}>
-                                                {/* ID */}
-                                                <td className="text-center">{new Date(discount.dateRegister).toLocaleDateString("es-AR")}</td>
-
-                                                {/* Descuento */}
-                                                <td className="text-center">
-                                                    {isEditing ? (
-                                                        <Form.Select
-                                                            value={tempData.idDiscount}
-                                                            onChange={(e) =>
-                                                                setTempData(prev => ({
-                                                                    ...prev,
-                                                                    idDiscount: Number(e.target.value)
-                                                                }))
-                                                            }
-                                                        >
-                                                            {billingDiscounts.map((bd) => (
-                                                                <option key={bd.idDiscount} value={bd.idDiscount}>
-                                                                    {bd.name}
-                                                                </option>
-                                                            ))}
-                                                        </Form.Select>
-                                                    ) : (
-                                                        getDiscountName(discount.idDiscount)
-                                                    )}
-                                                </td>
-
-                                                {/* Importe */}
-                                                <td className="text-center">
-                                                    {isEditing ? (
-                                                        <Form.Control
-                                                            className="text-center"
-                                                            type="number"
-                                                            value={tempData.value}
-                                                            onChange={(e) =>
-                                                                setTempData(prev => ({
-                                                                    ...prev,
-                                                                    value: Number(e.target.value)
-                                                                }))
-                                                            }
-                                                            disabled={isFixed}
-                                                        />
-                                                    ) : (
-                                                        discount.value
-                                                    )}
-                                                </td>
-
-                                                {/* Acciones */}
-                                                <td className="text-center">
-                                                    {isEditing ? (
-                                                        <Button variant="success" onClick={() => handleSave(discount.idUserDiscount)} disabled={saving}>
-                                                            {saving ? <Spinner as="span" animation="border" size="sm" /> : "Guardar"}
-                                                        </Button>
-                                                    ) : (
-                                                        <div className="d-flex justify-content-center gap-2">
-                                                            <Button variant="warning" onClick={() => handleEdit(discount)}>
-                                                                Editar
-                                                            </Button>
-                                                            <Button variant="danger" onClick={() => handleDeleteClick(discount.idUserDiscount)}>
-                                                                Eliminar
-                                                            </Button>
-                                                        </div>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </Table>
-                            <div className="d-flex justify-content-between align-items-center">
-                                <Button variant="secondary" disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)}>
-                                    Anterior
-                                </Button>
-                                <span>Página {currentPage} de {totalPages}</span>
-                                <Button variant="secondary" disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)}>
-                                    Siguiente
-                                </Button>
-                            </div>
-                        </>
+                        <ReusableTable<UserDiscountDto>
+                            data={discounts}
+                            columns={columns}
+                            defaultSort="dateRegister"
+                        />
                     )}
                 </Modal.Body>
-
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={onHide}>
-                        Cerrar
-                    </Button>
-                </Modal.Footer>
             </Modal>
             {/* Modal de confirmación */}
             <ConfirmModal

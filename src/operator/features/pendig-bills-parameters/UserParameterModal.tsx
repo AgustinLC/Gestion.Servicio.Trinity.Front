@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Spinner, Table, Form } from "react-bootstrap";
+import { Button, Modal, Spinner, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
 import { getData, updateData, deleteData } from "../../../core/services/apiService";
 import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import ReusableTable from "../../../shared/components/table/ReusableTable";
+import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
+import { formatDate, formatCurrency } from "../../../core/utils/formatters";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface UserParametersModalProps {
@@ -28,18 +31,9 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
     const [parameterToDelete, setParameterToDelete] = useState<number | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [sortAsc, setSortAsc] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
     const modalZIndex = useModalLayer(show);
 
-    // Constantes
-    const itemsPerPage = 5;
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = parameters.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(parameters.length / itemsPerPage);
-
-    // Obtener datos de la API 
+    // Obtener datos de la API
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
@@ -67,13 +61,18 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
         });
     };
 
+    // Manejar boton de cancelar edición
+    const handleCancelEdit = () => {
+        setEditingId(null);
+    };
+
     // Manejar boton de guardar
     const handleSave = async (idPendingBillDetail: number) => {
         setSaving(true);
         try {
-            await updateData(`/operator/pending-details/update?idPendingBillDetail`, idPendingBillDetail, { 
-                idBillingParameter: tempData.billingParameterId, 
-                value: tempData.value 
+            await updateData(`/operator/pending-details/update?idPendingBillDetail`, idPendingBillDetail, {
+                idBillingParameter: tempData.billingParameterId,
+                value: tempData.value
             });
             toast.success("Concepto actualizado");
             setParameters(parameters.map(p => p.idPendingBillDetail === idPendingBillDetail ? {
@@ -116,19 +115,85 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
         }
     };
 
-    // Manejar orden asc/desc por fecha
-    const handleSort = () => {
-        const sortedReadings = [...parameters].sort((a, b) =>
-            sortAsc ? a.idPendingBillDetail - b.idPendingBillDetail : b.idPendingBillDetail - a.idPendingBillDetail
-        );
-        setParameters(sortedReadings);
-        setSortAsc(!sortAsc);
-    };
-
     // Obtener nombre del parámetro
     const getParameterName = (idBillingParameter: number) => {
         return billingParameters.find(bp => bp.idBillingParameter === idBillingParameter)?.name || idBillingParameter;
     };
+
+    const columns: TableColumnDefinition<PendigBillDetail>[] = [
+        {
+            key: "dateRegister",
+            label: "Fecha de creación",
+            sortable: true,
+            render: (parameter) => (
+                <div className="d-flex align-items-center gap-2 text-start">
+                    <div className="icon-badge" style={{ width: 32, height: 32, fontSize: "0.85rem" }}>
+                        <i className="bi bi-calendar3"></i>
+                    </div>
+                    {formatDate(parameter.dateRegister)}
+                </div>
+            ),
+        },
+        {
+            key: "idBillingParameter",
+            label: "Concepto",
+            render: (parameter) =>
+                editingId === parameter.idPendingBillDetail ? (
+                    <Form.Select
+                        value={tempData.billingParameterId}
+                        onChange={(e) => setTempData(prev => ({ ...prev, billingParameterId: Number(e.target.value) }))}
+                    >
+                        {billingParameters.map((bp) => (
+                            <option key={bp.idBillingParameter} value={bp.idBillingParameter}>
+                                {bp.name}
+                            </option>
+                        ))}
+                    </Form.Select>
+                ) : (
+                    getParameterName(parameter.idBillingParameter)
+                ),
+        },
+        {
+            key: "value",
+            label: "Importe $",
+            sortable: true,
+            render: (parameter) =>
+                editingId === parameter.idPendingBillDetail ? (
+                    <Form.Control
+                        type="number"
+                        className="text-center"
+                        value={tempData.value}
+                        onChange={(e) => setTempData(prev => ({ ...prev, value: Number(e.target.value) }))}
+                    />
+                ) : (
+                    formatCurrency(parameter.value)
+                ),
+        },
+        {
+            key: "actions",
+            label: "Acciones",
+            actions: (parameter) =>
+                editingId === parameter.idPendingBillDetail ? (
+                    <div className="d-flex justify-content-center gap-2">
+                        <Button variant="outline-secondary" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={handleCancelEdit} disabled={saving}>
+                            <i className="bi bi-x-circle me-1"></i> Cancelar
+                        </Button>
+                        <Button variant="success" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={() => handleSave(parameter.idPendingBillDetail)} disabled={saving}>
+                            {saving ? <Spinner as="span" animation="border" size="sm" /> : <><i className="bi bi-check-circle me-1"></i> Guardar</>}
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="d-flex justify-content-center gap-2">
+                        <Button variant="outline-warning" size="sm" onClick={() => handleEdit(parameter)}>
+                            <i className="bi bi-pencil me-1"></i> Editar
+                        </Button>
+                        <Button variant="outline-danger" size="sm" onClick={() => handleDeleteClick(parameter.idPendingBillDetail)}>
+                            <i className="bi bi-trash me-1"></i> Eliminar
+                        </Button>
+                    </div>
+                ),
+        },
+    ];
 
     return (
         <>
@@ -136,6 +201,7 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
                 <FormModalHeader
                     icon="bi bi-journal-plus"
                     title={`Conceptos de ${userName}`}
+                    subtitle="Consultá los conceptos registrados para este usuario."
                     onClose={onHide}
                     titleId="user-parameters-modal-title"
                 />
@@ -148,108 +214,13 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
                     ) : error ? (
                         <div className="text-danger text-center">{error}</div>
                     ) : (
-                        <>
-                            <Table striped bordered hover>
-                                <thead>
-                                    <tr className="text-center align-middle">
-                                        <th>Fecha de creación
-                                            <span style={{ cursor: "pointer", marginLeft: "5px" }} onClick={handleSort}>
-                                                {sortAsc ? "▲" : "▼"}
-                                            </span>
-                                        </th>
-                                        <th>Concepto</th>
-                                        <th>Importe $</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    {currentItems.map((parameter) => (
-                                        <tr className="align-middle" key={parameter.idPendingBillDetail}>
-                                            {/* Fecha */}
-                                            <td className="text-center">{new Date(parameter.dateRegister).toLocaleDateString("es-AR")}</td>
-
-                                            {/* Concepto */}
-                                            <td className="text-center">
-                                                {editingId === parameter.idPendingBillDetail ? (
-                                                    <Form.Select
-                                                        value={tempData.billingParameterId}
-                                                        onChange={(e) =>
-                                                            setTempData(prev => ({
-                                                                ...prev,
-                                                                billingParameterId: Number(e.target.value)
-                                                            }))
-                                                        }
-                                                    >
-                                                        {billingParameters.map((bp) => (
-                                                            <option key={bp.idBillingParameter} value={bp.idBillingParameter}>
-                                                                {bp.name}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Select>
-                                                ) : (
-                                                    getParameterName(parameter.idBillingParameter)
-                                                )}
-                                            </td>
-
-                                            {/* Importe */}
-                                            <td className="text-center">
-                                                {editingId === parameter.idPendingBillDetail ? (
-                                                    <Form.Control
-                                                        className="text-center"
-                                                        type="number"
-                                                        value={tempData.value}
-                                                        onChange={(e) =>
-                                                            setTempData(prev => ({
-                                                                ...prev,
-                                                                value: Number(e.target.value)
-                                                            }))
-                                                        }
-                                                    />
-                                                ) : (
-                                                    parameter.value
-                                                )}
-                                            </td>
-
-                                            {/* Acciones */}
-                                            <td className="text-center">
-                                                {editingId === parameter.idPendingBillDetail ? (
-                                                    <Button variant="success" onClick={() => handleSave(parameter.idPendingBillDetail)} disabled={saving}>
-                                                        {saving ? <Spinner as="span" animation="border" size="sm" /> : "Guardar"}
-                                                    </Button>
-                                                ) : (
-                                                    <div className="d-flex justify-content-center gap-2">
-                                                        <Button variant="warning" onClick={() => handleEdit(parameter)}>
-                                                            Editar
-                                                        </Button>
-                                                        <Button variant="danger" onClick={() => handleDeleteClick(parameter.idPendingBillDetail)}>
-                                                            Eliminar
-                                                        </Button>
-                                                    </div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
-                            <div className="d-flex justify-content-between align-items-center">
-                                <Button variant="secondary" disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)}>
-                                    Anterior
-                                </Button>
-                                <span>Página {currentPage} de {totalPages}</span>
-                                <Button variant="secondary" disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)}>
-                                    Siguiente
-                                </Button>
-                            </div>
-                        </>
+                        <ReusableTable<PendigBillDetail>
+                            data={parameters}
+                            columns={columns}
+                            defaultSort="dateRegister"
+                        />
                     )}
                 </Modal.Body>
-
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={onHide}>
-                        Cerrar
-                    </Button>
-                </Modal.Footer>
             </Modal>
             {/* Modal de confirmación */}
             <ConfirmModal
