@@ -141,24 +141,9 @@
     padding: 0.6rem 0.9rem;
 }
 
-/* --- Barra inferior: nota + botón de envío (misma card, franja final) ---
-   Todo el fondo pastel cubre la franja completa (icono, texto Y el botón),
-   como en el Figma, no solo un recuadro alrededor de la nota. */
-.bill-generate-footer {
-    background: rgba(0, 119, 255, 0.05);
-    border-top: 1px solid rgba(226, 232, 240, 0.8);
-}
-
-.footer-note-title {
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--bs-primary);
-}
-
-.footer-note-subtitle {
-    font-size: 0.78rem;
-}
-
+/* .footer-note-banner/.footer-note-title/.footer-note-subtitle (la franja
+   final de nota + botón) se movieron a index.css: se reutilizan también en
+   CruDataMainPage. */
 .btn-submit {
     transition: all 0.25s ease-in-out;
 }

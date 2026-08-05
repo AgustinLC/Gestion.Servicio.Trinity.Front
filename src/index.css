@@ -1064,6 +1064,25 @@ button:disabled,
   color: #dc2626;
 }
 
+/* Franja final tipo "nota destacada" que cubre TODO el ancho de una card
+   (fondo pastel de punta a punta, no solo un recuadro alrededor del texto),
+   con ícono + título en 2 líneas. Usada como cierre de BillGeneratePage
+   (nota + botón de envío) y CruDataMainPage ("Importante"). */
+.footer-note-banner {
+  background: rgba(0, 119, 255, 0.05);
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.footer-note-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--bs-primary);
+}
+
+.footer-note-subtitle {
+  font-size: 0.78rem;
+}
+
 /* --- PAGE HEADER (título de sección, sin card propia: vive sobre el fondo gris de página) --- */
 .page-header-left { }
 

@@ -232,7 +232,7 @@ const BillGeneratePage = () => {
                             </div>
                         </div>
 
-                        <div className="bill-generate-footer p-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div className="footer-note-banner p-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
                             <div className="footer-note d-flex align-items-center gap-3">
                                 <div className="icon-badge">
                                     <i className="bi bi-clock-history"></i>
