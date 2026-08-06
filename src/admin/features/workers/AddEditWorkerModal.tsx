@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
@@ -19,7 +20,7 @@ const AddEditWorkerModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave,
     const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario 
-    const { register, handleSubmit, reset, formState: { errors }, setValue } = useForm<UserDto>({
+    const { register, handleSubmit, reset, control, formState: { errors }, setValue } = useForm<UserDto>({
         defaultValues: worker || {},
     });
 
@@ -92,13 +93,22 @@ const AddEditWorkerModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave,
                     {worker && ( // Mostrar estado solo en edición
                         <Form.Group>
                             <Form.Label>Estado</Form.Label>
-                            <Form.Select
-                                {...register("status", { required: "Este campo es obligatorio" })}
-                                isInvalid={!!errors.status}
-                            >
-                                <option value="ACTIVE">Activo</option>
-                                <option value="INACTIVE">Inactivo</option>
-                            </Form.Select>
+                            <Controller
+                                control={control}
+                                name="status"
+                                rules={{ required: "Este campo es obligatorio" }}
+                                render={({ field }) => (
+                                    <CustomSelect
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        isInvalid={!!errors.status}
+                                        options={[
+                                            { value: "ACTIVE", label: "Activo" },
+                                            { value: "INACTIVE", label: "Inactivo" },
+                                        ]}
+                                    />
+                                )}
+                            />
                             <Form.Control.Feedback type="invalid">
                                 {errors.status?.message}
                             </Form.Control.Feedback>

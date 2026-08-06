@@ -1,8 +1,9 @@
 import { Button, Form, Modal } from "react-bootstrap";
 import { DiscountDto } from "../../../core/models/dto/Discount";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
@@ -19,7 +20,7 @@ const AddEditDiscountModal: React.FC<AddEditModalProps> = ({ show, onHide, onSav
     const modalZIndex = useModalLayer(show);
 
     // Props para manejar el mdoal 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<DiscountDto>({
+    const { register, handleSubmit, control, formState: { errors }, reset } = useForm<DiscountDto>({
         defaultValues: discount || {},
     });
 
@@ -78,13 +79,22 @@ const AddEditDiscountModal: React.FC<AddEditModalProps> = ({ show, onHide, onSav
                     </Form.Group>
                     <Form.Group>
                         <Form.Label>Condición</Form.Label>
-                        <Form.Select
-                            {...register("applyCondition", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.applyCondition}
-                        >
-                            <option value="FIXED">Fijo</option>
-                            <option value="MANUAL">Manual</option>
-                        </Form.Select>
+                        <Controller
+                            control={control}
+                            name="applyCondition"
+                            rules={{ required: "Este campo es obligatorio" }}
+                            render={({ field }) => (
+                                <CustomSelect
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    isInvalid={!!errors.applyCondition}
+                                    options={[
+                                        { value: "FIXED", label: "Fijo" },
+                                        { value: "MANUAL", label: "Manual" },
+                                    ]}
+                                />
+                            )}
+                        />
                         <Form.Control.Feedback type="invalid">
                             {errors.applyCondition?.message}
                         </Form.Control.Feedback>

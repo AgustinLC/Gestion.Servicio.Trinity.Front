@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddParameterModalProps {
@@ -20,7 +21,7 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
     const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario
-    const {register, handleSubmit, reset, watch, setValue, formState: { errors }, } = useForm<PendigBillDetail>({
+    const {register, handleSubmit, reset, watch, setValue, control, formState: { errors }, } = useForm<PendigBillDetail>({
         defaultValues: {},
     });
 
@@ -28,8 +29,8 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
     const selectedParameterId = watch("idBillingParameter");
 
     // Manejar cambio en el selector de parámetros
-    const handleParameterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedId = parseInt(event.target.value);
+    const handleParameterChange = (value: string) => {
+        const selectedId = parseInt(value);
         const selectedParameter = parameters.find(param => param.idBillingParameter === selectedId);
         if (selectedParameter) {
             setValue("idBillingParameter", selectedParameter.idBillingParameter);
@@ -64,18 +65,23 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
                     {/* Selector de parámetros */}
                     <Form.Group controlId="parameterSelect" className="mb-3">
                         <Form.Label>Seleccione un parámetro</Form.Label>
-                        <Form.Select
-                            {...register("idBillingParameter", { required: "Este campo es obligatorio" })}
-                            onChange={handleParameterChange}
-                            isInvalid={!!errors.idBillingParameter}
-                        >
-                            <option value="">Seleccione...</option>
-                            {parameters.map(param => (
-                                <option key={param.idBillingParameter} value={param.idBillingParameter}>
-                                    {param.name} - {applyConditionLabels[param.applyCondition]}
-                                </option>
-                            ))}
-                        </Form.Select>
+                        <Controller
+                            control={control}
+                            name="idBillingParameter"
+                            rules={{ required: "Este campo es obligatorio" }}
+                            render={({ field }) => (
+                                <CustomSelect
+                                    value={field.value ? String(field.value) : ""}
+                                    onChange={handleParameterChange}
+                                    isInvalid={!!errors.idBillingParameter}
+                                    placeholder="Seleccione..."
+                                    options={parameters.map((param) => ({
+                                        value: String(param.idBillingParameter),
+                                        label: `${param.name} - ${applyConditionLabels[param.applyCondition]}`,
+                                    }))}
+                                />
+                            )}
+                        />
                         {errors.idBillingParameter && (
                             <Form.Control.Feedback type="invalid">
                                 {errors.idBillingParameter.message}

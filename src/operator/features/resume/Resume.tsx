@@ -7,6 +7,7 @@ import { PeriodSelectorDto } from "../../../core/models/dto/PeriodSelectorDto";
 import { BillCountsDto } from "../../../core/models/dto/BillCountDto";
 import KpiCard, { KpiTrend } from "../../../shared/components/kpi-card/KpiCard";
 import PageHeader from "../../../shared/components/PageHeader";
+import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 
 const Resume = () => {
     //Estados
@@ -188,24 +189,15 @@ const Resume = () => {
                                     {/* Header */}
                                     <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                                         <Card.Title className="mb-0"> Facturas Pagas/Impagas</Card.Title>
-                                        <select
-                                            className="form-select w-auto"
-                                            value={selectedPeriod ?? ""}
-                                            onChange={(e) =>
-                                                setSelectedPeriod(Number(e.target.value))
-                                            }
-                                        >
-                                            {periods.map((period) => (
-                                                <option
-                                                    key={period.idPeriod}
-                                                    value={period.idPeriod}
-                                                >
-                                                    {period.label}
-                                                    {period.active ? " (Actual)" : ""}
-
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <CustomSelect
+                                            fullWidth={false}
+                                            value={selectedPeriod !== null ? String(selectedPeriod) : ""}
+                                            onChange={(v) => setSelectedPeriod(Number(v))}
+                                            options={periods.map((period) => ({
+                                                value: String(period.idPeriod),
+                                                label: `${period.label}${period.active ? " (Actual)" : ""}`,
+                                            }))}
+                                        />
                                     </div>
 
                                     {/* Gráfico */}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Form, Table } from "react-bootstrap";
+import { Table } from "react-bootstrap";
 import { ReusableTableProps, TableColumnDefinition } from "../../../core/models/types/TableTypes";
+import CustomSelect from "../custom-select/CustomSelect";
 import React from "react";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 30];
@@ -223,19 +224,14 @@ const ReusableTable = <T,>({
                     </button>
                 </div>
 
-                <Form.Select
-                    size="sm"
+                <CustomSelect
+                    fullWidth={false}
                     className="table-page-size-select"
-                    value={itemsPerPage}
-                    onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                    value={String(itemsPerPage)}
+                    onChange={(v) => handlePageSizeChange(Number(v))}
                     aria-label="Resultados por página"
-                >
-                    {PAGE_SIZE_OPTIONS.map((size) => (
-                        <option key={size} value={size}>
-                            {size} por página
-                        </option>
-                    ))}
-                </Form.Select>
+                    options={PAGE_SIZE_OPTIONS.map((size) => ({ value: String(size), label: `${size} por página` }))}
+                />
             </div>
         </div>
     );

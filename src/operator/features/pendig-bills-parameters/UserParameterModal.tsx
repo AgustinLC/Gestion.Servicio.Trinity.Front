@@ -7,6 +7,7 @@ import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { formatDate, formatCurrency } from "../../../core/utils/formatters";
 import { useModalLayer } from "../../../context/ModalStackContext";
@@ -139,16 +140,11 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
             label: "Concepto",
             render: (parameter) =>
                 editingId === parameter.idPendingBillDetail ? (
-                    <Form.Select
-                        value={tempData.billingParameterId}
-                        onChange={(e) => setTempData(prev => ({ ...prev, billingParameterId: Number(e.target.value) }))}
-                    >
-                        {billingParameters.map((bp) => (
-                            <option key={bp.idBillingParameter} value={bp.idBillingParameter}>
-                                {bp.name}
-                            </option>
-                        ))}
-                    </Form.Select>
+                    <CustomSelect
+                        value={String(tempData.billingParameterId)}
+                        onChange={(v) => setTempData(prev => ({ ...prev, billingParameterId: Number(v) }))}
+                        options={billingParameters.map((bp) => ({ value: String(bp.idBillingParameter), label: bp.name }))}
+                    />
                 ) : (
                     getParameterName(parameter.idBillingParameter)
                 ),

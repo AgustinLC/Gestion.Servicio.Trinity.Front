@@ -7,6 +7,7 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 import { ApplyCondition } from "../../../core/models/dto/ApplyCondition";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddDiscountModalProps {
@@ -55,8 +56,8 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
     };
 
     // Manejar cambio en el selector de descuentos
-    const handleDiscountChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedId = parseInt(event.target.value);
+    const handleDiscountChange = (value: string) => {
+        const selectedId = parseInt(value);
         setSelectedDiscountId(selectedId || null);
         
         if (selectedId) {
@@ -130,17 +131,15 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
                         {/* Selector de descuentos */}
                         <Form.Group controlId="discountSelect" className="mb-3">
                             <Form.Label>Seleccione un descuento</Form.Label>
-                            <Form.Select
-                                value={selectedDiscountId ?? ""}
+                            <CustomSelect
+                                value={selectedDiscountId ? String(selectedDiscountId) : ""}
                                 onChange={handleDiscountChange}
-                            >
-                                <option value="">Seleccione...</option>
-                                {allDiscounts.map((d) => (
-                                    <option key={d.idDiscount} value={d.idDiscount}>
-                                        {d.name} - {applyConditionLabels[d.applyCondition]}
-                                    </option>
-                                ))}
-                            </Form.Select>
+                                placeholder="Seleccione..."
+                                options={allDiscounts.map((d) => ({
+                                    value: String(d.idDiscount),
+                                    label: `${d.name} - ${applyConditionLabels[d.applyCondition]}`,
+                                }))}
+                            />
                         </Form.Group>
 
                         {/* Input numérico para el importe */}

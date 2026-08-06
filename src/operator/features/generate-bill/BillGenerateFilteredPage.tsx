@@ -10,6 +10,7 @@ import { useBillPdfGeneratorV2 } from '../../../shared/hooks/useBillPdfGenerator
 import useAppData from '../../../hooks/useAppData';
 import ReusableTable from '../../../shared/components/table/ReusableTable';
 import PageHeader from '../../../shared/components/PageHeader';
+import CustomSelect from '../../../shared/components/custom-select/CustomSelect';
 import './BillGenerateFilteredPage.css';
 
 const BillGenerateFilteredPage = () => {
@@ -386,11 +387,15 @@ const BillGenerateFilteredPage = () => {
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
                                         <Form.Label>Mostrar Eliminados</Form.Label>
-                                        <Form.Select name="deleted" value={filters.deleted} onChange={handleChange}>
-                                            <option value="">-- No filtrar --</option>
-                                            <option value="true">Sí</option>
-                                            <option value="false">No</option>
-                                        </Form.Select>
+                                        <CustomSelect
+                                            value={filters.deleted}
+                                            onChange={(v) => setFilters((prev) => ({ ...prev, deleted: v }))}
+                                            options={[
+                                                { value: "", label: "-- No filtrar --" },
+                                                { value: "true", label: "Sí" },
+                                                { value: "false", label: "No" },
+                                            ]}
+                                        />
                                     </Form.Group>
                                 </Col>
                             </Row>
@@ -450,34 +455,42 @@ const BillGenerateFilteredPage = () => {
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
                                         <Form.Label>Tarifa</Form.Label>
-                                        <Form.Select name="idFee" value={filters.idFee} onChange={handleChange}>
-                                            <option value="">-- Seleccionar tarifa --</option>
-                                            {fees.map((fee) => (
-                                                <option key={fee.idFee} value={fee.idFee}>
-                                                    {fee.name}
-                                                </option>
-                                            ))}
-                                        </Form.Select>
+                                        <CustomSelect
+                                            value={filters.idFee}
+                                            onChange={(v) => setFilters((prev) => ({ ...prev, idFee: v }))}
+                                            options={[
+                                                { value: "", label: "-- Seleccionar tarifa --" },
+                                                ...fees.map((fee) => ({ value: String(fee.idFee), label: fee.name })),
+                                            ]}
+                                        />
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
                                         <Form.Label>Estado de Pago</Form.Label>
-                                        <Form.Select name="paidStatus" value={filters.paidStatus} onChange={handleChange}>
-                                            <option value="">-- Cualquiera --</option>
-                                            <option value="true">Pagado</option>
-                                            <option value="false">No pagado</option>
-                                        </Form.Select>
+                                        <CustomSelect
+                                            value={filters.paidStatus}
+                                            onChange={(v) => setFilters((prev) => ({ ...prev, paidStatus: v }))}
+                                            options={[
+                                                { value: "", label: "-- Cualquiera --" },
+                                                { value: "true", label: "Pagado" },
+                                                { value: "false", label: "No pagado" },
+                                            ]}
+                                        />
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
                                         <Form.Label>Factura Digital</Form.Label>
-                                        <Form.Select name="digitalInvoice" value={filters.digitalInvoice} onChange={handleChange}>
-                                            <option value="">-- Cualquiera --</option>
-                                            <option value="true">Sí</option>
-                                            <option value="false">No</option>
-                                        </Form.Select>
+                                        <CustomSelect
+                                            value={filters.digitalInvoice}
+                                            onChange={(v) => setFilters((prev) => ({ ...prev, digitalInvoice: v }))}
+                                            options={[
+                                                { value: "", label: "-- Cualquiera --" },
+                                                { value: "true", label: "Sí" },
+                                                { value: "false", label: "No" },
+                                            ]}
+                                        />
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
@@ -508,22 +521,30 @@ const BillGenerateFilteredPage = () => {
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
                                         <Form.Label>Ordenar por</Form.Label>
-                                        <Form.Select name="sortBy" value={filters.sortBy} onChange={handleChange}>
-                                            <option value="date">Fecha</option>
-                                            <option value="total">Total</option>
-                                            <option value="consumption">Consumo</option>
-                                            <option value="period">Período</option>
-                                            <option value="street">Calle</option>
-                                        </Form.Select>
+                                        <CustomSelect
+                                            value={filters.sortBy}
+                                            onChange={(v) => setFilters((prev) => ({ ...prev, sortBy: v }))}
+                                            options={[
+                                                { value: "date", label: "Fecha" },
+                                                { value: "total", label: "Total" },
+                                                { value: "consumption", label: "Consumo" },
+                                                { value: "period", label: "Período" },
+                                                { value: "street", label: "Calle" },
+                                            ]}
+                                        />
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
                                         <Form.Label>Dirección</Form.Label>
-                                        <Form.Select name="sortDirection" value={filters.sortDirection} onChange={handleChange}>
-                                            <option value="ASC">Ascendente</option>
-                                            <option value="DESC">Descendente</option>
-                                        </Form.Select>
+                                        <CustomSelect
+                                            value={filters.sortDirection}
+                                            onChange={(v) => setFilters((prev) => ({ ...prev, sortDirection: v }))}
+                                            options={[
+                                                { value: "ASC", label: "Ascendente" },
+                                                { value: "DESC", label: "Descendente" },
+                                            ]}
+                                        />
                                     </Form.Group>
                                 </Col>
                             </Row>

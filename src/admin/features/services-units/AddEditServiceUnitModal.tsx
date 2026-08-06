@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { ServiceUnitDto } from "../../../core/models/dto/ServiceUnitDto";
 import { Service } from "../../../core/models/dto/Service";
 import { Unit } from "../../../core/models/dto/Unit";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
@@ -23,7 +24,7 @@ const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, on
     const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<ServiceUnitDto>({
+    const { register, handleSubmit, reset, control, formState: { errors } } = useForm<ServiceUnitDto>({
         defaultValues: serviceUnit || {},
     });
 
@@ -54,17 +55,20 @@ const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, on
                     {/* Servicio */}
                     <Form.Group>
                         <Form.Label>Servicio</Form.Label>
-                        <Form.Select
-                            {...register("idService", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.idService}
-                        >
-                            <option value="">Seleccione un servicio</option>
-                            {services.map((service) => (
-                                <option key={service.idService} value={service.idService}>
-                                    {service.name}
-                                </option>
-                            ))}
-                        </Form.Select>
+                        <Controller
+                            control={control}
+                            name="idService"
+                            rules={{ required: "Este campo es obligatorio" }}
+                            render={({ field }) => (
+                                <CustomSelect
+                                    value={field.value ? String(field.value) : ""}
+                                    onChange={field.onChange}
+                                    isInvalid={!!errors.idService}
+                                    placeholder="Seleccione un servicio"
+                                    options={services.map((service) => ({ value: String(service.idService), label: service.name }))}
+                                />
+                            )}
+                        />
                         <Form.Control.Feedback type="invalid">
                             {errors.idService?.message}
                         </Form.Control.Feedback>
@@ -73,17 +77,20 @@ const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, on
                     {/* Unidad */}
                     <Form.Group className="mt-2">
                         <Form.Label>Unidad</Form.Label>
-                        <Form.Select
-                            {...register("idUnit", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.idUnit}
-                        >
-                            <option value="">Seleccione una unidad</option>
-                            {unities.map((unit) => (
-                                <option key={unit.idUnit} value={unit.idUnit}>
-                                    {unit.name}/{unit.symbol}
-                                </option>
-                            ))}
-                        </Form.Select>
+                        <Controller
+                            control={control}
+                            name="idUnit"
+                            rules={{ required: "Este campo es obligatorio" }}
+                            render={({ field }) => (
+                                <CustomSelect
+                                    value={field.value ? String(field.value) : ""}
+                                    onChange={field.onChange}
+                                    isInvalid={!!errors.idUnit}
+                                    placeholder="Seleccione una unidad"
+                                    options={unities.map((unit) => ({ value: String(unit.idUnit), label: `${unit.name}/${unit.symbol}` }))}
+                                />
+                            )}
+                        />
                         <Form.Control.Feedback type="invalid">
                             {errors.idUnit?.message}
                         </Form.Control.Feedback>

@@ -5,6 +5,7 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 import { getData, updateData } from "../../../core/services/apiService";
 import useAuth from "../../../hooks/useAuth";
 import PageHeader from "../../../shared/components/PageHeader";
+import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { getPasswordRuleResults, isPasswordValid } from "../../../core/utils/passwordValidation";
 
 const UserPersonalData: React.FC = () => {
@@ -167,13 +168,11 @@ const UserPersonalData: React.FC = () => {
                 {/* Selector para la factura digital */}
                 <Form.Group className="mb-3">
                     <Form.Label>Factura Digital</Form.Label>
-                    <Form.Select
+                    <CustomSelect
                         value={user.digitalInvoiceAdhered ? "si" : "no"}
-                        onChange={(e) => handleToggleDigitalInvoice(e.target.value === "si")}
-                    >
-                        <option value="si">Sí</option>
-                        <option value="no">No</option>
-                    </Form.Select>
+                        onChange={(v) => handleToggleDigitalInvoice(v === "si")}
+                        options={[{ value: "si", label: "Sí" }, { value: "no", label: "No" }]}
+                    />
                 </Form.Group>
 
 

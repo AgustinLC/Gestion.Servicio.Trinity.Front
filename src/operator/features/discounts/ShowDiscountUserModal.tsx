@@ -10,6 +10,7 @@ import AddDiscountModal from "./AddDiscountModal";
 import { ApplyCondition } from "../../../core/models/dto/ApplyCondition";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { formatDate, formatCurrency } from "../../../core/utils/formatters";
 import { useModalLayer } from "../../../context/ModalStackContext";
@@ -151,16 +152,11 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
             label: "Descuento",
             render: (discount) =>
                 editingId === discount.idUserDiscount ? (
-                    <Form.Select
-                        value={tempData.idDiscount}
-                        onChange={(e) => setTempData(prev => ({ ...prev, idDiscount: Number(e.target.value) }))}
-                    >
-                        {billingDiscounts.map((bd) => (
-                            <option key={bd.idDiscount} value={bd.idDiscount}>
-                                {bd.name}
-                            </option>
-                        ))}
-                    </Form.Select>
+                    <CustomSelect
+                        value={String(tempData.idDiscount)}
+                        onChange={(v) => setTempData(prev => ({ ...prev, idDiscount: Number(v) }))}
+                        options={billingDiscounts.map((bd) => ({ value: String(bd.idDiscount), label: bd.name }))}
+                    />
                 ) : (
                     getDiscountName(discount.idDiscount)
                 ),

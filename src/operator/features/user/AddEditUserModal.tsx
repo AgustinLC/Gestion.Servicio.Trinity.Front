@@ -12,6 +12,7 @@ import { getAvatarColor } from "../../../core/utils/avatarColors";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FormSectionHeader from "../../../shared/components/form-section-header/FormSectionHeader";
 import HintBox from "../../../shared/components/hint-box/HintBox";
+import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import "./AddEditUserModal.css";
 import { formatDate } from "../../../core/utils/formatters";
 import { useModalLayer } from "../../../context/ModalStackContext";
@@ -248,14 +249,20 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
                 <Col sm={6}>
                   <Form.Group className="mb-2">
                     <Form.Label>Localidad <span className="text-danger">*</span></Form.Label>
-                    <Form.Select {...register("residenceDto.idLocation", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.idLocation}>
-                      <option value="">Seleccione una localidad</option>
-                      {locations.map((location) => (
-                        <option key={location.idLocation} value={location.idLocation}>
-                          {location.name}
-                        </option>
-                      ))}
-                    </Form.Select>
+                    <Controller
+                      control={control}
+                      name="residenceDto.idLocation"
+                      rules={{ required: "Este campo es obligatorio" }}
+                      render={({ field }) => (
+                        <CustomSelect
+                          value={field.value ? String(field.value) : ""}
+                          onChange={field.onChange}
+                          isInvalid={!!errors.residenceDto?.idLocation}
+                          placeholder="Seleccione una localidad"
+                          options={locations.map((location) => ({ value: String(location.idLocation), label: location.name }))}
+                        />
+                      )}
+                    />
                     <Form.Control.Feedback type="invalid">{errors.residenceDto?.idLocation?.message}</Form.Control.Feedback>
                   </Form.Group>
                 </Col>
@@ -322,14 +329,20 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
                   <Col sm={6}>
                     <Form.Group className="mb-2">
                       <Form.Label>Tarifa <span className="text-danger">*</span></Form.Label>
-                      <Form.Select {...register("residenceDto.idFee", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.idFee}>
-                        <option value="">Seleccione una tarifa</option>
-                        {fees.map((fee) => (
-                          <option key={fee.idFee} value={fee.idFee}>
-                            {fee.name}
-                          </option>
-                        ))}
-                      </Form.Select>
+                      <Controller
+                        control={control}
+                        name="residenceDto.idFee"
+                        rules={{ required: "Este campo es obligatorio" }}
+                        render={({ field }) => (
+                          <CustomSelect
+                            value={field.value ? String(field.value) : ""}
+                            onChange={field.onChange}
+                            isInvalid={!!errors.residenceDto?.idFee}
+                            placeholder="Seleccione una tarifa"
+                            options={fees.map((fee) => ({ value: String(fee.idFee), label: fee.name }))}
+                          />
+                        )}
+                      />
                       <Form.Control.Feedback type="invalid">{errors.residenceDto?.idFee?.message}</Form.Control.Feedback>
                     </Form.Group>
                   </Col>
@@ -343,11 +356,13 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
                         rules={{ required: "Este campo es obligatorio" }}
                         defaultValue={""} // ahora es string y coincide con FormValues
                         render={({ field }) => (
-                          <Form.Select {...field} isInvalid={!!errors.digitalInvoiceAdhered}>
-                            <option value="">Seleccione una opción</option>
-                            <option value="true">Sí</option>
-                            <option value="false">No</option>
-                          </Form.Select>
+                          <CustomSelect
+                            value={field.value}
+                            onChange={field.onChange}
+                            isInvalid={!!errors.digitalInvoiceAdhered}
+                            placeholder="Seleccione una opción"
+                            options={[{ value: "true", label: "Sí" }, { value: "false", label: "No" }]}
+                          />
                         )}
                       />
                       <Form.Control.Feedback type="invalid">{errors.digitalInvoiceAdhered?.message}</Form.Control.Feedback>
@@ -365,11 +380,13 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
                         rules={{ required: "Este campo es obligatorio" }}
                         defaultValue={""} // string
                         render={({ field }) => (
-                          <Form.Select {...field} isInvalid={!!errors.pdfInvoiceAdhered}>
-                            <option value="">Seleccione una opción</option>
-                            <option value="true">Sí</option>
-                            <option value="false">No</option>
-                          </Form.Select>
+                          <CustomSelect
+                            value={field.value}
+                            onChange={field.onChange}
+                            isInvalid={!!errors.pdfInvoiceAdhered}
+                            placeholder="Seleccione una opción"
+                            options={[{ value: "true", label: "Sí" }, { value: "false", label: "No" }]}
+                          />
                         )}
                       />
                       <Form.Control.Feedback type="invalid">{errors.pdfInvoiceAdhered?.message}</Form.Control.Feedback>
@@ -385,11 +402,13 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
                         rules={{ required: "Este campo es obligatorio" }}
                         defaultValue={""} // string
                         render={({ field }) => (
-                          <Form.Select {...field} isInvalid={!!errors.ivaInvoiceAdhered}>
-                            <option value="">Seleccione una opción</option>
-                            <option value="true">Sí</option>
-                            <option value="false">No</option>
-                          </Form.Select>
+                          <CustomSelect
+                            value={field.value}
+                            onChange={field.onChange}
+                            isInvalid={!!errors.ivaInvoiceAdhered}
+                            placeholder="Seleccione una opción"
+                            options={[{ value: "true", label: "Sí" }, { value: "false", label: "No" }]}
+                          />
                         )}
                       />
                       <Form.Control.Feedback type="invalid">{errors.ivaInvoiceAdhered?.message}</Form.Control.Feedback>

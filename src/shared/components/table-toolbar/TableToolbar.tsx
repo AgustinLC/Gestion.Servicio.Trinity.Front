@@ -1,6 +1,7 @@
 import React from "react";
 import { Form, InputGroup } from "react-bootstrap";
 import SearchBar from "../searcher/SearchBar";
+import CustomSelect from "../custom-select/CustomSelect";
 import { TableFilterConfig, TableFilterState } from "./types";
 
 interface TableToolbarProps {
@@ -86,31 +87,23 @@ const TableToolbar: React.FC<TableToolbarProps> = ({
                     }
 
                     return (
-                        <InputGroup
+                        <div
                             key={filter.id}
-                            className="table-toolbar-filter-group"
+                            className="table-toolbar-filter-control"
                             style={{ maxWidth: filter.maxWidth ?? "260px" }}
                         >
-                            {iconClass && (
-                                <InputGroup.Text>
-                                    <i className={iconClass}></i>
-                                </InputGroup.Text>
-                            )}
-                            <Form.Select
+                            <CustomSelect
+                                icon={iconClass}
                                 value={value}
-                                onChange={(event) => onChange(event.target.value)}
+                                onChange={onChange}
+                                placeholder={filter.emptyLabel ?? `Seleccionar ${filter.label}...`}
                                 aria-label={filter.label}
-                            >
-                                <option value={filter.defaultValue ?? ""}>
-                                    {filter.emptyLabel ?? `Seleccionar ${filter.label}...`}
-                                </option>
-                                {filter.options?.map((option) => (
-                                    <option key={option.value} value={option.value}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </Form.Select>
-                        </InputGroup>
+                                options={[
+                                    { value: filter.defaultValue ?? "", label: filter.emptyLabel ?? `Seleccionar ${filter.label}...` },
+                                    ...(filter.options ?? []),
+                                ]}
+                            />
+                        </div>
                     );
                 })}
 

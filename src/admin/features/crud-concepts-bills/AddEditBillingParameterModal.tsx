@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
@@ -19,7 +20,7 @@ const AddEditBillingParameterModal: React.FC<AddEditModalProps> = ({ show, onHid
     const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<BillingParameter>({
+    const { register, handleSubmit, reset, control, formState: { errors } } = useForm<BillingParameter>({
         defaultValues: billingParameter || {},
     });
 
@@ -78,14 +79,23 @@ const AddEditBillingParameterModal: React.FC<AddEditModalProps> = ({ show, onHid
                     </Form.Group>
                     <Form.Group>
                         <Form.Label>Condición</Form.Label>
-                        <Form.Select
-                            {...register("applyCondition", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.applyCondition}
-                        >
-                            <option value="MANUAL">Manual</option>
-                            <option value="CONDITIONAL">Condicional</option>
-                            <option value="FIXED">Fijo</option>
-                        </Form.Select>
+                        <Controller
+                            control={control}
+                            name="applyCondition"
+                            rules={{ required: "Este campo es obligatorio" }}
+                            render={({ field }) => (
+                                <CustomSelect
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    isInvalid={!!errors.applyCondition}
+                                    options={[
+                                        { value: "MANUAL", label: "Manual" },
+                                        { value: "CONDITIONAL", label: "Condicional" },
+                                        { value: "FIXED", label: "Fijo" },
+                                    ]}
+                                />
+                            )}
+                        />
                         <Form.Control.Feedback type="invalid">
                             {errors.applyCondition?.message}
                         </Form.Control.Feedback>
@@ -93,13 +103,22 @@ const AddEditBillingParameterModal: React.FC<AddEditModalProps> = ({ show, onHid
                     {billingParameter && (
                         <Form.Group>
                             <Form.Label>Estado</Form.Label>
-                            <Form.Select
-                                {...register("status", { required: "Este campo es obligatorio" })}
-                                isInvalid={!!errors.status}
-                            >
-                                <option value="ACTIVE">Activo</option>
-                                <option value="INACTIVE">Inactivo</option>
-                            </Form.Select>
+                            <Controller
+                                control={control}
+                                name="status"
+                                rules={{ required: "Este campo es obligatorio" }}
+                                render={({ field }) => (
+                                    <CustomSelect
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        isInvalid={!!errors.status}
+                                        options={[
+                                            { value: "ACTIVE", label: "Activo" },
+                                            { value: "INACTIVE", label: "Inactivo" },
+                                        ]}
+                                    />
+                                )}
+                            />
                             <Form.Control.Feedback type="invalid">
                                 {errors.applyCondition?.message}
                             </Form.Control.Feedback>
