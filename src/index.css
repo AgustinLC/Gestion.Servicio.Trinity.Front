@@ -756,6 +756,25 @@ button:disabled,
   animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+/* Animación de entrada para el bloque de contenido de páginas tipo
+   formulario/detalle (no tablas). Se aplica solo al wrapper de contenido,
+   nunca al contenedor que también envuelve el PageHeader, para que el
+   título quede fijo y no se deslice junto con la card. */
+@keyframes contentFadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.content-fade-in-slide {
+  animation: contentFadeInSlide 0.5s ease-out;
+}
+
 /* --- REUSABLE TABLE SORTING STYLES --- */
 .header-content {
   display: inline-flex;
@@ -1001,6 +1020,23 @@ button:disabled,
 .form-section-title {
   font-weight: 700;
   color: #1e293b;
+}
+
+/* Título de sección con línea inferior (en vez del ícono circular de
+   FormSectionHeader): ícono celeste + texto negro, subrayado con un borde
+   gris clarito. Antes vivía solo en BillGenerateFilteredPage.css; se
+   generaliza acá para reutilizar en cualquier otra página con el mismo
+   lenguaje visual (ej. PdfParametersPage). */
+.filter-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #edf2f7;
+  padding-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .form-modal-footer {

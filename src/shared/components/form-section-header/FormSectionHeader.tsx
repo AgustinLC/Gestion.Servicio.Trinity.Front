@@ -13,7 +13,7 @@ interface FormSectionHeaderProps {
 // BillGeneratePage).
 const FormSectionHeader: React.FC<FormSectionHeaderProps> = ({ icon, title, subtitle, className = "" }) => {
     return (
-        <div className={`d-flex align-items-start gap-3 ${subtitle ? "mb-3" : "mb-2"} ${className}`}>
+        <div className={`d-flex ${subtitle ? "align-items-start" : "align-items-center"} gap-3 ${subtitle ? "mb-3" : "mb-2"} ${className}`}>
             <div className="icon-badge">
                 <i className={icon}></i>
             </div>

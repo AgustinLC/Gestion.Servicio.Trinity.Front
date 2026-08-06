@@ -119,8 +119,8 @@ const BillGeneratePage = () => {
         <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Generación de Facturas" subtitle="Generá facturas de forma masiva o individual." icon="bi bi-file-earmark-plus" />
 
-            <div className="bill-generate-container">
-                <Card className="bill-generate-card border-0">
+            <div className="bill-generate-container my-auto content-fade-in-slide">
+                <Card className="bill-generate-card border-0 shadow-lg">
                     <div className="mode-tabs-row d-flex">
                         <button
                             type="button"

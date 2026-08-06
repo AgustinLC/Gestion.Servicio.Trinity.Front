@@ -312,9 +312,9 @@ const BillGenerateFilteredPage = () => {
         <div className="generate-filtered-container d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Generación de Facturas por Filtros" subtitle="Buscá facturas por criterios y descargalas en PDF." icon="bi bi-funnel-fill" />
 
-            <div className="my-auto">
+            <div className="my-auto content-fade-in-slide">
             <Form className="mb-4">
-                <Card className="filter-card border-0 shadow-sm">
+                <Card className="filter-card border-0 shadow-lg">
                     <Row>
                         {/* Grupo 1: Ubicación e Identificación */}
                         <Col lg={6} className="mb-3">

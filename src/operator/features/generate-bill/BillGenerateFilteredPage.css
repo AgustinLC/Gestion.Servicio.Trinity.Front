@@ -1,12 +1,5 @@
 /* BillGenerateFilteredPage.css */
 
-/* Sin padding propio: esta página ya vive dentro de .dashboard-main, que
-   aporta su propio padding (p-4). Sumar otro acá duplicaba el espaciado
-   arriba/abajo y generaba scroll vertical innecesario. */
-.generate-filtered-container {
-    animation: fadeIn 0.5s ease-out;
-}
-
 /* Card Styling for Filters Form */
 .filter-card {
     background: #ffffff;
@@ -18,18 +11,8 @@
     margin-bottom: 1.5rem;
 }
 
-.filter-section-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #edf2f7;
-    padding-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
+/* .filter-section-title se movió a index.css (se reutiliza en otras
+   páginas, ej. PdfParametersPage). */
 .form-label {
     font-weight: 600;
     color: #475569;
@@ -187,14 +170,3 @@
     gap: 0.4rem;
 }
 
-/* Animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}

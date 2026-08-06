@@ -99,13 +99,13 @@ const PdfParametersPage: React.FC = () => {
     <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
       <PageHeader title="Parámetros de Avisos PDF" subtitle="Configurá los valores, plazos y datos de contacto mostrados en los PDFs de deuda y corte." icon="bi bi-file-pdf" />
       <div className="pdf-params-container my-auto">
-        <Card className="shadow-lg border-0 rounded-4 overflow-hidden mb-4 glass-card animate__animated animate__fadeIn">
+        <Card className="shadow-lg border-0 rounded-4 overflow-hidden mb-4 glass-card content-fade-in-slide">
           <Card.Body className="p-4 bg-white">
             <Form onSubmit={handleSubmit}>
 
             {/* Sección 1: Valores Económicos */}
-            <h5 className="section-title text-primary mb-3">
-              <i className="bi bi-cash-coin me-2"></i>Valores Económicos
+            <h5 className="filter-section-title">
+              <i className="bi bi-cash-coin text-primary"></i> Valores Económicos
             </h5>
             <Row className="mb-4">
               <Col md={6} className="mb-3 mb-md-0">
@@ -155,8 +155,8 @@ const PdfParametersPage: React.FC = () => {
             <hr className="my-4 text-muted opacity-25" />
 
             {/* Sección 2: Tiempos y Plazos */}
-            <h5 className="section-title text-primary mb-3">
-              <i className="bi bi-clock-history me-2"></i>Tiempos y Plazos
+            <h5 className="filter-section-title">
+              <i className="bi bi-clock-history text-primary"></i> Tiempos y Plazos
             </h5>
             <Row className="mb-4">
               <Col md={4} className="mb-3 mb-md-0">
@@ -220,8 +220,8 @@ const PdfParametersPage: React.FC = () => {
             <hr className="my-4 text-muted opacity-25" />
 
             {/* Sección 3: Contacto y Pago */}
-            <h5 className="section-title text-primary mb-3">
-              <i className="bi bi-credit-card-2-front me-2"></i>Contacto y Datos Bancarios
+            <h5 className="filter-section-title">
+              <i className="bi bi-credit-card-2-front text-primary"></i> Contacto y Datos Bancarios
             </h5>
             <Row className="mb-4">
               <Col md={6} className="mb-3">
