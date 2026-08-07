@@ -198,14 +198,37 @@ const CruDataMainPage = () => {
             <PageHeader title="Información de la página principal" subtitle="Editá los datos que se muestran en el sitio público." icon="bi bi-display" />
 
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status" />
+                <div>
+                    <div className="skeleton skeleton-line mb-3" style={{ width: "100%", height: 54, borderRadius: 10 }}></div>
+                    <Row className="g-3">
+                        {Array.from({ length: 4 }).map((_, index) => (
+                            <Col md={6} key={index}>
+                                <div className="card h-100">
+                                    <div className="card-body p-4">
+                                        <div className="d-flex align-items-center justify-content-between mb-3">
+                                            <div className="d-flex align-items-center gap-3">
+                                                <div className="skeleton" style={{ width: 40, height: 40, borderRadius: "50%" }}></div>
+                                                <div className="skeleton skeleton-line" style={{ width: 150, height: 16 }}></div>
+                                            </div>
+                                            <div className="skeleton skeleton-line" style={{ width: 90, height: 32, borderRadius: 8 }}></div>
+                                        </div>
+                                        {Array.from({ length: 5 }).map((_, rowIndex) => (
+                                            <div key={rowIndex} className="d-flex gap-3 py-2 border-bottom align-items-center">
+                                                <div className="skeleton skeleton-line" style={{ width: 100, height: 12, flexShrink: 0 }}></div>
+                                                <div className="skeleton skeleton-line flex-grow-1" style={{ height: 12 }}></div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </Col>
+                        ))}
+                    </Row>
+                    <div className="skeleton skeleton-line mt-3" style={{ width: "100%", height: 74, borderRadius: 10 }}></div>
                 </div>
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : mainData ? (
-                <>
+                <div className="content-fade-in">
                     <HintBox className="mb-3">
                         <strong>Información pública: </strong>
                         Estos datos se muestran en el sitio público del consorcio. Asegurate de que la información esté siempre actualizada.
@@ -229,7 +252,7 @@ const CruDataMainPage = () => {
                             </div>
                         </div>
                     </div>
-                </>
+                </div>
             ) : null}
 
             {/* Modal de edición por sección */}

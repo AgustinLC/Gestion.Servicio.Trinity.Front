@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Spinner } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { getData, updateData } from "../../../core/services/apiService";
@@ -116,9 +116,24 @@ const UserPersonalData: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                <span className="mb-2 fw-bold">CARGANDO...</span>
-                <Spinner animation="border" role="status"></Spinner>
+            <div>
+                <PageHeader title="Mis Datos" subtitle="Actualizá tus datos personales y contraseña." icon="bi bi-person-square" />
+                <div>
+                    {[1, 2, 3].map((field) => (
+                        <div className="mb-3" key={field}>
+                            <div className="skeleton skeleton-line mb-2" style={{ width: 140, height: 14 }}></div>
+                            <div className="skeleton skeleton-line" style={{ width: "100%", height: 40, borderRadius: 10 }}></div>
+                        </div>
+                    ))}
+                    <div className="mb-3">
+                        <div className="skeleton skeleton-line mb-2" style={{ width: 140, height: 14 }}></div>
+                        <div className="skeleton skeleton-line" style={{ width: 220, height: 40, borderRadius: 10 }}></div>
+                    </div>
+                    <div className="d-flex gap-3">
+                        <div className="skeleton skeleton-line" style={{ width: 170, height: 38, borderRadius: 8 }}></div>
+                        <div className="skeleton skeleton-line" style={{ width: 150, height: 38, borderRadius: 8 }}></div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -134,7 +149,7 @@ const UserPersonalData: React.FC = () => {
     return (
         <div>
             <PageHeader title="Mis Datos" subtitle="Actualizá tus datos personales y contraseña." icon="bi bi-person-square" />
-            <Form>
+            <Form className="content-fade-in">
                 {/* Campo para el correo electrónico */}
                 <Form.Group className="mb-3">
                     <Form.Label>Correo Electrónico</Form.Label>

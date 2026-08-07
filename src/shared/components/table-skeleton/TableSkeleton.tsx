@@ -14,7 +14,7 @@ interface TableSkeletonProps {
 // De las `columns`, la primera y la última quedan reservadas para el
 // "avatar"/marca de fila y para la columna de acciones respectivamente; el
 // resto son franjas de texto genéricas.
-const TableSkeleton: React.FC<TableSkeletonProps> = ({ columns = 5, rows = 10, showToolbar = true }) => {
+const TableSkeleton: React.FC<TableSkeletonProps> = ({ columns = 5, rows = 9, showToolbar = true }) => {
     const middleColumns = Math.max(columns - 2, 1);
 
     return (

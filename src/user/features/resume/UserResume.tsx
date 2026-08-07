@@ -1,5 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Card, Row, Col, Spinner } from "react-bootstrap";
+import { Card, Row, Col } from "react-bootstrap";
 import { useEffect, useMemo, useState } from "react";
 import { ReadReadingDto } from "../../../core/models/dto/ReadReadingDto";
 import { SummaryDto } from "../../../core/models/dto/SummaryDto";
@@ -8,6 +8,7 @@ import useAuth from "../../../hooks/useAuth";
 import { toast } from "react-toastify";
 import KpiCard, { KpiTrend } from "../../../shared/components/kpi-card/KpiCard";
 import PageHeader from "../../../shared/components/PageHeader";
+import DashboardSkeleton from "../../../shared/components/dashboard-skeleton/DashboardSkeleton";
 
 const UserResume = () => {
     // Estados
@@ -132,16 +133,14 @@ const UserResume = () => {
         <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title={`Resumen de ${data?.userName ?? ""} ${data?.userLastName ?? ""}`} subtitle="Información general de tu cuenta al día de hoy." icon="bi bi-person-lines-fill" />
 
-            {/* Mostrar el mensaje de carga mientras los datos se están cargando */}
+            {/* Mientras carga, se muestra un esqueleto con la misma forma del
+                contenido real (tarjetas KPI + gráficos) en vez de un spinner. */}
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <DashboardSkeleton kpiCount={6} chartHeight={chartSize.height} />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div className="my-auto">
+                <div className="my-auto content-fade-in">
                     {/* Tarjetas de resumen (KPI) */}
                     <Row className="mb-2">
                         {summaryData.map((item, index) => (

@@ -8,6 +8,7 @@ import { BillCountsDto } from "../../../core/models/dto/BillCountDto";
 import KpiCard, { KpiTrend } from "../../../shared/components/kpi-card/KpiCard";
 import PageHeader from "../../../shared/components/PageHeader";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
+import DashboardSkeleton from "../../../shared/components/dashboard-skeleton/DashboardSkeleton";
 
 // Ilustración "sin datos": una dona fantasma en tonos grises + algunos
 // puntos decorativos alrededor, en vez de dejar el gráfico real vacío.
@@ -153,53 +154,7 @@ const Resume = () => {
             {/* Mientras carga, se muestra un esqueleto con la misma forma del
                 contenido real (tarjetas KPI + gráficos) en vez de un spinner. */}
             {loading ? (
-                <div className="my-auto">
-                    <Row className="mb-2">
-                        {Array.from({ length: 9 }).map((_, index) => (
-                            <Col key={index} xl={4} md={6} className="mb-2">
-                                <div className="kpi-card">
-                                    <div className="kpi-card-icon skeleton"></div>
-                                    <div className="kpi-card-body flex-grow-1">
-                                        <div className="skeleton skeleton-line mb-2" style={{ width: "70%", height: 12 }}></div>
-                                        <div className="skeleton skeleton-line" style={{ width: "45%", height: 18 }}></div>
-                                    </div>
-                                    <div className="kpi-card-trend skeleton"></div>
-                                </div>
-                            </Col>
-                        ))}
-                    </Row>
-
-                    <Row>
-                        <Col md={8} className="mb-3">
-                            <Card className="h-100 chart-card">
-                                <Card.Body className="d-flex flex-column">
-                                    <div className="skeleton skeleton-line mb-3" style={{ width: "35%", height: 16 }}></div>
-                                    <div className="flex-grow-1 d-flex align-items-end gap-3" style={{ height: chartSize.height }}>
-                                        {[55, 85, 40, 70, 30, 50].map((height, index) => (
-                                            <div
-                                                key={index}
-                                                className="skeleton"
-                                                style={{ width: "14%", height: `${height}%`, borderRadius: "8px 8px 0 0" }}
-                                            ></div>
-                                        ))}
-                                    </div>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-
-                        <Col md={4} className="mb-3">
-                            <Card className="h-100 chart-card">
-                                <Card.Body>
-                                    <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                                        <div className="skeleton skeleton-line" style={{ width: "55%", height: 16 }}></div>
-                                        <div className="skeleton skeleton-line" style={{ width: 90, height: 32, borderRadius: 8 }}></div>
-                                    </div>
-                                    <div className="skeleton" style={{ width: "100%", height: chartSize.height, borderRadius: 12 }}></div>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
-                </div>
+                <DashboardSkeleton kpiCount={9} chartHeight={chartSize.height} />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (

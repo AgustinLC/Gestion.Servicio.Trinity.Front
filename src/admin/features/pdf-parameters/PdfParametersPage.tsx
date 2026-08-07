@@ -88,9 +88,61 @@ const PdfParametersPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-        <Spinner animation="border" variant="primary" role="status" className="mb-3" />
-        <span className="text-muted fw-bold">Cargando parámetros de configuración...</span>
+      <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+        <PageHeader title="Parámetros de Avisos PDF" subtitle="Configurá los valores, plazos y datos de contacto mostrados en los PDFs de deuda y corte." icon="bi bi-file-pdf" />
+        <div className="pdf-params-container my-auto">
+          <Card className="shadow-lg border-0 rounded-4 overflow-hidden mb-4">
+            <Card.Body className="p-4 bg-white">
+              {/* Sección 1 */}
+              <div className="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                <div className="skeleton" style={{ width: 20, height: 20, borderRadius: 4 }}></div>
+                <div className="skeleton skeleton-line" style={{ width: 180, height: 16 }}></div>
+              </div>
+              <Row className="mb-4">
+                {[1, 2].map((field) => (
+                  <Col md={6} key={field}>
+                    <div className="skeleton skeleton-line mb-2" style={{ width: 220, height: 12 }}></div>
+                    <div className="skeleton skeleton-line" style={{ width: "100%", height: 40, borderRadius: 10 }}></div>
+                  </Col>
+                ))}
+              </Row>
+              <hr className="my-4 text-muted opacity-25" />
+
+              {/* Sección 2 */}
+              <div className="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                <div className="skeleton" style={{ width: 20, height: 20, borderRadius: 4 }}></div>
+                <div className="skeleton skeleton-line" style={{ width: 160, height: 16 }}></div>
+              </div>
+              <Row className="mb-4">
+                {[1, 2, 3].map((field) => (
+                  <Col md={4} key={field}>
+                    <div className="skeleton skeleton-line mb-2" style={{ width: 180, height: 12 }}></div>
+                    <div className="skeleton skeleton-line" style={{ width: "100%", height: 40, borderRadius: 10 }}></div>
+                  </Col>
+                ))}
+              </Row>
+              <hr className="my-4 text-muted opacity-25" />
+
+              {/* Sección 3 */}
+              <div className="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                <div className="skeleton" style={{ width: 20, height: 20, borderRadius: 4 }}></div>
+                <div className="skeleton skeleton-line" style={{ width: 220, height: 16 }}></div>
+              </div>
+              <Row className="mb-4">
+                {[1, 2, 3, 4].map((field) => (
+                  <Col md={6} className="mb-3" key={field}>
+                    <div className="skeleton skeleton-line mb-2" style={{ width: 200, height: 12 }}></div>
+                    <div className="skeleton skeleton-line" style={{ width: "100%", height: 40, borderRadius: 10 }}></div>
+                  </Col>
+                ))}
+              </Row>
+
+              <div className="d-flex justify-content-end">
+                <div className="skeleton skeleton-line" style={{ width: 190, height: 42, borderRadius: 10 }}></div>
+              </div>
+            </Card.Body>
+          </Card>
+        </div>
       </div>
     );
   }
