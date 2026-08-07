@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import AddEditUserModal from "./AddEditUserModal";
 import ResetPasswordModal from "./ResetPasswordModal";
 import BillActiveModal from "../management-bill/BillActiveModal";
@@ -11,6 +11,7 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 import { Status } from "../../../core/models/dto/Status";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import RowActions from "../../../shared/components/table/RowActions";
 import ChangeStatusConfirmModal from "../../../shared/components/change-status-confirm/ChangeStatusConfirmModal";
 import statusLabels from "../../../shared/components/labels-traductor/statusLabels";
@@ -241,14 +242,11 @@ const UserPage = () => {
                 ]}
             />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <TableToolbar
                         onSearch={handleSearch}
                         filters={filterConfigs}

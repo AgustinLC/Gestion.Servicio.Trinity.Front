@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { addData, deleteData, getData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { FeatureDto } from "../../../core/models/dto/FeatureDto";
 import AddEditFeatureModal from "./AddEditFeatureModal";
@@ -112,14 +113,11 @@ const CrudFeaturePage = () => {
         <div>
             <PageHeader title="Gestión de Funciones" subtitle="Administrá las funcionalidades del sistema." icon="bi bi-file-break" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedFeature(null); setShowModal(true); }}>
                             Añadir Función

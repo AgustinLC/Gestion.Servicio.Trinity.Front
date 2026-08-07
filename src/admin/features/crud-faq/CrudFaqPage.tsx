@@ -3,8 +3,9 @@ import { FaqDto } from "../../../core/models/dto/FaqDto";
 import { addData, deleteData, getData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import AddEditFaqModal from "./AddEditFaqModal";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
@@ -112,14 +113,11 @@ const CrudFaqPage = () => {
         <div>
             <PageHeader title="Gestión de FAQ" subtitle="Administrá las preguntas frecuentes del sitio." icon="bi bi-question-circle" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedFaq(null); setShowModal(true); }}>
                             Añadir Faq

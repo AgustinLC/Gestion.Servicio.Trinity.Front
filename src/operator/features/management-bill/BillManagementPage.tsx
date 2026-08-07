@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
 import PageHeader from "../../../shared/components/PageHeader";
 // import { addData } from "../../../core/services/apiService"; // Solo lo usaba el envío de notificaciones (deshabilitado, ver nota más abajo)
@@ -7,6 +7,7 @@ import PageHeader from "../../../shared/components/PageHeader";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import BillActiveModal from "./BillActiveModal";
 import BillNullModal from "./BillNullModal";
 import { useSearch } from "../../../hooks/useSearch";
@@ -97,14 +98,11 @@ const BillManagementPage = () => {
         <div>
             <PageHeader title="Gestión de Facturas" subtitle="Consultá y administrá las facturas emitidas." icon="bi bi-file-earmark-spreadsheet" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <TableToolbar
                         onSearch={handleSearch}
                         filters={filterConfigs}

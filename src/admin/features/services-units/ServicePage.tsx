@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { addData, deleteData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { Service } from "../../../core/models/dto/Service";
 import AddEditServiceModal from "./AddEditServiceModal";
@@ -95,14 +96,11 @@ const ServicePage = () => {
         <div>
             <PageHeader title="Servicios" subtitle="Administrá los servicios disponibles." icon="bi bi-gear" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <TableToolbar onSearch={handleSearch}>
                         <Button variant="secondary" onClick={() => navigate(-1)}>
                             Volver

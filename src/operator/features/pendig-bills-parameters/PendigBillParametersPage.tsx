@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { addData } from "../../../core/services/apiService";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import AddParameterModal from "./AddParameterModal";
 import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
@@ -95,14 +96,11 @@ const PendigBillsParameterPage = () => {
         <div>
             <PageHeader title="Gestión de Conceptos" subtitle="Agregá conceptos pendientes de facturación por usuario." icon="bi bi-journal-plus" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <TableToolbar onSearch={handleSearch} filters={filterConfigs} filterState={filterState} />
 
                     {/* Tabla */}

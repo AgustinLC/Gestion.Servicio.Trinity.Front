@@ -775,6 +775,154 @@ button:disabled,
   animation: contentFadeInSlide 0.5s ease-out;
 }
 
+/* Transición esqueleto -> contenido real: la tabla aparece en el mismo
+   lugar exacto que ocupaba el esqueleto, así que solo se desvanece (sin
+   deslizar) para no dar sensación de "venir de" ningún lado. */
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.content-fade-in {
+  animation: contentFadeIn 0.5s ease-out;
+}
+
+/* --- SKELETON LOADING (shimmer) ---
+   Bloque placeholder gris con un reflejo de luz que lo recorre de forma
+   continua (loop) mientras está en pantalla. Reemplaza al Spinner en
+   pantallas donde conviene mostrar la forma del contenido que está por
+   llegar en vez de un ícono de carga genérico. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: #e2e8f0;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.65) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: skeletonShimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes skeletonShimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-line {
+  border-radius: 6px;
+}
+
+/* --- SKELETON DE TABLA (genérico) ---
+   Reproduce la forma de una pantalla de tabla (toolbar + ReusableTable) sin
+   atarse a una cantidad de columnas puntual: cada celda es una franja del
+   mismo alto/gap que una fila real, así sirve para cualquier tabla del
+   sistema. Ver TableSkeleton.tsx. */
+.table-skeleton-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 38px;
+  flex-shrink: 0;
+  padding: 0 0.75rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+}
+
+/* El botón principal conserva el color real (celeste): no sabemos su ícono
+   ni texto todavía, pero sí que siempre es la acción primaria de la barra. */
+.table-skeleton-primary-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 38px;
+  flex-shrink: 0;
+  padding: 0 1.25rem;
+  border-radius: 10px;
+  background: var(--bs-primary);
+}
+
+/* En desktop (>= lg, igual que TableToolbar.tsx real) el buscador y el
+   filtro pasan a ancho fijo en una fila horizontal, y el botón se empuja
+   a la derecha. En mobile ocupan el 100% apilados en columna. */
+@media (min-width: 992px) {
+  .table-skeleton-field-search {
+    flex: 1 1 260px;
+    width: auto;
+    max-width: 380px;
+  }
+
+  .table-skeleton-field-filter {
+    flex: 0 1 220px;
+    width: auto;
+  }
+
+  .table-skeleton-primary-btn {
+    width: auto;
+    margin-left: auto;
+  }
+}
+
+.skeleton-on-primary {
+  background-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.skeleton-on-primary::after {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.table-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.table-skeleton-row:last-of-type {
+  border-bottom: none;
+}
+
+.table-skeleton-cell {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.table-skeleton-avatar-cell {
+  flex: 0 0 32px;
+}
+
+.table-skeleton-actions-cell {
+  flex: 0 0 auto;
+  gap: 0.5rem;
+  color: #cbd5e1;
+}
+
 /* --- REUSABLE TABLE SORTING STYLES --- */
 .header-content {
   display: inline-flex;

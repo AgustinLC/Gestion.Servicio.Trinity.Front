@@ -9,6 +9,7 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import HintBox from "../../../shared/components/hint-box/HintBox";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import RowActions from "../../../shared/components/table/RowActions";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { useModalLayer } from "../../../context/ModalStackContext";
@@ -127,14 +128,11 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
                 />
                 <Modal.Body>
                     {loading ? (
-                        <div className="text-center py-4">
-                            <Spinner animation="border" />
-                            <p className="mt-2">Cargando facturas...</p>
-                        </div>
+                        <TableSkeleton showToolbar={false} rows={6} />
                     ) : bills.length === 0 ? (
                         <p className="text-center">No hay facturas anuladas</p>
                     ) : (
-                        <>
+                        <div className="content-fade-in">
                             <ReusableTable<BillDetailsDto>
                                 data={[...bills].sort((a, b) => b.idBill - a.idBill)}
                                 columns={columns}
@@ -173,7 +171,7 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
                             <HintBox className="mt-3">
                                 Las facturas anuladas quedan como registro histórico y no pueden reactivarse ni marcarse como pagadas.
                             </HintBox>
-                        </>
+                        </div>
                     )}
                 </Modal.Body>
             </Modal>

@@ -3,8 +3,9 @@ import { DiscountDto } from "../../../core/models/dto/Discount";
 import { addData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import AddEditDiscountModal from "./AddEditDiscountModal";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 import useAppData from "../../../hooks/useAppData";
@@ -68,14 +69,11 @@ const DiscountManagementPage = () => {
         <div>
             <PageHeader title="Gestión de Descuentos" subtitle="Administrá los descuentos disponibles para los usuarios." icon="bi bi-plus-slash-minus" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedDiscount(null); setShowModal(true); }}>
                             Añadir Descuento

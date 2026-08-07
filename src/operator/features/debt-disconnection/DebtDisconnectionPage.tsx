@@ -5,6 +5,7 @@ import PageHeader from "../../../shared/components/PageHeader";
 import { UserDebtDto } from "../../../core/models/dto/UserDebtDto";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import { useSearch } from "../../../hooks/useSearch";
 import { useTableFilters } from "../../../hooks/useTableFilters";
 import { useDebtDisconnectionPdfs } from "../../../shared/hooks/useDebtDisconnectionPdfs";
@@ -181,14 +182,11 @@ const DebtDisconnectionPage = () => {
         <div>
             <PageHeader title="Gestión de Deudores" subtitle="Usuarios con períodos adeudados y generación de avisos." icon="bi bi-exclamation-triangle" />
             {loadingDebtors ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO DEUDORES...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : errorDebtors ? (
                 <div className="text-center py-5 text-danger">{errorDebtors}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <TableToolbar onSearch={handleSearch} filters={filterConfigs} filterState={filterState} />
 
                     {/* Tabla principal (el conteo ya lo muestra el pie de ReusableTable) */}

@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { addData, deleteData, getData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Form, Spinner } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import { ServiceUnitDto } from "../../../core/models/dto/ServiceUnitDto";
 import AddEditServiceUnitModal from "./AddEditServiceUnitModal";
 import { Link } from "react-router-dom";
@@ -150,14 +151,11 @@ const ServicesUnitsPage = () => {
         <div>
             <PageHeader title="Gestión de Servicios y Unidades" subtitle="Administrá la relación entre servicios y unidades." icon="bi bi-calculator" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <div>
                         <TableToolbar onSearch={handleSearch}>
                             <Button onClick={() => { setSelectedServiceUnit(null); setShowServiceEditModal(true); }}>

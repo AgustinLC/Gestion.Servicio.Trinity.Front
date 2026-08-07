@@ -3,10 +3,11 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 import { addData, getData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
 import PageHeader from "../../../shared/components/PageHeader";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import AddEditWorkerModal from "./AddEditWorkerModal";
 import { useSearch } from "../../../hooks/useSearch";
 import { withFullName } from "../../../core/utils/userUtils";
@@ -95,14 +96,11 @@ const CruWorkerPage = () => {
         <div>
             <PageHeader title="Gestión de Operarios" subtitle="Administrá los operarios del sistema." icon="bi bi-person-fill-gear" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedWorker(null); setShowModal(true); }}>
                             Añadir Operario

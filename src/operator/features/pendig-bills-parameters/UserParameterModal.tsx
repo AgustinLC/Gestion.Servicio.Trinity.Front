@@ -7,6 +7,7 @@ import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { formatDate, formatCurrency } from "../../../core/utils/formatters";
@@ -204,17 +205,17 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
 
                 <Modal.Body>
                     {loading ? (
-                        <div className="text-center">
-                            <Spinner animation="border" />
-                        </div>
+                        <TableSkeleton showToolbar={false} rows={6} />
                     ) : error ? (
                         <div className="text-danger text-center">{error}</div>
                     ) : (
-                        <ReusableTable<PendigBillDetail>
-                            data={parameters}
-                            columns={columns}
-                            defaultSort="dateRegister"
-                        />
+                        <div className="content-fade-in">
+                            <ReusableTable<PendigBillDetail>
+                                data={parameters}
+                                columns={columns}
+                                defaultSort="dateRegister"
+                            />
+                        </div>
                     )}
                 </Modal.Body>
             </Modal>

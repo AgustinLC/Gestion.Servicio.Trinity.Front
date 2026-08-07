@@ -10,6 +10,7 @@ import AddDiscountModal from "./AddDiscountModal";
 import { ApplyCondition } from "../../../core/models/dto/ApplyCondition";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { formatDate, formatCurrency } from "../../../core/utils/formatters";
@@ -220,17 +221,17 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
 
                 <Modal.Body>
                     {loading ? (
-                        <div className="text-center">
-                            <Spinner animation="border" />
-                        </div>
+                        <TableSkeleton showToolbar={false} rows={6} />
                     ) : error ? (
                         <div className="text-danger text-center">{error}</div>
                     ) : (
-                        <ReusableTable<UserDiscountDto>
-                            data={discounts}
-                            columns={columns}
-                            defaultSort="dateRegister"
-                        />
+                        <div className="content-fade-in">
+                            <ReusableTable<UserDiscountDto>
+                                data={discounts}
+                                columns={columns}
+                                defaultSort="dateRegister"
+                            />
+                        </div>
                     )}
                 </Modal.Body>
             </Modal>

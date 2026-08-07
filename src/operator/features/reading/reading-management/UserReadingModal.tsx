@@ -5,6 +5,7 @@ import { getData, updateData } from "../../../../core/services/apiService";
 import { ReadReadingDto } from "../../../../core/models/dto/ReadReadingDto";
 import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
 import ReusableTable from "../../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../../shared/components/table-skeleton/TableSkeleton";
 import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
 import { formatDate } from "../../../../core/utils/formatters";
 import { useModalLayer } from "../../../../context/ModalStackContext";
@@ -142,20 +143,20 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
 
             <Modal.Body>
                 {loading ? (
-                    <div className="text-center">
-                        <Spinner animation="border" />
-                    </div>
+                    <TableSkeleton showToolbar={false} rows={6} />
                 ) : error ? (
                     <div className="text-danger text-center">{error}</div>
                 ) : readings.length === 0 ? (
                     <p className="text-center">No hay lecturas disponibles</p>
                 ) : (
-                    <ReusableTable<ReadReadingDto>
-                        data={readings}
-                        columns={columns}
-                        defaultSort="date"
-                        defaultSortDirection="desc"
-                    />
+                    <div className="content-fade-in">
+                        <ReusableTable<ReadReadingDto>
+                            data={readings}
+                            columns={columns}
+                            defaultSort="date"
+                            defaultSortDirection="desc"
+                        />
+                    </div>
                 )}
             </Modal.Body>
         </Modal>

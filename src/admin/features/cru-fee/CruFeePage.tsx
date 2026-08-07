@@ -2,8 +2,9 @@ import { useState } from "react";
 import { addData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import { FeeDto } from "../../../core/models/dto/FeeDto";
 import AddEditFeeModal from "./AddEditFeeModal";
 import useAppData from "../../../hooks/useAppData";
@@ -68,14 +69,11 @@ const CrudFeePage = () => {
         <div>
             <PageHeader title="Gestión de Tarifas" subtitle="Administrá las tarifas del servicio." icon="bi bi-clipboard2-pulse" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedFee(null); setShowModal(true); }}>
                             Añadir Tarifa

@@ -11,6 +11,7 @@ import { PaymentStatus } from "../../../core/models/dto/PaymentStatus";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import HintBox from "../../../shared/components/hint-box/HintBox";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import RowActions from "../../../shared/components/table/RowActions";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { useModalLayer } from "../../../context/ModalStackContext";
@@ -276,14 +277,11 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
 
                 <Modal.Body>
                     {loading ? (
-                        <div className="text-center py-4">
-                            <Spinner animation="border" />
-                            <p className="mt-2">Cargando facturas...</p>
-                        </div>
+                        <TableSkeleton showToolbar={false} rows={6} />
                     ) : bills.length === 0 ? (
                         <p className="text-center">No hay facturas activas</p>
                     ) : (
-                        <>
+                        <div className="content-fade-in">
                             <div className="d-flex flex-wrap gap-3 mb-3">
                                 <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
                                     <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "rgba(0, 119, 255, 0.1)", color: "var(--bs-primary)" }}>
@@ -331,7 +329,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                             <HintBox className="mt-3">
                                 Las facturas pagadas no pueden ser anuladas.
                             </HintBox>
-                        </>
+                        </div>
                     )}
                 </Modal.Body>
             </Modal>

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import ReusableTable from '../../../shared/components/table/ReusableTable';
+import TableSkeleton from '../../../shared/components/table-skeleton/TableSkeleton';
 import { Modality } from '../../../core/models/dto/Modality';
 import { toast } from 'react-toastify';
 import { TableColumnDefinition } from '../../../core/models/types/TableTypes';
-import { Form, Spinner } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import { getData, updateData } from '../../../core/services/apiService';
 import ConfirmModal from '../../../shared/components/confirm/ConfirmModal';
 import TableToolbar from '../../../shared/components/table-toolbar/TableToolbar';
@@ -89,14 +90,11 @@ const ModalityPage = () => {
         <div>
             <PageHeader title="Modalidad activa" subtitle="Administrá las modalidades de facturación." icon="bi bi-arrow-down-up" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <TableToolbar onSearch={handleSearch} />
 
                     {/* Tabla */}

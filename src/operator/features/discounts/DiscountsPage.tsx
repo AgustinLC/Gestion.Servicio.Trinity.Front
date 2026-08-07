@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react"
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import ShowDiscountUserModal from "./ShowDiscountUserModal";
 import AddDiscountModal from "./AddDiscountModal";
 import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
@@ -86,14 +87,11 @@ const DiscountsPage = () => {
         <div>
             <PageHeader title="Gestión de Descuentos" subtitle="Asigná descuentos a los usuarios." icon="bi bi-plus-slash-minus" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <TableToolbar onSearch={handleSearch} filters={filterConfigs} filterState={filterState} />
                     {/* Tabla */}
                     <ReusableTable<UserRow>

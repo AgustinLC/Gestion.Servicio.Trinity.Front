@@ -1,4 +1,4 @@
-import { BarChart, Bar, YAxis, Tooltip, Legend, PieChart, Pie, Cell, XAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, YAxis, Tooltip, PieChart, Pie, Cell, XAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { Card, Row, Col, Spinner } from "react-bootstrap";
 import { useEffect, useMemo, useState } from "react";
 import { ResumeDto } from "../../../core/models/dto/ResumeDto";
@@ -8,6 +8,22 @@ import { BillCountsDto } from "../../../core/models/dto/BillCountDto";
 import KpiCard, { KpiTrend } from "../../../shared/components/kpi-card/KpiCard";
 import PageHeader from "../../../shared/components/PageHeader";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
+
+// Ilustración "sin datos": una dona fantasma en tonos grises + algunos
+// puntos decorativos alrededor, en vez de dejar el gráfico real vacío.
+const EmptyDonutIllustration = () => (
+    <svg width={150} height={140} viewBox="0 0 220 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx={25} cy={95} r={7} stroke="#cbd5e1" strokeWidth={2} />
+        <circle cx={45} cy={152} r={4} fill="#cbd5e1" />
+        <circle cx={196} cy={58} r={5} fill="#cbd5e1" />
+        <path d="M185 100v20M175 110h20" stroke="#cbd5e1" strokeWidth={2} strokeLinecap="round" />
+
+        <circle cx={110} cy={100} r={55} stroke="#e2e8f0" strokeWidth={30} strokeDasharray="121 225" strokeDashoffset="0" transform="rotate(-90 110 100)" />
+        <circle cx={110} cy={100} r={55} stroke="#eef1f5" strokeWidth={30} strokeDasharray="86 259" strokeDashoffset="-121" transform="rotate(-90 110 100)" />
+        <circle cx={110} cy={100} r={55} stroke="#dde3ea" strokeWidth={30} strokeDasharray="69 276" strokeDashoffset="-207" transform="rotate(-90 110 100)" />
+        <circle cx={110} cy={100} r={55} stroke="#e7ebf0" strokeWidth={30} strokeDasharray="69 276" strokeDashoffset="-276" transform="rotate(-90 110 100)" />
+    </svg>
+);
 
 const Resume = () => {
     //Estados
@@ -120,6 +136,10 @@ const Resume = () => {
         { name: "Impagas", value: billChartData?.unpaidBills || 0, color: "#dc2626" },
     ], [billChartData]);
 
+    // Si el período no tiene facturas, el gráfico de torta no tiene nada para
+    // dibujar (Recharts renderiza el círculo vacío, sin ningún aviso).
+    const hasInvoiceData = invoicesData.some((entry) => entry.value > 0);
+
     // Render.
     // El wrapper es flex-column con una altura mínima igual al alto visible
     // (viewport - navbar - padding de .dashboard-main); el PageHeader queda
@@ -130,16 +150,60 @@ const Resume = () => {
         <div className="d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Resumen" subtitle="Información general del sistema al día de hoy." icon="bi bi-person-lines-fill" />
 
-            {/* Mostrar el mensaje de carga mientras los datos se están cargando */}
+            {/* Mientras carga, se muestra un esqueleto con la misma forma del
+                contenido real (tarjetas KPI + gráficos) en vez de un spinner. */}
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
+                <div className="my-auto">
+                    <Row className="mb-2">
+                        {Array.from({ length: 9 }).map((_, index) => (
+                            <Col key={index} xl={4} md={6} className="mb-2">
+                                <div className="kpi-card">
+                                    <div className="kpi-card-icon skeleton"></div>
+                                    <div className="kpi-card-body flex-grow-1">
+                                        <div className="skeleton skeleton-line mb-2" style={{ width: "70%", height: 12 }}></div>
+                                        <div className="skeleton skeleton-line" style={{ width: "45%", height: 18 }}></div>
+                                    </div>
+                                    <div className="kpi-card-trend skeleton"></div>
+                                </div>
+                            </Col>
+                        ))}
+                    </Row>
+
+                    <Row>
+                        <Col md={8} className="mb-3">
+                            <Card className="h-100 chart-card">
+                                <Card.Body className="d-flex flex-column">
+                                    <div className="skeleton skeleton-line mb-3" style={{ width: "35%", height: 16 }}></div>
+                                    <div className="flex-grow-1 d-flex align-items-end gap-3" style={{ height: chartSize.height }}>
+                                        {[55, 85, 40, 70, 30, 50].map((height, index) => (
+                                            <div
+                                                key={index}
+                                                className="skeleton"
+                                                style={{ width: "14%", height: `${height}%`, borderRadius: "8px 8px 0 0" }}
+                                            ></div>
+                                        ))}
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+
+                        <Col md={4} className="mb-3">
+                            <Card className="h-100 chart-card">
+                                <Card.Body>
+                                    <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                                        <div className="skeleton skeleton-line" style={{ width: "55%", height: 16 }}></div>
+                                        <div className="skeleton skeleton-line" style={{ width: 90, height: 32, borderRadius: 8 }}></div>
+                                    </div>
+                                    <div className="skeleton" style={{ width: "100%", height: chartSize.height, borderRadius: 12 }}></div>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
                 </div>
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div className="my-auto">
+                <div className="my-auto content-fade-in">
 
                     {/* Tarjetas de resumen (KPI) */}
                     <Row className="mb-2">
@@ -205,6 +269,14 @@ const Resume = () => {
                                         <div className="d-flex justify-content-center align-items-center" style={{ height: chartSize.height }}>
                                             <Spinner animation="border" />
                                         </div>
+                                    ) : !hasInvoiceData ? (
+                                        <div className="d-flex flex-column align-items-center justify-content-center text-center" style={{ height: chartSize.height }}>
+                                            <EmptyDonutIllustration />
+                                            <div className="fw-bold mt-2" style={{ color: "#1e293b" }}>No hay datos para visualizar</div>
+                                            <div className="text-muted small mt-1" style={{ maxWidth: 260 }}>
+                                                Las estadísticas aparecerán automáticamente cuando existan facturas emitidas en este período.
+                                            </div>
+                                        </div>
                                     ) : (
                                         <ResponsiveContainer width="100%" height={chartSize.height}>
                                             <PieChart>
@@ -233,9 +305,25 @@ const Resume = () => {
                                                     ))}
                                                 </Pie>
                                                 <Tooltip />
-                                                <Legend />
                                             </PieChart>
                                         </ResponsiveContainer>
+                                    )}
+
+                                    {/* Leyenda con el mismo estilo tanto con datos reales como en el
+                                        estado vacío (ahí queda en 0 / 0). */}
+                                    {!loadingChart && (
+                                        <div className="d-flex align-items-center justify-content-center gap-3 pt-3 mt-2 border-top">
+                                            {invoicesData.flatMap((entry, index) => [
+                                                ...(index > 0
+                                                    ? [<div key={`divider-${index}`} style={{ width: 1, height: 24, background: "#e2e8f0" }}></div>]
+                                                    : []),
+                                                <div key={entry.name} className="d-flex align-items-center gap-2">
+                                                    <span style={{ width: 14, height: 14, borderRadius: 4, backgroundColor: entry.color, display: "inline-block" }}></span>
+                                                    <span className="fw-semibold" style={{ color: "#1e293b" }}>{entry.name}</span>
+                                                    <span className="text-muted">{entry.value}</span>
+                                                </div>,
+                                            ])}
+                                        </div>
                                     )}
                                 </Card.Body>
                             </Card>

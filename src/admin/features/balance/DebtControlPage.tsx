@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Card, Col, Row, Spinner, Nav } from "react-bootstrap";
+import { Button, Card, Col, Row, Nav } from "react-bootstrap";
 import { DebtStatus } from "../../../core/models/types/DebtStatus";
 import { BalanceControlDto } from "../../../core/models/dto/BalanceControlDto";
 import { CollectedBillDto } from "../../../core/models/dto/CollectedBillDto";
@@ -12,6 +12,7 @@ import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
 import PageHeader from "../../../shared/components/PageHeader";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
@@ -438,9 +439,9 @@ const DebtControlPage = () => {
 
     if (loading) {
         return (
-            <div className="d-flex flex-column justify-content-center align-items-center loading-vh">
-                <span className="mb-2 fw-bold">CARGANDO...</span>
-                <Spinner animation="border" role="status" />
+            <div>
+                <PageHeader title="Balance" subtitle="Control de deudas pendientes y montos recaudados." icon="bi bi-graph-down-arrow" />
+                <TableSkeleton />
             </div>
         );
     }
@@ -457,6 +458,7 @@ const DebtControlPage = () => {
         <div>
             <PageHeader title="Balance" subtitle="Control de deudas pendientes y montos recaudados." icon="bi bi-graph-down-arrow" />
 
+            <div className="content-fade-in">
             {/* Alternancia de pestañas */}
             <Nav
                 variant="tabs"
@@ -558,6 +560,7 @@ const DebtControlPage = () => {
                     defaultSort="paymentDate"
                 />
             )}
+            </div>
         </div>
     );
 };
