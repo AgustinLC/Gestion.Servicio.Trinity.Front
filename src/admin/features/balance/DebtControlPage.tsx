@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Card, Col, Row, Nav } from "react-bootstrap";
+import { Button, Col, Row, Nav } from "react-bootstrap";
 import { DebtStatus } from "../../../core/models/types/DebtStatus";
 import { BalanceControlDto } from "../../../core/models/dto/BalanceControlDto";
 import { CollectedBillDto } from "../../../core/models/dto/CollectedBillDto";
@@ -13,6 +13,7 @@ import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar"
 import PageHeader from "../../../shared/components/PageHeader";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
+import KpiCard from "../../../shared/components/kpi-card/KpiCard";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
@@ -22,6 +23,16 @@ const formatCurrency = (value: number | null | undefined): string => {
         currency: "ARS",
         minimumFractionDigits: 2
     }).format(value ?? 0);
+};
+
+const formatDateTime = (date: Date): string => {
+    return new Intl.DateTimeFormat("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    }).format(date);
 };
 
 const formatDate = (date: string | null | undefined): string => {
@@ -98,6 +109,7 @@ const DebtControlPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<"DEBTS" | "COLLECTED">("DEBTS");
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
     // Estados de los filtros (se migran a useTableFilters después de periodOptions)
 
@@ -112,6 +124,7 @@ const DebtControlPage = () => {
             );
 
             setData(response);
+            setLastUpdated(new Date());
         } catch (error: any) {
             console.error(error);
 
@@ -440,7 +453,34 @@ const DebtControlPage = () => {
     if (loading) {
         return (
             <div>
-                <PageHeader title="Balance" subtitle="Control de deudas pendientes y montos recaudados." icon="bi bi-graph-down-arrow" />
+                <PageHeader title="Balance" subtitle="Control de deudas pendientes y montos recaudados." icon="bi bi-graph-down-arrow">
+                    <div className="stat-card d-flex align-items-center gap-3 px-3 py-2">
+                        <div>
+                            <div className="skeleton skeleton-line mb-1" style={{ width: 130, height: 10 }}></div>
+                            <div className="skeleton skeleton-line" style={{ width: 100, height: 14 }}></div>
+                        </div>
+                        <div className="skeleton" style={{ width: 32, height: 32, borderRadius: "50%" }}></div>
+                    </div>
+                </PageHeader>
+
+                {/* Esqueleto de las pestañas + tarjetas de resumen, por encima del
+                    esqueleto de la tabla. */}
+                <div className="skeleton skeleton-line mb-4" style={{ width: 320, height: 38, borderRadius: 8 }}></div>
+                <Row className="g-3 mb-4">
+                    {Array.from({ length: 3 }).map((_, index) => (
+                        <Col xs={12} md={4} key={index}>
+                            <div className="kpi-card">
+                                <div className="kpi-card-icon skeleton"></div>
+                                <div className="kpi-card-body flex-grow-1">
+                                    <div className="skeleton skeleton-line mb-2" style={{ width: "70%", height: 12 }}></div>
+                                    <div className="skeleton skeleton-line" style={{ width: "45%", height: 18 }}></div>
+                                </div>
+                                <div className="kpi-card-trend skeleton"></div>
+                            </div>
+                        </Col>
+                    ))}
+                </Row>
+
                 <TableSkeleton />
             </div>
         );
@@ -454,9 +494,33 @@ const DebtControlPage = () => {
 
     const currentResultsCount = activeTab === "DEBTS" ? sortedVisibleData.length : sortedVisibleDataCollected.length;
 
+    // Deuda pendiente = mala noticia (rojo), recaudado = buena noticia (verde).
+    // Mismos tonos que usa KpiCard para el badge de tendencia, para que todo
+    // el conjunto (ícono, valor y badge) sea consistente entre sí.
+    const summaryColor = activeTab === "DEBTS" ? "#dc2626" : "#16a34a";
+    const summaryBg = activeTab === "DEBTS" ? "#fee2e2" : "#dcfce7";
+
     return (
         <div>
-            <PageHeader title="Balance" subtitle="Control de deudas pendientes y montos recaudados." icon="bi bi-graph-down-arrow" />
+            <PageHeader title="Balance" subtitle="Control de deudas pendientes y montos recaudados." icon="bi bi-graph-down-arrow">
+                <div className="stat-card d-flex align-items-center gap-3 px-3 py-2">
+                    <div>
+                        <div className="stat-label text-muted small">Última actualización</div>
+                        <div className="stat-value fw-bold" style={{ fontSize: "0.95rem" }}>
+                            {lastUpdated ? formatDateTime(lastUpdated) : "-"}
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-outline-primary rounded-circle d-flex align-items-center justify-content-center p-0"
+                        style={{ width: 32, height: 32 }}
+                        onClick={getBalanceControl}
+                        title="Actualizar"
+                    >
+                        <i className="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+            </PageHeader>
 
             <div className="content-fade-in">
             {/* Alternancia de pestañas */}
@@ -471,11 +535,13 @@ const DebtControlPage = () => {
             >
                 <Nav.Item>
                     <Nav.Link eventKey="DEBTS" className="fw-semibold">
+                        <i className="bi bi-clock-history me-2"></i>
                         Deudas Pendientes
                     </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
                     <Nav.Link eventKey="COLLECTED" className="fw-semibold">
+                        <i className="bi bi-wallet2 me-2"></i>
                         Recaudado
                     </Nav.Link>
                 </Nav.Item>
@@ -484,48 +550,39 @@ const DebtControlPage = () => {
             {/* Tarjetas de resumen */}
             <Row className="g-3 mb-4">
                 <Col xs={12} md={4}>
-                    <Card className="h-100 shadow-sm">
-                        <Card.Body className="text-center">
-                            <Card.Title>
-                                {activeTab === "DEBTS" ? "Usuarios con deuda" : "Usuarios con pagos"}
-                            </Card.Title>
-                            <Card.Text className="fs-3 fw-bold">
-                                {activeTab === "DEBTS"
-                                    ? filteredSummary.usersWithDebt
-                                    : filteredSummaryCollected.usersWithPayment}
-                            </Card.Text>
-                        </Card.Body>
-                    </Card>
+                    <KpiCard
+                        icon="bi bi-people-fill"
+                        iconBg={summaryBg}
+                        iconColor={summaryColor}
+                        label={activeTab === "DEBTS" ? "Usuarios con deuda" : "Usuarios con pagos"}
+                        value={activeTab === "DEBTS" ? filteredSummary.usersWithDebt : filteredSummaryCollected.usersWithPayment}
+                        valueColor={summaryColor}
+                        trend={activeTab === "DEBTS" ? "down" : "up"}
+                    />
                 </Col>
 
                 <Col xs={12} md={4}>
-                    <Card className="h-100 shadow-sm">
-                        <Card.Body className="text-center">
-                            <Card.Title>
-                                {activeTab === "DEBTS" ? "Facturas impagas" : "Facturas cobradas"}
-                            </Card.Title>
-                            <Card.Text className="fs-3 fw-bold">
-                                {activeTab === "DEBTS"
-                                    ? filteredSummary.unpaidBillCount
-                                    : filteredSummaryCollected.paidBillCount}
-                            </Card.Text>
-                        </Card.Body>
-                    </Card>
+                    <KpiCard
+                        icon="bi bi-file-earmark-text-fill"
+                        iconBg={summaryBg}
+                        iconColor={summaryColor}
+                        label={activeTab === "DEBTS" ? "Facturas impagas" : "Facturas cobradas"}
+                        value={activeTab === "DEBTS" ? filteredSummary.unpaidBillCount : filteredSummaryCollected.paidBillCount}
+                        valueColor={summaryColor}
+                        trend={activeTab === "DEBTS" ? "down" : "up"}
+                    />
                 </Col>
 
                 <Col xs={12} md={4}>
-                    <Card className="h-100 shadow-sm">
-                        <Card.Body className="text-center">
-                            <Card.Title>
-                                {activeTab === "DEBTS" ? "Deuda total actual" : "Total recaudado"}
-                            </Card.Title>
-                            <Card.Text className="fs-3 fw-bold">
-                                {activeTab === "DEBTS"
-                                    ? formatCurrency(filteredSummary.totalDebt)
-                                    : formatCurrency(filteredSummaryCollected.totalCollected)}
-                            </Card.Text>
-                        </Card.Body>
-                    </Card>
+                    <KpiCard
+                        icon="bi bi-cash-stack"
+                        iconBg={summaryBg}
+                        iconColor={summaryColor}
+                        label={activeTab === "DEBTS" ? "Deuda total actual" : "Total recaudado"}
+                        value={activeTab === "DEBTS" ? formatCurrency(filteredSummary.totalDebt) : formatCurrency(filteredSummaryCollected.totalCollected)}
+                        valueColor={summaryColor}
+                        trend={activeTab === "DEBTS" ? "down" : "up"}
+                    />
                 </Col>
             </Row>
 

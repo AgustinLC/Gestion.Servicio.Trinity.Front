@@ -244,8 +244,8 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                             onClick: () => handleTogglePaidStatus(bill),
                         },
                         {
-                            label: "Visualizar factura",
-                            icon: "bi bi-eye",
+                            label: "Descargar factura",
+                            icon: "bi bi-download",
                             onClick: () => handleViewInvoice(bill),
                         },
                         ...(bill.paidStatus === PaymentStatus.UNPAID

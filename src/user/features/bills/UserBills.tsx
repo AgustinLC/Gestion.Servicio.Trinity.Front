@@ -128,7 +128,7 @@ const UserBills: React.FC = () => {
                         </Button>
                     )}*/}
                     <Button variant="outline-primary" onClick={() => handleViewInvoice(row)}>
-                        <i className="bi bi-eye me-1"></i> Visualizar
+                        <i className="bi bi-download me-1"></i> Descargar
                     </Button>
                 </div>
             ),

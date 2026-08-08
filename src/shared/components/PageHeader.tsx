@@ -31,17 +31,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, icon = "bi bi-
 
             <div className="page-header-right d-flex flex-wrap align-items-center gap-3 mt-3 mt-md-0">
                 {stats.map((s, idx) => (
-                    <div key={idx} className="stat-card d-flex align-items-center gap-2 px-3 py-2">
-                        {s.icon && (
-                            <div
-                                className="stat-card-icon d-flex align-items-center justify-content-center"
-                                style={{ backgroundColor: s.iconBg ?? "rgba(0, 119, 255, 0.1)", color: s.iconColor ?? "var(--bs-primary)" }}
-                            >
-                                <i className={s.icon}></i>
-                            </div>
-                        )}
-                        <div>
-                            <div className="stat-label text-muted small">{s.label}</div>
+                    <div key={idx} className="stat-card d-flex flex-column align-items-center gap-1 px-3 py-2">
+                        <div className="stat-label text-muted small">{s.label}</div>
+                        <div className="d-flex align-items-center gap-2">
+                            {s.icon && (
+                                <div
+                                    className="stat-card-icon d-flex align-items-center justify-content-center"
+                                    style={{ backgroundColor: s.iconBg ?? "rgba(0, 119, 255, 0.1)", color: s.iconColor ?? "var(--bs-primary)" }}
+                                >
+                                    <i className={s.icon}></i>
+                                </div>
+                            )}
                             <div className="stat-value fw-bold">{s.value}</div>
                         </div>
                     </div>

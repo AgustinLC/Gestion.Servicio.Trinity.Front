@@ -129,7 +129,7 @@ const ReadingControlPage = () => {
                     const selectedFilter = ALERT_FILTERS.find((filter) => filter.value === value);
 
                     return (
-                        <Dropdown className="w-100">
+                        <Dropdown className="w-100" drop="down">
                             <Dropdown.Toggle
                                 variant="outline-secondary"
                                 className="alert-filter-toggle w-100 d-flex align-items-center justify-content-between"
@@ -146,7 +146,7 @@ const ReadingControlPage = () => {
                                     <span>{selectedFilter?.label ?? "Todas"}</span>
                                 </span>
                             </Dropdown.Toggle>
-                            <Dropdown.Menu className="w-100">
+                            <Dropdown.Menu className="w-100" popperConfig={{ modifiers: [{ name: "flip", enabled: false }] }}>
                                 {ALERT_FILTERS.map((filter) => (
                                     <Dropdown.Item
                                         key={filter.value}

@@ -31,7 +31,7 @@ const DotDropdown: React.FC<DotDropdownProps> = ({
     const selected = options.find((option) => option.value === value);
 
     return (
-        <Dropdown className={`w-100 ${className}`}>
+        <Dropdown className={`w-100 ${className}`} drop="down">
             <Dropdown.Toggle
                 variant="outline-secondary"
                 className="alert-filter-toggle w-100 d-flex align-items-center justify-content-between"
@@ -48,7 +48,7 @@ const DotDropdown: React.FC<DotDropdownProps> = ({
                     <span>{selected?.label ?? placeholder}</span>
                 </span>
             </Dropdown.Toggle>
-            <Dropdown.Menu className="w-100">
+            <Dropdown.Menu className="w-100" popperConfig={{ modifiers: [{ name: "flip", enabled: false }] }}>
                 {options.map((option) => (
                     <Dropdown.Item
                         key={option.value}

@@ -104,30 +104,32 @@ const ReportPage = () => {
 
     // Render
     return (
-        <div className="report-page">
+        <div className="report-page d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
             <PageHeader title="Generador de Reportes" subtitle="Descargá reportes en Excel del sistema." icon="bi bi-clipboard-data" />
-            <Container>
-                <Row className="g-4" xs={1} md={2} lg={4}>
-                    {REPORTS.map((report) => (
-                        <Col key={report.id}>
-                            <Card
-                                onClick={() => handleGenerateReport(report)}
-                                className={`report-card ${report.variant}`}
-                                data-testid={`report-card-${report.id}`}
-                            >
-                                <Card.Body className="d-flex flex-column justify-content-center align-items-center">
-                                    <report.Icon className="report-icon" />
-                                    <h3 className="report-title mt-3">{report.title}</h3>
-                                    {loadingReport === report.id ? (
-                                        <Spinner animation="border" variant="light" className="mt-2" />
-                                    ) : (
-                                        <span className="report-subtitle mt-2">Descargar Excel</span>
-                                    )}
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
+            <Container className="my-auto content-fade-in-slide">
+                <Card className="shadow-lg border-0 rounded-4 p-4 bg-white">
+                    <Row className="g-4" xs={1} md={2}>
+                        {REPORTS.map((report) => (
+                            <Col key={report.id}>
+                                <Card
+                                    onClick={() => handleGenerateReport(report)}
+                                    className={`report-card ${report.variant}`}
+                                    data-testid={`report-card-${report.id}`}
+                                >
+                                    <Card.Body className="d-flex flex-column justify-content-center align-items-center">
+                                        <report.Icon className="report-icon" />
+                                        <h3 className="report-title mt-3">{report.title}</h3>
+                                        {loadingReport === report.id ? (
+                                            <Spinner animation="border" variant="light" className="mt-2" />
+                                        ) : (
+                                            <span className="report-subtitle mt-2">Descargar Excel</span>
+                                        )}
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                        ))}
+                    </Row>
+                </Card>
             </Container>
         </div>
     );

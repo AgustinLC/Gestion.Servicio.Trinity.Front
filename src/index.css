@@ -83,7 +83,6 @@ body {
    colores del sistema en vez de la gris por defecto del navegador. */
 * {
   scrollbar-width: thin; /* Firefox */
-  scrollbar-color: rgba(15, 23, 42, 0.18) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -156,6 +155,16 @@ body.modal-open {
 .card:hover {
   box-shadow: var(--shadow-lg);
 }
+
+/* NOTA: se probó hacer que la card dejara de recortar (overflow:visible)
+   mientras hay un dropdown abierto adentro, para que un CustomSelect/
+   DotDropdown cerca del borde inferior de una card no se corte. Se revirtió
+   dos veces: con strategy "fixed" en Popper el menú se posicionaba mal en
+   el primer render; con overflow:visible por :has() aparecía scroll
+   horizontal en toda la página (overflow-y:visible con overflow-x:hidden
+   computa como "auto" y arrastra el menú absoluto como overflow propio de
+   la card). Se deja overflow:hidden sin excepciones: el corte contra el
+   borde de la card queda como limitación conocida y menor. */
 
 .card-header {
   background-color: #ffffff;
@@ -240,6 +249,21 @@ select,
 button:disabled,
 .btn:disabled {
   cursor: not-allowed;
+}
+
+/* Bootstrap por defecto pinta el link INACTIVO de las nav-tabs con el color
+   de link (celeste) y el ACTIVO en gris oscuro: es al revés de lo que se
+   espera visualmente (la pestaña activa es la que debería resaltar). */
+.nav-tabs .nav-link {
+  color: #475569;
+}
+
+.nav-tabs .nav-link:hover {
+  color: var(--bs-primary);
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--bs-primary);
 }
 
 /* --- BOTONES MODERNIZADOS --- */
@@ -730,14 +754,67 @@ button:disabled,
   font-size: 0.9rem;
 }
 
+.navbar-user-info {
+  line-height: 1.2;
+  max-width: 160px;
+}
+
 .navbar-user-name {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar-user-role {
+  font-size: 0.75rem;
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .navbar-user-chevron {
   font-size: 0.8rem;
   opacity: 0.85;
+}
+
+/* Encabezado del desplegable de usuario: nombre + correo, a modo de
+   contexto (no es una opción, por eso no usa Dropdown.Item). El rol ya se
+   ve en el botón que abre el menú, así que acá no se repite. */
+.navbar-dropdown-header {
+  max-width: 260px;
+}
+
+/* Invertido respecto de .navbar-avatar: acá el fondo del desplegable es
+   claro, así que el círculo pasa a fondo celeste + letra blanca en vez de
+   fondo blanco + letra celeste (si no, se pierde contra el fondo). */
+.navbar-avatar-lg {
+  width: 44px;
+  height: 44px;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  background-color: var(--bs-primary);
+  color: #ffffff;
+}
+
+/* Ítem de cerrar sesión con subtítulo, como el resto de las opciones que se
+   sumarán después (Mi perfil, Cambiar contraseña, Preferencias). */
+.navbar-dropdown-logout {
+  display: flex !important;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navbar-dropdown-logout-icon {
+  font-size: 1.1rem;
+}
+
+.navbar-dropdown-logout-subtitle {
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 0.75;
 }
 
 /* --- ANIMACIONES DE ENTRADA --- */
@@ -1620,6 +1697,7 @@ button:disabled,
    vez para que CustomSelect, RowActions, el menú de opciones del header y
    cualquier otro <Dropdown> del sistema compartan el mismo look pulido. */
 .dropdown-menu {
+  background-color: #ffffff;
   border: 1px solid rgba(226, 232, 240, 0.9);
   border-radius: 12px;
   box-shadow: var(--shadow-md);
@@ -1675,6 +1753,11 @@ button:disabled,
    en vez de truncarse (ver .dropdown-item más abajo, que por default de
    Bootstrap no wrappea). */
 .custom-select .dropdown-menu {
+  /* strategy "fixed" (probado para evitar que el menú se corte contra una
+     card con overflow:hidden) se descartó: el primer render posicionaba el
+     menú mal (arriba a la izquierda, debajo del sidebar) hasta cerrarlo y
+     volver a abrirlo. Con la estrategia "absolute" de siempre, min-width en
+     % funciona bien porque se resuelve contra el botón, no la ventana. */
   min-width: 100%;
   width: max-content;
   max-width: min(90vw, 420px);
@@ -1682,14 +1765,27 @@ button:disabled,
   overflow-y: auto;
 }
 
+/* El track de la barra de scroll es transparent por regla global (para que
+   la barra de la página se vea minimalista), pero acá esa franja angosta
+   deja ver lo que hay detrás del menú (ej. las píldoras de color de una
+   tabla). Se pisa a blanco, igual que el resto del menú. */
+.custom-select .dropdown-menu::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
 .custom-select .dropdown-item {
   white-space: normal;
 }
 
-.custom-select .dropdown-menu {
-  max-height: 280px;
-  overflow-y: auto;
-}
+/* Se probó reemplazar la barra nativa de .dropdown-menu por un thumb propio
+   (mismo truco que CustomScrollbar.tsx para #root, por el bug "Fluent
+   scrollbars" de Chrome/Edge en Windows que ignora ::-webkit-scrollbar). Se
+   revirtió: el thumb quedaba position:fixed calculado con
+   getBoundingClientRect, y en cuanto ese cálculo se adelantaba a que Popper
+   terminara de acomodar el menú, el navegador registraba ese punto como
+   parte del área desplazable del documento y aparecía scroll horizontal en
+   toda la página. Queda con la barra nativa del navegador tal cual, aunque
+   en Windows se vea distinta al resto del sitio. */
 
 /* --- FASE 4: pie de tabla (resultados + paginación a la derecha) --- */
 .reusable-table-count i {

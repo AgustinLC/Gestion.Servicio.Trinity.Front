@@ -105,8 +105,8 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
                 <RowActions
                     items={[
                         {
-                            label: "Visualizar factura",
-                            icon: "bi bi-eye",
+                            label: "Descargar factura",
+                            icon: "bi bi-download",
                             onClick: () => handleViewInvoice(bill),
                         },
                     ]}
