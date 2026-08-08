@@ -1753,11 +1753,14 @@ button:disabled,
    en vez de truncarse (ver .dropdown-item más abajo, que por default de
    Bootstrap no wrappea). */
 .custom-select .dropdown-menu {
-  /* strategy "fixed" (probado para evitar que el menú se corte contra una
-     card con overflow:hidden) se descartó: el primer render posicionaba el
-     menú mal (arriba a la izquierda, debajo del sidebar) hasta cerrarlo y
-     volver a abrirlo. Con la estrategia "absolute" de siempre, min-width en
-     % funciona bien porque se resuelve contra el botón, no la ventana. */
+  /* strategy "fixed" (para que el menú no se corte contra una card con
+     overflow:hidden) se probó dos veces, incluso con el popperConfig como
+     constante de módulo estable para descartar reinicios de Popper por una
+     referencia nueva en cada render. Las dos veces el primer render posicionó
+     mal el menú (arriba a la izquierda, debajo del sidebar) hasta cerrarlo y
+     volver a abrirlo. Se descarta esa vía por completo. Con "absolute" de
+     siempre, min-width en % funciona bien porque se resuelve contra el
+     botón, no la ventana. */
   min-width: 100%;
   width: max-content;
   max-width: min(90vw, 420px);

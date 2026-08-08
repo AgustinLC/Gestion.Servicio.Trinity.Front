@@ -111,6 +111,12 @@ const Resume = () => {
         }
     }, [selectedPeriod]);
 
+    // Mismo período activo que ya se usa para preseleccionar el filtro del
+    // gráfico de facturas: se reutiliza el label que manda el back (ej.
+    // "Mayo - Junio 2026") en vez de mostrar una fecha suelta, igual que en
+    // Generación de Facturas y Generar Nuevo Período.
+    const activePeriod = useMemo(() => periods.find((period) => period.active), [periods]);
+
     // Datos para las tarjetas KPI (Fase 5)
     const summaryData = useMemo(() => [
         { title: "Usuarios Activos", value: data?.activeUsers || 0, icon: "bi bi-people-fill", iconBg: "#dcfce7", color: "#16a34a", trend: "up" as KpiTrend },
@@ -120,9 +126,9 @@ const Resume = () => {
         { title: "Lecturas Realizadas", value: data?.fullReadings || 0, icon: "bi bi-file-earmark-text-fill", iconBg: "#dbeafe", color: "#2563eb", trend: "up" as KpiTrend },
         { title: "Lecturas Pendientes", value: data?.incompleteReadings || 0, icon: "bi bi-clipboard-data-fill", iconBg: "#dbeafe", color: "#2563eb", trend: "down" as KpiTrend },
         { title: "Modalidad activa", value: data?.activeModality || "No disponible", icon: "bi bi-arrow-repeat", iconBg: "#d1fae5", color: "#059669", trend: "neutral" as KpiTrend },
-        { title: "Fecha de periodo (activo)", value: data?.dateActivePeriod ? new Date(data?.dateActivePeriod).toLocaleDateString() : "No disponible", icon: "bi bi-calendar-event-fill", iconBg: "#ffedd5", color: "#ea580c", trend: "neutral" as KpiTrend },
+        { title: "Período activo", value: activePeriod?.label ?? "No disponible", icon: "bi bi-calendar-event-fill", iconBg: "#ffedd5", color: "#ea580c", trend: "neutral" as KpiTrend },
         { title: "Servicio/Unidad", value: data?.activeUnitService || "No disponible", icon: "bi bi-droplet-fill", iconBg: "#ccfbf1", color: "#0d9488", trend: "neutral" as KpiTrend },
-    ], [data]);
+    ], [data, activePeriod]);
 
     // Datos del gráfico de barras (Usuarios por tarifa)
     const usersForFeeData = useMemo(() =>
