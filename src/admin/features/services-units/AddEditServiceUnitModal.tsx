@@ -24,7 +24,7 @@ const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, on
     const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario 
-    const { register, handleSubmit, reset, control, formState: { errors } } = useForm<ServiceUnitDto>({
+    const { handleSubmit, reset, control, formState: { errors } } = useForm<ServiceUnitDto>({
         defaultValues: serviceUnit || {},
     });
 
