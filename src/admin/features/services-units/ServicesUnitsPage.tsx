@@ -216,25 +216,50 @@ const ServicesUnitsPage = () => {
                         />
                     </div>
 
-                    {/* Paginas para añadir/editar servicios o unidad */}
-                    <div>
-                        <p className="fst-italic text-danger">Nota.</p>
-                        <ul>
-                            <li>
-                                <p>Si no encuentra la <b>unidad</b> deseada puede crear una haciendo click aqui:
-                                    <Link to="/dashboard/admin/units" className="btn btn-warning btn-sm ms-1" title="Unidades">
-                                        <i className="bi bi-exclamation"></i>
-                                    </Link>
-                                </p>
-                            </li>
-                            <li>
-                                <p>Si no encuentra el <b>servicio</b> deseado puede crear una haciendo click aqui:
-                                    <Link to="/dashboard/admin/services" className="btn btn-warning btn-sm ms-1" title="Servicios">
-                                        <i className="bi bi-exclamation"></i>
-                                    </Link>
-                                </p>
-                            </li>
-                        </ul>
+                    {/* Accesos rápidos para crear servicios/unidades desde cero */}
+                    <div className="card mt-3" style={{ backgroundColor: "#f8fafc" }}>
+                        <div className="card-body p-4">
+                            <h6 className="fw-bold mb-1">¿No encontrás lo que buscás?</h6>
+                            <p className="text-muted small mb-3">Podés crear nuevos servicios o unidades desde los formularios correspondientes.</p>
+                            <div className="row g-3">
+                                <div className="col-md-6">
+                                    <div className="d-flex align-items-center justify-content-between gap-3 p-3 rounded-3 h-100 flex-wrap" style={{ backgroundColor: "#eff6ff" }}>
+                                        <div className="d-flex align-items-center gap-3">
+                                            <div className="icon-badge flex-shrink-0" style={{ backgroundColor: "#dbeafe", color: "#2563eb" }}>
+                                                <i className="bi bi-droplet-fill"></i>
+                                            </div>
+                                            <div>
+                                                <div className="fw-semibold">
+                                                    Si no encontrás la <span style={{ color: "#2563eb" }}>unidad</span> deseada
+                                                </div>
+                                                <div className="text-muted small">Creá una nueva unidad haciendo click en el botón.</div>
+                                            </div>
+                                        </div>
+                                        <Link to="/dashboard/admin/units" className="btn btn-outline-primary text-nowrap">
+                                            <i className="bi bi-plus-lg me-1"></i> Crear unidad
+                                        </Link>
+                                    </div>
+                                </div>
+                                <div className="col-md-6">
+                                    <div className="d-flex align-items-center justify-content-between gap-3 p-3 rounded-3 h-100 flex-wrap" style={{ backgroundColor: "#fff7ed" }}>
+                                        <div className="d-flex align-items-center gap-3">
+                                            <div className="icon-badge flex-shrink-0" style={{ backgroundColor: "#ffedd5", color: "#c2410c" }}>
+                                                <i className="bi bi-box-seam-fill"></i>
+                                            </div>
+                                            <div>
+                                                <div className="fw-semibold">
+                                                    Si no encontrás el <span style={{ color: "#c2410c" }}>servicio</span> deseado
+                                                </div>
+                                                <div className="text-muted small">Creá un nuevo servicio haciendo click en el botón.</div>
+                                            </div>
+                                        </div>
+                                        <Link to="/dashboard/admin/services" className="btn btn-outline-warning text-nowrap">
+                                            <i className="bi bi-plus-lg me-1"></i> Crear servicio
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

@@ -178,6 +178,13 @@ body.modal-open {
 
 /* Cards de gráficos (Resumen): un poco más compactas para no sumar scroll
    vertical innecesario en los tableros con muchas tarjetas KPI arriba. */
+/* Igual que .filter-card: el selector de período (arriba del gráfico de
+   torta, en Resumen) puede desplegar un menú largo y quedar cortado contra
+   el borde de la card si la lista de períodos crece. */
+.chart-card {
+  overflow: visible !important;
+}
+
 .chart-card .card-body {
   padding: 1.1rem 1.25rem;
 }

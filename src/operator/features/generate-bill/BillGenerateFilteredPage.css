@@ -9,6 +9,7 @@
     transition: transform 0.2s, box-shadow 0.2s;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
+    overflow: visible !important;
 }
 
 /* .filter-section-title se movió a index.css (se reutiliza en otras
