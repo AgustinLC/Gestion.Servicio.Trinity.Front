@@ -230,6 +230,8 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
                                 data={discounts}
                                 columns={columns}
                                 defaultSort="dateRegister"
+                                defaultPageSize={5}
+                                showPageSizeSelector={false}
                             />
                         </div>
                     )}

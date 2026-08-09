@@ -11,9 +11,11 @@ const ReusableTable = <T,>({
     columns,
     defaultSort,
     defaultSortDirection = "desc",
+    defaultPageSize = 10,
+    showPageSizeSelector = true,
 }: ReusableTableProps<T>) => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [itemsPerPage, setItemsPerPage] = useState(defaultPageSize);
     const [sortField, setSortField] = useState<keyof T | undefined>(defaultSort);
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">(defaultSortDirection);
 
@@ -224,14 +226,16 @@ const ReusableTable = <T,>({
                     </button>
                 </div>
 
-                <CustomSelect
-                    fullWidth={false}
-                    className="table-page-size-select"
-                    value={String(itemsPerPage)}
-                    onChange={(v) => handlePageSizeChange(Number(v))}
-                    aria-label="Resultados por página"
-                    options={PAGE_SIZE_OPTIONS.map((size) => ({ value: String(size), label: `${size} por página` }))}
-                />
+                {showPageSizeSelector && (
+                    <CustomSelect
+                        fullWidth={false}
+                        className="table-page-size-select"
+                        value={String(itemsPerPage)}
+                        onChange={(v) => handlePageSizeChange(Number(v))}
+                        aria-label="Resultados por página"
+                        options={PAGE_SIZE_OPTIONS.map((size) => ({ value: String(size), label: `${size} por página` }))}
+                    />
+                )}
             </div>
         </div>
     );

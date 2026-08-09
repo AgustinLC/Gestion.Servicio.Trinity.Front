@@ -118,7 +118,7 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
     // Render
     return (
         <>
-            <Modal show={show} onHide={onHide} size="xl" centered scrollable backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="bill-null-modal-title">
+            <Modal show={show} onHide={onHide} size="xl" centered scrollable backdrop={false} style={{ zIndex: modalZIndex }} dialogClassName="scrollable-modal-fix" contentClassName="form-modal-content" aria-labelledby="bill-null-modal-title">
                 <FormModalHeader
                     icon="bi bi-file-earmark-x"
                     title={`Facturas Anuladas - ${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
@@ -126,7 +126,7 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
                     onClose={onHide}
                     titleId="bill-null-modal-title"
                 />
-                <Modal.Body>
+                <Modal.Body className="overflow-visible">
                     {loading ? (
                         <TableSkeleton showToolbar={false} rows={6} />
                     ) : bills.length === 0 ? (
@@ -136,6 +136,8 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
                             <ReusableTable<BillDetailsDto>
                                 data={[...bills].sort((a, b) => b.idBill - a.idBill)}
                                 columns={columns}
+                                defaultPageSize={5}
+                                showPageSizeSelector={false}
                             />
                             <HintBox className="mt-3">
                                 Las facturas anuladas quedan como registro histórico y no pueden reactivarse ni marcarse como pagadas.

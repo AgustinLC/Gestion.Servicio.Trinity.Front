@@ -265,7 +265,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
 
     return (
         <>
-            <Modal show={show} onHide={onHide} size="xl" centered scrollable backdrop={false} style={{ zIndex: modalZIndex }} dialogClassName="bill-active-modal-dialog" contentClassName="form-modal-content" aria-labelledby="bill-active-modal-title">
+            <Modal show={show} onHide={onHide} size="xl" centered scrollable backdrop={false} style={{ zIndex: modalZIndex }} dialogClassName="bill-active-modal-dialog scrollable-modal-fix" contentClassName="form-modal-content" aria-labelledby="bill-active-modal-title">
                 <FormModalHeader
                     icon="bi bi-file-earmark-spreadsheet"
                     title={`Facturas Activas - ${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
@@ -274,7 +274,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                     titleId="bill-active-modal-title"
                 />
 
-                <Modal.Body>
+                <Modal.Body className="overflow-visible">
                     {loading ? (
                         <TableSkeleton showToolbar={false} rows={6} />
                     ) : bills.length === 0 ? (
@@ -284,6 +284,8 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                             <ReusableTable<BillDetailsDto>
                                 data={[...bills].sort((a, b) => b.idBill - a.idBill)}
                                 columns={columns}
+                                defaultPageSize={5}
+                                showPageSizeSelector={false}
                             />
                             <HintBox className="mt-3">
                                 Las facturas pagadas no pueden ser anuladas.

@@ -1224,6 +1224,30 @@ button:disabled,
   max-width: 95vw;
 }
 
+/* Con la prop "scrollable" de react-bootstrap, .modal-content también tiene
+   su propio overflow:hidden (además del de .modal-body), para poder pinnear
+   header/footer mientras el body scrollea. Eso corta el menú de acciones
+   (RowActions) de la última fila de la tabla, igual que pasaba con .card.
+   Mismo fix puntual que .filter-card/.chart-card: se libera acá también.
+   Ver Modal.Body className="overflow-visible" en el componente. */
+.scrollable-modal-fix .modal-content {
+  overflow: visible !important;
+}
+
+/* Encontrado el verdadero responsable del corte: ReusableTable usa <Table
+   responsive>, que envuelve la tabla en .table-responsive con
+   overflow-x:auto. Por la regla del spec de CSS "si un eje está en visible
+   y el otro no, el visible pasa a comportarse como auto", el overflow-y
+   (que nunca se toca, queda en su valor inicial "visible") termina
+   comportándose igual que auto y recorta el menú de RowActions verticalmente
+   en la última fila. Hace falta liberar los dos ejes explícitamente, así
+   que se pierde el scroll horizontal de esa tabla puntual dentro de estos
+   modales (aceptable: son tablas angostas, no las anchas tipo matriz de
+   lecturas). */
+.scrollable-modal-fix .table-responsive {
+  overflow: visible !important;
+}
+
 /* Backdrop único y compartido para toda la app (ver
    src/context/ModalStackContext.tsx): reemplaza el de cada <Modal>
    individual (backdrop={false}), así con N modales apilados se sigue

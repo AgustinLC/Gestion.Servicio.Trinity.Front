@@ -19,4 +19,6 @@ export interface ReusableTableProps<T> {
   rowKey?: keyof T;
   defaultSort?: keyof T;
   defaultSortDirection?: "asc" | "desc";
+  defaultPageSize?: number;
+  showPageSizeSelector?: boolean;
 }

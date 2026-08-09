@@ -155,6 +155,8 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
                             columns={columns}
                             defaultSort="date"
                             defaultSortDirection="desc"
+                            defaultPageSize={5}
+                            showPageSizeSelector={false}
                         />
                     </div>
                 )}

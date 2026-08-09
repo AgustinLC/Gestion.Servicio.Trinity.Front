@@ -214,6 +214,8 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
                                 data={parameters}
                                 columns={columns}
                                 defaultSort="dateRegister"
+                                defaultPageSize={5}
+                                showPageSizeSelector={false}
                             />
                         </div>
                     )}
