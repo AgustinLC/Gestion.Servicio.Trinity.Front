@@ -137,37 +137,6 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
                                 data={[...bills].sort((a, b) => b.idBill - a.idBill)}
                                 columns={columns}
                             />
-
-                            <div className="d-flex flex-wrap gap-3 mt-3">
-                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
-                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "rgba(0, 119, 255, 0.1)", color: "var(--bs-primary)" }}>
-                                        <i className="bi bi-file-earmark-x"></i>
-                                    </div>
-                                    <div>
-                                        <div className="stat-label text-muted small">Total de facturas anuladas</div>
-                                        <div className="stat-value fw-bold">{bills.length}</div>
-                                    </div>
-                                </div>
-                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
-                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "#dbeafe", color: "#1d4ed8" }}>
-                                        <i className="bi bi-droplet-fill"></i>
-                                    </div>
-                                    <div>
-                                        <div className="stat-label text-muted small">Consumo total</div>
-                                        <div className="stat-value fw-bold">{totalConsumption.toFixed(2)} m³</div>
-                                    </div>
-                                </div>
-                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
-                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "#ffedd5", color: "#c2410c" }}>
-                                        <i className="bi bi-cash-stack"></i>
-                                    </div>
-                                    <div>
-                                        <div className="stat-label text-muted small">Monto total anulado</div>
-                                        <div className="stat-value fw-bold">{formatCurrency(totalAmount)}</div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <HintBox className="mt-3">
                                 Las facturas anuladas quedan como registro histórico y no pueden reactivarse ni marcarse como pagadas.
                             </HintBox>

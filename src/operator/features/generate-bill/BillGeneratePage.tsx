@@ -132,7 +132,7 @@ const BillGeneratePage = () => {
                                 <i className="bi bi-calendar-check"></i>
                             </div>
                             <div>
-                                <div className="mode-tab-title">Generación Masiva</div>
+                                <div className="mode-tab-title">Masiva</div>
                                 <div className="mode-tab-subtitle text-muted">Todas las facturas del período</div>
                             </div>
                         </button>
@@ -146,7 +146,7 @@ const BillGeneratePage = () => {
                                 <i className="bi bi-person"></i>
                             </div>
                             <div>
-                                <div className="mode-tab-title">Generación Individual</div>
+                                <div className="mode-tab-title">Individual</div>
                                 <div className="mode-tab-subtitle text-muted">Una factura para un usuario específico</div>
                             </div>
                         </button>
@@ -238,7 +238,7 @@ const BillGeneratePage = () => {
                                     <i className="bi bi-clock-history"></i>
                                 </div>
                                 <div>
-                                    <div className="footer-note-title">La generación de facturas puede tomar varios segundos.</div>
+                                    <div className="footer-note-title">La operación puede tomar varios segundos.</div>
                                     <div className="footer-note-subtitle text-muted">No cierres la página durante el proceso.</div>
                                 </div>
                             </div>

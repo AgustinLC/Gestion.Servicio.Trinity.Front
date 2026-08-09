@@ -115,7 +115,7 @@ const DebtDisconnectionPage = () => {
                 return (
                     <div className="text-center">
                         <span className={`badge-soft ${severe ? "badge-soft-danger" : "badge-soft-warning"}`}>
-                            {periods} {periods === 1 ? "Período" : "Períodos"}
+                            {periods}
                         </span>
                     </div>
                 );

@@ -1,6 +1,7 @@
 // components/UserSearchInput.tsx
 import { useState, useEffect, useMemo } from 'react';
-import { Form, Spinner, ListGroup, Button, Alert } from 'react-bootstrap';
+import { Form, Spinner, ListGroup, Button } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 import { UserDto } from '../../../core/models/dto/UserDto';
 import useAppData from '../../../hooks/useAppData';
 
@@ -13,6 +14,15 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
     const [filteredUsers, setFilteredUsers] = useState<UserDto[]>([]);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const { operatorActiveUsers, loading: isLoading, error } = useAppData();
+
+    // El error es del contexto global (compartido con el resto del panel de
+    // operador), así que se avisa con un toast en vez de un Alert fijo en
+    // este campo puntual, para no repetir el mensaje en cada render.
+    useEffect(() => {
+        if (error) {
+            toast.error(`Error cargando usuarios: ${error}`, { autoClose: 8000 });
+        }
+    }, [error]);
 
     const filteredResults = useMemo(() => {
         // Con un usuario ya seleccionado, el input pasa a mostrar "idUser -
@@ -74,8 +84,6 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
                     <span className="ms-2">Cargando usuarios...</span>
                 </div>
             )}
-
-            {error && <Alert variant="danger" className="mb-2">{`Error cargando usuarios: ${error}`}</Alert>}
 
             <Form.Control
                 type="search"

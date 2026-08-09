@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Button, Spinner, Alert, Row, Col } from 'react-bootstrap';
+import { Button, Spinner, Row, Col } from 'react-bootstrap';
 import { LightningChargeFill } from 'react-bootstrap-icons';
+import { toast } from 'react-toastify';
 import { addData, getData } from '../../../core/services/apiService';
 import { PeriodSelectorDto } from '../../../core/models/dto/PeriodSelectorDto';
 import PageHeader from '../../../shared/components/PageHeader';
 import KpiCard from '../../../shared/components/kpi-card/KpiCard';
 import ConfirmModal from '../../../shared/components/confirm/ConfirmModal';
 import useAppData from '../../../hooks/useAppData';
-import './NewPeriodPage.css';
 
 interface InfoItem {
     icon: string;
@@ -50,7 +50,7 @@ const WILL_HAPPEN = [
     'Se generará un registro de lectura por cada medidor activo.',
     'Todas las lecturas comenzarán vacías.',
     'Los operarios podrán comenzar a cargar lecturas.',
-    'El nuevo período quedará como ACTIVO.',
+    'El nuevo período quedará como Activo.',
     'El período anterior quedará finalizado y bloqueado para edición.',
 ];
 
@@ -63,8 +63,6 @@ const WONT_HAPPEN = [
 const NewPeriodPage = () => {
     // Estados
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [periods, setPeriods] = useState<PeriodSelectorDto[]>([]);
 
@@ -95,14 +93,11 @@ const NewPeriodPage = () => {
     // Manejar boton para generar nuevo periodo
     const handleNewPeriod = async () => {
         setIsLoading(true);
-        setError(null);
-        setSuccess(false);
         try {
             await addData('/operator/next-period', {});
-            setSuccess(true);
-            setTimeout(() => setSuccess(false), 300000);
+            toast.success('¡Nuevo período generado exitosamente!', { autoClose: 8000 });
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Error desconocido');
+            toast.error(err instanceof Error ? err.message : 'Error desconocido', { autoClose: 8000 });
         } finally {
             setIsLoading(false);
             setShowConfirmModal(false);
@@ -279,18 +274,6 @@ const NewPeriodPage = () => {
                         </div>
                     </div>
                 </div>
-
-                {success && (
-                    <Alert variant="success" className="mt-3 fade-in">
-                        ¡Nuevo período generado exitosamente!
-                    </Alert>
-                )}
-
-                {error && (
-                    <Alert variant="danger" className="mt-3 fade-in">
-                        Error: {error}
-                    </Alert>
-                )}
             </div>
 
             <ConfirmModal

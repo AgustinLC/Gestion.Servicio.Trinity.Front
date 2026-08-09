@@ -282,50 +282,10 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                         <p className="text-center">No hay facturas activas</p>
                     ) : (
                         <div className="content-fade-in">
-                            <div className="d-flex flex-wrap gap-3 mb-3">
-                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
-                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "rgba(0, 119, 255, 0.1)", color: "var(--bs-primary)" }}>
-                                        <i className="bi bi-file-earmark-text"></i>
-                                    </div>
-                                    <div>
-                                        <div className="stat-label text-muted small">Total de facturas</div>
-                                        <div className="stat-value fw-bold">{bills.length}</div>
-                                    </div>
-                                </div>
-                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
-                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "#dbeafe", color: "#1d4ed8" }}>
-                                        <i className="bi bi-droplet-fill"></i>
-                                    </div>
-                                    <div>
-                                        <div className="stat-label text-muted small">Consumo total</div>
-                                        <div className="stat-value fw-bold">{totalConsumption.toFixed(2)} m³</div>
-                                    </div>
-                                </div>
-                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
-                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "#dcfce7", color: "#16a34a" }}>
-                                        <i className="bi bi-cash-stack"></i>
-                                    </div>
-                                    <div>
-                                        <div className="stat-label text-muted small">Total facturado</div>
-                                        <div className="stat-value fw-bold">{formatCurrency(totalBilled)}</div>
-                                    </div>
-                                </div>
-                                <div className="stat-card d-flex align-items-center gap-2 px-3 py-2 flex-fill">
-                                    <div className="stat-card-icon d-flex align-items-center justify-content-center" style={{ backgroundColor: "#ffedd5", color: "#c2410c" }}>
-                                        <i className="bi bi-tag-fill"></i>
-                                    </div>
-                                    <div>
-                                        <div className="stat-label text-muted small">Descuentos totales</div>
-                                        <div className="stat-value fw-bold">{formatCurrency(totalDiscounts)}</div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <ReusableTable<BillDetailsDto>
                                 data={[...bills].sort((a, b) => b.idBill - a.idBill)}
                                 columns={columns}
                             />
-
                             <HintBox className="mt-3">
                                 Las facturas pagadas no pueden ser anuladas.
                             </HintBox>
