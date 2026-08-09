@@ -29,6 +29,21 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (isMobile) setSidebarOpen(false);
   }, [isMobile]);
 
+  // Cierra el drawer al tocar/clickear fuera de él en mobile (fuera del
+  // sidebar y del botón hamburguesa, que ya tiene su propio toggle).
+  useEffect(() => {
+    if (!isMobile || !sidebarOpen) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (target.closest(".sidebar") || target.closest(".navbar-hamburger")) return;
+      setSidebarOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [isMobile, sidebarOpen]);
+
   return (
     <SidebarContext.Provider value={{ isMobile, sidebarOpen, toggleSidebar, closeSidebar }}>
       {children}

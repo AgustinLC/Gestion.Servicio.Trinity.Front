@@ -116,7 +116,7 @@ const AdminDashboard: React.FC = () => {
 
                     {/* Descuentos */}
                     <li className="nav-item">
-                        <Link to="/dashboard/admin/discounts/management" className={`nav-link py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/discounts' ? 'active' : ''}`} title="Gestion de descuentos" onClick={closeSidebar}>
+                        <Link to="/dashboard/admin/discounts/management" className={`nav-link py-3 d-flex align-items-center ${currentPath === '/dashboard/admin/discounts/management' ? 'active' : ''}`} title="Gestion de descuentos" onClick={closeSidebar}>
                             <i className="bi bi-plus-slash-minus fs-4"></i>
                             <span className="ms-2 d-lg-inline">Descuentos</span>
                         </Link>

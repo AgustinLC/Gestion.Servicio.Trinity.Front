@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Button, Spinner } from "react-bootstrap";
+import { Button, Spinner, OverlayTrigger, Tooltip } from "react-bootstrap";
 import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
 import PageHeader from "../../../shared/components/PageHeader";
 import { UserDebtDto } from "../../../core/models/dto/UserDebtDto";
@@ -150,28 +150,45 @@ const DebtDisconnectionPage = () => {
                             )}
                             Intimación
                         </Button>
-                        <Button
-                            variant="outline-danger"
-                            size="sm"
-                            disabled={isCutProcessing || !canCut}
-                            onClick={() => generateDisconnectionPdf(row, {
-                                onStart: () => setProcessingKey(cutKey),
-                                onComplete: () => setProcessingKey(null),
-                                onError: () => setProcessingKey(null),
-                            })}
-                            title={
-                                !canCut
-                                    ? "Se requiere adeudar 2 o más períodos para emitir aviso de corte"
-                                    : "Generar Aviso de Corte de Servicio"
-                            }
-                        >
-                            {isCutProcessing ? (
-                                <Spinner animation="border" size="sm" className="me-1" />
-                            ) : (
-                                <i className="bi bi-exclamation-octagon me-1"></i>
-                            )}
-                            Aviso de Corte
-                        </Button>
+                        {!canCut ? (
+                            <OverlayTrigger
+                                placement="top"
+                                overlay={
+                                    <Tooltip id={`cut-disabled-tooltip-${row.idUser}`}>
+                                        Se requiere adeudar 2 o más períodos para emitir aviso de corte
+                                    </Tooltip>
+                                }
+                            >
+                                {/* El Button disabled no dispara eventos de mouse (por eso
+                                    el title nativo no se veía); se envuelve en un span para
+                                    que el OverlayTrigger pueda detectar el hover igual. */}
+                                <span className="d-inline-block">
+                                    <Button variant="outline-danger" size="sm" disabled style={{ pointerEvents: "none" }}>
+                                        <i className="bi bi-exclamation-octagon me-1"></i>
+                                        Aviso de Corte
+                                    </Button>
+                                </span>
+                            </OverlayTrigger>
+                        ) : (
+                            <Button
+                                variant="outline-danger"
+                                size="sm"
+                                disabled={isCutProcessing}
+                                onClick={() => generateDisconnectionPdf(row, {
+                                    onStart: () => setProcessingKey(cutKey),
+                                    onComplete: () => setProcessingKey(null),
+                                    onError: () => setProcessingKey(null),
+                                })}
+                                title="Generar Aviso de Corte de Servicio"
+                            >
+                                {isCutProcessing ? (
+                                    <Spinner animation="border" size="sm" className="me-1" />
+                                ) : (
+                                    <i className="bi bi-exclamation-octagon me-1"></i>
+                                )}
+                                Aviso de Corte
+                            </Button>
+                        )}
                     </div>
                 );
             },
