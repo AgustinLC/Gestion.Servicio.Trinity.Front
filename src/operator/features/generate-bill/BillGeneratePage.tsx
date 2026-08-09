@@ -6,6 +6,7 @@ import { addData, getData } from '../../../core/services/apiService';
 import { toast } from 'react-toastify';
 import PageHeader from '../../../shared/components/PageHeader';
 import FormSectionHeader from '../../../shared/components/form-section-header/FormSectionHeader';
+import ConfirmModal from '../../../shared/components/confirm/ConfirmModal';
 import { PeriodSelectorDto } from '../../../core/models/dto/PeriodSelectorDto';
 import { Status } from '../../../core/models/dto/Status';
 import useAppData from '../../../hooks/useAppData';
@@ -17,6 +18,7 @@ const formatPreviewDate = (date: Date) => date.toLocaleDateString('es-AR');
 
 const BillGeneratePage = () => {
     const [mode, setMode] = useState<GenerationMode>('bulk');
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const { operatorUsers } = useAppData();
 
     // Estados para generación masiva
@@ -81,6 +83,7 @@ const BillGeneratePage = () => {
             toast.error(error instanceof Error ? error.message : 'Error desconocido');
         } finally {
             setBulkIsLoading(false);
+            setShowConfirmModal(false);
         }
     };
 
@@ -101,11 +104,22 @@ const BillGeneratePage = () => {
             toast.error(error instanceof Error ? error.message : 'Error desconocido');
         } finally {
             setIndividualIsLoading(false);
+            setShowConfirmModal(false);
         }
     };
 
+    // El submit solo abre el modal de confirmación; la generación real ocurre
+    // en handleConfirmGenerate, disparado desde el ConfirmModal.
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
+        if (mode === 'individual' && !userId) {
+            toast.warning('Debe seleccionar un usuario antes de generar la factura');
+            return;
+        }
+        setShowConfirmModal(true);
+    };
+
+    const handleConfirmGenerate = () => {
         if (mode === 'bulk') {
             handleBulkSubmit();
         } else {
@@ -270,6 +284,33 @@ const BillGeneratePage = () => {
                     </Form>
                 </Card>
             </div>
+
+            <ConfirmModal
+                show={showConfirmModal}
+                onHide={() => setShowConfirmModal(false)}
+                title={mode === 'bulk' ? '¿Generar facturas masivas?' : '¿Generar factura individual?'}
+                icon="bi bi-shield-check"
+                confirmVariant="primary"
+                message={
+                    mode === 'bulk' ? (
+                        <>
+                            Estás a punto de generar <strong>{eligibleUsersCount} facturas</strong> correspondientes
+                            al período <strong>{periodPreviewLabel}</strong>. Esta acción no genera los PDF ni
+                            registra pagos.
+                        </>
+                    ) : (
+                        <>
+                            Estás a punto de generar una factura para el usuario <strong>N° {userId}</strong> correspondiente
+                            al período <strong>{periodPreviewLabel}</strong>. Esta acción no genera el PDF ni
+                            registra pagos.
+                        </>
+                    )
+                }
+                confirmText={mode === 'bulk' ? 'Generar Facturas' : 'Generar Factura'}
+                isLoading={isLoading}
+                loadingText="Generando..."
+                onConfirm={handleConfirmGenerate}
+            />
         </div>
     );
 };
