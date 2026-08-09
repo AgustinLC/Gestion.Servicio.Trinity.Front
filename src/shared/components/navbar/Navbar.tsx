@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Modal, Button, Dropdown } from "react-bootstrap";
+import { Dropdown } from "react-bootstrap";
 import useAuth from "../../../hooks/useAuth";
 import { useSidebar } from "../../../context/SidebarContext";
-import { useModalLayer } from "../../../context/ModalStackContext";
+import ConfirmModal from "../confirm/ConfirmModal";
 import { getData } from "../../../core/services/apiService";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import logo from "../../../assets/img/logoNavbar.svg";
@@ -22,7 +22,6 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserDto | null>(null);
-  const logoutModalZIndex = useModalLayer(showLogoutModal);
   const { toggleSidebar } = useSidebar();
   const navRef = useRef<HTMLElement>(null);
 
@@ -215,24 +214,16 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* Modal de confirmación de cierre de sesión */}
-      <Modal show={showLogoutModal} onHide={() => setShowLogoutModal(false)} centered backdrop={false} style={{ zIndex: logoutModalZIndex }}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <i className="bi bi-box-arrow-left me-2 text-danger"></i>Cerrar sesión
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          ¿Estás seguro que querés cerrar tu sesión?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={() => setShowLogoutModal(false)}>
-            Cancelar
-          </Button>
-          <Button variant="danger" onClick={handleLogout}>
-            <i className="bi bi-box-arrow-left me-1"></i> Cerrar sesión
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmModal
+        show={showLogoutModal}
+        onHide={() => setShowLogoutModal(false)}
+        title="Cerrar sesión"
+        icon="bi bi-box-arrow-left"
+        confirmVariant="danger"
+        message="¿Estás seguro que querés cerrar tu sesión?"
+        confirmText="Cerrar sesión"
+        onConfirm={handleLogout}
+      />
     </>
   );
 };

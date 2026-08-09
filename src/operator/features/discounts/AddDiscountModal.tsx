@@ -165,16 +165,16 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
                         )}
                     </>
                 )}
-            </Modal.Body>
 
-            <Modal.Footer>
-                <Button variant="outline-secondary" onClick={onHide} disabled={assigning}>
-                    <i className="bi bi-x-circle me-1"></i> Cancelar
-                </Button>
-                <Button variant="primary" onClick={handleAssign} disabled={assigning || loading || !selectedDiscountId}>
-                    <i className="bi bi-save me-1"></i> {assigning ? "Guardando..." : "Guardar"}
-                </Button>
-            </Modal.Footer>
+                <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
+                    <Button variant="outline-secondary" onClick={onHide} disabled={assigning}>
+                        <i className="bi bi-x-circle me-1"></i> Cancelar
+                    </Button>
+                    <Button variant="primary" onClick={handleAssign} disabled={assigning || loading || !selectedDiscountId}>
+                        <i className="bi bi-save me-1"></i> {assigning ? "Guardando..." : "Guardar"}
+                    </Button>
+                </div>
+            </Modal.Body>
         </Modal>
     );
 };

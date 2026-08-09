@@ -38,7 +38,6 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     const [selectedPaymentType, setSelectedPaymentType] = useState<PaymentStatus | null>(null);
     const modalZIndex = useModalLayer(show);
     const paymentModalZIndex = useModalLayer(showPaymentModal);
-    const confirmStatusModalZIndex = useModalLayer(showConfirmStatusModal);
 
     // Ref para el generador de PDF
     const pdfGeneratorRef = useRef<BillPdfGeneratorRef>(null);
@@ -375,50 +374,44 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                         <strong>Fecha de vencimiento:</strong>{" "}
                         {billToUpdate?.expirationDate ? formatDate(billToUpdate.expirationDate) : "N/A"}
                     </HintBox>
+
+                    <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
+                        <Button variant="outline-secondary" onClick={() => setShowPaymentModal(false)}>
+                            <i className="bi bi-x-circle me-1"></i> Cancelar
+                        </Button>
+                        <Button variant="primary" onClick={handleConfirmPaymentType} disabled={!selectedPaymentType}>
+                            <i className="bi bi-check-circle me-1"></i> Confirmar selección
+                        </Button>
+                    </div>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="outline-secondary" onClick={() => setShowPaymentModal(false)}>
-                        <i className="bi bi-x-circle me-1"></i> Cancelar
-                    </Button>
-                    <Button variant="primary" onClick={handleConfirmPaymentType} disabled={!selectedPaymentType}>
-                        <i className="bi bi-check-circle me-1"></i> Confirmar selección
-                    </Button>
-                </Modal.Footer>
             </Modal>
 
             {/* Modal de confirmación */}
-            <Modal show={showConfirmStatusModal} onHide={() => setShowConfirmStatusModal(false)} centered backdrop={false} style={{ zIndex: confirmStatusModalZIndex }} contentClassName="form-modal-content" aria-labelledby="confirm-status-modal-title">
-                <FormModalHeader
-                    icon="bi bi-question-circle"
-                    title="Confirmar cambio de estado"
-                    onClose={() => setShowConfirmStatusModal(false)}
-                    titleId="confirm-status-modal-title"
-                />
-                <Modal.Body>
-                    {selectedStatus === PaymentStatus.UNPAID ? (
-                        <p>
+            <ConfirmModal
+                show={showConfirmStatusModal}
+                onHide={() => setShowConfirmStatusModal(false)}
+                title="Confirmar cambio de estado"
+                icon="bi bi-question-circle"
+                confirmVariant="primary"
+                message={
+                    selectedStatus === PaymentStatus.UNPAID ? (
+                        <>
                             ¿Está seguro que desea marcar la factura <strong>#{billToUpdate?.idBill}</strong> como <strong>impaga</strong>?
-                        </p>
+                        </>
                     ) : (
-                        <p>
+                        <>
                             ¿Está seguro que desea marcar la factura <strong>#{billToUpdate?.idBill}</strong> como{" "}
                             <strong>
-                                {selectedStatus === PaymentStatus.PAID_ON_TIME 
-                                    ? "pagada en término" 
+                                {selectedStatus === PaymentStatus.PAID_ON_TIME
+                                    ? "pagada en término"
                                     : "pagada fuera de término"}
                             </strong>?
-                        </p>
-                    )}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowConfirmStatusModal(false)}>
-                        Cancelar
-                    </Button>
-                    <Button variant="primary" onClick={handleConfirmStatusChange}>
-                        Confirmar
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+                        </>
+                    )
+                }
+                confirmText="Confirmar"
+                onConfirm={handleConfirmStatusChange}
+            />
 
             {selectedBill && user && (
                 <BillPdfGenerator

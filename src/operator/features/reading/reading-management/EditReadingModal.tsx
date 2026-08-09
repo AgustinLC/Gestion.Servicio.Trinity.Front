@@ -53,15 +53,16 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
                         />
                     </Form.Group>
                 </Form>
+
+                <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
+                    <Button variant="outline-secondary" onClick={onHide}>
+                        <i className="bi bi-x-circle me-1"></i> Cancelar
+                    </Button>
+                    <Button variant="primary" onClick={handleSubmit}>
+                        <i className="bi bi-save me-1"></i> Guardar
+                    </Button>
+                </div>
             </Modal.Body>
-            <Modal.Footer>
-                <Button variant="outline-secondary" onClick={onHide}>
-                    <i className="bi bi-x-circle me-1"></i> Cancelar
-                </Button>
-                <Button variant="primary" onClick={handleSubmit}>
-                    <i className="bi bi-save me-1"></i> Guardar
-                </Button>
-            </Modal.Footer>
         </Modal>
     );
 };
