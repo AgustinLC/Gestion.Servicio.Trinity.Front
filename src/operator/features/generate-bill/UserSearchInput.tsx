@@ -4,6 +4,7 @@ import { Form, Spinner, ListGroup, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { UserDto } from '../../../core/models/dto/UserDto';
 import useAppData from '../../../hooks/useAppData';
+import FloatingFieldset from '../../../shared/components/floating-fieldset/FloatingFieldset';
 
 interface UserSearchInputProps { onUserSelected: (userId: number | null) => void; }
 
@@ -76,8 +77,6 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
 
     return (
         <Form.Group className="mb-3 position-relative">
-            <Form.Label>Buscar usuario por Nº Conexión</Form.Label>
-
             {isLoading && (
                 <div className="mb-2">
                     <Spinner animation="border" size="sm" />
@@ -85,18 +84,19 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
                 </div>
             )}
 
-            <Form.Control
-                type="search"
-                value={searchTerm}
-                onChange={(e) => {
-                    const value = e.target.value;
-                    setSearchTerm(value);
-                    if (!value) clearSelection();
-                }}
-                placeholder="Ingrese numero de conexión o nombre..."
-                disabled={isLoading || !!selectedUser}
-                aria-label="Buscar usuario por numero de conexión o nombre"
-            />
+            <FloatingFieldset label="Buscar usuario por Nº Conexión">
+                <Form.Control
+                    type="search"
+                    value={searchTerm}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setSearchTerm(value);
+                        if (!value) clearSelection();
+                    }}
+                    disabled={isLoading || !!selectedUser}
+                    aria-label="Buscar usuario por numero de conexión o nombre"
+                />
+            </FloatingFieldset>
 
             {filteredUsers.length > 0 && (
                 <ListGroup className="position-absolute w-100 mt-1" style={{ zIndex: 1000 }}>

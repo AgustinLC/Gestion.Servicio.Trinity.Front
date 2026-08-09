@@ -3,6 +3,7 @@ import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { FeatureDto } from "../../../core/models/dto/FeatureDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
@@ -47,21 +48,23 @@ const AddEditFeatureModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave
             <Modal.Body>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <Form.Group>
-                        <Form.Label>Funcionalidad</Form.Label>
+                        <FloatingFieldset label="Funcionalidad">
                         <Form.Control
                             {...register("name", { required: "Este campo es obligatorio" })}
                             isInvalid={!!errors.name}
                         />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.name?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Descripción</Form.Label>
+                        <FloatingFieldset label="Descripción">
                         <Form.Control
                             {...register("description", { required: "Este campo es obligatorio" })}
                             isInvalid={!!errors.description}
                         />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.description?.message}
                         </Form.Control.Feedback>

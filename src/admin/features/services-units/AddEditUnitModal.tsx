@@ -3,6 +3,7 @@ import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { Unit } from "../../../core/models/dto/Unit";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
@@ -47,21 +48,23 @@ const AddEditUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, u
             <Modal.Body>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <Form.Group>
-                        <Form.Label>Nombre</Form.Label>
-                        <Form.Control
-                            {...register("name", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.name}
-                        />
+                        <FloatingFieldset label="Nombre">
+                            <Form.Control
+                                {...register("name", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.name}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.name?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Simbolo</Form.Label>
-                        <Form.Control
-                            {...register("symbol", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.symbol}
-                        />
+                        <FloatingFieldset label="Símbolo">
+                            <Form.Control
+                                {...register("symbol", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.symbol}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.symbol?.message}
                         </Form.Control.Feedback>

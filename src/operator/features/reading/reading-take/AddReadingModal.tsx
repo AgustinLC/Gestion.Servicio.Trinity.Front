@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { getData } from "../../../../core/services/apiService";
 import { toast } from "react-toastify";
 import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../../shared/components/floating-fieldset/FloatingFieldset";
 import { useModalLayer } from "../../../../context/ModalStackContext";
 
 // Interfaces/modelos
@@ -75,16 +76,16 @@ const AddReadingModal: React.FC<AddReadingModalProps> = ({ show, onHide, onSave,
                         </strong>
                     </Form.Label>
                     <Form.Group>
-
-                        <Form.Label>Valor de Lectura</Form.Label>
-                        <Form.Control
-                            type="number"
-                            {...register("readingValue", {
-                                required: "El valor de lectura es obligatorio",
-                                min: { value: 0, message: "El valor debe ser mayor o igual a 0" },
-                            })}
-                            isInvalid={!!errors.readingValue}
-                        />
+                        <FloatingFieldset label="Valor de Lectura">
+                            <Form.Control
+                                type="number"
+                                {...register("readingValue", {
+                                    required: "El valor de lectura es obligatorio",
+                                    min: { value: 0, message: "El valor debe ser mayor o igual a 0" },
+                                })}
+                                isInvalid={!!errors.readingValue}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.readingValue?.message}
                         </Form.Control.Feedback>

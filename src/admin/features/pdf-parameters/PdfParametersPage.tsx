@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Form, Button, Card, Row, Col, Spinner, InputGroup } from "react-bootstrap";
+import { Form, Button, Card, Row, Col, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../config/axiosConfig";
 import { PdfParameters, DEFAULT_PARAMS } from "../../../shared/components/debt-disconnection/pdf/DebtPdfDocument";
 import PageHeader from "../../../shared/components/PageHeader";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import "./PdfParametersPage.css";
 
 const PdfParametersPage: React.FC = () => {
@@ -170,20 +171,17 @@ const PdfParametersPage: React.FC = () => {
             <Row className="mb-4">
               <Col md={6} className="mb-3 mb-md-0">
                 <Form.Group controlId="administrativeExpenses">
-                  <Form.Label className="fw-semibold text-secondary small">Intereses y Gastos Administrativos (Aviso Deuda)</Form.Label>
-                  <InputGroup>
-                    <InputGroup.Text>$</InputGroup.Text>
+                  <FloatingFieldset label="Intereses y Gastos Administrativos (Aviso Deuda)" prefix="$">
                     <Form.Control
                       type="number"
                       name="administrativeExpenses"
                       value={params.administrativeExpenses}
                       onChange={handleChange}
-                      placeholder="1000"
                       min="0"
                       step="any"
                       required
                     />
-                  </InputGroup>
+                  </FloatingFieldset>
                   <Form.Text className="text-muted">
                     Valor por defecto cobrado por gestión de mora.
                   </Form.Text>
@@ -191,20 +189,17 @@ const PdfParametersPage: React.FC = () => {
               </Col>
               <Col md={6}>
                 <Form.Group controlId="reconnectionCost">
-                  <Form.Label className="fw-semibold text-secondary small">Costo de Restablecimiento de Servicio</Form.Label>
-                  <InputGroup>
-                    <InputGroup.Text>$</InputGroup.Text>
+                  <FloatingFieldset label="Costo de Restablecimiento de Servicio" prefix="$">
                     <Form.Control
                       type="number"
                       name="reconnectionCost"
                       value={params.reconnectionCost}
                       onChange={handleChange}
-                      placeholder="3000"
                       min="0"
                       step="any"
                       required
                     />
-                  </InputGroup>
+                  </FloatingFieldset>
                   <Form.Text className="text-muted">
                     Tasa cobrada para reconectar la cuenta suspendida.
                   </Form.Text>
@@ -221,19 +216,16 @@ const PdfParametersPage: React.FC = () => {
             <Row className="mb-4">
               <Col md={4} className="mb-3 mb-md-0">
                 <Form.Group controlId="daysToPay">
-                  <Form.Label className="fw-semibold text-secondary small">Días para pagar (Post-Aviso)</Form.Label>
-                  <InputGroup>
+                  <FloatingFieldset label="Días para pagar (Post-Aviso)" suffix="días">
                     <Form.Control
                       type="number"
                       name="daysToPay"
                       value={params.daysToPay}
                       onChange={handleChange}
-                      placeholder="5"
                       min="1"
                       required
                     />
-                    <InputGroup.Text>días</InputGroup.Text>
-                  </InputGroup>
+                  </FloatingFieldset>
                   <Form.Text className="text-muted">
                     Días corridos dados al usuario para regularizar antes del corte.
                   </Form.Text>
@@ -241,35 +233,32 @@ const PdfParametersPage: React.FC = () => {
               </Col>
               <Col md={4} className="mb-3 mb-md-0">
                 <Form.Group controlId="daysToDisconnection">
-                  <Form.Label className="fw-semibold text-secondary small">Días para suspensión (Mora legal)</Form.Label>
-                  <InputGroup>
+                  <FloatingFieldset label="Días para suspensión (Mora legal)" suffix="días">
                     <Form.Control
                       type="number"
                       name="daysToDisconnection"
                       value={params.daysToDisconnection}
                       onChange={handleChange}
-                      placeholder="10"
                       min="1"
                       required
                     />
-                    <InputGroup.Text>días</InputGroup.Text>
-                  </InputGroup>
+                  </FloatingFieldset>
                   <Form.Text className="text-muted">
-                    Días transcurridos desde vencimiento de factura para habilitar corte (Ley 6044).
+                    Días transcurridos desde vencimiento de factura para habilitar corte.
                   </Form.Text>
                 </Form.Group>
               </Col>
               <Col md={4}>
                 <Form.Group controlId="reconnectionTime">
-                  <Form.Label className="fw-semibold text-secondary small">Plazo de Restablecimiento</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="reconnectionTime"
-                    value={params.reconnectionTime}
-                    onChange={handleChange}
-                    placeholder="48hs"
-                    required
-                  />
+                  <FloatingFieldset label="Plazo de Restablecimiento">
+                    <Form.Control
+                      type="text"
+                      name="reconnectionTime"
+                      value={params.reconnectionTime}
+                      onChange={handleChange}
+                      required
+                    />
+                  </FloatingFieldset>
                   <Form.Text className="text-muted">
                     Lapso de tiempo máximo para reconexión una vez abonado el saldo.
                   </Form.Text>
@@ -286,15 +275,15 @@ const PdfParametersPage: React.FC = () => {
             <Row className="mb-4">
               <Col md={6} className="mb-3">
                 <Form.Group controlId="claimsPhone">
-                  <Form.Label className="fw-semibold text-secondary small">Teléfono de Reclamos y WhatsApp</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="claimsPhone"
-                    value={params.claimsPhone}
-                    onChange={handleChange}
-                    placeholder="2635036918"
-                    required
-                  />
+                  <FloatingFieldset label="Teléfono de Reclamos y WhatsApp">
+                    <Form.Control
+                      type="text"
+                      name="claimsPhone"
+                      value={params.claimsPhone}
+                      onChange={handleChange}
+                      required
+                    />
+                  </FloatingFieldset>
                   <Form.Text className="text-muted">
                     Número de atención general. Aparecerá en ambos documentos PDF.
                   </Form.Text>
@@ -302,15 +291,15 @@ const PdfParametersPage: React.FC = () => {
               </Col>
               <Col md={6} className="mb-3">
                 <Form.Group controlId="attentionHours">
-                  <Form.Label className="fw-semibold text-secondary small">Días y Horarios de Atención</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="attentionHours"
-                    value={params.attentionHours}
-                    onChange={handleChange}
-                    placeholder="de lunes a viernes de 8hs a 11:30hs"
-                    required
-                  />
+                  <FloatingFieldset label="Días y Horarios de Atención">
+                    <Form.Control
+                      type="text"
+                      name="attentionHours"
+                      value={params.attentionHours}
+                      onChange={handleChange}
+                      required
+                    />
+                  </FloatingFieldset>
                   <Form.Text className="text-muted">
                     Rango y horarios disponibles para atención al cliente.
                   </Form.Text>
@@ -318,16 +307,16 @@ const PdfParametersPage: React.FC = () => {
               </Col>
               <Col md={6} className="mb-3 mb-md-0">
                 <Form.Group controlId="cbu">
-                  <Form.Label className="fw-semibold text-secondary small">CBU del Consorcio</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="cbu"
-                    value={params.cbu}
-                    onChange={handleChange}
-                    placeholder="0110438120043811503456"
-                    maxLength={22}
-                    required
-                  />
+                  <FloatingFieldset label="CBU del Consorcio">
+                    <Form.Control
+                      type="text"
+                      name="cbu"
+                      value={params.cbu}
+                      onChange={handleChange}
+                      maxLength={22}
+                      required
+                    />
+                  </FloatingFieldset>
                   <Form.Text className="text-muted">
                     CBU bancario de 22 dígitos para la transferencia de deudas.
                   </Form.Text>
@@ -335,15 +324,15 @@ const PdfParametersPage: React.FC = () => {
               </Col>
               <Col md={6}>
                 <Form.Group controlId="alias">
-                  <Form.Label className="fw-semibold text-secondary small">Alias Bancario</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="alias"
-                    value={params.alias}
-                    onChange={handleChange}
-                    placeholder="BOMBO.PRIMO.NUDO"
-                    required
-                  />
+                  <FloatingFieldset label="Alias Bancario">
+                    <Form.Control
+                      type="text"
+                      name="alias"
+                      value={params.alias}
+                      onChange={handleChange}
+                      required
+                    />
+                  </FloatingFieldset>
                   <Form.Text className="text-muted">
                     Alias bancario único para pagos digitales directos.
                   </Form.Text>

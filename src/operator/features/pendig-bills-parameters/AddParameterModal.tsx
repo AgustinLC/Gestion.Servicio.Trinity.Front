@@ -5,6 +5,7 @@ import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
 import { useForm, Controller } from "react-hook-form";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
@@ -64,22 +65,24 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     {/* Selector de parámetros */}
                     <Form.Group controlId="parameterSelect" className="mb-3">
-                        <Form.Label>Seleccione un parámetro</Form.Label>
                         <Controller
                             control={control}
                             name="idBillingParameter"
                             rules={{ required: "Este campo es obligatorio" }}
                             render={({ field }) => (
-                                <CustomSelect
-                                    value={field.value ? String(field.value) : ""}
-                                    onChange={handleParameterChange}
-                                    isInvalid={!!errors.idBillingParameter}
-                                    placeholder="Seleccione..."
-                                    options={parameters.map((param) => ({
-                                        value: String(param.idBillingParameter),
-                                        label: `${param.name} - ${applyConditionLabels[param.applyCondition]}`,
-                                    }))}
-                                />
+                                <FloatingFieldset label="Seleccione un parámetro">
+                                    <CustomSelect
+                                        value={field.value ? String(field.value) : ""}
+                                        onChange={handleParameterChange}
+                                        onBlur={field.onBlur}
+                                        isInvalid={!!errors.idBillingParameter}
+                                        placeholder="Seleccione..."
+                                        options={parameters.map((param) => ({
+                                            value: String(param.idBillingParameter),
+                                            label: `${param.name} - ${applyConditionLabels[param.applyCondition]}`,
+                                        }))}
+                                    />
+                                </FloatingFieldset>
                             )}
                         />
                         {errors.idBillingParameter && (
@@ -91,16 +94,17 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
 
                     {/* Input numérico */}
                     <Form.Group controlId="parameterValue" className="mb-3">
-                        <Form.Label>Importe $</Form.Label>
-                        <Form.Control
-                            type="number"
-                            {...register("value", {
-                                required: "Este campo es obligatorio",
-                                valueAsNumber: true,
-                            })}
-                            disabled={!selectedParameterId}
-                            isInvalid={!!errors.value}
-                        />
+                        <FloatingFieldset label="Importe" prefix="$">
+                            <Form.Control
+                                type="number"
+                                {...register("value", {
+                                    required: "Este campo es obligatorio",
+                                    valueAsNumber: true,
+                                })}
+                                disabled={!selectedParameterId}
+                                isInvalid={!!errors.value}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.value?.message}
                         </Form.Control.Feedback>

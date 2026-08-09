@@ -3,6 +3,7 @@ import { Modal, Form, Button } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
@@ -61,52 +62,57 @@ const AddEditWorkerModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave,
                 <Form onSubmit={handleSubmit(onSubmit)}>
 
                     <Form.Group>
-                        <Form.Label>Nombre</Form.Label>
-                        <Form.Control
-                            {...register("firstName", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.firstName}
-                        />
+                        <FloatingFieldset label="Nombre">
+                            <Form.Control
+                                {...register("firstName", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.firstName}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.firstName?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Apellido</Form.Label>
-                        <Form.Control
-                            {...register("lastName", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.lastName}
-                        />
+                        <FloatingFieldset label="Apellido">
+                            <Form.Control
+                                {...register("lastName", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.lastName}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.lastName?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Email</Form.Label>
-                        <Form.Control
-                            {...register("username", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.username}
-                        />
+                        <FloatingFieldset label="Email">
+                            <Form.Control
+                                {...register("username", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.username}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.username?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     {worker && ( // Mostrar estado solo en edición
                         <Form.Group>
-                            <Form.Label>Estado</Form.Label>
                             <Controller
                                 control={control}
                                 name="status"
                                 rules={{ required: "Este campo es obligatorio" }}
                                 render={({ field }) => (
-                                    <CustomSelect
-                                        value={field.value}
-                                        onChange={field.onChange}
-                                        isInvalid={!!errors.status}
-                                        options={[
-                                            { value: "ACTIVE", label: "Activo" },
-                                            { value: "INACTIVE", label: "Inactivo" },
-                                        ]}
-                                    />
+                                    <FloatingFieldset label="Estado">
+                                        <CustomSelect
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            onBlur={field.onBlur}
+                                            isInvalid={!!errors.status}
+                                            options={[
+                                                { value: "ACTIVE", label: "Activo" },
+                                                { value: "INACTIVE", label: "Inactivo" },
+                                            ]}
+                                        />
+                                    </FloatingFieldset>
                                 )}
                             />
                             <Form.Control.Feedback type="invalid">
@@ -115,22 +121,24 @@ const AddEditWorkerModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave,
                         </Form.Group>
                     )}
                     <Form.Group>
-                        <Form.Label>DNI</Form.Label>
-                        <Form.Control
-                            type="number"
-                            {...register("dni", { required: "Este campo es obligatorio", maxLength: { value: 8, message: "El DNI debe tener 8 números" } })}
-                            isInvalid={!!errors.dni}
-                        />
+                        <FloatingFieldset label="DNI">
+                            <Form.Control
+                                type="number"
+                                {...register("dni", { required: "Este campo es obligatorio", maxLength: { value: 8, message: "El DNI debe tener 8 números" } })}
+                                isInvalid={!!errors.dni}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.dni?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Teléfono</Form.Label>
-                        <Form.Control
-                            {...register("phone", { required: "Este campo es obligatorio", maxLength: { value: 10, message: "El teléfono no puede tener más de 10 números" } })}
-                            isInvalid={!!errors.phone}
-                        />
+                        <FloatingFieldset label="Teléfono">
+                            <Form.Control
+                                {...register("phone", { required: "Este campo es obligatorio", maxLength: { value: 10, message: "El teléfono no puede tener más de 10 números" } })}
+                                isInvalid={!!errors.phone}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.phone?.message}
                         </Form.Control.Feedback>

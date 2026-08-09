@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../../shared/components/floating-fieldset/FloatingFieldset";
 import { useModalLayer } from "../../../../context/ModalStackContext";
 
 // Interfaces/modelos
@@ -49,26 +50,28 @@ const AddReadingModal: React.FC<AddReadingModalProps> = ({ show, onHide, onSave 
             <Modal.Body>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <Form.Group>
-                        <Form.Label>Fecha</Form.Label>
-                        <Form.Control
-                            type="date"
-                            {...register("date", { required: "La fecha es obligatoria" })}
-                            isInvalid={!!errors.date}
-                        />
+                        <FloatingFieldset label="Fecha">
+                            <Form.Control
+                                type="date"
+                                {...register("date", { required: "La fecha es obligatoria" })}
+                                isInvalid={!!errors.date}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.date?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Valor de Lectura</Form.Label>
-                        <Form.Control
-                            type="number"
-                            {...register("readingValue", {
-                                required: "El valor de lectura es obligatorio",
-                                min: { value: 0, message: "El valor debe ser mayor o igual a 0" },
-                            })}
-                            isInvalid={!!errors.readingValue}
-                        />
+                        <FloatingFieldset label="Valor de Lectura">
+                            <Form.Control
+                                type="number"
+                                {...register("readingValue", {
+                                    required: "El valor de lectura es obligatorio",
+                                    min: { value: 0, message: "El valor debe ser mayor o igual a 0" },
+                                })}
+                                isInvalid={!!errors.readingValue}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.readingValue?.message}
                         </Form.Control.Feedback>

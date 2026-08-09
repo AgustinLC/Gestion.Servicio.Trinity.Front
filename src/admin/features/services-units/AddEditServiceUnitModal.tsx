@@ -5,6 +5,7 @@ import { ServiceUnitDto } from "../../../core/models/dto/ServiceUnitDto";
 import { Service } from "../../../core/models/dto/Service";
 import { Unit } from "../../../core/models/dto/Unit";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
@@ -54,19 +55,21 @@ const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, on
 
                     {/* Servicio */}
                     <Form.Group>
-                        <Form.Label>Servicio</Form.Label>
                         <Controller
                             control={control}
                             name="idService"
                             rules={{ required: "Este campo es obligatorio" }}
                             render={({ field }) => (
-                                <CustomSelect
-                                    value={field.value ? String(field.value) : ""}
-                                    onChange={field.onChange}
-                                    isInvalid={!!errors.idService}
-                                    placeholder="Seleccione un servicio"
-                                    options={services.map((service) => ({ value: String(service.idService), label: service.name }))}
-                                />
+                                <FloatingFieldset label="Servicio">
+                                    <CustomSelect
+                                        value={field.value ? String(field.value) : ""}
+                                        onChange={field.onChange}
+                                        onBlur={field.onBlur}
+                                        isInvalid={!!errors.idService}
+                                        placeholder="Seleccione un servicio"
+                                        options={services.map((service) => ({ value: String(service.idService), label: service.name }))}
+                                    />
+                                </FloatingFieldset>
                             )}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -76,19 +79,21 @@ const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, on
 
                     {/* Unidad */}
                     <Form.Group className="mt-2">
-                        <Form.Label>Unidad</Form.Label>
                         <Controller
                             control={control}
                             name="idUnit"
                             rules={{ required: "Este campo es obligatorio" }}
                             render={({ field }) => (
-                                <CustomSelect
-                                    value={field.value ? String(field.value) : ""}
-                                    onChange={field.onChange}
-                                    isInvalid={!!errors.idUnit}
-                                    placeholder="Seleccione una unidad"
-                                    options={unities.map((unit) => ({ value: String(unit.idUnit), label: `${unit.name}/${unit.symbol}` }))}
-                                />
+                                <FloatingFieldset label="Unidad">
+                                    <CustomSelect
+                                        value={field.value ? String(field.value) : ""}
+                                        onChange={field.onChange}
+                                        onBlur={field.onBlur}
+                                        isInvalid={!!errors.idUnit}
+                                        placeholder="Seleccione una unidad"
+                                        options={unities.map((unit) => ({ value: String(unit.idUnit), label: `${unit.name}/${unit.symbol}` }))}
+                                    />
+                                </FloatingFieldset>
                             )}
                         />
                         <Form.Control.Feedback type="invalid">

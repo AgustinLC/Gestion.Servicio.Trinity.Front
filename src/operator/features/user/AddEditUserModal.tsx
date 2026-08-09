@@ -12,6 +12,7 @@ import { getAvatarColor } from "../../../core/utils/avatarColors";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FormSectionHeader from "../../../shared/components/form-section-header/FormSectionHeader";
 import HintBox from "../../../shared/components/hint-box/HintBox";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import "./AddEditUserModal.css";
 import { formatDate } from "../../../core/utils/formatters";
@@ -193,15 +194,17 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
               <Row>
                 <Col sm={6}>
                   <Form.Group className="mb-2">
-                    <Form.Label>Nombre <span className="text-danger">*</span></Form.Label>
-                    <Form.Control {...register("firstName", { required: "Este campo es obligatorio" })} isInvalid={!!errors.firstName} />
+                    <FloatingFieldset label="Nombre *">
+                      <Form.Control {...register("firstName", { required: "Este campo es obligatorio" })} isInvalid={!!errors.firstName} />
+                    </FloatingFieldset>
                     <Form.Control.Feedback type="invalid">{errors.firstName?.message}</Form.Control.Feedback>
                   </Form.Group>
                 </Col>
                 <Col sm={6}>
                   <Form.Group className="mb-2">
-                    <Form.Label>Apellido <span className="text-danger">*</span></Form.Label>
-                    <Form.Control {...register("lastName", { required: "Este campo es obligatorio" })} isInvalid={!!errors.lastName} />
+                    <FloatingFieldset label="Apellido *">
+                      <Form.Control {...register("lastName", { required: "Este campo es obligatorio" })} isInvalid={!!errors.lastName} />
+                    </FloatingFieldset>
                     <Form.Control.Feedback type="invalid">{errors.lastName?.message}</Form.Control.Feedback>
                   </Form.Group>
                 </Col>
@@ -210,22 +213,24 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
               <Row>
                 <Col sm={6}>
                   <Form.Group className="mb-2">
-                    <Form.Label>DNI <span className="text-danger">*</span></Form.Label>
-                    <Form.Control
-                      type="number"
-                      {...register("dni", { required: "Este campo es obligatorio", maxLength: { value: 8, message: "El DNI debe tener 8 números" } })}
-                      isInvalid={!!errors.dni}
-                    />
+                    <FloatingFieldset label="DNI *">
+                      <Form.Control
+                        type="number"
+                        {...register("dni", { required: "Este campo es obligatorio", maxLength: { value: 8, message: "El DNI debe tener 8 números" } })}
+                        isInvalid={!!errors.dni}
+                      />
+                    </FloatingFieldset>
                     <Form.Control.Feedback type="invalid">{errors.dni?.message}</Form.Control.Feedback>
                   </Form.Group>
                 </Col>
                 <Col sm={6}>
                   <Form.Group className="mb-2">
-                    <Form.Label>Teléfono <span className="text-danger">*</span></Form.Label>
-                    <Form.Control
-                      {...register("phone", { required: "Este campo es obligatorio", maxLength: { value: 10, message: "El teléfono no puede tener más de 10 números" } })}
-                      isInvalid={!!errors.phone}
-                    />
+                    <FloatingFieldset label="Teléfono *">
+                      <Form.Control
+                        {...register("phone", { required: "Este campo es obligatorio", maxLength: { value: 10, message: "El teléfono no puede tener más de 10 números" } })}
+                        isInvalid={!!errors.phone}
+                      />
+                    </FloatingFieldset>
                     <Form.Control.Feedback type="invalid">{errors.phone?.message}</Form.Control.Feedback>
                   </Form.Group>
                 </Col>
@@ -234,8 +239,9 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
               <Row>
                 <Col sm={12}>
                   <Form.Group className="mb-2">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control {...register("username", { required: "Este campo es obligatorio" })} isInvalid={!!errors.username} />
+                    <FloatingFieldset label="Email">
+                      <Form.Control {...register("username", { required: "Este campo es obligatorio" })} isInvalid={!!errors.username} />
+                    </FloatingFieldset>
                     <Form.Control.Feedback type="invalid">{errors.username?.message}</Form.Control.Feedback>
                   </Form.Group>
                 </Col>
@@ -248,19 +254,21 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
               <Row>
                 <Col sm={6}>
                   <Form.Group className="mb-2">
-                    <Form.Label>Localidad <span className="text-danger">*</span></Form.Label>
                     <Controller
                       control={control}
                       name="residenceDto.idLocation"
                       rules={{ required: "Este campo es obligatorio" }}
                       render={({ field }) => (
-                        <CustomSelect
-                          value={field.value ? String(field.value) : ""}
-                          onChange={field.onChange}
-                          isInvalid={!!errors.residenceDto?.idLocation}
-                          placeholder="Seleccione una localidad"
-                          options={locations.map((location) => ({ value: String(location.idLocation), label: location.name }))}
-                        />
+                        <FloatingFieldset label="Localidad *">
+                          <CustomSelect
+                            value={field.value ? String(field.value) : ""}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            isInvalid={!!errors.residenceDto?.idLocation}
+                            placeholder="Seleccione una localidad"
+                            options={locations.map((location) => ({ value: String(location.idLocation), label: location.name }))}
+                          />
+                        </FloatingFieldset>
                       )}
                     />
                     <Form.Control.Feedback type="invalid">{errors.residenceDto?.idLocation?.message}</Form.Control.Feedback>
@@ -269,8 +277,9 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
 
                 <Col sm={6}>
                   <Form.Group className="mb-2">
-                    <Form.Label>Distrito <span className="text-danger">*</span></Form.Label>
-                    <Form.Control {...register("residenceDto.district", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.district} />
+                    <FloatingFieldset label="Distrito *">
+                      <Form.Control {...register("residenceDto.district", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.district} />
+                    </FloatingFieldset>
                     <Form.Control.Feedback type="invalid">{errors.residenceDto?.district?.message}</Form.Control.Feedback>
                   </Form.Group>
                 </Col>
@@ -279,16 +288,18 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
               <Row>
                 <Col sm={6}>
                   <Form.Group className="mb-2">
-                    <Form.Label>Calle <span className="text-danger">*</span></Form.Label>
-                    <Form.Control {...register("residenceDto.street", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.street} />
+                    <FloatingFieldset label="Calle *">
+                      <Form.Control {...register("residenceDto.street", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.street} />
+                    </FloatingFieldset>
                     <Form.Control.Feedback type="invalid">{errors.residenceDto?.street?.message}</Form.Control.Feedback>
                   </Form.Group>
                 </Col>
 
                 <Col sm={6}>
                   <Form.Group className="mb-2">
-                    <Form.Label>N° de Casa <span className="text-danger">*</span></Form.Label>
-                    <Form.Control type="number" {...register("residenceDto.number", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.number} />
+                    <FloatingFieldset label="N° de Casa *">
+                      <Form.Control type="number" {...register("residenceDto.number", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.number} />
+                    </FloatingFieldset>
                     <Form.Control.Feedback type="invalid">{errors.residenceDto?.number?.message}</Form.Control.Feedback>
                   </Form.Group>
                 </Col>
@@ -297,8 +308,9 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
               <Row>
                 <Col sm={user ? 12 : 6}>
                   <Form.Group className="mb-2">
-                    <Form.Label>N° de Medidor</Form.Label>
-                    <Form.Control {...register("residenceDto.serialNumber", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.serialNumber} />
+                    <FloatingFieldset label="N° de Medidor">
+                      <Form.Control {...register("residenceDto.serialNumber", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.serialNumber} />
+                    </FloatingFieldset>
                     <Form.Control.Feedback type="invalid">{errors.residenceDto?.serialNumber?.message}</Form.Control.Feedback>
                   </Form.Group>
                 </Col>
@@ -306,8 +318,9 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
                 {!user && (
                   <Col sm={6}>
                     <Form.Group className="mb-2">
-                      <Form.Label>Val. actual del Medidor</Form.Label>
-                      <Form.Control {...register("residenceDto.valueMeter", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.valueMeter} />
+                      <FloatingFieldset label="Val. actual del Medidor">
+                        <Form.Control {...register("residenceDto.valueMeter", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.valueMeter} />
+                      </FloatingFieldset>
                       <Form.Control.Feedback type="invalid">{errors.residenceDto?.valueMeter?.message}</Form.Control.Feedback>
                     </Form.Group>
                   </Col>
@@ -328,19 +341,21 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
                 <Row>
                   <Col sm={6}>
                     <Form.Group className="mb-2">
-                      <Form.Label>Tarifa <span className="text-danger">*</span></Form.Label>
                       <Controller
                         control={control}
                         name="residenceDto.idFee"
                         rules={{ required: "Este campo es obligatorio" }}
                         render={({ field }) => (
-                          <CustomSelect
-                            value={field.value ? String(field.value) : ""}
-                            onChange={field.onChange}
-                            isInvalid={!!errors.residenceDto?.idFee}
-                            placeholder="Seleccione una tarifa"
-                            options={fees.map((fee) => ({ value: String(fee.idFee), label: fee.name }))}
-                          />
+                          <FloatingFieldset label="Tarifa *">
+                            <CustomSelect
+                              value={field.value ? String(field.value) : ""}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              isInvalid={!!errors.residenceDto?.idFee}
+                              placeholder="Seleccione una tarifa"
+                              options={fees.map((fee) => ({ value: String(fee.idFee), label: fee.name }))}
+                            />
+                          </FloatingFieldset>
                         )}
                       />
                       <Form.Control.Feedback type="invalid">{errors.residenceDto?.idFee?.message}</Form.Control.Feedback>
@@ -349,20 +364,22 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
 
                   <Col sm={6}>
                     <Form.Group className="mb-2">
-                      <Form.Label>Enviar boleta al correo <span className="text-danger">*</span></Form.Label>
                       <Controller
                         control={control}
                         name="digitalInvoiceAdhered"
                         rules={{ required: "Este campo es obligatorio" }}
                         defaultValue={""} // ahora es string y coincide con FormValues
                         render={({ field }) => (
-                          <CustomSelect
-                            value={field.value}
-                            onChange={field.onChange}
-                            isInvalid={!!errors.digitalInvoiceAdhered}
-                            placeholder="Seleccione una opción"
-                            options={[{ value: "true", label: "Sí" }, { value: "false", label: "No" }]}
-                          />
+                          <FloatingFieldset label="Enviar boleta al correo *">
+                            <CustomSelect
+                              value={field.value}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              isInvalid={!!errors.digitalInvoiceAdhered}
+                              placeholder="Seleccione una opción"
+                              options={[{ value: "true", label: "Sí" }, { value: "false", label: "No" }]}
+                            />
+                          </FloatingFieldset>
                         )}
                       />
                       <Form.Control.Feedback type="invalid">{errors.digitalInvoiceAdhered?.message}</Form.Control.Feedback>
@@ -373,20 +390,22 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
                 <Row>
                   <Col sm={6}>
                     <Form.Group className="mb-2">
-                      <Form.Label>Generar PDF de facturas <span className="text-danger">*</span></Form.Label>
                       <Controller
                         control={control}
                         name="pdfInvoiceAdhered"
                         rules={{ required: "Este campo es obligatorio" }}
                         defaultValue={""} // string
                         render={({ field }) => (
-                          <CustomSelect
-                            value={field.value}
-                            onChange={field.onChange}
-                            isInvalid={!!errors.pdfInvoiceAdhered}
-                            placeholder="Seleccione una opción"
-                            options={[{ value: "true", label: "Sí" }, { value: "false", label: "No" }]}
-                          />
+                          <FloatingFieldset label="Generar PDF de facturas *">
+                            <CustomSelect
+                              value={field.value}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              isInvalid={!!errors.pdfInvoiceAdhered}
+                              placeholder="Seleccione una opción"
+                              options={[{ value: "true", label: "Sí" }, { value: "false", label: "No" }]}
+                            />
+                          </FloatingFieldset>
                         )}
                       />
                       <Form.Control.Feedback type="invalid">{errors.pdfInvoiceAdhered?.message}</Form.Control.Feedback>
@@ -395,20 +414,22 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
 
                   <Col sm={6}>
                     <Form.Group className="mb-2">
-                      <Form.Label>Calcular IVA al consumo total <span className="text-danger">*</span></Form.Label>
                       <Controller
                         control={control}
                         name="ivaInvoiceAdhered"
                         rules={{ required: "Este campo es obligatorio" }}
                         defaultValue={""} // string
                         render={({ field }) => (
-                          <CustomSelect
-                            value={field.value}
-                            onChange={field.onChange}
-                            isInvalid={!!errors.ivaInvoiceAdhered}
-                            placeholder="Seleccione una opción"
-                            options={[{ value: "true", label: "Sí" }, { value: "false", label: "No" }]}
-                          />
+                          <FloatingFieldset label="Calcular IVA al consumo total *">
+                            <CustomSelect
+                              value={field.value}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              isInvalid={!!errors.ivaInvoiceAdhered}
+                              placeholder="Seleccione una opción"
+                              options={[{ value: "true", label: "Sí" }, { value: "false", label: "No" }]}
+                            />
+                          </FloatingFieldset>
                         )}
                       />
                       <Form.Control.Feedback type="invalid">{errors.ivaInvoiceAdhered?.message}</Form.Control.Feedback>

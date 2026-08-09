@@ -5,6 +5,7 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 import { getData, updateData } from "../../../core/services/apiService";
 import useAuth from "../../../hooks/useAuth";
 import PageHeader from "../../../shared/components/PageHeader";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { getPasswordRuleResults, isPasswordValid } from "../../../core/utils/passwordValidation";
 
@@ -152,42 +153,46 @@ const UserPersonalData: React.FC = () => {
             <Form className="content-fade-in">
                 {/* Campo para el correo electrónico */}
                 <Form.Group className="mb-3">
-                    <Form.Label>Correo Electrónico</Form.Label>
-                    <Form.Control
-                        type="email"
-                        value={user.username}
-                        onChange={(e) => setUser({ ...user, username: e.target.value })}
-                    />
+                    <FloatingFieldset label="Correo Electrónico">
+                        <Form.Control
+                            type="email"
+                            value={user.username}
+                            onChange={(e) => setUser({ ...user, username: e.target.value })}
+                        />
+                    </FloatingFieldset>
                 </Form.Group>
 
                 {/* Campo para el DNI */}
                 <Form.Group className="mb-3">
-                    <Form.Label>DNI</Form.Label>
-                    <Form.Control
-                        type="number"
-                        value={user.dni}
-                        onChange={(e) => setUser({ ...user, dni: parseInt(e.target.value) })}
-                    />
+                    <FloatingFieldset label="DNI">
+                        <Form.Control
+                            type="number"
+                            value={user.dni}
+                            onChange={(e) => setUser({ ...user, dni: parseInt(e.target.value) })}
+                        />
+                    </FloatingFieldset>
                 </Form.Group>
 
                 {/* Campo para el teléfono */}
                 <Form.Group className="mb-3">
-                    <Form.Label>Teléfono</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={user.phone}
-                        onChange={(e) => setUser({ ...user, phone: e.target.value })}
-                    />
+                    <FloatingFieldset label="Teléfono">
+                        <Form.Control
+                            type="text"
+                            value={user.phone}
+                            onChange={(e) => setUser({ ...user, phone: e.target.value })}
+                        />
+                    </FloatingFieldset>
                 </Form.Group>
 
                 {/* Selector para la factura digital */}
                 <Form.Group className="mb-3">
-                    <Form.Label>Factura Digital</Form.Label>
-                    <CustomSelect
-                        value={user.digitalInvoiceAdhered ? "si" : "no"}
-                        onChange={(v) => handleToggleDigitalInvoice(v === "si")}
-                        options={[{ value: "si", label: "Sí" }, { value: "no", label: "No" }]}
-                    />
+                    <FloatingFieldset label="Factura Digital">
+                        <CustomSelect
+                            value={user.digitalInvoiceAdhered ? "si" : "no"}
+                            onChange={(v) => handleToggleDigitalInvoice(v === "si")}
+                            options={[{ value: "si", label: "Sí" }, { value: "no", label: "No" }]}
+                        />
+                    </FloatingFieldset>
                 </Form.Group>
 
 
@@ -215,12 +220,13 @@ const UserPersonalData: React.FC = () => {
                 {showPasswordFields && (
                     <>
                         <Form.Group className="mb-3">
-                            <Form.Label>Nueva Contraseña</Form.Label>
-                            <Form.Control
-                                type="password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                            />
+                            <FloatingFieldset label="Nueva Contraseña">
+                                <Form.Control
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                />
+                            </FloatingFieldset>
                             <ul className="list-unstyled small mt-2 mb-0">
                                 {getPasswordRuleResults(newPassword).map((rule) => (
                                     <li key={rule.key} className={rule.passed ? "text-success" : "text-muted"}>
@@ -231,12 +237,13 @@ const UserPersonalData: React.FC = () => {
                             </ul>
                         </Form.Group>
                         <Form.Group className="mb-3">
-                            <Form.Label>Confirmar Contraseña</Form.Label>
-                            <Form.Control
-                                type="password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                            />
+                            <FloatingFieldset label="Confirmar Contraseña">
+                                <Form.Control
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                />
+                            </FloatingFieldset>
                         </Form.Group>
                         <Button
                             variant="primary"

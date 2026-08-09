@@ -3,6 +3,7 @@ import { DiscountDto } from "../../../core/models/dto/Discount";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
@@ -48,51 +49,50 @@ const AddEditDiscountModal: React.FC<AddEditModalProps> = ({ show, onHide, onSav
             <Modal.Body>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <Form.Group>
-                        <Form.Label>Nombre</Form.Label>
-                        <Form.Control
+                        <FloatingFieldset label="Nombre"><Form.Control
                             {...register("name", { required: "Este campo es obligatorio" })}
                             isInvalid={!!errors.name}
-                        />
+                        /></FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.name?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Descripción</Form.Label>
-                        <Form.Control
+                        <FloatingFieldset label="Descripción"><Form.Control
                             {...register("description", { required: "Este campo es obligatorio" })}
                             isInvalid={!!errors.description}
-                        />
+                        /></FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.description?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Precio</Form.Label>
-                        <Form.Control
+                        <FloatingFieldset label="Precio"><Form.Control
                             {...register("amount", { required: "Este campo es obligatorio" })}
                             isInvalid={!!errors.amount}
-                        />
+                        /></FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.amount?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Condición</Form.Label>
                         <Controller
                             control={control}
                             name="applyCondition"
                             rules={{ required: "Este campo es obligatorio" }}
                             render={({ field }) => (
-                                <CustomSelect
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    isInvalid={!!errors.applyCondition}
-                                    options={[
-                                        { value: "FIXED", label: "Fijo" },
-                                        { value: "MANUAL", label: "Manual" },
-                                    ]}
-                                />
+                                <FloatingFieldset label="Condición">
+                                    <CustomSelect
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        onBlur={field.onBlur}
+                                        isInvalid={!!errors.applyCondition}
+                                        options={[
+                                            { value: "FIXED", label: "Fijo" },
+                                            { value: "MANUAL", label: "Manual" },
+                                        ]}
+                                    />
+                                </FloatingFieldset>
                             )}
                         />
                         <Form.Control.Feedback type="invalid">

@@ -3,6 +3,7 @@ import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { FeeDto } from "../../../core/models/dto/FeeDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
@@ -47,61 +48,67 @@ const AddEditFeeModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, fe
             <Modal.Body>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <Form.Group>
-                        <Form.Label>Tarifa</Form.Label>
-                        <Form.Control
-                            {...register("name", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.name}
-                        />
+                        <FloatingFieldset label="Tarifa">
+                            <Form.Control
+                                {...register("name", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.name}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.name?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Descripción</Form.Label>
-                        <Form.Control
-                            {...register("description", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.description}
-                        />
+                        <FloatingFieldset label="Descripción">
+                            <Form.Control
+                                {...register("description", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.description}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.description?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Precio</Form.Label>
-                        <Form.Control
-                            {...register("price", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.price}
-                        />
+                        <FloatingFieldset label="Precio">
+                            <Form.Control
+                                {...register("price", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.price}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.price?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Consumo Max.</Form.Label>
-                        <Form.Control
-                            {...register("consumptionMax", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.consumptionMax}
-                        />
+                        <FloatingFieldset label="Consumo Max.">
+                            <Form.Control
+                                {...register("consumptionMax", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.consumptionMax}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.consumptionMax?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Costo por Exceso</Form.Label>
-                        <Form.Control
-                            {...register("surplusChargePerUnit", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.surplusChargePerUnit}
-                        />
+                        <FloatingFieldset label="Costo por Exceso">
+                            <Form.Control
+                                {...register("surplusChargePerUnit", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.surplusChargePerUnit}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.surplusChargePerUnit?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Costo por Vencimiento</Form.Label>
-                        <Form.Control
-                            {...register("maturityAmount", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.maturityAmount}
-                        />
+                        <FloatingFieldset label="Costo por Vencimiento">
+                            <Form.Control
+                                {...register("maturityAmount", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.maturityAmount}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.maturityAmount?.message}
                         </Form.Control.Feedback>

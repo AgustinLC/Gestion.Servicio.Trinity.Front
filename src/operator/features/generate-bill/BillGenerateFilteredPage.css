@@ -72,16 +72,10 @@
     color: #0077ff;
 }
 
-/* Input clear button */
-.input-with-clear {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
+/* Botón de limpiar dentro del FloatingFieldset (pasado como "suffix"): ya
+   queda bien ubicado por el layout en flex del propio fieldset, no necesita
+   posicionarse a mano. */
 .input-clear-btn {
-    position: absolute;
-    right: 12px;
     background: none;
     border: none;
     color: #a0aec0;

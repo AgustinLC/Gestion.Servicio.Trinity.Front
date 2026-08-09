@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../../shared/components/floating-fieldset/FloatingFieldset";
 import { useModalLayer } from "../../../../context/ModalStackContext";
 
 interface EditReadingModalProps {
@@ -35,22 +36,25 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
             <Modal.Body>
                 <Form>
                     <Form.Group className="mb-3">
-                        <Form.Label>Fecha</Form.Label>
-                        <Form.Control type="text" value={reading.date || ""} disabled />
-                    </Form.Group>
-                    
-                    <Form.Group className="mb-3">
-                        <Form.Label>Periodo</Form.Label>
-                        <Form.Control type="text" value={reading.periodName || ""} disabled />
+                        <FloatingFieldset label="Fecha">
+                            <Form.Control type="text" value={reading.date || ""} disabled />
+                        </FloatingFieldset>
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                        <Form.Label>Valor de Lectura</Form.Label>
-                        <Form.Control
-                            type="number"
-                            value={readingValue}
-                            onChange={(e) => setReadingValue(Number(e.target.value))}
-                        />
+                        <FloatingFieldset label="Periodo">
+                            <Form.Control type="text" value={reading.periodName || ""} disabled />
+                        </FloatingFieldset>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <FloatingFieldset label="Valor de Lectura">
+                            <Form.Control
+                                type="number"
+                                value={readingValue}
+                                onChange={(e) => setReadingValue(Number(e.target.value))}
+                            />
+                        </FloatingFieldset>
                     </Form.Group>
                 </Form>
 

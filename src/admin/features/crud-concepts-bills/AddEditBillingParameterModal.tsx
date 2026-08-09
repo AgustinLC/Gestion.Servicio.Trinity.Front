@@ -3,6 +3,7 @@ import { Modal, Form, Button } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
 import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
@@ -48,52 +49,57 @@ const AddEditBillingParameterModal: React.FC<AddEditModalProps> = ({ show, onHid
             <Modal.Body>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <Form.Group>
-                        <Form.Label>Nombre</Form.Label>
-                        <Form.Control
-                            {...register("name", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.name}
-                        />
+                        <FloatingFieldset label="Nombre">
+                            <Form.Control
+                                {...register("name", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.name}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.name?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Descripción</Form.Label>
-                        <Form.Control
-                            {...register("description", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.description}
-                        />
+                        <FloatingFieldset label="Descripción">
+                            <Form.Control
+                                {...register("description", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.description}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.description?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Importe $</Form.Label>
-                        <Form.Control
-                            {...register("value", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.value}
-                        />
+                        <FloatingFieldset label="Importe" prefix="$">
+                            <Form.Control
+                                {...register("value", { required: "Este campo es obligatorio" })}
+                                isInvalid={!!errors.value}
+                            />
+                        </FloatingFieldset>
                         <Form.Control.Feedback type="invalid">
                             {errors.value?.message}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group>
-                        <Form.Label>Condición</Form.Label>
                         <Controller
                             control={control}
                             name="applyCondition"
                             rules={{ required: "Este campo es obligatorio" }}
                             render={({ field }) => (
-                                <CustomSelect
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    isInvalid={!!errors.applyCondition}
-                                    options={[
-                                        { value: "MANUAL", label: "Manual" },
-                                        { value: "CONDITIONAL", label: "Condicional" },
-                                        { value: "FIXED", label: "Fijo" },
-                                    ]}
-                                />
+                                <FloatingFieldset label="Condición">
+                                    <CustomSelect
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        onBlur={field.onBlur}
+                                        isInvalid={!!errors.applyCondition}
+                                        options={[
+                                            { value: "MANUAL", label: "Manual" },
+                                            { value: "CONDITIONAL", label: "Condicional" },
+                                            { value: "FIXED", label: "Fijo" },
+                                        ]}
+                                    />
+                                </FloatingFieldset>
                             )}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -102,21 +108,23 @@ const AddEditBillingParameterModal: React.FC<AddEditModalProps> = ({ show, onHid
                     </Form.Group>
                     {billingParameter && (
                         <Form.Group>
-                            <Form.Label>Estado</Form.Label>
                             <Controller
                                 control={control}
                                 name="status"
                                 rules={{ required: "Este campo es obligatorio" }}
                                 render={({ field }) => (
-                                    <CustomSelect
-                                        value={field.value}
-                                        onChange={field.onChange}
-                                        isInvalid={!!errors.status}
-                                        options={[
-                                            { value: "ACTIVE", label: "Activo" },
-                                            { value: "INACTIVE", label: "Inactivo" },
-                                        ]}
-                                    />
+                                    <FloatingFieldset label="Estado">
+                                        <CustomSelect
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            onBlur={field.onBlur}
+                                            isInvalid={!!errors.status}
+                                            options={[
+                                                { value: "ACTIVE", label: "Activo" },
+                                                { value: "INACTIVE", label: "Inactivo" },
+                                            ]}
+                                        />
+                                    </FloatingFieldset>
                                 )}
                             />
                             <Form.Control.Feedback type="invalid">

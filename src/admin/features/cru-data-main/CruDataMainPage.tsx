@@ -5,6 +5,7 @@ import { Spinner, Button, Modal, Form, Row, Col } from "react-bootstrap";
 import { Supplier } from "../../../core/models/dto/SupplierDto";
 import PageHeader from "../../../shared/components/PageHeader";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import HintBox from "../../../shared/components/hint-box/HintBox";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
@@ -277,20 +278,21 @@ const CruDataMainPage = () => {
                             <Form>
                                 {activeSection.fields.map((field) => (
                                     <Form.Group className="mb-3" key={field.key}>
-                                        <Form.Label>{field.label}</Form.Label>
-                                        {field.type === "textarea" ? (
-                                            <Form.Control
-                                                as="textarea"
-                                                rows={3}
-                                                value={formValues[field.key] ?? ""}
-                                                onChange={(e) => setFormValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
-                                            />
-                                        ) : (
-                                            <Form.Control
-                                                value={formValues[field.key] ?? ""}
-                                                onChange={(e) => setFormValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
-                                            />
-                                        )}
+                                        <FloatingFieldset label={field.label}>
+                                            {field.type === "textarea" ? (
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={3}
+                                                    value={formValues[field.key] ?? ""}
+                                                    onChange={(e) => setFormValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                                                />
+                                            ) : (
+                                                <Form.Control
+                                                    value={formValues[field.key] ?? ""}
+                                                    onChange={(e) => setFormValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                                                />
+                                            )}
+                                        </FloatingFieldset>
                                     </Form.Group>
                                 ))}
                             </Form>

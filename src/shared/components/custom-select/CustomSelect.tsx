@@ -28,6 +28,11 @@ interface CustomSelectProps {
     fullWidth?: boolean;
     className?: string;
     "aria-label"?: string;
+    // Para poder envolverlo en FloatingFieldset: el label flotante necesita
+    // saber cuándo el toggle tiene foco real (no dispara focus/blur nativos
+    // por sí solo, hay que reenviarlos al botón).
+    onFocus?: React.FocusEventHandler<HTMLElement>;
+    onBlur?: React.FocusEventHandler<HTMLElement>;
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -41,6 +46,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     fullWidth = true,
     className = "",
     "aria-label": ariaLabel,
+    onFocus,
+    onBlur,
 }) => {
     const selected = options.find((option) => option.value === value);
 
@@ -50,6 +57,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 variant="outline-secondary"
                 disabled={disabled}
                 aria-label={ariaLabel}
+                onFocus={onFocus}
+                onBlur={onBlur}
                 className={`custom-select-toggle alert-filter-toggle w-100 d-flex align-items-center justify-content-between ${isInvalid ? "is-invalid" : ""}`}
             >
                 <span className="d-inline-flex align-items-center gap-2 text-truncate">

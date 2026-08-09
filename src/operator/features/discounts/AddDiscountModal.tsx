@@ -7,6 +7,7 @@ import { UserDto } from "../../../core/models/dto/UserDto";
 import { ApplyCondition } from "../../../core/models/dto/ApplyCondition";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
@@ -130,29 +131,31 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
                     <>
                         {/* Selector de descuentos */}
                         <Form.Group controlId="discountSelect" className="mb-3">
-                            <Form.Label>Seleccione un descuento</Form.Label>
-                            <CustomSelect
-                                value={selectedDiscountId ? String(selectedDiscountId) : ""}
-                                onChange={handleDiscountChange}
-                                placeholder="Seleccione..."
-                                options={allDiscounts.map((d) => ({
-                                    value: String(d.idDiscount),
-                                    label: `${d.name} - ${applyConditionLabels[d.applyCondition]}`,
-                                }))}
-                            />
+                            <FloatingFieldset label="Seleccione un descuento">
+                                <CustomSelect
+                                    value={selectedDiscountId ? String(selectedDiscountId) : ""}
+                                    onChange={handleDiscountChange}
+                                    placeholder="Seleccione..."
+                                    options={allDiscounts.map((d) => ({
+                                        value: String(d.idDiscount),
+                                        label: `${d.name} - ${applyConditionLabels[d.applyCondition]}`,
+                                    }))}
+                                />
+                            </FloatingFieldset>
                         </Form.Group>
 
                         {/* Input numérico para el importe */}
                         {selectedDiscountId && (
                             <Form.Group controlId="discountAmount" className="mb-3">
-                                <Form.Label>Importe $</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    value={amount}
-                                    onChange={(e) => setAmount(Number(e.target.value))}
-                                    disabled={isFixed || !selectedDiscountId}
-                                    isInvalid={amount <= 0}
-                                />
+                                <FloatingFieldset label="Importe" prefix="$">
+                                    <Form.Control
+                                        type="number"
+                                        value={amount}
+                                        onChange={(e) => setAmount(Number(e.target.value))}
+                                        disabled={isFixed || !selectedDiscountId}
+                                        isInvalid={amount <= 0}
+                                    />
+                                </FloatingFieldset>
                                 {isFixed && (
                                     <Form.Text className="text-muted">
                                         Este descuento es fijo, el importe no se puede modificar.

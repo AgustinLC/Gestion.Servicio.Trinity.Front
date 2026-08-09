@@ -240,6 +240,165 @@ body.modal-open {
   cursor: not-allowed;
 }
 
+/* --- Labels flotantes que "cortan" el borde superior (estilo legend/notch) ---
+   Ver FloatingFieldset.tsx: usa el elemento nativo <fieldset>/<legend> en vez
+   de simularlo con posicionamiento absoluto, porque el navegador nunca
+   dibuja el borde del fieldset detrás del legend. El corte queda limpio en
+   cualquier fondo (no depende de que atrás haya blanco). */
+.floating-fieldset {
+  position: relative;
+  margin: 0.4rem 0 0;
+  padding: 0 0.9rem 0.15rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: var(--input-border-radius);
+  transition: var(--transition-smooth);
+}
+
+.floating-fieldset:focus-within {
+  border-color: #80bfff;
+  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
+}
+
+/* El Form.Control/CustomSelect interno cede su propio borde rojo de
+   "inválido" al quedar sin borde (ver más abajo); se repite acá en el
+   fieldset para no perder esa señal visual. */
+.floating-fieldset.is-invalid {
+  border-color: #dc3545;
+}
+
+.floating-fieldset.is-invalid:focus-within {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+}
+
+/* El legend siempre existe (así el navegador reserva el corte nativo), pero
+   mientras el campo está vacío y sin foco se colapsa a ancho ~0: el borde
+   queda como una línea continua y el nombre del campo se ve por dentro (ver
+   .floating-fieldset-ghost) en vez de arriba cortando el borde. */
+.floating-fieldset-legend {
+  position: relative;
+  z-index: 1;
+  float: none;
+  width: auto;
+  max-width: 0.05px;
+  margin: 0;
+  padding: 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1;
+  color: #64748b;
+  /* El <legend> corta el borde nativo del fieldset, pero no su halo de foco.
+     Este fondo tapa el tramo del box-shadow que de otro modo se vería detrás
+     del texto cuando el label flota. */
+  background-color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  outline: none !important;
+  transition: max-width 0.15s ease, padding 0.15s ease, margin 0.15s ease;
+}
+
+/* Algunos navegadores dibujan un outline propio sobre el <legend> mientras
+   el fieldset está en :focus-within (aparece como un recuadro negro que
+   abraza justo el texto del label); se anula explícitamente. */
+.floating-fieldset:focus-within .floating-fieldset-legend,
+.floating-fieldset-legend:focus,
+.floating-fieldset-legend:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.floating-fieldset-floated .floating-fieldset-legend {
+  max-width: calc(100% - 1rem);
+  margin: 0 0 0 0.15rem;
+  padding: 0 0.4rem;
+}
+
+.floating-fieldset:focus-within .floating-fieldset-legend {
+  color: var(--bs-primary);
+}
+
+.floating-fieldset-body {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.1rem;
+}
+
+/* Los <textarea> son multilínea: alinear arriba en vez de centrar (el
+   texto empieza en la esquina superior, no en el medio del recuadro). */
+.floating-fieldset-textarea .floating-fieldset-body {
+  align-items: flex-start;
+  padding-top: 0.5rem;
+}
+
+.floating-fieldset-textarea .floating-fieldset-ghost {
+  top: 0.5rem;
+  transform: none;
+}
+
+.floating-fieldset .form-control,
+.floating-fieldset .form-select {
+  border: none !important;
+  background: transparent !important;
+  padding: 0.3rem 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* El aro de foco nativo del navegador (outline) no respeta el border-radius
+   del fieldset y queda una segunda línea recta superpuesta a la redondeada;
+   el único indicador de foco debe ser el propio :focus-within del fieldset. */
+.floating-fieldset .form-control:focus,
+.floating-fieldset .form-select:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Componentes a medida con su propio botón/borde (ej: CustomSelect) también
+   necesitan cederle el borde/fondo al fieldset que los envuelve, para no
+   quedar con un doble marco (el del botón + el del fieldset). */
+.floating-fieldset .alert-filter-toggle.btn,
+.floating-fieldset .alert-filter-toggle.btn:hover,
+.floating-fieldset .alert-filter-toggle.btn:focus,
+.floating-fieldset .alert-filter-toggle.btn:active {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0.3rem 0 !important;
+}
+
+.floating-fieldset-affix {
+  flex-shrink: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.floating-fieldset-input-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Label mostrado "adentro" (como si fuera el valor) mientras el campo está
+   vacío y sin foco. pointer-events:none para que el click atraviese hasta
+   el input real y lo enfoque igual. */
+.floating-fieldset-ghost {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  font-weight: 500;
+  pointer-events: none;
+}
+
 /* --- CURSOR: elementos interactivos deben mostrar mano, no flecha --- */
 button:not(:disabled),
 .btn:not(:disabled),
