@@ -146,57 +146,81 @@
     color: var(--bs-primary) !important;
 }
 
-/* --- Popovers (Submenús flotantes) --- */
-.submenu-popover {
-    background-color: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    box-shadow: var(--shadow-md) !important;
-    margin-top: 2px;
-    min-width: 190px;
-    margin-left: 0.5rem;
-    max-width: min(300px, 90vw);
-    padding: 0.4rem;
+/* --- Submenús inline (Fase: reemplazo del Popover flotante) ---
+   El grupo padre (ej: "Facturas") se comporta como un nav-link normal pero
+   es un <button> que expande una lista debajo, en vez de abrir un Popover
+   que se cerraba solo al mover el mouse. Así el usuario siempre ve en qué
+   sección está parado, incluso después de elegir una opción. */
+.sidebar-submenu-chevron {
+    margin-left: auto;
+    transition: transform 0.25s ease;
+    color: #94a3b8;
+    font-size: 0.9rem;
 }
 
-.submenu-popover .popover-body {
-    padding: 0 !important;
+.sidebar-submenu-chevron.rotate {
+    transform: rotate(180deg);
 }
 
-.text-indented {
-    padding-left: 0.75rem !important;
+.sidebar-submenu-group .nav-link.active-submenu .sidebar-submenu-chevron {
+    color: var(--bs-primary);
 }
 
-.submenu-popover .nav-link {
-    border-radius: 8px;
-    padding: 0.5rem 0.75rem !important;
-    color: #475569 !important;
-    font-weight: 500;
-    transition: var(--transition-smooth);
+/* Lista de hijos: indentada bajo el ícono del padre, con una línea vertical
+   que conecta los "puntos" de cada opción (efecto timeline). */
+.sidebar-submenu {
+    position: relative;
+    margin: 0 0 6px 0;
+    padding: 2px 0 2px 2.35rem;
+}
+
+.sidebar-submenu::before {
+    content: '';
+    position: absolute;
+    left: 1.15rem;
+    top: 4px;
+    bottom: 14px;
+    width: 2px;
+    background: #e2e8f0;
+}
+
+.sidebar-submenu-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.5rem 0.75rem 0.5rem 0.15rem;
     margin: 2px 0;
-    border-left: 3px solid transparent !important;
+    border-radius: 0 8px 8px 0;
+    color: #64748b !important;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: var(--transition-smooth);
 }
 
-.submenu-popover .nav-link:hover {
-    background-color: #f1f5f9 !important;
+.sidebar-submenu-link:hover {
+    background-color: rgba(0, 119, 255, 0.06);
     color: var(--bs-primary) !important;
-    transform: none;
 }
 
-.submenu-popover .nav-link.active {
-    background-color: rgba(0, 119, 255, 0.08) !important;
+.sidebar-submenu-link .sidebar-submenu-dot {
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #cbd5e1;
+    transition: var(--transition-smooth);
+}
+
+.sidebar-submenu-link.active {
     color: var(--bs-primary) !important;
-    border-left: 3px solid var(--bs-primary) !important;
     font-weight: 600;
 }
 
-.chevron-icon {
-    transition: transform 0.3s ease;
-    transform: rotate(0deg);
-}
-
-.chevron-icon.rotate {
-    transform: rotate(90deg); /* Modern right chevron turns to down/right */
+.sidebar-submenu-link.active .sidebar-submenu-dot {
+    background-color: var(--bs-primary);
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
 }
 
 /* --- Tarjeta de marca al pie del sidebar (Fase 2) --- */

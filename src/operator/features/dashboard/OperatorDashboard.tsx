@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { OverlayTrigger, Popover } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useSidebar } from "../../../context/SidebarContext";
+import { SidebarSubmenuGroup, SidebarSubmenuItem } from "../../../shared/components/sidebar-submenu/SidebarSubmenu";
 import logo from "../../../assets/img/logoNavbar.svg";
 import "./OperatorDashboard.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const DashboardOperator: React.FC = () => {
-    const [activePopover, setActivePopover] = useState<string | null>(null);
+    const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
     const { isMobile, sidebarOpen, closeSidebar } = useSidebar();
     const location = useLocation();
     const currentPath = location.pathname;
@@ -25,69 +25,16 @@ const DashboardOperator: React.FC = () => {
         "/dashboard/operator/bills/update-expiration",
     ].includes(currentPath);
 
-    // Popovers
-    const ReadingsPopover = (
-        <Popover className="submenu-popover">
-            <Popover.Body className="p-2 d-flex flex-column">
-                <Link
-                    to="/dashboard/operator/readings/management"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/readings/management" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Gestión de Lecturas
-                </Link>
-                <Link
-                    to="/dashboard/operator/readings/take"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/readings/take" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Tomar Lecturas
-                </Link>
-                <Link
-                    to="/dashboard/operator/readings/control"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/readings/control" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Control de Lecturas
-                </Link>
-            </Popover.Body>
-        </Popover>
-    );
+    // Expande automáticamente el grupo correspondiente al entrar en una de
+    // sus rutas (por link directo, F5, etc.), sin pisar un cierre manual
+    // posterior mientras se sigue navegando dentro de la misma sección.
+    useEffect(() => {
+        if (isReadingSection) setExpandedMenu("readings");
+    }, [isReadingSection]);
 
-    const BillsPopover = (
-        <Popover className="submenu-popover">
-            <Popover.Body className="p-2 d-flex flex-column">
-                <Link
-                    to="/dashboard/operator/bills/management"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/management" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Consulta
-                </Link>
-                <Link
-                    to="/dashboard/operator/bills/generate"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/generate" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Generación de Facturas
-                </Link>
-                <Link
-                    to="/dashboard/operator/bills/generate-filtered"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/generate-filtered" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Generación de PDF
-                </Link>
-                <Link
-                    to="/dashboard/operator/bills/update-expiration"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/update-expiration" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Actualizar Vencimiento
-                </Link>
-            </Popover.Body>
-        </Popover>
-    );
+    useEffect(() => {
+        if (isBillSection) setExpandedMenu("bills");
+    }, [isBillSection]);
 
     return (
         <div className="dashboard-container d-flex">
@@ -122,50 +69,31 @@ const DashboardOperator: React.FC = () => {
                     </li>
 
                     {/* Lecturas */}
-                    <OverlayTrigger
-                        trigger="click"
-                        placement={window.innerWidth <= 768 ? "bottom" : "right"}
-                        show={activePopover === "readings"}
-                        onToggle={(show) => setActivePopover(show ? "readings" : "")}
-                        overlay={ReadingsPopover}
-                        rootClose
+                    <SidebarSubmenuGroup
+                        icon="bi-speedometer2"
+                        label="Lecturas"
+                        active={isReadingSection}
+                        expanded={expandedMenu === "readings"}
+                        onToggle={() => setExpandedMenu((prev) => (prev === "readings" ? null : "readings"))}
                     >
-                        <li className="nav-item popover-trigger">
-                            <div
-                                className={`nav-link py-3 d-flex align-items-center ${isReadingSection ? "active-submenu" : ""}`}
-                                role="button"
-                                title="Lecturas"
-                            >
-                                <i className="bi-speedometer2 fs-4"></i>
-                                <span className="ms-2  d-lg-inline">Lecturas</span>
-                                <i className={`bi-chevron-right ms-1 mt-1 chevron-icon d-none d-lg-inline ${activePopover === "readings" ? "rotate" : ""}`}></i>
-                            </div>
-                        </li>
-                    </OverlayTrigger>
+                        <SidebarSubmenuItem to="/dashboard/operator/readings/management" label="Gestión de Lecturas" active={currentPath === "/dashboard/operator/readings/management"} onClick={closeSidebar} />
+                        <SidebarSubmenuItem to="/dashboard/operator/readings/take" label="Tomar Lecturas" active={currentPath === "/dashboard/operator/readings/take"} onClick={closeSidebar} />
+                        <SidebarSubmenuItem to="/dashboard/operator/readings/control" label="Control de Lecturas" active={currentPath === "/dashboard/operator/readings/control"} onClick={closeSidebar} />
+                    </SidebarSubmenuGroup>
 
                     {/* Facturas */}
-                    <OverlayTrigger
-                        trigger="click"
-                        placement={window.innerWidth <= 768 ? "bottom" : "right"}
-                        show={activePopover === "bills"}
-                        onToggle={(show) => setActivePopover(show ? "bills" : "")}
-                        overlay={BillsPopover}
-                        rootClose
+                    <SidebarSubmenuGroup
+                        icon="bi bi-file-earmark-spreadsheet"
+                        label="Facturas"
+                        active={isBillSection}
+                        expanded={expandedMenu === "bills"}
+                        onToggle={() => setExpandedMenu((prev) => (prev === "bills" ? null : "bills"))}
                     >
-                        <li className="nav-item popover-trigger">
-                            <div
-                                className={`nav-link py-3 d-flex align-items-center ${isBillSection ? "active-submenu" : ""}`}
-                                role="button"
-                                title="Facturas"
-                            >
-                                <i className="bi bi-file-earmark-spreadsheet fs-4"></i>
-                                <span className="ms-2 d-lg-inline">Facturas</span>
-                                <i
-                                    className={`bi-chevron-right ms-1 mt-1 chevron-icon d-none d-lg-inline ${activePopover === "bills" ? "rotate" : ""}`}
-                                ></i>
-                            </div>
-                        </li>
-                    </OverlayTrigger>
+                        <SidebarSubmenuItem to="/dashboard/operator/bills/management" label="Consulta" active={currentPath === "/dashboard/operator/bills/management"} onClick={closeSidebar} />
+                        <SidebarSubmenuItem to="/dashboard/operator/bills/generate" label="Generación de Facturas" active={currentPath === "/dashboard/operator/bills/generate"} onClick={closeSidebar} />
+                        <SidebarSubmenuItem to="/dashboard/operator/bills/generate-filtered" label="Generación de PDF" active={currentPath === "/dashboard/operator/bills/generate-filtered"} onClick={closeSidebar} />
+                        <SidebarSubmenuItem to="/dashboard/operator/bills/update-expiration" label="Actualizar Vencimiento" active={currentPath === "/dashboard/operator/bills/update-expiration"} onClick={closeSidebar} />
+                    </SidebarSubmenuGroup>
 
                     {/* Deudores */}
                     <li className="nav-item">
