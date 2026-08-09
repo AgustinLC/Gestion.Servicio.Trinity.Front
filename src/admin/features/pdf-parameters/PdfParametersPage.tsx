@@ -4,12 +4,14 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../../config/axiosConfig";
 import { PdfParameters, DEFAULT_PARAMS } from "../../../shared/components/debt-disconnection/pdf/DebtPdfDocument";
 import PageHeader from "../../../shared/components/PageHeader";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import "./PdfParametersPage.css";
 
 const PdfParametersPage: React.FC = () => {
   const [params, setParams] = useState<PdfParameters>(DEFAULT_PARAMS);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
   // Cargar parámetros desde el backend al montar
   useEffect(() => {
@@ -70,6 +72,11 @@ const PdfParametersPage: React.FC = () => {
       return;
     }
 
+    setShowConfirmModal(true);
+  };
+
+  // Guardado real, disparado desde el ConfirmModal luego de validar el formulario.
+  const handleConfirmSave = async () => {
     setSaving(true);
     try {
       const response = await axiosInstance.put("/admin/pdf-parameters", params);
@@ -83,6 +90,7 @@ const PdfParametersPage: React.FC = () => {
       toast.error("Error de conexión al guardar los parámetros");
     } finally {
       setSaving(false);
+      setShowConfirmModal(false);
     }
   };
 
@@ -367,6 +375,19 @@ const PdfParametersPage: React.FC = () => {
           </Card.Body>
         </Card>
       </div>
+
+      <ConfirmModal
+        show={showConfirmModal}
+        onHide={() => setShowConfirmModal(false)}
+        title="¿Guardar parámetros del PDF?"
+        icon="bi bi-shield-check"
+        confirmVariant="primary"
+        message="Estos valores se aplicarán a partir de ahora en todos los avisos de deuda y corte que se generen, incluyendo los montos, plazos y datos de contacto/pago."
+        confirmText="Guardar Parámetros"
+        isLoading={saving}
+        loadingText="Guardando..."
+        onConfirm={handleConfirmSave}
+      />
     </div>
   );
 };
