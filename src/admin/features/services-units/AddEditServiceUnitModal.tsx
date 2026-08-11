@@ -18,15 +18,28 @@ interface AddEditModalProps {
     unities: Unit[];
 }
 
-const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, serviceUnit, services, unities }) => {
+interface ServiceUnitFormProps {
+    onHide: () => void;
+    onSave: (serviceUnit: ServiceUnitDto) => Promise<void>;
+    serviceUnit?: ServiceUnitDto | any;
+    services: Service[];
+    unities: Unit[];
+}
 
-    // Estados
+// Contenido real del formulario, separado en su propio componente para que
+// solo se monte mientras el modal está abierto (ver más abajo, "{show &&
+// <ServiceUnitForm .../>}"). Así useForm() arranca de cero cada vez que se
+// abre: ni los valores tipeados ni los errores de la sesión anterior pueden
+// quedar pisados, porque el componente entero (y su estado) es nuevo.
+const ServiceUnitForm: React.FC<ServiceUnitFormProps> = ({ onHide, onSave, serviceUnit, services, unities }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const modalZIndex = useModalLayer(show);
 
-    // Props para manejar formulario 
     const { handleSubmit, reset, control, formState: { errors } } = useForm<ServiceUnitDto>({
         defaultValues: serviceUnit || {},
+        // Valida al salir por primera vez del campo y, desde entonces, vuelve a
+        // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
+        // una opción, sin requerir otro click fuera del control.
+        mode: "onTouched",
     });
 
     // Manejo del botón de "Guardar"
@@ -43,6 +56,71 @@ const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, on
     };
 
     return (
+        <Form onSubmit={handleSubmit(onSubmit)}>
+
+            {/* Servicio */}
+            <Form.Group>
+                <Controller
+                    control={control}
+                    name="idService"
+                    rules={{ required: "Este campo es obligatorio" }}
+                    render={({ field }) => (
+                        <FloatingFieldset label="Servicio">
+                            <CustomSelect
+                                value={field.value ? String(field.value) : ""}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                isInvalid={!!errors.idService}
+                                placeholder="Seleccione un servicio"
+                                options={services.map((service) => ({ value: String(service.idService), label: service.name }))}
+                            />
+                        </FloatingFieldset>
+                    )}
+                />
+                <Form.Control.Feedback type="invalid">
+                    {errors.idService?.message}
+                </Form.Control.Feedback>
+            </Form.Group>
+
+            {/* Unidad */}
+            <Form.Group className="mt-2">
+                <Controller
+                    control={control}
+                    name="idUnit"
+                    rules={{ required: "Este campo es obligatorio" }}
+                    render={({ field }) => (
+                        <FloatingFieldset label="Unidad">
+                            <CustomSelect
+                                value={field.value ? String(field.value) : ""}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                isInvalid={!!errors.idUnit}
+                                placeholder="Seleccione una unidad"
+                                options={unities.map((unit) => ({ value: String(unit.idUnit), label: `${unit.name}/${unit.symbol}` }))}
+                            />
+                        </FloatingFieldset>
+                    )}
+                />
+                <Form.Control.Feedback type="invalid">
+                    {errors.idUnit?.message}
+                </Form.Control.Feedback>
+            </Form.Group>
+            <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
+                <Button variant="outline-secondary" onClick={onHide} disabled={isSubmitting}>
+                    <i className="bi bi-x-circle me-1"></i> Cancelar
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                    <i className="bi bi-save me-1"></i> {isSubmitting ? "Guardando..." : "Guardar"}
+                </Button>
+            </div>
+        </Form>
+    );
+};
+
+const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, serviceUnit, services, unities }) => {
+    const modalZIndex = useModalLayer(show);
+
+    return (
         <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="service-unit-modal-title">
             <FormModalHeader
                 icon="bi bi-calculator"
@@ -51,64 +129,15 @@ const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, on
                 titleId="service-unit-modal-title"
             />
             <Modal.Body>
-                <Form onSubmit={handleSubmit(onSubmit)}>
-
-                    {/* Servicio */}
-                    <Form.Group>
-                        <Controller
-                            control={control}
-                            name="idService"
-                            rules={{ required: "Este campo es obligatorio" }}
-                            render={({ field }) => (
-                                <FloatingFieldset label="Servicio">
-                                    <CustomSelect
-                                        value={field.value ? String(field.value) : ""}
-                                        onChange={field.onChange}
-                                        onBlur={field.onBlur}
-                                        isInvalid={!!errors.idService}
-                                        placeholder="Seleccione un servicio"
-                                        options={services.map((service) => ({ value: String(service.idService), label: service.name }))}
-                                    />
-                                </FloatingFieldset>
-                            )}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            {errors.idService?.message}
-                        </Form.Control.Feedback>
-                    </Form.Group>
-
-                    {/* Unidad */}
-                    <Form.Group className="mt-2">
-                        <Controller
-                            control={control}
-                            name="idUnit"
-                            rules={{ required: "Este campo es obligatorio" }}
-                            render={({ field }) => (
-                                <FloatingFieldset label="Unidad">
-                                    <CustomSelect
-                                        value={field.value ? String(field.value) : ""}
-                                        onChange={field.onChange}
-                                        onBlur={field.onBlur}
-                                        isInvalid={!!errors.idUnit}
-                                        placeholder="Seleccione una unidad"
-                                        options={unities.map((unit) => ({ value: String(unit.idUnit), label: `${unit.name}/${unit.symbol}` }))}
-                                    />
-                                </FloatingFieldset>
-                            )}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            {errors.idUnit?.message}
-                        </Form.Control.Feedback>
-                    </Form.Group>
-                    <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
-                        <Button variant="outline-secondary" onClick={onHide} disabled={isSubmitting}>
-                            <i className="bi bi-x-circle me-1"></i> Cancelar
-                        </Button>
-                        <Button type="submit" disabled={isSubmitting}>
-                            <i className="bi bi-save me-1"></i> {isSubmitting ? "Guardando..." : "Guardar"}
-                        </Button>
-                    </div>
-                </Form>
+                {show && (
+                    <ServiceUnitForm
+                        onHide={onHide}
+                        onSave={onSave}
+                        serviceUnit={serviceUnit}
+                        services={services}
+                        unities={unities}
+                    />
+                )}
             </Modal.Body>
         </Modal>
     );

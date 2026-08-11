@@ -82,6 +82,11 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                         key={option.value}
                         active={value === option.value}
                         disabled={option.disabled}
+                        // Evita que el toggle pierda foco antes del click. Con
+                        // validaciÃ³n onTouched, ese blur evaluaba el valor
+                        // anterior vacÃ­o y mostraba un destello rojo antes de
+                        // que onChange recibiera la opciÃ³n elegida.
+                        onMouseDown={(event) => event.preventDefault()}
                         onClick={() => onChange(option.value)}
                         className="d-flex align-items-center gap-2"
                     >

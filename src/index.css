@@ -247,8 +247,8 @@ body.modal-open {
    cualquier fondo (no depende de que atrás haya blanco). */
 .floating-fieldset {
   position: relative;
-  margin: 0.4rem 0 0;
-  padding: 0 0.9rem 0.15rem;
+  margin: .5rem .5rem;
+  padding: 0 0.9rem 0.5rem;
   border: 1.5px solid #e2e8f0;
   border-radius: var(--input-border-radius);
   transition: var(--transition-smooth);
@@ -271,6 +271,10 @@ body.modal-open {
   box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
 }
 
+.invalid-feedback {
+  margin-left: .5rem;
+}
+
 /* El legend siempre existe (así el navegador reserva el corte nativo), pero
    mientras el campo está vacío y sin foco se colapsa a ancho ~0: el borde
    queda como una línea continua y el nombre del campo se ve por dentro (ver
@@ -283,19 +287,24 @@ body.modal-open {
   max-width: 0.05px;
   margin: 0;
   padding: 0;
-  font-size: 0.76rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1;
   color: #64748b;
-  /* El <legend> corta el borde nativo del fieldset, pero no su halo de foco.
-     Este fondo tapa el tramo del box-shadow que de otro modo se vería detrás
-     del texto cuando el label flota. */
   background-color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   outline: none !important;
   transition: max-width 0.15s ease, padding 0.15s ease, margin 0.15s ease;
+}
+
+/* Dentro de un modal el fondo real es var(--bs-modal-bg) (en esta app,
+   #f8fafc — un gris clarito, NO blanco puro, porque --bs-body-bg está
+   pisado globalmente). Si el legend queda con fondo #ffffff fijo, se ve un
+   parche blanco despegado del gris del modal; se lo hace matchear acá. */
+.modal-content .floating-fieldset-legend {
+  background-color: var(--bs-modal-bg);
 }
 
 /* Algunos navegadores dibujan un outline propio sobre el <legend> mientras
@@ -318,11 +327,21 @@ body.modal-open {
   color: var(--bs-primary);
 }
 
+/* El label también se pone en rojo cuando el campo es inválido (además del
+   borde del fieldset y el mensaje de Form.Control.Feedback). Va después de
+   :focus-within a propósito y con selectores más específicos: si el campo
+   sigue inválido mientras se lo vuelve a foco, el rojo debe primar sobre el
+   celeste de foco normal. */
+.floating-fieldset.is-invalid .floating-fieldset-legend,
+.floating-fieldset.is-invalid:focus-within .floating-fieldset-legend {
+  color: #dc3545;
+}
+
 .floating-fieldset-body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  min-height: 2.1rem;
+  min-height: 2.5rem;
 }
 
 /* Los <textarea> son multilínea: alinear arriba en vez de centrar (el
@@ -341,7 +360,7 @@ body.modal-open {
 .floating-fieldset .form-select {
   border: none !important;
   background: transparent !important;
-  padding: 0.3rem 0 !important;
+  padding: 0.5rem 0 !important;
   box-shadow: none !important;
   outline: none !important;
 }
@@ -366,7 +385,7 @@ body.modal-open {
   border: none !important;
   box-shadow: none !important;
   outline: none !important;
-  padding: 0.3rem 0 !important;
+  padding: 0.5rem 0 !important;
 }
 
 .floating-fieldset-affix {

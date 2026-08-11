@@ -16,14 +16,28 @@ interface AddParameterModalProps {
     parameters: BillingParameter[];
 }
 
-const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onSave, parameters }) => {
+interface ParameterFormProps {
+    onHide: () => void;
+    onSave: (pendigBillDetail: PendigBillDetail) => Promise<void>;
+    parameters: BillingParameter[];
+}
+
+// Contenido real del formulario, separado en su propio componente para que
+// solo se monte mientras el modal está abierto (ver más abajo, "{show &&
+// <ParameterForm .../>}"). Así useForm() arranca de cero cada vez que se
+// abre: ni los valores tipeados ni los errores de la sesión anterior pueden
+// quedar pisados, porque el componente entero (y su estado) es nuevo.
+const ParameterForm: React.FC<ParameterFormProps> = ({ onHide, onSave, parameters }) => {
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const modalZIndex = useModalLayer(show);
 
     // Props para manejar formulario
-    const {register, handleSubmit, reset, watch, setValue, control, formState: { errors }, } = useForm<PendigBillDetail>({
+    const { register, handleSubmit, reset, watch, setValue, control, formState: { errors }, } = useForm<PendigBillDetail>({
         defaultValues: {},
+        // Valida al salir por primera vez del campo y, desde entonces, vuelve a
+        // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
+        // una opción, sin requerir otro click fuera del control.
+        mode: "onTouched",
     });
 
     // Observar el valor seleccionado en el selector de parámetros
@@ -34,8 +48,12 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
         const selectedId = parseInt(value);
         const selectedParameter = parameters.find(param => param.idBillingParameter === selectedId);
         if (selectedParameter) {
-            setValue("idBillingParameter", selectedParameter.idBillingParameter);
-            setValue("value", selectedParameter.value); // Establecer el valor predeterminado
+            // shouldValidate: true es clave acá: setValue por si solo NO
+            // revalida el campo (a diferencia de field.onChange), así que el
+            // error "obligatorio" quedaba pintado en rojo hasta el próximo
+            // blur aunque ya se hubiera elegido un parámetro válido.
+            setValue("idBillingParameter", selectedParameter.idBillingParameter, { shouldValidate: true });
+            setValue("value", selectedParameter.value, { shouldValidate: true }); // Establecer el valor predeterminado
         }
     };
 
@@ -44,7 +62,7 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
         setIsSubmitting(true);
         try {
             await onSave(data);
-            reset(); 
+            reset();
             onHide();
         } catch (error) {
             console.error(error);
@@ -52,6 +70,71 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
             setIsSubmitting(false);
         }
     };
+
+    return (
+        <Form onSubmit={handleSubmit(onSubmit)}>
+            {/* Selector de parámetros */}
+            <Form.Group controlId="parameterSelect" className="mb-3">
+                <Controller
+                    control={control}
+                    name="idBillingParameter"
+                    rules={{ required: "Este campo es obligatorio" }}
+                    render={({ field }) => (
+                        <FloatingFieldset label="Seleccione un parámetro">
+                            <CustomSelect
+                                value={field.value ? String(field.value) : ""}
+                                onChange={handleParameterChange}
+                                onBlur={field.onBlur}
+                                isInvalid={!!errors.idBillingParameter}
+                                placeholder="Seleccione..."
+                                options={parameters.map((param) => ({
+                                    value: String(param.idBillingParameter),
+                                    label: `${param.name} - ${applyConditionLabels[param.applyCondition]}`,
+                                }))}
+                            />
+                        </FloatingFieldset>
+                    )}
+                />
+                {errors.idBillingParameter && (
+                    <Form.Control.Feedback type="invalid">
+                        {errors.idBillingParameter.message}
+                    </Form.Control.Feedback>
+                )}
+            </Form.Group>
+
+            {/* Input numérico */}
+            <Form.Group controlId="parameterValue" className="mb-3">
+                <FloatingFieldset label="Importe" prefix="$">
+                    <Form.Control
+                        type="number"
+                        {...register("value", {
+                            required: "Este campo es obligatorio",
+                            valueAsNumber: true,
+                        })}
+                        disabled={!selectedParameterId}
+                        isInvalid={!!errors.value}
+                    />
+                </FloatingFieldset>
+                <Form.Control.Feedback type="invalid">
+                    {errors.value?.message}
+                </Form.Control.Feedback>
+            </Form.Group>
+
+            {/* Botones del modal */}
+            <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
+                <Button variant="outline-secondary" onClick={onHide} disabled={isSubmitting}>
+                    <i className="bi bi-x-circle me-1"></i> Cancelar
+                </Button>
+                <Button type="submit" variant="primary" disabled={isSubmitting}>
+                    <i className="bi bi-save me-1"></i> {isSubmitting ? "Guardando..." : "Guardar"}
+                </Button>
+            </div>
+        </Form>
+    );
+};
+
+const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onSave, parameters }) => {
+    const modalZIndex = useModalLayer(show);
 
     return (
         <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="add-parameter-modal-title">
@@ -62,64 +145,7 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
                 titleId="add-parameter-modal-title"
             />
             <Modal.Body>
-                <Form onSubmit={handleSubmit(onSubmit)}>
-                    {/* Selector de parámetros */}
-                    <Form.Group controlId="parameterSelect" className="mb-3">
-                        <Controller
-                            control={control}
-                            name="idBillingParameter"
-                            rules={{ required: "Este campo es obligatorio" }}
-                            render={({ field }) => (
-                                <FloatingFieldset label="Seleccione un parámetro">
-                                    <CustomSelect
-                                        value={field.value ? String(field.value) : ""}
-                                        onChange={handleParameterChange}
-                                        onBlur={field.onBlur}
-                                        isInvalid={!!errors.idBillingParameter}
-                                        placeholder="Seleccione..."
-                                        options={parameters.map((param) => ({
-                                            value: String(param.idBillingParameter),
-                                            label: `${param.name} - ${applyConditionLabels[param.applyCondition]}`,
-                                        }))}
-                                    />
-                                </FloatingFieldset>
-                            )}
-                        />
-                        {errors.idBillingParameter && (
-                            <Form.Control.Feedback type="invalid">
-                                {errors.idBillingParameter.message}
-                            </Form.Control.Feedback>
-                        )}
-                    </Form.Group>
-
-                    {/* Input numérico */}
-                    <Form.Group controlId="parameterValue" className="mb-3">
-                        <FloatingFieldset label="Importe" prefix="$">
-                            <Form.Control
-                                type="number"
-                                {...register("value", {
-                                    required: "Este campo es obligatorio",
-                                    valueAsNumber: true,
-                                })}
-                                disabled={!selectedParameterId}
-                                isInvalid={!!errors.value}
-                            />
-                        </FloatingFieldset>
-                        <Form.Control.Feedback type="invalid">
-                            {errors.value?.message}
-                        </Form.Control.Feedback>
-                    </Form.Group>
-
-                    {/* Botones del modal */}
-                    <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
-                        <Button variant="outline-secondary" onClick={onHide} disabled={isSubmitting}>
-                            <i className="bi bi-x-circle me-1"></i> Cancelar
-                        </Button>
-                        <Button type="submit" variant="primary" disabled={isSubmitting}>
-                            <i className="bi bi-save me-1"></i> {isSubmitting ? "Guardando..." : "Guardar"}
-                        </Button>
-                    </div>
-                </Form>
+                {show && <ParameterForm onHide={onHide} onSave={onSave} parameters={parameters} />}
             </Modal.Body>
         </Modal>
     );
