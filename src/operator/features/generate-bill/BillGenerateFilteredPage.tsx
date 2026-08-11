@@ -391,8 +391,8 @@ const BillGenerateFilteredPage = () => {
                                             <CustomSelect
                                                 value={filters.deleted}
                                                 onChange={(v) => setFilters((prev) => ({ ...prev, deleted: v }))}
+                                                placeholder="No filtrar"
                                                 options={[
-                                                    { value: "", label: "-- No filtrar --" },
                                                     { value: "true", label: "Sí" },
                                                     { value: "false", label: "No" },
                                                 ]}
@@ -462,10 +462,8 @@ const BillGenerateFilteredPage = () => {
                                             <CustomSelect
                                                 value={filters.idFee}
                                                 onChange={(v) => setFilters((prev) => ({ ...prev, idFee: v }))}
-                                                options={[
-                                                    { value: "", label: "-- Seleccionar tarifa --" },
-                                                    ...fees.map((fee) => ({ value: String(fee.idFee), label: fee.name })),
-                                                ]}
+                                                placeholder="Seleccionar tarifa"
+                                                options={fees.map((fee) => ({ value: String(fee.idFee), label: fee.name }))}
                                             />
                                         </FloatingFieldset>
                                     </Form.Group>
@@ -476,8 +474,8 @@ const BillGenerateFilteredPage = () => {
                                             <CustomSelect
                                                 value={filters.paidStatus}
                                                 onChange={(v) => setFilters((prev) => ({ ...prev, paidStatus: v }))}
+                                                placeholder="Cualquiera"
                                                 options={[
-                                                    { value: "", label: "-- Cualquiera --" },
                                                     { value: "true", label: "Pagado" },
                                                     { value: "false", label: "No pagado" },
                                                 ]}
@@ -491,8 +489,8 @@ const BillGenerateFilteredPage = () => {
                                             <CustomSelect
                                                 value={filters.digitalInvoice}
                                                 onChange={(v) => setFilters((prev) => ({ ...prev, digitalInvoice: v }))}
+                                                placeholder="Cualquiera"
                                                 options={[
-                                                    { value: "", label: "-- Cualquiera --" },
                                                     { value: "true", label: "Sí" },
                                                     { value: "false", label: "No" },
                                                 ]}

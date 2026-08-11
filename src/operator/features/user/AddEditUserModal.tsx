@@ -39,7 +39,6 @@ interface AddEditModalProps {
 interface UserFormProps {
   onHide: () => void;
   onSave: (user: UserDto) => Promise<void>;
-  onResetPasswordClick?: () => void;
   user?: UserDto | any;
   locations: LocationDto[];
   fees: FeeDto[];
@@ -69,7 +68,7 @@ const buildFormValues = (source?: UserDto | null): Partial<FormValues> => {
 // <UserForm .../>}"). Así useForm() arranca de cero cada vez que se abre: ni
 // los valores tipeados ni los errores de la sesión anterior pueden quedar
 // pisados, porque el componente entero (y su estado) es nuevo.
-const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, onResetPasswordClick, user, locations, fees }) => {
+const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fees }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
@@ -175,7 +174,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, onResetPasswordClic
             <Row>
               <Col sm={6}>
                 <Form.Group className="mb-2">
-                  <FloatingFieldset label="Nombre *">
+                  <FloatingFieldset label="Nombre">
                     <Form.Control {...register("firstName", combineRules(requiredRule(), noSpecialCharsRule(), maxLengthRule(40)))} isInvalid={!!errors.firstName} />
                   </FloatingFieldset>
                   <Form.Control.Feedback type="invalid">{errors.firstName?.message}</Form.Control.Feedback>
@@ -183,7 +182,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, onResetPasswordClic
               </Col>
               <Col sm={6}>
                 <Form.Group className="mb-2">
-                  <FloatingFieldset label="Apellido *">
+                  <FloatingFieldset label="Apellido">
                     <Form.Control {...register("lastName", combineRules(requiredRule(), noSpecialCharsRule(), maxLengthRule(40)))} isInvalid={!!errors.lastName} />
                   </FloatingFieldset>
                   <Form.Control.Feedback type="invalid">{errors.lastName?.message}</Form.Control.Feedback>
@@ -194,7 +193,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, onResetPasswordClic
             <Row>
               <Col sm={6}>
                 <Form.Group className="mb-2">
-                  <FloatingFieldset label="DNI *">
+                  <FloatingFieldset label="DNI">
                     <Form.Control
                       type="number"
                       {...register("dni", combineRules(requiredRule(), exactLengthRule(8, "El DNI debe tener 8 números")))}
@@ -206,7 +205,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, onResetPasswordClic
               </Col>
               <Col sm={6}>
                 <Form.Group className="mb-2">
-                  <FloatingFieldset label="Teléfono *">
+                  <FloatingFieldset label="Teléfono">
                     <Form.Control
                       {...register("phone", combineRules(requiredRule(), onlyDigitsRule("El teléfono solo puede contener números"), maxLengthRule(10, "El teléfono no puede tener más de 10 números")))}
                       isInvalid={!!errors.phone}
@@ -240,13 +239,12 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, onResetPasswordClic
                     name="residenceDto.idLocation"
                     rules={{ required: "Este campo es obligatorio" }}
                     render={({ field }) => (
-                      <FloatingFieldset label="Localidad *">
+                      <FloatingFieldset label="Localidad">
                         <CustomSelect
                           value={field.value ? String(field.value) : ""}
                           onChange={field.onChange}
                           onBlur={field.onBlur}
                           isInvalid={!!errors.residenceDto?.idLocation}
-                          placeholder="Seleccione una localidad"
                           options={locations.map((location) => ({ value: String(location.idLocation), label: location.name }))}
                         />
                       </FloatingFieldset>
@@ -258,7 +256,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, onResetPasswordClic
 
               <Col sm={6}>
                 <Form.Group className="mb-2">
-                  <FloatingFieldset label="Distrito *">
+                  <FloatingFieldset label="Distrito">
                     <Form.Control {...register("residenceDto.district", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.district} />
                   </FloatingFieldset>
                   <Form.Control.Feedback type="invalid">{errors.residenceDto?.district?.message}</Form.Control.Feedback>
@@ -269,7 +267,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, onResetPasswordClic
             <Row>
               <Col sm={6}>
                 <Form.Group className="mb-2">
-                  <FloatingFieldset label="Calle *">
+                  <FloatingFieldset label="Calle">
                     <Form.Control {...register("residenceDto.street", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.street} />
                   </FloatingFieldset>
                   <Form.Control.Feedback type="invalid">{errors.residenceDto?.street?.message}</Form.Control.Feedback>
@@ -278,7 +276,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, onResetPasswordClic
 
               <Col sm={6}>
                 <Form.Group className="mb-2">
-                  <FloatingFieldset label="N° de Casa *">
+                  <FloatingFieldset label="N° de Casa">
                     <Form.Control type="number" {...register("residenceDto.number", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.number} />
                   </FloatingFieldset>
                   <Form.Control.Feedback type="invalid">{errors.residenceDto?.number?.message}</Form.Control.Feedback>
@@ -327,13 +325,12 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, onResetPasswordClic
                       name="residenceDto.idFee"
                       rules={{ required: "Este campo es obligatorio" }}
                       render={({ field }) => (
-                        <FloatingFieldset label="Tarifa *">
+                        <FloatingFieldset label="Tarifa">
                           <CustomSelect
                             value={field.value ? String(field.value) : ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
                             isInvalid={!!errors.residenceDto?.idFee}
-                            placeholder="Seleccione una tarifa"
                             options={fees.map((fee) => ({ value: String(fee.idFee), label: fee.name }))}
                           />
                         </FloatingFieldset>
@@ -351,13 +348,12 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, onResetPasswordClic
                       rules={{ required: "Este campo es obligatorio" }}
                       defaultValue={""}
                       render={({ field }) => (
-                        <FloatingFieldset label="Enviar boleta al correo *">
+                        <FloatingFieldset label="Enviar boleta al correo">
                           <CustomSelect
                             value={field.value}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
                             isInvalid={!!errors.digitalInvoiceAdhered}
-                            placeholder="Seleccione una opción"
                             options={[{ value: "true", label: "Sí" }, { value: "false", label: "No" }]}
                           />
                         </FloatingFieldset>
@@ -377,13 +373,12 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, onResetPasswordClic
                       rules={{ required: "Este campo es obligatorio" }}
                       defaultValue={""}
                       render={({ field }) => (
-                        <FloatingFieldset label="Generar PDF de facturas *">
+                        <FloatingFieldset label="Generar PDF de facturas">
                           <CustomSelect
                             value={field.value}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
                             isInvalid={!!errors.pdfInvoiceAdhered}
-                            placeholder="Seleccione una opción"
                             options={[{ value: "true", label: "Sí" }, { value: "false", label: "No" }]}
                           />
                         </FloatingFieldset>
@@ -401,13 +396,12 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, onResetPasswordClic
                       rules={{ required: "Este campo es obligatorio" }}
                       defaultValue={""}
                       render={({ field }) => (
-                        <FloatingFieldset label="Calcular IVA al consumo total *">
+                        <FloatingFieldset label="Calcular IVA al consumo total">
                           <CustomSelect
                             value={field.value}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
                             isInvalid={!!errors.ivaInvoiceAdhered}
-                            placeholder="Seleccione una opción"
                             options={[{ value: "true", label: "Sí" }, { value: "false", label: "No" }]}
                           />
                         </FloatingFieldset>
@@ -510,7 +504,6 @@ const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onRes
           <UserForm
             onHide={onHide}
             onSave={onSave}
-            onResetPasswordClick={onResetPasswordClick}
             user={user}
             locations={locations}
             fees={fees}

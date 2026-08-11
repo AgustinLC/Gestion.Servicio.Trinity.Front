@@ -402,7 +402,10 @@ body.modal-open {
 
 /* Label mostrado "adentro" (como si fuera el valor) mientras el campo está
    vacío y sin foco. pointer-events:none para que el click atraviese hasta
-   el input real y lo enfoque igual. */
+   el input real y lo enfoque igual. Ancho auto (no ocupa todo el control):
+   en un CustomSelect, ocupar el 100% tapa también su flecha del lado
+   derecho — ver .floating-fieldset-mask-native para el caso que sí necesita
+   tapar todo el ancho. */
 .floating-fieldset-ghost {
   position: absolute;
   left: 0;
@@ -416,6 +419,28 @@ body.modal-open {
   font-size: 0.95rem;
   font-weight: 500;
   pointer-events: none;
+}
+
+/* input[type=date/time/...] dibujan su propio texto nativo de "vacío"
+   (dd/mm/aaaa) que no es el atributo placeholder y no se puede ocultar por
+   CSS: en vez de evitar la superposición, se tapa el control entero con un
+   fondo opaco (acá sí puede ocupar todo el ancho: un <input> no tiene un
+   ícono propio del lado derecho que perder, a diferencia de un CustomSelect). */
+.floating-fieldset-mask-native .floating-fieldset-ghost {
+  inset: 0;
+  left: 0;
+  top: 0;
+  transform: none;
+  max-width: none;
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+}
+
+/* Mismo motivo que el fondo del legend: dentro de un modal el fondo real es
+   var(--bs-modal-bg) (#f8fafc en esta app), no blanco puro. */
+.modal-content .floating-fieldset-mask-native .floating-fieldset-ghost {
+  background-color: var(--bs-modal-bg);
 }
 
 /* --- CURSOR: elementos interactivos deben mostrar mano, no flecha --- */

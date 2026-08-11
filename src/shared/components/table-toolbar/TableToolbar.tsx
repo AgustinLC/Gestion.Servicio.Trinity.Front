@@ -98,10 +98,20 @@ const TableToolbar: React.FC<TableToolbarProps> = ({
                                 onChange={onChange}
                                 placeholder={filter.emptyLabel ?? `Seleccionar ${filter.label}...`}
                                 aria-label={filter.label}
-                                options={[
-                                    { value: filter.defaultValue ?? "", label: filter.emptyLabel ?? `Seleccionar ${filter.label}...` },
-                                    ...(filter.options ?? []),
-                                ]}
+                                options={
+                                    // Solo se agrega la opción "vacía" a la lista cuando el
+                                    // filtro define un defaultValue real (ej: "ALL" para
+                                    // "Todos los períodos" en DebtControlPage): ahí "Todos"
+                                    // es una opción elegible más, no un simple placeholder.
+                                    // Si no hay defaultValue, no se pre-selecciona nada: el
+                                    // placeholder de arriba ya indica qué elegir.
+                                    filter.defaultValue !== undefined
+                                        ? [
+                                            { value: filter.defaultValue, label: filter.emptyLabel ?? `Seleccionar ${filter.label}...` },
+                                            ...(filter.options ?? []),
+                                        ]
+                                        : (filter.options ?? [])
+                                }
                             />
                         </div>
                     );

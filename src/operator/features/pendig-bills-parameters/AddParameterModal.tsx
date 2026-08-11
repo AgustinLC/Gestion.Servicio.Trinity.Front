@@ -22,11 +22,6 @@ interface ParameterFormProps {
     parameters: BillingParameter[];
 }
 
-// Contenido real del formulario, separado en su propio componente para que
-// solo se monte mientras el modal está abierto (ver más abajo, "{show &&
-// <ParameterForm .../>}"). Así useForm() arranca de cero cada vez que se
-// abre: ni los valores tipeados ni los errores de la sesión anterior pueden
-// quedar pisados, porque el componente entero (y su estado) es nuevo.
 const ParameterForm: React.FC<ParameterFormProps> = ({ onHide, onSave, parameters }) => {
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,26 +29,17 @@ const ParameterForm: React.FC<ParameterFormProps> = ({ onHide, onSave, parameter
     // Props para manejar formulario
     const { register, handleSubmit, reset, watch, setValue, control, formState: { errors }, } = useForm<PendigBillDetail>({
         defaultValues: {},
-        // Valida al salir por primera vez del campo y, desde entonces, vuelve a
-        // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
-        // una opción, sin requerir otro click fuera del control.
         mode: "onTouched",
     });
 
-    // Observar el valor seleccionado en el selector de parámetros
     const selectedParameterId = watch("idBillingParameter");
 
-    // Manejar cambio en el selector de parámetros
     const handleParameterChange = (value: string) => {
         const selectedId = parseInt(value);
         const selectedParameter = parameters.find(param => param.idBillingParameter === selectedId);
         if (selectedParameter) {
-            // shouldValidate: true es clave acá: setValue por si solo NO
-            // revalida el campo (a diferencia de field.onChange), así que el
-            // error "obligatorio" quedaba pintado en rojo hasta el próximo
-            // blur aunque ya se hubiera elegido un parámetro válido.
             setValue("idBillingParameter", selectedParameter.idBillingParameter, { shouldValidate: true });
-            setValue("value", selectedParameter.value, { shouldValidate: true }); // Establecer el valor predeterminado
+            setValue("value", selectedParameter.value, { shouldValidate: true }); 
         }
     };
 
@@ -80,13 +66,12 @@ const ParameterForm: React.FC<ParameterFormProps> = ({ onHide, onSave, parameter
                     name="idBillingParameter"
                     rules={{ required: "Este campo es obligatorio" }}
                     render={({ field }) => (
-                        <FloatingFieldset label="Seleccione un parámetro">
+                        <FloatingFieldset label="Concepto">
                             <CustomSelect
                                 value={field.value ? String(field.value) : ""}
                                 onChange={handleParameterChange}
                                 onBlur={field.onBlur}
                                 isInvalid={!!errors.idBillingParameter}
-                                placeholder="Seleccione..."
                                 options={parameters.map((param) => ({
                                     value: String(param.idBillingParameter),
                                     label: `${param.name} - ${applyConditionLabels[param.applyCondition]}`,

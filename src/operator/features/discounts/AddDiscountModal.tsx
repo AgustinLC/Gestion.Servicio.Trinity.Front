@@ -131,11 +131,10 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
                     <>
                         {/* Selector de descuentos */}
                         <Form.Group controlId="discountSelect" className="mb-3">
-                            <FloatingFieldset label="Seleccione un descuento">
+                            <FloatingFieldset label="Descuento">
                                 <CustomSelect
                                     value={selectedDiscountId ? String(selectedDiscountId) : ""}
                                     onChange={handleDiscountChange}
-                                    placeholder="Seleccione..."
                                     options={allDiscounts.map((d) => ({
                                         value: String(d.idDiscount),
                                         label: `${d.name} - ${applyConditionLabels[d.applyCondition]}`,

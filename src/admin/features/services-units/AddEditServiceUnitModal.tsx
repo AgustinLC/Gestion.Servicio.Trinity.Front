@@ -26,19 +26,11 @@ interface ServiceUnitFormProps {
     unities: Unit[];
 }
 
-// Contenido real del formulario, separado en su propio componente para que
-// solo se monte mientras el modal está abierto (ver más abajo, "{show &&
-// <ServiceUnitForm .../>}"). Así useForm() arranca de cero cada vez que se
-// abre: ni los valores tipeados ni los errores de la sesión anterior pueden
-// quedar pisados, porque el componente entero (y su estado) es nuevo.
 const ServiceUnitForm: React.FC<ServiceUnitFormProps> = ({ onHide, onSave, serviceUnit, services, unities }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { handleSubmit, reset, control, formState: { errors } } = useForm<ServiceUnitDto>({
         defaultValues: serviceUnit || {},
-        // Valida al salir por primera vez del campo y, desde entonces, vuelve a
-        // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
-        // una opción, sin requerir otro click fuera del control.
         mode: "onTouched",
     });
 
@@ -71,7 +63,6 @@ const ServiceUnitForm: React.FC<ServiceUnitFormProps> = ({ onHide, onSave, servi
                                 onChange={field.onChange}
                                 onBlur={field.onBlur}
                                 isInvalid={!!errors.idService}
-                                placeholder="Seleccione un servicio"
                                 options={services.map((service) => ({ value: String(service.idService), label: service.name }))}
                             />
                         </FloatingFieldset>
@@ -95,7 +86,6 @@ const ServiceUnitForm: React.FC<ServiceUnitFormProps> = ({ onHide, onSave, servi
                                 onChange={field.onChange}
                                 onBlur={field.onBlur}
                                 isInvalid={!!errors.idUnit}
-                                placeholder="Seleccione una unidad"
                                 options={unities.map((unit) => ({ value: String(unit.idUnit), label: `${unit.name}/${unit.symbol}` }))}
                             />
                         </FloatingFieldset>

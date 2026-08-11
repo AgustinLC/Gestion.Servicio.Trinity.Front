@@ -71,7 +71,7 @@ const UserPage = () => {
                 type: "custom" as const,
                 render: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
                     <DotDropdown
-                        options={[{ value: "", label: "Todos los estados" }, ...STATUS_OPTIONS]}
+                        options={STATUS_OPTIONS}
                         value={value}
                         onChange={onChange}
                         placeholder="Todos los estados"

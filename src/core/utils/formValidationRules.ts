@@ -7,11 +7,27 @@
 // como email + noSpecialChars), el último pisa al anterior — para esos casos
 // hay que escribir un regex propio que cubra ambas condiciones a la vez, en
 // vez de combinar dos reglas de tipo pattern.
-import { RegisterOptions } from "react-hook-form";
+import { ValidationRule } from "react-hook-form";
 
 export const REQUIRED_MESSAGE = "Este campo es obligatorio";
 
-type Rules = RegisterOptions;
+// No se deriva de RegisterOptions<TFieldValues, TFieldName>: esa tiene 3
+// props (deps, validate, value) cuyo tipo depende de esos genéricos
+// concretos del formulario en el que se use, y además es una unión
+// discriminada por valueAsNumber/valueAsDate/pattern que no sobrevive un
+// Omit limpio. Como estos helpers son genéricos y nunca tocan esas 3 props
+// ni ese discriminante, se define una interfaz propia con solo los campos
+// que sí usamos — así el resultado calza estructuralmente con el
+// RegisterOptions específico de CUALQUIER formulario al pasarlo a
+// register(name, combineRules(...)).
+interface Rules {
+    required?: string | ValidationRule<boolean>;
+    min?: ValidationRule<number | string>;
+    max?: ValidationRule<number | string>;
+    maxLength?: ValidationRule<number>;
+    minLength?: ValidationRule<number>;
+    pattern?: ValidationRule<RegExp>;
+}
 
 export const requiredRule = (message: string = REQUIRED_MESSAGE): Rules => ({
     required: message,
