@@ -5,6 +5,7 @@ import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
+import { combineRules, requiredRule, minValueRule } from "../../../core/utils/formValidationRules";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
@@ -76,7 +77,8 @@ const BillingParameterForm: React.FC<BillingParameterFormProps> = ({ onHide, onS
             <Form.Group>
                 <FloatingFieldset label="Importe" prefix="$">
                     <Form.Control
-                        {...register("value", { required: "Este campo es obligatorio" })}
+                        type="number"
+                        {...register("value", combineRules(requiredRule(), minValueRule(0.01, "El importe debe ser mayor a 0")))}
                         isInvalid={!!errors.value}
                     />
                 </FloatingFieldset>

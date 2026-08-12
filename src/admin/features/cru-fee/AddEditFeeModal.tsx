@@ -5,6 +5,7 @@ import { FeeDto } from "../../../core/models/dto/FeeDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { combineRules, requiredRule, minValueRule } from "../../../core/utils/formValidationRules";
 
 interface AddEditModalProps {
     show: boolean;
@@ -73,9 +74,10 @@ const FeeForm: React.FC<FeeFormProps> = ({ onHide, onSave, fee }) => {
                 </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
-                <FloatingFieldset label="Precio">
+                <FloatingFieldset label="Precio" prefix="$">
                     <Form.Control
-                        {...register("price", { required: "Este campo es obligatorio" })}
+                        type="number"
+                        {...register("price", combineRules(requiredRule(), minValueRule(0.01, "El precio debe ser mayor a 0")))}
                         isInvalid={!!errors.price}
                     />
                 </FloatingFieldset>
@@ -86,7 +88,8 @@ const FeeForm: React.FC<FeeFormProps> = ({ onHide, onSave, fee }) => {
             <Form.Group>
                 <FloatingFieldset label="Consumo Max.">
                     <Form.Control
-                        {...register("consumptionMax", { required: "Este campo es obligatorio" })}
+                        type="number"
+                        {...register("consumptionMax", combineRules(requiredRule(), minValueRule(0)))}
                         isInvalid={!!errors.consumptionMax}
                     />
                 </FloatingFieldset>
@@ -95,9 +98,10 @@ const FeeForm: React.FC<FeeFormProps> = ({ onHide, onSave, fee }) => {
                 </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
-                <FloatingFieldset label="Costo por Exceso">
+                <FloatingFieldset label="Costo por Exceso" prefix="$">
                     <Form.Control
-                        {...register("surplusChargePerUnit", { required: "Este campo es obligatorio" })}
+                        type="number"
+                        {...register("surplusChargePerUnit", combineRules(requiredRule(), minValueRule(0)))}
                         isInvalid={!!errors.surplusChargePerUnit}
                     />
                 </FloatingFieldset>
@@ -106,9 +110,10 @@ const FeeForm: React.FC<FeeFormProps> = ({ onHide, onSave, fee }) => {
                 </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
-                <FloatingFieldset label="Costo por Vencimiento">
+                <FloatingFieldset label="Costo por Vencimiento" prefix="$">
                     <Form.Control
-                        {...register("maturityAmount", { required: "Este campo es obligatorio" })}
+                        type="number"
+                        {...register("maturityAmount", combineRules(requiredRule(), minValueRule(0)))}
                         isInvalid={!!errors.maturityAmount}
                     />
                 </FloatingFieldset>

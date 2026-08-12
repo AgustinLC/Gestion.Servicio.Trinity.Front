@@ -53,7 +53,7 @@ const ReadingFormContent: React.FC<ReadingFormProps> = ({ onHide, onSave, lastRe
 
     return (
         <Form onSubmit={handleSubmit(onSubmit)}>
-            <Form.Label>
+            <Form.Label className="ms-3">
                 Lectura anterior:{" "}
                 <strong>
                     {lastReading !== null ? lastReading : "Sin lectura anterior"}

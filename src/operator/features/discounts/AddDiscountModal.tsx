@@ -149,6 +149,7 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
                                 <FloatingFieldset label="Importe" prefix="$">
                                     <Form.Control
                                         type="number"
+                                        min="0.01"
                                         value={amount}
                                         onChange={(e) => setAmount(Number(e.target.value))}
                                         disabled={isFixed || !selectedDiscountId}

@@ -73,6 +73,12 @@ export const numericRangeRule = (min: number, max: number, message?: string): Ru
     };
 };
 
+// Para campos numéricos con un solo límite (la mayoría: no suele haber un
+// "máximo" natural para un precio, un importe, un conteo, etc.).
+export const minValueRule = (min: number, message?: string): Rules => ({
+    min: { value: min, message: message ?? `El valor debe ser mayor o igual a ${min}` },
+});
+
 // Combina varios fragmentos de reglas en un solo objeto para pasarle a
 // register(name, combineRules(requiredRule(), maxLengthRule(50))).
 export function combineRules(...rules: Rules[]): Rules {

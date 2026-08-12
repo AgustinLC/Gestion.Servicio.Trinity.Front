@@ -272,7 +272,7 @@ body.modal-open {
 }
 
 .invalid-feedback {
-  margin-left: .5rem;
+  margin-left: 1.5rem;
 }
 
 /* El legend siempre existe (así el navegador reserva el corte nativo), pero

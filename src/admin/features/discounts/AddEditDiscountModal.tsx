@@ -5,6 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
+import { combineRules, requiredRule, minValueRule } from "../../../core/utils/formValidationRules";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
@@ -70,8 +71,9 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ onHide, onSave, discount })
                 </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
-                <FloatingFieldset label="Precio"><Form.Control
-                    {...register("amount", { required: "Este campo es obligatorio" })}
+                <FloatingFieldset label="Precio" prefix="$"><Form.Control
+                    type="number"
+                    {...register("amount", combineRules(requiredRule(), minValueRule(0.01, "El importe debe ser mayor a 0")))}
                     isInvalid={!!errors.amount}
                 /></FloatingFieldset>
                 <Form.Control.Feedback type="invalid">

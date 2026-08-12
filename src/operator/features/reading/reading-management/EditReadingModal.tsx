@@ -20,8 +20,10 @@ interface EditReadingModalProps {
 const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, reading, onSubmit }) => {
     const [readingValue, setReadingValue] = useState(reading.reading);
     const modalZIndex = useModalLayer(show);
+    const isInvalidReading = Number.isNaN(readingValue) || readingValue < 0;
 
     const handleSubmit = () => {
+        if (isInvalidReading) return;
         onSubmit(readingValue);
     };
 
@@ -51,10 +53,15 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
                         <FloatingFieldset label="Valor de Lectura">
                             <Form.Control
                                 type="number"
+                                min="0"
                                 value={readingValue}
                                 onChange={(e) => setReadingValue(Number(e.target.value))}
+                                isInvalid={isInvalidReading}
                             />
                         </FloatingFieldset>
+                        <Form.Control.Feedback type="invalid">
+                            El valor debe ser mayor o igual a 0
+                        </Form.Control.Feedback>
                     </Form.Group>
                 </Form>
 
@@ -62,7 +69,7 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
                     <Button variant="outline-secondary" onClick={onHide}>
                         <i className="bi bi-x-circle me-1"></i> Cancelar
                     </Button>
-                    <Button variant="primary" onClick={handleSubmit}>
+                    <Button variant="primary" onClick={handleSubmit} disabled={isInvalidReading}>
                         <i className="bi bi-save me-1"></i> Guardar
                     </Button>
                 </div>

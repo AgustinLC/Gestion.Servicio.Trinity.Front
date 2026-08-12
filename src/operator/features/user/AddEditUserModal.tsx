@@ -13,7 +13,7 @@ import FormModalHeader from "../../../shared/components/form-modal-header/FormMo
 import FormSectionHeader from "../../../shared/components/form-section-header/FormSectionHeader";
 import HintBox from "../../../shared/components/hint-box/HintBox";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
-import { combineRules, requiredRule, emailRule, exactLengthRule, maxLengthRule, onlyDigitsRule, noSpecialCharsRule } from "../../../core/utils/formValidationRules";
+import { combineRules, requiredRule, emailRule, exactLengthRule, maxLengthRule, onlyDigitsRule, noSpecialCharsRule, minValueRule } from "../../../core/utils/formValidationRules";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import "./AddEditUserModal.css";
 import { formatDate } from "../../../core/utils/formatters";
@@ -277,7 +277,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
               <Col sm={6}>
                 <Form.Group className="mb-2">
                   <FloatingFieldset label="N° de Casa">
-                    <Form.Control type="number" {...register("residenceDto.number", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.number} />
+                    <Form.Control type="number" {...register("residenceDto.number", combineRules(requiredRule(), minValueRule(0)))} isInvalid={!!errors.residenceDto?.number} />
                   </FloatingFieldset>
                   <Form.Control.Feedback type="invalid">{errors.residenceDto?.number?.message}</Form.Control.Feedback>
                 </Form.Group>
@@ -288,7 +288,14 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
               <Col sm={user ? 12 : 6}>
                 <Form.Group className="mb-2">
                   <FloatingFieldset label="N° de Medidor">
-                    <Form.Control {...register("residenceDto.serialNumber", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.serialNumber} />
+                    <Form.Control 
+                      type="number"
+                      {...register("residenceDto.serialNumber", { 
+                          required: "Este campo es obligatorio",
+                          min: { value: 0, message: "El valor debe ser mayor o igual a 0" },
+                      })} 
+                      isInvalid={!!errors.residenceDto?.serialNumber} 
+                    />
                   </FloatingFieldset>
                   <Form.Control.Feedback type="invalid">{errors.residenceDto?.serialNumber?.message}</Form.Control.Feedback>
                 </Form.Group>
@@ -298,7 +305,14 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
                 <Col sm={6}>
                   <Form.Group className="mb-2">
                     <FloatingFieldset label="Val. actual del Medidor">
-                      <Form.Control {...register("residenceDto.valueMeter", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.valueMeter} />
+                      <Form.Control 
+                        type="number"
+                        {...register("residenceDto.valueMeter", { 
+                            required: "Este campo es obligatorio",
+                            min: { value: 0, message: "El valor debe ser mayor o igual a 0" },
+                        })} 
+                        isInvalid={!!errors.residenceDto?.valueMeter} 
+                        />
                     </FloatingFieldset>
                     <Form.Control.Feedback type="invalid">{errors.residenceDto?.valueMeter?.message}</Form.Control.Feedback>
                   </Form.Group>
