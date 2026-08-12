@@ -158,6 +158,7 @@ const UserPersonalData: React.FC = () => {
                             type="email"
                             value={user.username}
                             onChange={(e) => setUser({ ...user, username: e.target.value })}
+                            maxLength={100}
                         />
                     </FloatingFieldset>
                 </Form.Group>
@@ -169,6 +170,7 @@ const UserPersonalData: React.FC = () => {
                             type="number"
                             value={user.dni}
                             onChange={(e) => setUser({ ...user, dni: parseInt(e.target.value) })}
+                            max="99999999"
                         />
                     </FloatingFieldset>
                 </Form.Group>
@@ -180,6 +182,7 @@ const UserPersonalData: React.FC = () => {
                             type="text"
                             value={user.phone}
                             onChange={(e) => setUser({ ...user, phone: e.target.value })}
+                            maxLength={10}
                         />
                     </FloatingFieldset>
                 </Form.Group>

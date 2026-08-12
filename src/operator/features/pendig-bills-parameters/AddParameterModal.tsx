@@ -96,6 +96,7 @@ const ParameterForm: React.FC<ParameterFormProps> = ({ onHide, onSave, parameter
                             required: "Este campo es obligatorio",
                             valueAsNumber: true,
                             min: { value: 0.01, message: "El importe debe ser mayor a 0" },
+                            max: { value: 9999999, message: "El valor no puede superar 9999999" },
                         })}
                         disabled={!selectedParameterId}
                         isInvalid={!!errors.value}

@@ -79,6 +79,13 @@ export const minValueRule = (min: number, message?: string): Rules => ({
     min: { value: min, message: message ?? `El valor debe ser mayor o igual a ${min}` },
 });
 
+// Tope superior "razonable" para evitar que se tipeen valores absurdamente
+// grandes (de más dígitos que los que puede tener realmente un precio, una
+// lectura, un conteo de días, etc. en este sistema).
+export const maxValueRule = (max: number, message?: string): Rules => ({
+    max: { value: max, message: message ?? `El valor no puede superar ${max}` },
+});
+
 // Combina varios fragmentos de reglas en un solo objeto para pasarle a
 // register(name, combineRules(requiredRule(), maxLengthRule(50))).
 export function combineRules(...rules: Rules[]): Rules {

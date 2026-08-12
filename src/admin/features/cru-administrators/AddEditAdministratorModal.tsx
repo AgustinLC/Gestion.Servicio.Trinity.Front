@@ -83,7 +83,7 @@ const AdministratorForm: React.FC<AdministratorFormProps> = ({ onHide, onSave, a
             <Form.Group>
                 <FloatingFieldset label="Email">
                     <Form.Control
-                        {...register("username", combineRules(requiredRule(), emailRule()))}
+                        {...register("username", combineRules(requiredRule(), emailRule(), maxLengthRule(100)))}
                         isInvalid={!!errors.username}
                     />
                 </FloatingFieldset>

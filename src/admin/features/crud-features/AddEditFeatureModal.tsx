@@ -5,6 +5,7 @@ import { FeatureDto } from "../../../core/models/dto/FeatureDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { combineRules, requiredRule, maxLengthRule } from "../../../core/utils/formValidationRules";
 
 interface AddEditModalProps {
     show: boolean;
@@ -53,7 +54,7 @@ const FeatureForm: React.FC<FeatureFormProps> = ({ onHide, onSave, feature }) =>
             <Form.Group>
                 <FloatingFieldset label="Funcionalidad">
                 <Form.Control
-                    {...register("name", { required: "Este campo es obligatorio" })}
+                    {...register("name", combineRules(requiredRule(), maxLengthRule(60)))}
                     isInvalid={!!errors.name}
                 />
                 </FloatingFieldset>
@@ -64,7 +65,7 @@ const FeatureForm: React.FC<FeatureFormProps> = ({ onHide, onSave, feature }) =>
             <Form.Group>
                 <FloatingFieldset label="Descripción">
                 <Form.Control
-                    {...register("description", { required: "Este campo es obligatorio" })}
+                    {...register("description", combineRules(requiredRule(), maxLengthRule(300)))}
                     isInvalid={!!errors.description}
                 />
                 </FloatingFieldset>

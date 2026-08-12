@@ -5,7 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
-import { combineRules, requiredRule, minValueRule } from "../../../core/utils/formValidationRules";
+import { combineRules, requiredRule, minValueRule, maxValueRule, maxLengthRule } from "../../../core/utils/formValidationRules";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
@@ -54,7 +54,7 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ onHide, onSave, discount })
         <Form onSubmit={handleSubmit(onSubmit)}>
             <Form.Group>
                 <FloatingFieldset label="Nombre"><Form.Control
-                    {...register("name", { required: "Este campo es obligatorio" })}
+                    {...register("name", combineRules(requiredRule(), maxLengthRule(60)))}
                     isInvalid={!!errors.name}
                 /></FloatingFieldset>
                 <Form.Control.Feedback type="invalid">
@@ -63,7 +63,7 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ onHide, onSave, discount })
             </Form.Group>
             <Form.Group>
                 <FloatingFieldset label="Descripción"><Form.Control
-                    {...register("description", { required: "Este campo es obligatorio" })}
+                    {...register("description", combineRules(requiredRule(), maxLengthRule(300)))}
                     isInvalid={!!errors.description}
                 /></FloatingFieldset>
                 <Form.Control.Feedback type="invalid">
@@ -73,7 +73,7 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ onHide, onSave, discount })
             <Form.Group>
                 <FloatingFieldset label="Precio" prefix="$"><Form.Control
                     type="number"
-                    {...register("amount", combineRules(requiredRule(), minValueRule(0.01, "El importe debe ser mayor a 0")))}
+                    {...register("amount", combineRules(requiredRule(), minValueRule(0.01, "El importe debe ser mayor a 0"), maxValueRule(9999999)))}
                     isInvalid={!!errors.amount}
                 /></FloatingFieldset>
                 <Form.Control.Feedback type="invalid">

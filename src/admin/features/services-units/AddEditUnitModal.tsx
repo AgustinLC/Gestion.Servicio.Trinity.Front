@@ -5,6 +5,7 @@ import { Unit } from "../../../core/models/dto/Unit";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { combineRules, requiredRule, maxLengthRule } from "../../../core/utils/formValidationRules";
 
 interface AddEditModalProps {
     show: boolean;
@@ -53,7 +54,7 @@ const UnitForm: React.FC<UnitFormProps> = ({ onHide, onSave, unit }) => {
             <Form.Group>
                 <FloatingFieldset label="Nombre">
                     <Form.Control
-                        {...register("name", { required: "Este campo es obligatorio" })}
+                        {...register("name", combineRules(requiredRule(), maxLengthRule(60)))}
                         isInvalid={!!errors.name}
                     />
                 </FloatingFieldset>
@@ -64,7 +65,7 @@ const UnitForm: React.FC<UnitFormProps> = ({ onHide, onSave, unit }) => {
             <Form.Group>
                 <FloatingFieldset label="Símbolo">
                     <Form.Control
-                        {...register("symbol", { required: "Este campo es obligatorio" })}
+                        {...register("symbol", combineRules(requiredRule(), maxLengthRule(10)))}
                         isInvalid={!!errors.symbol}
                     />
                 </FloatingFieldset>

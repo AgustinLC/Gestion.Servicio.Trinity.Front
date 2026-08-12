@@ -150,6 +150,7 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
                                     <Form.Control
                                         type="number"
                                         min="0.01"
+                                        max="9999999"
                                         value={amount}
                                         onChange={(e) => setAmount(Number(e.target.value))}
                                         disabled={isFixed || !selectedDiscountId}

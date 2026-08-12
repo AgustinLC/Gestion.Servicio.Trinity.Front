@@ -66,6 +66,7 @@ const ReadingFormContent: React.FC<ReadingFormProps> = ({ onHide, onSave, lastRe
                         {...register("readingValue", {
                             required: "El valor de lectura es obligatorio",
                             min: { value: 0, message: "El valor debe ser mayor o igual a 0" },
+                            max: { value: 9999999, message: "El valor no puede superar 9999999" },
                         })}
                         isInvalid={!!errors.readingValue}
                     />

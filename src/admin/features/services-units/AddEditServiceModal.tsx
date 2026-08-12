@@ -5,6 +5,7 @@ import { Service } from "../../../core/models/dto/Service";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { combineRules, requiredRule, maxLengthRule } from "../../../core/utils/formValidationRules";
 
 interface AddEditModalProps {
     show: boolean;
@@ -53,7 +54,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onHide, onSave, service }) =>
             <Form.Group>
                 <FloatingFieldset label="Nombre">
                     <Form.Control
-                        {...register("name", { required: "Este campo es obligatorio" })}
+                        {...register("name", combineRules(requiredRule(), maxLengthRule(60)))}
                         isInvalid={!!errors.name}
                     />
                 </FloatingFieldset>

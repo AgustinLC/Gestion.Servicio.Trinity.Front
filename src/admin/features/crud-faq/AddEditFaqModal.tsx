@@ -5,6 +5,7 @@ import { FaqDto } from "../../../core/models/dto/FaqDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { combineRules, requiredRule, maxLengthRule } from "../../../core/utils/formValidationRules";
 
 interface AddEditModalProps {
     show: boolean;
@@ -52,7 +53,7 @@ const FaqForm: React.FC<FaqFormProps> = ({ onHide, onSave, faq }) => {
         <Form onSubmit={handleSubmit(onSubmit)}>
             <Form.Group>
                 <FloatingFieldset label="Pregunta"><Form.Control
-                    {...register("question", { required: "Este campo es obligatorio" })}
+                    {...register("question", combineRules(requiredRule(), maxLengthRule(200)))}
                     isInvalid={!!errors.question}
                 /></FloatingFieldset>
                 <Form.Control.Feedback type="invalid">
@@ -61,7 +62,7 @@ const FaqForm: React.FC<FaqFormProps> = ({ onHide, onSave, faq }) => {
             </Form.Group>
             <Form.Group>
                 <FloatingFieldset label="Respuesta"><Form.Control
-                    {...register("answer", { required: "Este campo es obligatorio" })}
+                    {...register("answer", combineRules(requiredRule(), maxLengthRule(500)))}
                     isInvalid={!!errors.answer}
                 /></FloatingFieldset>
                 <Form.Control.Feedback type="invalid">

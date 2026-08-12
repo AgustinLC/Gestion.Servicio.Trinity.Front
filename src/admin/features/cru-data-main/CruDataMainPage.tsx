@@ -13,6 +13,7 @@ interface FieldConfig {
     key: keyof Supplier;
     label: string;
     type?: "text" | "textarea";
+    maxLength?: number;
 }
 
 interface SectionConfig {
@@ -30,36 +31,36 @@ const SECTIONS: Record<string, SectionConfig> = {
         icon: "bi bi-building",
         title: "Información General",
         fields: [
-            { key: "name", label: "Nombre" },
-            { key: "description", label: "Descripción", type: "textarea" },
-            { key: "slogan", label: "Eslogan" },
+            { key: "name", label: "Nombre", maxLength: 60 },
+            { key: "description", label: "Descripción", type: "textarea", maxLength: 300 },
+            { key: "slogan", label: "Eslogan", maxLength: 100 },
         ],
     },
     location: {
         icon: "bi bi-geo-alt",
         title: "Ubicación",
         fields: [
-            { key: "province", label: "Provincia" },
-            { key: "location", label: "Localidad" },
-            { key: "district", label: "Distrito" },
-            { key: "street", label: "Calle" },
+            { key: "province", label: "Provincia", maxLength: 60 },
+            { key: "location", label: "Localidad", maxLength: 60 },
+            { key: "district", label: "Distrito", maxLength: 60 },
+            { key: "street", label: "Calle", maxLength: 60 },
         ],
     },
     social: {
         icon: "bi bi-share",
         title: "Redes Sociales",
         fields: [
-            { key: "facebookUrl", label: "Facebook" },
-            { key: "whatsappUrl", label: "Whatsapp" },
-            { key: "instagramUrl", label: "Instagram" },
-            { key: "mapsUrl", label: "Google Maps" },
+            { key: "facebookUrl", label: "Facebook", maxLength: 200 },
+            { key: "whatsappUrl", label: "Whatsapp", maxLength: 200 },
+            { key: "instagramUrl", label: "Instagram", maxLength: 200 },
+            { key: "mapsUrl", label: "Google Maps", maxLength: 200 },
         ],
     },
     fiscal: {
         icon: "bi bi-file-earmark-text",
         title: "Información Fiscal",
         fields: [
-            { key: "cuit", label: "CUIT" },
+            { key: "cuit", label: "CUIT", maxLength: 13 },
         ],
     },
 };
@@ -283,11 +284,13 @@ const CruDataMainPage = () => {
                                                 <Form.Control
                                                     as="textarea"
                                                     rows={3}
+                                                    maxLength={field.maxLength}
                                                     value={formValues[field.key] ?? ""}
                                                     onChange={(e) => setFormValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
                                                 />
                                             ) : (
                                                 <Form.Control
+                                                    maxLength={field.maxLength}
                                                     value={formValues[field.key] ?? ""}
                                                     onChange={(e) => setFormValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
                                                 />

@@ -178,6 +178,7 @@ const PdfParametersPage: React.FC = () => {
                       value={params.administrativeExpenses}
                       onChange={handleChange}
                       min="0"
+                      max="9999999"
                       step="any"
                       required
                     />
@@ -196,6 +197,7 @@ const PdfParametersPage: React.FC = () => {
                       value={params.reconnectionCost}
                       onChange={handleChange}
                       min="0"
+                      max="9999999"
                       step="any"
                       required
                     />
@@ -223,6 +225,7 @@ const PdfParametersPage: React.FC = () => {
                       value={params.daysToPay}
                       onChange={handleChange}
                       min="1"
+                      max="365"
                       required
                     />
                   </FloatingFieldset>
@@ -240,6 +243,7 @@ const PdfParametersPage: React.FC = () => {
                       value={params.daysToDisconnection}
                       onChange={handleChange}
                       min="1"
+                      max="365"
                       required
                     />
                   </FloatingFieldset>
@@ -256,6 +260,7 @@ const PdfParametersPage: React.FC = () => {
                       name="reconnectionTime"
                       value={params.reconnectionTime}
                       onChange={handleChange}
+                      maxLength={60}
                       required
                     />
                   </FloatingFieldset>
@@ -281,6 +286,7 @@ const PdfParametersPage: React.FC = () => {
                       name="claimsPhone"
                       value={params.claimsPhone}
                       onChange={handleChange}
+                      maxLength={30}
                       required
                     />
                   </FloatingFieldset>
@@ -297,6 +303,7 @@ const PdfParametersPage: React.FC = () => {
                       name="attentionHours"
                       value={params.attentionHours}
                       onChange={handleChange}
+                      maxLength={100}
                       required
                     />
                   </FloatingFieldset>
@@ -330,6 +337,7 @@ const PdfParametersPage: React.FC = () => {
                       name="alias"
                       value={params.alias}
                       onChange={handleChange}
+                      maxLength={60}
                       required
                     />
                   </FloatingFieldset>

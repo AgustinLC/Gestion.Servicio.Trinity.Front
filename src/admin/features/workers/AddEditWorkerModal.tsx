@@ -83,7 +83,7 @@ const WorkerForm: React.FC<WorkerFormProps> = ({ onHide, onSave, worker }) => {
             <Form.Group>
                 <FloatingFieldset label="Email">
                     <Form.Control
-                        {...register("username", combineRules(requiredRule(), emailRule()))}
+                        {...register("username", combineRules(requiredRule(), emailRule(), maxLengthRule(100)))}
                         isInvalid={!!errors.username}
                     />
                 </FloatingFieldset>

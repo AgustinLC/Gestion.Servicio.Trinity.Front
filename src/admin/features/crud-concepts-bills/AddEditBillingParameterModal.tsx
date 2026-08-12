@@ -5,7 +5,7 @@ import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
-import { combineRules, requiredRule, minValueRule } from "../../../core/utils/formValidationRules";
+import { combineRules, requiredRule, minValueRule, maxValueRule, maxLengthRule } from "../../../core/utils/formValidationRules";
 import { useModalLayer } from "../../../context/ModalStackContext";
 
 interface AddEditModalProps {
@@ -55,7 +55,7 @@ const BillingParameterForm: React.FC<BillingParameterFormProps> = ({ onHide, onS
             <Form.Group>
                 <FloatingFieldset label="Nombre">
                     <Form.Control
-                        {...register("name", { required: "Este campo es obligatorio" })}
+                        {...register("name", combineRules(requiredRule(), maxLengthRule(60)))}
                         isInvalid={!!errors.name}
                     />
                 </FloatingFieldset>
@@ -66,7 +66,7 @@ const BillingParameterForm: React.FC<BillingParameterFormProps> = ({ onHide, onS
             <Form.Group>
                 <FloatingFieldset label="Descripción">
                     <Form.Control
-                        {...register("description", { required: "Este campo es obligatorio" })}
+                        {...register("description", combineRules(requiredRule(), maxLengthRule(300)))}
                         isInvalid={!!errors.description}
                     />
                 </FloatingFieldset>
@@ -78,7 +78,7 @@ const BillingParameterForm: React.FC<BillingParameterFormProps> = ({ onHide, onS
                 <FloatingFieldset label="Importe" prefix="$">
                     <Form.Control
                         type="number"
-                        {...register("value", combineRules(requiredRule(), minValueRule(0.01, "El importe debe ser mayor a 0")))}
+                        {...register("value", combineRules(requiredRule(), minValueRule(0.01, "El importe debe ser mayor a 0"), maxValueRule(9999999)))}
                         isInvalid={!!errors.value}
                     />
                 </FloatingFieldset>

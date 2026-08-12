@@ -13,7 +13,7 @@ import FormModalHeader from "../../../shared/components/form-modal-header/FormMo
 import FormSectionHeader from "../../../shared/components/form-section-header/FormSectionHeader";
 import HintBox from "../../../shared/components/hint-box/HintBox";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
-import { combineRules, requiredRule, emailRule, exactLengthRule, maxLengthRule, onlyDigitsRule, noSpecialCharsRule, minValueRule } from "../../../core/utils/formValidationRules";
+import { combineRules, requiredRule, emailRule, exactLengthRule, maxLengthRule, onlyDigitsRule, noSpecialCharsRule, minValueRule, maxValueRule } from "../../../core/utils/formValidationRules";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import "./AddEditUserModal.css";
 import { formatDate } from "../../../core/utils/formatters";
@@ -220,7 +220,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
               <Col sm={12}>
                 <Form.Group className="mb-2">
                   <FloatingFieldset label="Email">
-                    <Form.Control {...register("username", combineRules(requiredRule(), emailRule()))} isInvalid={!!errors.username} />
+                    <Form.Control {...register("username", combineRules(requiredRule(), emailRule(), maxLengthRule(100)))} isInvalid={!!errors.username} />
                   </FloatingFieldset>
                   <Form.Control.Feedback type="invalid">{errors.username?.message}</Form.Control.Feedback>
                 </Form.Group>
@@ -257,7 +257,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
               <Col sm={6}>
                 <Form.Group className="mb-2">
                   <FloatingFieldset label="Distrito">
-                    <Form.Control {...register("residenceDto.district", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.district} />
+                    <Form.Control {...register("residenceDto.district", combineRules(requiredRule(), maxLengthRule(60)))} isInvalid={!!errors.residenceDto?.district} />
                   </FloatingFieldset>
                   <Form.Control.Feedback type="invalid">{errors.residenceDto?.district?.message}</Form.Control.Feedback>
                 </Form.Group>
@@ -268,7 +268,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
               <Col sm={6}>
                 <Form.Group className="mb-2">
                   <FloatingFieldset label="Calle">
-                    <Form.Control {...register("residenceDto.street", { required: "Este campo es obligatorio" })} isInvalid={!!errors.residenceDto?.street} />
+                    <Form.Control {...register("residenceDto.street", combineRules(requiredRule(), maxLengthRule(60)))} isInvalid={!!errors.residenceDto?.street} />
                   </FloatingFieldset>
                   <Form.Control.Feedback type="invalid">{errors.residenceDto?.street?.message}</Form.Control.Feedback>
                 </Form.Group>
@@ -277,7 +277,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
               <Col sm={6}>
                 <Form.Group className="mb-2">
                   <FloatingFieldset label="N° de Casa">
-                    <Form.Control type="number" {...register("residenceDto.number", combineRules(requiredRule(), minValueRule(0)))} isInvalid={!!errors.residenceDto?.number} />
+                    <Form.Control type="number" {...register("residenceDto.number", combineRules(requiredRule(), minValueRule(0), maxValueRule(99999)))} isInvalid={!!errors.residenceDto?.number} />
                   </FloatingFieldset>
                   <Form.Control.Feedback type="invalid">{errors.residenceDto?.number?.message}</Form.Control.Feedback>
                 </Form.Group>
@@ -289,11 +289,12 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
                 <Form.Group className="mb-2">
                   <FloatingFieldset label="N° de Medidor">
                     <Form.Control 
-                      type="number"
-                      {...register("residenceDto.serialNumber", { 
-                          required: "Este campo es obligatorio",
-                          min: { value: 0, message: "El valor debe ser mayor o igual a 0" },
-                      })} 
+                      {...register("residenceDto.serialNumber", 
+                          combineRules(
+                            requiredRule(),
+                            maxLengthRule(60)
+                          ))
+                      }
                       isInvalid={!!errors.residenceDto?.serialNumber} 
                     />
                   </FloatingFieldset>
@@ -307,10 +308,11 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
                     <FloatingFieldset label="Val. actual del Medidor">
                       <Form.Control 
                         type="number"
-                        {...register("residenceDto.valueMeter", { 
+                        {...register("residenceDto.valueMeter", {
                             required: "Este campo es obligatorio",
                             min: { value: 0, message: "El valor debe ser mayor o igual a 0" },
-                        })} 
+                            max: { value: 9999999, message: "El valor no puede superar 9999999" },
+                        })}
                         isInvalid={!!errors.residenceDto?.valueMeter} 
                         />
                     </FloatingFieldset>
@@ -322,10 +324,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
           </Col>
         </Row>
 
-        {/* --- Configuración | Estado y contraseña (lado a lado). Al crear
-            un usuario nuevo el estado no se puede elegir (arranca ACTIVO
-            por defecto), así que esa columna ni se muestra: Configuración
-            pasa a ocupar el ancho completo en vez de dejar un hueco vacío. --- */}
+        {/* --- Configuración | Estado y contraseña (lado a lado) --- */}
         <Row>
           <Col md={user ? 6 : 12}>
             <div className="form-section-panel mt-1">
