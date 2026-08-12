@@ -1,4 +1,11 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 
 const MODAL_BASE_Z_INDEX = 1055; // mismo valor que usa Bootstrap por defecto para .modal
 const MODAL_Z_INDEX_STEP = 20;
@@ -14,14 +21,9 @@ interface ModalStackContextValue {
 
 const ModalStackContext = createContext<ModalStackContextValue | null>(null);
 
-// Backdrop único y compartido para toda la app. Por defecto, cada <Modal> de
-// Bootstrap dibuja su propio fondo oscuro; si se abren varios apilados (ej.
-// un modal de confirmación sobre un modal de edición), eso significa un
-// <div> de backdrop por cada uno pintándose a la vez. Acá en cambio hay un
-// solo <div> fijo que se reposiciona (cambiando su z-index) para quedar
-// siempre justo debajo del modal que esté más arriba en la pila, oscureciendo
-// todo lo que quedó atrás (página + modales anteriores) sin duplicar nodos.
-export const ModalStackProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ModalStackProvider: React.FC<{ children: React.ReactNode }> = ({
+    children,
+}) => {
     const [stack, setStack] = useState<ModalId[]>([]);
 
     const push = useCallback((id: ModalId) => {
@@ -29,26 +31,29 @@ export const ModalStackProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }, []);
 
     const remove = useCallback((id: ModalId) => {
-        setStack((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : prev));
+        setStack((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : prev
+        );
     }, []);
 
-    const topZIndex = stack.length > 0 ? MODAL_BASE_Z_INDEX + (stack.length - 1) * MODAL_Z_INDEX_STEP : null;
+    const topZIndex =
+        stack.length > 0
+            ? MODAL_BASE_Z_INDEX + (stack.length - 1) * MODAL_Z_INDEX_STEP
+            : null;
 
     return (
         <ModalStackContext.Provider value={{ stack, push, remove }}>
             {children}
             {topZIndex !== null && (
-                <div className="shared-modal-backdrop" style={{ zIndex: topZIndex - BACKDROP_Z_OFFSET }} />
+                <div
+                    className="shared-modal-backdrop"
+                    style={{ zIndex: topZIndex - BACKDROP_Z_OFFSET }}
+                />
             )}
         </ModalStackContext.Provider>
     );
 };
 
-// Cada <Modal> de la app debe llamar a este hook con su propio `show` (y
-// pasarle `backdrop={false}` + `style={{ zIndex }}`, ya que el backdrop y el
-// apilado los maneja este sistema en vez del de react-bootstrap). Mientras
-// `show` es true, el modal queda anotado en la pila compartida y este hook
-// devuelve el z-index que le toca según la posición en la que quedó.
 export const useModalLayer = (show: boolean): number => {
     const ctx = useContext(ModalStackContext);
     const idRef = useRef<ModalId | null>(null);
@@ -64,8 +69,6 @@ export const useModalLayer = (show: boolean): number => {
         }
     }, [show, ctx, id]);
 
-    // Al desmontar (aunque `show` nunca haya pasado a false, ej. el
-    // componente padre deja de renderizar el modal directamente).
     useEffect(() => {
         return () => ctx?.remove(id);
         // eslint-disable-next-line react-hooks/exhaustive-deps

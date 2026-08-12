@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
@@ -7,7 +7,9 @@ import applyConditionLabels from "../../../shared/components/labels-traductor/ap
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
 interface AddParameterModalProps {
     show: boolean;
@@ -20,17 +22,20 @@ interface ParameterFormProps {
     onHide: () => void;
     onSave: (pendigBillDetail: PendigBillDetail) => Promise<void>;
     parameters: BillingParameter[];
+    onDirtyChange: (dirty: boolean) => void;
 }
 
-const ParameterForm: React.FC<ParameterFormProps> = ({ onHide, onSave, parameters }) => {
+const ParameterForm: React.FC<ParameterFormProps> = ({ onHide, onSave, parameters, onDirtyChange }) => {
     // Estados
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Props para manejar formulario
-    const { register, handleSubmit, reset, watch, setValue, control, formState: { errors }, } = useForm<PendigBillDetail>({
+    const { register, handleSubmit, reset, watch, setValue, control, formState: { errors, isDirty }, } = useForm<PendigBillDetail>({
         defaultValues: {},
         mode: "onTouched",
     });
+
+    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
 
     const selectedParameterId = watch("idBillingParameter");
 
@@ -49,7 +54,6 @@ const ParameterForm: React.FC<ParameterFormProps> = ({ onHide, onSave, parameter
         try {
             await onSave(data);
             reset();
-            onHide();
         } catch (error) {
             console.error(error);
         } finally {
@@ -121,20 +125,32 @@ const ParameterForm: React.FC<ParameterFormProps> = ({ onHide, onSave, parameter
 };
 
 const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onSave, parameters }) => {
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: false });
     const modalZIndex = useModalLayer(show);
 
     return (
-        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="add-parameter-modal-title">
-            <FormModalHeader
-                icon="bi bi-journal-plus"
-                title="Agregar Concepto"
-                onClose={onHide}
-                titleId="add-parameter-modal-title"
+        <>
+            <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="add-parameter-modal-title">
+                <FormModalHeader
+                    icon="bi bi-journal-plus"
+                    title="Agregar Concepto"
+                    onClose={requestClose}
+                    titleId="add-parameter-modal-title"
+                />
+                <Modal.Body>
+                    {show && <ParameterForm onHide={requestClose} onSave={onSave} parameters={parameters} onDirtyChange={setIsDirty} />}
+                </Modal.Body>
+            </Modal>
+            <ConfirmModal
+                show={showConfirm}
+                onHide={cancelDiscard}
+                title="¿Descartar cambios?"
+                message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+                confirmVariant="danger"
+                confirmText="Salir sin guardar"
+                onConfirm={confirmDiscard}
             />
-            <Modal.Body>
-                {show && <ParameterForm onHide={onHide} onSave={onSave} parameters={parameters} />}
-            </Modal.Body>
-        </Modal>
+        </>
     );
 };
 

@@ -9,7 +9,9 @@ import applyConditionLabels from "../../../shared/components/labels-traductor/ap
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
 interface AddDiscountModalProps {
     show: boolean;
@@ -25,6 +27,7 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
     const [assigning, setAssigning] = useState(false);
     const [selectedDiscountId, setSelectedDiscountId] = useState<number | null>(null);
     const [amount, setAmount] = useState<number>(0);
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: false });
     const modalZIndex = useModalLayer(show);
 
     useEffect(() => {
@@ -40,6 +43,10 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
             setAmount(0);
         }
     }, [show, discounts]);
+
+    // Solo se considera "con cambios" una vez que se eligió un descuento; el
+    // importe por sí solo (0 por defecto) no cuenta como modificación.
+    useEffect(() => { setIsDirty(selectedDiscountId !== null); }, [selectedDiscountId, setIsDirty]);
 
     // Obtener todos los descuentos
     const fetchAllDiscounts = async () => {
@@ -113,11 +120,12 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="add-discount-modal-title">
+        <>
+            <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="add-discount-modal-title">
             <FormModalHeader
                 icon="bi bi-plus-slash-minus"
                 title="Agregar Descuento"
-                onClose={onHide}
+                onClose={requestClose}
                 titleId="add-discount-modal-title"
             />
 
@@ -171,7 +179,7 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
                 )}
 
                 <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
-                    <Button variant="outline-secondary" onClick={onHide} disabled={assigning}>
+                    <Button variant="outline-secondary" onClick={requestClose} disabled={assigning}>
                         <i className="bi bi-x-circle me-1"></i> Cancelar
                     </Button>
                     <Button variant="primary" onClick={handleAssign} disabled={assigning || loading || !selectedDiscountId}>
@@ -180,6 +188,16 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
                 </div>
             </Modal.Body>
         </Modal>
+        <ConfirmModal
+            show={showConfirm}
+            onHide={cancelDiscard}
+            title="¿Descartar cambios?"
+            message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+            confirmVariant="danger"
+            confirmText="Salir sin guardar"
+            onConfirm={confirmDiscard}
+        />
+        </>
     );
 };
 

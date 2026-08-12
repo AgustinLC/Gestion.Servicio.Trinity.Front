@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
 import { ServiceUnitDto } from "../../../core/models/dto/ServiceUnitDto";
@@ -7,7 +7,9 @@ import { Unit } from "../../../core/models/dto/Unit";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
 interface AddEditModalProps {
     show: boolean;
@@ -24,15 +26,18 @@ interface ServiceUnitFormProps {
     serviceUnit?: ServiceUnitDto | any;
     services: Service[];
     unities: Unit[];
+    onDirtyChange: (dirty: boolean) => void;
 }
 
-const ServiceUnitForm: React.FC<ServiceUnitFormProps> = ({ onHide, onSave, serviceUnit, services, unities }) => {
+const ServiceUnitForm: React.FC<ServiceUnitFormProps> = ({ onHide, onSave, serviceUnit, services, unities, onDirtyChange }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { handleSubmit, reset, control, formState: { errors } } = useForm<ServiceUnitDto>({
+    const { handleSubmit, reset, control, formState: { errors, isDirty } } = useForm<ServiceUnitDto>({
         defaultValues: serviceUnit || {},
         mode: "onTouched",
     });
+
+    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: ServiceUnitDto) => {
@@ -108,28 +113,41 @@ const ServiceUnitForm: React.FC<ServiceUnitFormProps> = ({ onHide, onSave, servi
 };
 
 const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, serviceUnit, services, unities }) => {
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!serviceUnit });
     const modalZIndex = useModalLayer(show);
 
     return (
-        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="service-unit-modal-title">
-            <FormModalHeader
-                icon="bi bi-calculator"
-                title={serviceUnit ? "Editar Relación Servicio/Unidad" : "Añadir Relación Servicio/Unidad"}
-                onClose={onHide}
-                titleId="service-unit-modal-title"
+        <>
+            <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="service-unit-modal-title">
+                <FormModalHeader
+                    icon="bi bi-calculator"
+                    title={serviceUnit ? "Editar Relación Servicio/Unidad" : "Añadir Relación Servicio/Unidad"}
+                    onClose={requestClose}
+                    titleId="service-unit-modal-title"
+                />
+                <Modal.Body>
+                    {show && (
+                        <ServiceUnitForm
+                            onHide={requestClose}
+                            onSave={onSave}
+                            serviceUnit={serviceUnit}
+                            services={services}
+                            unities={unities}
+                            onDirtyChange={setIsDirty}
+                        />
+                    )}
+                </Modal.Body>
+            </Modal>
+            <ConfirmModal
+                show={showConfirm}
+                onHide={cancelDiscard}
+                title="¿Descartar cambios?"
+                message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+                confirmVariant="danger"
+                confirmText="Salir sin guardar"
+                onConfirm={confirmDiscard}
             />
-            <Modal.Body>
-                {show && (
-                    <ServiceUnitForm
-                        onHide={onHide}
-                        onSave={onSave}
-                        serviceUnit={serviceUnit}
-                        services={services}
-                        unities={unities}
-                    />
-                )}
-            </Modal.Body>
-        </Modal>
+        </>
     );
 };
 

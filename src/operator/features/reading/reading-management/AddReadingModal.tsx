@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../../shared/components/floating-fieldset/FloatingFieldset";
+import ConfirmModal from "../../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../../shared/hooks/useConfirmDiscard";
 
 // Interfaces/modelos
 interface AddReadingModalProps {
@@ -20,6 +22,7 @@ interface ReadingForm {
 interface ReadingFormProps {
     onHide: () => void;
     onSave: (date: string, readingValue: number) => Promise<void>;
+    onDirtyChange: (dirty: boolean) => void;
 }
 
 // Contenido real del formulario, separado en su propio componente para que
@@ -27,13 +30,15 @@ interface ReadingFormProps {
 // <ReadingFormContent .../>}"). Así useForm() arranca de cero cada vez que
 // se abre: ni los valores tipeados ni los errores de la sesión anterior
 // pueden quedar pisados, porque el componente entero (y su estado) es nuevo.
-const ReadingFormContent: React.FC<ReadingFormProps> = ({ onHide, onSave }) => {
+const ReadingFormContent: React.FC<ReadingFormProps> = ({ onHide, onSave, onDirtyChange }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Valida al salir por primera vez del campo y, desde entonces, vuelve a
     // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
     // una opción, sin requerir otro click fuera del control.
-    const { register, handleSubmit, formState: { errors }, reset, } = useForm<ReadingForm>({ mode: "onTouched" });
+    const { register, handleSubmit, formState: { errors, isDirty }, reset, } = useForm<ReadingForm>({ mode: "onTouched" });
+
+    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
 
     //Manejo del boton guardar
     const onSubmit = async (data: ReadingForm) => {
@@ -91,20 +96,32 @@ const ReadingFormContent: React.FC<ReadingFormProps> = ({ onHide, onSave }) => {
 };
 
 const AddReadingModal: React.FC<AddReadingModalProps> = ({ show, onHide, onSave }) => {
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: false });
     const modalZIndex = useModalLayer(show);
 
     return (
-        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="add-reading-modal-title">
-            <FormModalHeader
-                icon="bi bi-speedometer2"
-                title="Cargar Lectura"
-                onClose={onHide}
-                titleId="add-reading-modal-title"
+        <>
+            <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="add-reading-modal-title">
+                <FormModalHeader
+                    icon="bi bi-speedometer2"
+                    title="Cargar Lectura"
+                    onClose={requestClose}
+                    titleId="add-reading-modal-title"
+                />
+                <Modal.Body>
+                    {show && <ReadingFormContent onHide={requestClose} onSave={onSave} onDirtyChange={setIsDirty} />}
+                </Modal.Body>
+            </Modal>
+            <ConfirmModal
+                show={showConfirm}
+                onHide={cancelDiscard}
+                title="¿Descartar cambios?"
+                message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+                confirmVariant="danger"
+                confirmText="Salir sin guardar"
+                onConfirm={confirmDiscard}
             />
-            <Modal.Body>
-                {show && <ReadingFormContent onHide={onHide} onSave={onSave} />}
-            </Modal.Body>
-        </Modal>
+        </>
     );
 };
 

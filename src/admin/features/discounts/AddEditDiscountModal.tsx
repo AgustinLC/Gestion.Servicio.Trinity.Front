@@ -1,12 +1,14 @@
 import { Button, Form, Modal } from "react-bootstrap";
 import { DiscountDto } from "../../../core/models/dto/Discount";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { combineRules, requiredRule, minValueRule, maxValueRule, maxLengthRule } from "../../../core/utils/formValidationRules";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
 interface AddEditModalProps {
     show: boolean;
@@ -19,6 +21,7 @@ interface DiscountFormProps {
     onHide: () => void;
     onSave: (discount: DiscountDto) => Promise<void>;
     discount?: DiscountDto | any;
+    onDirtyChange: (dirty: boolean) => void;
 }
 
 // Contenido real del formulario, separado en su propio componente para que
@@ -26,16 +29,18 @@ interface DiscountFormProps {
 // <DiscountForm .../>}"). Así useForm() arranca de cero cada vez que se
 // abre: ni los valores tipeados ni los errores de la sesión anterior pueden
 // quedar pisados, porque el componente entero (y su estado) es nuevo.
-const DiscountForm: React.FC<DiscountFormProps> = ({ onHide, onSave, discount }) => {
+const DiscountForm: React.FC<DiscountFormProps> = ({ onHide, onSave, discount, onDirtyChange }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { register, handleSubmit, control, formState: { errors }, reset } = useForm<DiscountDto>({
+    const { register, handleSubmit, control, formState: { errors, isDirty }, reset } = useForm<DiscountDto>({
         defaultValues: discount || {},
         // Valida al salir por primera vez del campo y, desde entonces, vuelve a
         // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
         // una opción, sin requerir otro click fuera del control.
         mode: "onTouched",
     });
+
+    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: DiscountDto) => {
@@ -118,20 +123,32 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ onHide, onSave, discount })
 };
 
 const AddEditDiscountModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, discount }) => {
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!discount });
     const modalZIndex = useModalLayer(show);
 
     return (
-        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="discount-modal-title">
-            <FormModalHeader
-                icon="bi bi-plus-slash-minus"
-                title={discount ? "Editar Descuento" : "Añadir Descuento"}
-                onClose={onHide}
-                titleId="discount-modal-title"
+        <>
+            <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="discount-modal-title">
+                <FormModalHeader
+                    icon="bi bi-plus-slash-minus"
+                    title={discount ? "Editar Descuento" : "Añadir Descuento"}
+                    onClose={requestClose}
+                    titleId="discount-modal-title"
+                />
+                <Modal.Body>
+                    {show && <DiscountForm onHide={requestClose} onSave={onSave} discount={discount} onDirtyChange={setIsDirty} />}
+                </Modal.Body>
+            </Modal>
+            <ConfirmModal
+                show={showConfirm}
+                onHide={cancelDiscard}
+                title="¿Descartar cambios?"
+                message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+                confirmVariant="danger"
+                confirmText="Salir sin guardar"
+                onConfirm={confirmDiscard}
             />
-            <Modal.Body>
-                {show && <DiscountForm onHide={onHide} onSave={onSave} discount={discount} />}
-            </Modal.Body>
-        </Modal>
+        </>
     );
 };
 

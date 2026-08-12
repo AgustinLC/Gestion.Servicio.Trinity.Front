@@ -1462,6 +1462,13 @@ button:disabled,
   animation: shared-modal-backdrop-fade-in 0.15s ease-out;
 }
 
+/* Los modales usan este backdrop nativo, transparente, solo para que
+   react-bootstrap pueda detectar el click fuera de .modal-content. El fondo
+   oscuro visible sigue siendo el backdrop compartido de ModalStackContext. */
+.modal-click-backdrop {
+  background-color: transparent;
+}
+
 @keyframes shared-modal-backdrop-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }

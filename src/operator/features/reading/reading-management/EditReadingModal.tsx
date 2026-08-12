@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../../shared/components/floating-fieldset/FloatingFieldset";
+import ConfirmModal from "../../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../../shared/hooks/useConfirmDiscard";
 
 interface EditReadingModalProps {
     show: boolean;
@@ -19,6 +21,9 @@ interface EditReadingModalProps {
 
 const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, reading, onSubmit }) => {
     const [readingValue, setReadingValue] = useState(reading.reading);
+    // En edición los valores ya vienen precargados, así que siempre se
+    // confirma al cerrar (ver useConfirmDiscard).
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard } = useConfirmDiscard({ onHide, alwaysConfirm: true });
     const modalZIndex = useModalLayer(show);
     const isInvalidReading = Number.isNaN(readingValue) || readingValue < 0 || readingValue > 9999999;
 
@@ -28,11 +33,12 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="edit-reading-modal-title">
+        <>
+        <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="edit-reading-modal-title">
             <FormModalHeader
                 icon="bi bi-speedometer2"
                 title="Editar Lectura"
-                onClose={onHide}
+                onClose={requestClose}
                 titleId="edit-reading-modal-title"
             />
             <Modal.Body>
@@ -67,7 +73,7 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
                 </Form>
 
                 <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
-                    <Button variant="outline-secondary" onClick={onHide}>
+                    <Button variant="outline-secondary" onClick={requestClose}>
                         <i className="bi bi-x-circle me-1"></i> Cancelar
                     </Button>
                     <Button variant="primary" onClick={handleSubmit} disabled={isInvalidReading}>
@@ -76,6 +82,16 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
                 </div>
             </Modal.Body>
         </Modal>
+        <ConfirmModal
+            show={showConfirm}
+            onHide={cancelDiscard}
+            title="¿Descartar cambios?"
+            message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+            confirmVariant="danger"
+            confirmText="Salir sin guardar"
+            onConfirm={confirmDiscard}
+        />
+        </>
     );
 };
 

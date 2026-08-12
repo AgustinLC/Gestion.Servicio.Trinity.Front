@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { Unit } from "../../../core/models/dto/Unit";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 import { combineRules, requiredRule, maxLengthRule } from "../../../core/utils/formValidationRules";
 
 interface AddEditModalProps {
@@ -18,6 +20,7 @@ interface UnitFormProps {
     onHide: () => void;
     onSave: (unit: Unit) => Promise<void>;
     unit?: Unit | any;
+    onDirtyChange: (dirty: boolean) => void;
 }
 
 // Contenido real del formulario, separado en su propio componente para que
@@ -25,16 +28,18 @@ interface UnitFormProps {
 // <UnitForm .../>}"). Así useForm() arranca de cero cada vez que se abre: ni
 // los valores tipeados ni los errores de la sesión anterior pueden quedar
 // pisados, porque el componente entero (y su estado) es nuevo.
-const UnitForm: React.FC<UnitFormProps> = ({ onHide, onSave, unit }) => {
+const UnitForm: React.FC<UnitFormProps> = ({ onHide, onSave, unit, onDirtyChange }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<Unit>({
+    const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<Unit>({
         defaultValues: unit || {},
         // Valida al salir por primera vez del campo y, desde entonces, vuelve a
         // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
         // una opción, sin requerir otro click fuera del control.
         mode: "onTouched",
     });
+
+    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: Unit) => {
@@ -86,20 +91,32 @@ const UnitForm: React.FC<UnitFormProps> = ({ onHide, onSave, unit }) => {
 };
 
 const AddEditUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, unit }) => {
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!unit });
     const modalZIndex = useModalLayer(show);
 
     return (
-        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="unit-modal-title">
-            <FormModalHeader
-                icon="bi bi-rulers"
-                title={unit ? "Editar Unidad" : "Añadir Unidad"}
-                onClose={onHide}
-                titleId="unit-modal-title"
+        <>
+            <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="unit-modal-title">
+                <FormModalHeader
+                    icon="bi bi-rulers"
+                    title={unit ? "Editar Unidad" : "Añadir Unidad"}
+                    onClose={requestClose}
+                    titleId="unit-modal-title"
+                />
+                <Modal.Body>
+                    {show && <UnitForm onHide={requestClose} onSave={onSave} unit={unit} onDirtyChange={setIsDirty} />}
+                </Modal.Body>
+            </Modal>
+            <ConfirmModal
+                show={showConfirm}
+                onHide={cancelDiscard}
+                title="¿Descartar cambios?"
+                message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+                confirmVariant="danger"
+                confirmText="Salir sin guardar"
+                onConfirm={confirmDiscard}
             />
-            <Modal.Body>
-                {show && <UnitForm onHide={onHide} onSave={onSave} unit={unit} />}
-            </Modal.Body>
-        </Modal>
+        </>
     );
 };
 

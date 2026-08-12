@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { FeeDto } from "../../../core/models/dto/FeeDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 import { combineRules, requiredRule, minValueRule, maxValueRule, maxLengthRule } from "../../../core/utils/formValidationRules";
 
 interface AddEditModalProps {
@@ -18,6 +20,7 @@ interface FeeFormProps {
     onHide: () => void;
     onSave: (fee: FeeDto) => Promise<void>;
     fee?: FeeDto | any;
+    onDirtyChange: (dirty: boolean) => void;
 }
 
 // Contenido real del formulario, separado en su propio componente para que
@@ -25,16 +28,18 @@ interface FeeFormProps {
 // <FeeForm .../>}"). Así useForm() arranca de cero cada vez que se abre: ni
 // los valores tipeados ni los errores de la sesión anterior pueden quedar
 // pisados, porque el componente entero (y su estado) es nuevo.
-const FeeForm: React.FC<FeeFormProps> = ({ onHide, onSave, fee }) => {
+const FeeForm: React.FC<FeeFormProps> = ({ onHide, onSave, fee, onDirtyChange }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<FeeDto>({
+    const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<FeeDto>({
         defaultValues: fee || {},
         // Valida al salir por primera vez del campo y, desde entonces, vuelve a
         // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
         // una opción, sin requerir otro click fuera del control.
         mode: "onTouched",
     });
+
+    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: FeeDto) => {
@@ -134,20 +139,32 @@ const FeeForm: React.FC<FeeFormProps> = ({ onHide, onSave, fee }) => {
 };
 
 const AddEditFeeModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, fee }) => {
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!fee });
     const modalZIndex = useModalLayer(show);
 
     return (
-        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="fee-modal-title">
-            <FormModalHeader
-                icon="bi bi-clipboard2-pulse"
-                title={fee ? "Editar Tarifa" : "Añadir Tarifa"}
-                onClose={onHide}
-                titleId="fee-modal-title"
+        <>
+            <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="fee-modal-title">
+                <FormModalHeader
+                    icon="bi bi-clipboard2-pulse"
+                    title={fee ? "Editar Tarifa" : "Añadir Tarifa"}
+                    onClose={requestClose}
+                    titleId="fee-modal-title"
+                />
+                <Modal.Body>
+                    {show && <FeeForm onHide={requestClose} onSave={onSave} fee={fee} onDirtyChange={setIsDirty} />}
+                </Modal.Body>
+            </Modal>
+            <ConfirmModal
+                show={showConfirm}
+                onHide={cancelDiscard}
+                title="¿Descartar cambios?"
+                message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+                confirmVariant="danger"
+                confirmText="Salir sin guardar"
+                onConfirm={confirmDiscard}
             />
-            <Modal.Body>
-                {show && <FeeForm onHide={onHide} onSave={onSave} fee={fee} />}
-            </Modal.Body>
-        </Modal>
+        </>
     );
 };
 

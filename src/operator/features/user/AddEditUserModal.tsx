@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Form, Button, Row, Col, Spinner } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
 import { UserDto } from "../../../core/models/dto/UserDto";
@@ -13,11 +13,13 @@ import FormModalHeader from "../../../shared/components/form-modal-header/FormMo
 import FormSectionHeader from "../../../shared/components/form-section-header/FormSectionHeader";
 import HintBox from "../../../shared/components/hint-box/HintBox";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { combineRules, requiredRule, emailRule, exactLengthRule, maxLengthRule, onlyDigitsRule, noSpecialCharsRule, minValueRule, maxValueRule } from "../../../core/utils/formValidationRules";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import "./AddEditUserModal.css";
 import { formatDate } from "../../../core/utils/formatters";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
 // Sobrescribimos los 3 campos para que en el formulario sean strings
 type FormValues = Omit<UserDto, "digitalInvoiceAdhered" | "ivaInvoiceAdhered" | "pdfInvoiceAdhered"> & {
@@ -42,6 +44,7 @@ interface UserFormProps {
   user?: UserDto | any;
   locations: LocationDto[];
   fees: FeeDto[];
+  onDirtyChange: (dirty: boolean) => void;
 }
 
 // Construye los valores del formulario a partir del usuario (o vacío, para
@@ -68,14 +71,14 @@ const buildFormValues = (source?: UserDto | null): Partial<FormValues> => {
 // <UserForm .../>}"). Así useForm() arranca de cero cada vez que se abre: ni
 // los valores tipeados ni los errores de la sesión anterior pueden quedar
 // pisados, porque el componente entero (y su estado) es nuevo.
-const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fees }) => {
+const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fees, onDirtyChange }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
     handleSubmit,
     reset,
     control,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<FormValues>({
     defaultValues: buildFormValues(user),
     // Valida al salir por primera vez del campo y, desde entonces, vuelve a
@@ -83,6 +86,8 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
     // una opción, sin requerir otro click fuera del control.
     mode: "onTouched",
   });
+
+  useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
   const summaryFeeName = fees.find((fee) => String(fee.idFee) === String(user?.residenceDto?.idFee))?.name;
   const summaryInitials = `${(user?.firstName?.[0] || "").toUpperCase()}${(user?.lastName?.[0] || "").toUpperCase()}`;
   const summaryAvatarColor = getAvatarColor(`${user?.firstName ?? ""}${user?.lastName ?? ""}${user?.idUser ?? ""}`);
@@ -493,37 +498,50 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
 };
 
 const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onResetPasswordClick, user, locations, fees }) => {
+  const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!user });
   const modalZIndex = useModalLayer(show);
 
   return (
-    <Modal show={show} onHide={onHide} size="xl" centered scrollable backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="user-modal-content" aria-labelledby="user-modal-title">
-      <FormModalHeader
-        icon={user ? "bi bi-person-gear" : "bi bi-person-add"}
-        title={user ? "Editar Usuario" : "Añadir Usuario"}
-        subtitle={user
-          ? "Modificá la información del usuario y la configuración del servicio."
-          : "Completá los datos para registrar un nuevo usuario."}
-        onClose={onHide}
-        titleId="user-modal-title"
-        actions={
-          user && onResetPasswordClick
-            ? [{ label: "Restablecer contraseña", icon: "bi bi-key", onClick: onResetPasswordClick }]
-            : undefined
-        }
-      />
+    <>
+      <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} size="xl" centered scrollable backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="user-modal-content" aria-labelledby="user-modal-title">
+        <FormModalHeader
+          icon={user ? "bi bi-person-gear" : "bi bi-person-add"}
+          title={user ? "Editar Usuario" : "Añadir Usuario"}
+          subtitle={user
+            ? "Modificá la información del usuario y la configuración del servicio."
+            : "Completá los datos para registrar un nuevo usuario."}
+          onClose={requestClose}
+          titleId="user-modal-title"
+          actions={
+            user && onResetPasswordClick
+              ? [{ label: "Restablecer contraseña", icon: "bi bi-key", onClick: onResetPasswordClick }]
+              : undefined
+          }
+        />
 
-      <Modal.Body>
-        {show && (
-          <UserForm
-            onHide={onHide}
-            onSave={onSave}
-            user={user}
-            locations={locations}
-            fees={fees}
-          />
-        )}
-      </Modal.Body>
-    </Modal>
+        <Modal.Body>
+          {show && (
+            <UserForm
+              onHide={requestClose}
+              onSave={onSave}
+              user={user}
+              locations={locations}
+              fees={fees}
+              onDirtyChange={setIsDirty}
+            />
+          )}
+        </Modal.Body>
+      </Modal>
+      <ConfirmModal
+        show={showConfirm}
+        onHide={cancelDiscard}
+        title="¿Descartar cambios?"
+        message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+        confirmVariant="danger"
+        confirmText="Salir sin guardar"
+        onConfirm={confirmDiscard}
+      />
+    </>
   );
 };
 

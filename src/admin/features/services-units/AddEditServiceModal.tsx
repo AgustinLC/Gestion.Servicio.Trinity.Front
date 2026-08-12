@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { Service } from "../../../core/models/dto/Service";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 import { combineRules, requiredRule, maxLengthRule } from "../../../core/utils/formValidationRules";
 
 interface AddEditModalProps {
@@ -18,6 +20,7 @@ interface ServiceFormProps {
     onHide: () => void;
     onSave: (service: Service) => Promise<void>;
     service?: Service | any;
+    onDirtyChange: (dirty: boolean) => void;
 }
 
 // Contenido real del formulario, separado en su propio componente para que
@@ -25,16 +28,18 @@ interface ServiceFormProps {
 // <ServiceForm .../>}"). Así useForm() arranca de cero cada vez que se abre:
 // ni los valores tipeados ni los errores de la sesión anterior pueden
 // quedar pisados, porque el componente entero (y su estado) es nuevo.
-const ServiceForm: React.FC<ServiceFormProps> = ({ onHide, onSave, service }) => {
+const ServiceForm: React.FC<ServiceFormProps> = ({ onHide, onSave, service, onDirtyChange }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<Service>({
+    const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<Service>({
         defaultValues: service || {},
         // Valida al salir por primera vez del campo y, desde entonces, vuelve a
         // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
         // una opción, sin requerir otro click fuera del control.
         mode: "onTouched",
     });
+
+    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: Service) => {
@@ -75,20 +80,32 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onHide, onSave, service }) =>
 };
 
 const AddEditUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, service }) => {
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!service });
     const modalZIndex = useModalLayer(show);
 
     return (
-        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="service-modal-title">
-            <FormModalHeader
-                icon="bi bi-gear"
-                title={service ? "Editar Servicio" : "Añadir Servicio"}
-                onClose={onHide}
-                titleId="service-modal-title"
+        <>
+            <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="service-modal-title">
+                <FormModalHeader
+                    icon="bi bi-gear"
+                    title={service ? "Editar Servicio" : "Añadir Servicio"}
+                    onClose={requestClose}
+                    titleId="service-modal-title"
+                />
+                <Modal.Body>
+                    {show && <ServiceForm onHide={requestClose} onSave={onSave} service={service} onDirtyChange={setIsDirty} />}
+                </Modal.Body>
+            </Modal>
+            <ConfirmModal
+                show={showConfirm}
+                onHide={cancelDiscard}
+                title="¿Descartar cambios?"
+                message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+                confirmVariant="danger"
+                confirmText="Salir sin guardar"
+                onConfirm={confirmDiscard}
             />
-            <Modal.Body>
-                {show && <ServiceForm onHide={onHide} onSave={onSave} service={service} />}
-            </Modal.Body>
-        </Modal>
+        </>
     );
 };
 

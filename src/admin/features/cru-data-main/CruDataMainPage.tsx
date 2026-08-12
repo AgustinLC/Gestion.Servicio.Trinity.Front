@@ -7,7 +7,9 @@ import PageHeader from "../../../shared/components/PageHeader";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import HintBox from "../../../shared/components/hint-box/HintBox";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
 interface FieldConfig {
     key: keyof Supplier;
@@ -80,6 +82,12 @@ const CruDataMainPage = () => {
     const [editingSection, setEditingSection] = useState<string | null>(null);
     const [formValues, setFormValues] = useState<Record<string, string>>({});
     const [isSaving, setIsSaving] = useState(false);
+    // Los campos ya vienen precargados con los datos actuales, así que se
+    // confirma siempre al cerrar (ver useConfirmDiscard).
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard } = useConfirmDiscard({
+        onHide: () => setEditingSection(null),
+        alwaysConfirm: true,
+    });
     const modalZIndex = useModalLayer(!!editingSection);
 
     useEffect(() => {
@@ -260,9 +268,11 @@ const CruDataMainPage = () => {
             {/* Modal de edición por sección */}
             <Modal
                 show={!!editingSection}
-                onHide={() => setEditingSection(null)}
+                onHide={requestClose}
+                onClick={onBackdropClick(requestClose)}
                 centered
-                backdrop={false}
+                backdrop
+                backdropClassName="modal-click-backdrop"
                 style={{ zIndex: modalZIndex }}
                 contentClassName="form-modal-content"
                 aria-labelledby="edit-section-modal-title"
@@ -272,7 +282,7 @@ const CruDataMainPage = () => {
                         <FormModalHeader
                             icon={activeSection.icon}
                             title={`Editar ${activeSection.title}`}
-                            onClose={() => setEditingSection(null)}
+                            onClose={requestClose}
                             titleId="edit-section-modal-title"
                         />
                         <Modal.Body>
@@ -301,7 +311,7 @@ const CruDataMainPage = () => {
                             </Form>
 
                             <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
-                                <Button variant="outline-secondary" onClick={() => setEditingSection(null)} disabled={isSaving}>
+                                <Button variant="outline-secondary" onClick={requestClose} disabled={isSaving}>
                                     <i className="bi bi-x-circle me-1"></i> Cancelar
                                 </Button>
                                 <Button variant="primary" onClick={handleSaveSection} disabled={isSaving}>
@@ -321,6 +331,16 @@ const CruDataMainPage = () => {
                     </>
                 )}
             </Modal>
+
+            <ConfirmModal
+                show={showConfirm}
+                onHide={cancelDiscard}
+                title="¿Descartar cambios?"
+                message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+                confirmVariant="danger"
+                confirmText="Salir sin guardar"
+                onConfirm={confirmDiscard}
+            />
         </div>
     );
 };

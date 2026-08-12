@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
 import { BillingParameter } from "../../../core/models/dto/BillingParameter";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { combineRules, requiredRule, minValueRule, maxValueRule, maxLengthRule } from "../../../core/utils/formValidationRules";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
 interface AddEditModalProps {
     show: boolean;
@@ -19,6 +21,7 @@ interface BillingParameterFormProps {
     onHide: () => void;
     onSave: (billingParameter: BillingParameter) => Promise<void>;
     billingParameter?: BillingParameter | any;
+    onDirtyChange: (dirty: boolean) => void;
 }
 
 // Contenido real del formulario, separado en su propio componente para que
@@ -26,16 +29,18 @@ interface BillingParameterFormProps {
 // <BillingParameterForm .../>}"). Así useForm() arranca de cero cada vez que
 // se abre: ni los valores tipeados ni los errores de la sesión anterior
 // pueden quedar pisados, porque el componente entero (y su estado) es nuevo.
-const BillingParameterForm: React.FC<BillingParameterFormProps> = ({ onHide, onSave, billingParameter }) => {
+const BillingParameterForm: React.FC<BillingParameterFormProps> = ({ onHide, onSave, billingParameter, onDirtyChange }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { register, handleSubmit, reset, control, formState: { errors } } = useForm<BillingParameter>({
+    const { register, handleSubmit, reset, control, formState: { errors, isDirty } } = useForm<BillingParameter>({
         defaultValues: billingParameter || {},
         // Valida al salir por primera vez del campo y, desde entonces, vuelve a
         // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
         // una opción, sin requerir otro click fuera del control.
         mode: "onTouched",
     });
+
+    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: BillingParameter) => {
@@ -150,20 +155,32 @@ const BillingParameterForm: React.FC<BillingParameterFormProps> = ({ onHide, onS
 };
 
 const AddEditBillingParameterModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, billingParameter }) => {
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!billingParameter });
     const modalZIndex = useModalLayer(show);
 
     return (
-        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="billing-parameter-modal-title">
-            <FormModalHeader
-                icon="bi bi-receipt"
-                title={billingParameter ? "Editar Parametro" : "Añadir Parametro"}
-                onClose={onHide}
-                titleId="billing-parameter-modal-title"
+        <>
+            <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="billing-parameter-modal-title">
+                <FormModalHeader
+                    icon="bi bi-receipt"
+                    title={billingParameter ? "Editar Parametro" : "Añadir Parametro"}
+                    onClose={requestClose}
+                    titleId="billing-parameter-modal-title"
+                />
+                <Modal.Body>
+                    {show && <BillingParameterForm onHide={requestClose} onSave={onSave} billingParameter={billingParameter} onDirtyChange={setIsDirty} />}
+                </Modal.Body>
+            </Modal>
+            <ConfirmModal
+                show={showConfirm}
+                onHide={cancelDiscard}
+                title="¿Descartar cambios?"
+                message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+                confirmVariant="danger"
+                confirmText="Salir sin guardar"
+                onConfirm={confirmDiscard}
             />
-            <Modal.Body>
-                {show && <BillingParameterForm onHide={onHide} onSave={onSave} billingParameter={billingParameter} />}
-            </Modal.Body>
-        </Modal>
+        </>
     );
 };
 

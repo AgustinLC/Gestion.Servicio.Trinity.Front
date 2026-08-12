@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 import { combineRules, requiredRule, emailRule, exactLengthRule, maxLengthRule, onlyDigitsRule, noSpecialCharsRule } from "../../../core/utils/formValidationRules";
 
 interface AddEditModalProps {
@@ -19,6 +21,7 @@ interface AdministratorFormProps {
     onHide: () => void;
     onSave: (administrator: UserDto) => Promise<void>;
     administrator?: UserDto | any;
+    onDirtyChange: (dirty: boolean) => void;
 }
 
 // Contenido real del formulario, separado en su propio componente para que
@@ -26,16 +29,18 @@ interface AdministratorFormProps {
 // <AdministratorForm .../>}"). Así useForm() arranca de cero cada vez que se
 // abre: ni los valores tipeados ni los errores de la sesión anterior pueden
 // quedar pisados, porque el componente entero (y su estado) es nuevo.
-const AdministratorForm: React.FC<AdministratorFormProps> = ({ onHide, onSave, administrator }) => {
+const AdministratorForm: React.FC<AdministratorFormProps> = ({ onHide, onSave, administrator, onDirtyChange }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { register, handleSubmit, reset, control, formState: { errors } } = useForm<UserDto>({
+    const { register, handleSubmit, reset, control, formState: { errors, isDirty } } = useForm<UserDto>({
         defaultValues: administrator || {},
         // Valida al salir por primera vez del campo y, desde entonces, vuelve a
         // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
         // una opción, sin requerir otro click fuera del control.
         mode: "onTouched",
     });
+
+    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: UserDto) => {
@@ -153,20 +158,32 @@ const AdministratorForm: React.FC<AdministratorFormProps> = ({ onHide, onSave, a
 };
 
 const AddEditAdministratorModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, administrator }) => {
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!administrator });
     const modalZIndex = useModalLayer(show);
 
     return (
-        <Modal show={show} onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="administrator-modal-title">
-            <FormModalHeader
-                icon={administrator ? "bi bi-person-gear" : "bi bi-person-add"}
-                title={administrator ? "Editar Administrador" : "Añadir Administrador"}
-                onClose={onHide}
-                titleId="administrator-modal-title"
+        <>
+            <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="administrator-modal-title">
+                <FormModalHeader
+                    icon={administrator ? "bi bi-person-gear" : "bi bi-person-add"}
+                    title={administrator ? "Editar Administrador" : "Añadir Administrador"}
+                    onClose={requestClose}
+                    titleId="administrator-modal-title"
+                />
+                <Modal.Body>
+                    {show && <AdministratorForm onHide={requestClose} onSave={onSave} administrator={administrator} onDirtyChange={setIsDirty} />}
+                </Modal.Body>
+            </Modal>
+            <ConfirmModal
+                show={showConfirm}
+                onHide={cancelDiscard}
+                title="¿Descartar cambios?"
+                message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+                confirmVariant="danger"
+                confirmText="Salir sin guardar"
+                onConfirm={confirmDiscard}
             />
-            <Modal.Body>
-                {show && <AdministratorForm onHide={onHide} onSave={onSave} administrator={administrator} />}
-            </Modal.Body>
-        </Modal>
+        </>
     );
 };
 

@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { FaqDto } from "../../../core/models/dto/FaqDto";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 import { combineRules, requiredRule, maxLengthRule } from "../../../core/utils/formValidationRules";
 
 interface AddEditModalProps {
@@ -18,6 +20,7 @@ interface FaqFormProps {
     onHide: () => void;
     onSave: (faq: FaqDto) => Promise<void>;
     faq?: FaqDto | any;
+    onDirtyChange: (dirty: boolean) => void;
 }
 
 // Contenido real del formulario, separado en su propio componente para que
@@ -25,16 +28,18 @@ interface FaqFormProps {
 // <FaqForm .../>}"). Así useForm() arranca de cero cada vez que se abre: ni
 // los valores tipeados ni los errores de la sesión anterior pueden quedar
 // pisados, porque el componente entero (y su estado) es nuevo.
-const FaqForm: React.FC<FaqFormProps> = ({ onHide, onSave, faq }) => {
+const FaqForm: React.FC<FaqFormProps> = ({ onHide, onSave, faq, onDirtyChange }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<FaqDto>({
+    const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<FaqDto>({
         defaultValues: faq || {},
         // Valida al salir por primera vez del campo y, desde entonces, vuelve a
         // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
         // una opción, sin requerir otro click fuera del control.
         mode: "onTouched",
     });
+
+    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: FaqDto) => {
@@ -82,20 +87,32 @@ const FaqForm: React.FC<FaqFormProps> = ({ onHide, onSave, faq }) => {
 };
 
 const AddEditFaqModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, faq }) => {
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!faq });
     const modalZIndex = useModalLayer(show);
 
     return (
-        <Modal show={show} onHide={onHide} size="lg" centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="faq-modal-title">
-            <FormModalHeader
-                icon="bi bi-question-circle"
-                title={faq ? "Editar Faq" : "Añadir Faq"}
-                onClose={onHide}
-                titleId="faq-modal-title"
+        <>
+            <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} size="lg" centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="faq-modal-title">
+                <FormModalHeader
+                    icon="bi bi-question-circle"
+                    title={faq ? "Editar Faq" : "Añadir Faq"}
+                    onClose={requestClose}
+                    titleId="faq-modal-title"
+                />
+                <Modal.Body>
+                    {show && <FaqForm onHide={requestClose} onSave={onSave} faq={faq} onDirtyChange={setIsDirty} />}
+                </Modal.Body>
+            </Modal>
+            <ConfirmModal
+                show={showConfirm}
+                onHide={cancelDiscard}
+                title="¿Descartar cambios?"
+                message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+                confirmVariant="danger"
+                confirmText="Salir sin guardar"
+                onConfirm={confirmDiscard}
             />
-            <Modal.Body>
-                {show && <FaqForm onHide={onHide} onSave={onSave} faq={faq} />}
-            </Modal.Body>
-        </Modal>
+        </>
     );
 };
 

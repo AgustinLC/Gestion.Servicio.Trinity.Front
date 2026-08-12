@@ -1,6 +1,7 @@
 import { Modal, Button, ModalProps } from "react-bootstrap";
 import FormModalHeader from "../form-modal-header/FormModalHeader";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { onBackdropClick } from "../../hooks/useConfirmDiscard";
 
 // Ícono por defecto según la variante, para no tener que pasarlo en cada uso.
 const DEFAULT_VARIANT_ICON: Record<string, string> = {
@@ -25,8 +26,6 @@ interface ConfirmModalProps extends ModalProps {
     onCancel?: () => void;
 }
 
-// Componente de modal de confirmación, con el mismo header (ícono circular +
-// título) y footer que el resto de los modales del sistema.
 const ConfirmModal = ({
     title,
     message,
@@ -41,7 +40,6 @@ const ConfirmModal = ({
     onCancel,
     ...props
 }: ConfirmModalProps) => {
-
     const handleCancel = onCancel || (() => props.onHide?.());
     const modalZIndex = useModalLayer(props.show ?? false);
 
@@ -50,14 +48,20 @@ const ConfirmModal = ({
         <Modal
             {...props}
             centered
-            backdrop={false}
+            backdrop
+            backdropClassName="modal-click-backdrop"
             style={{ zIndex: modalZIndex }}
             contentClassName="form-modal-content"
             aria-labelledby="confirm-modal-title"
             aria-describedby="confirm-modal-description"
+            onClick={onBackdropClick(handleCancel)}
         >
             <FormModalHeader
-                icon={icon ?? DEFAULT_VARIANT_ICON[confirmVariant] ?? "bi bi-question-circle-fill"}
+                icon={
+                    icon ??
+                    DEFAULT_VARIANT_ICON[confirmVariant] ??
+                    "bi bi-question-circle-fill"
+                }
                 title={title}
                 onClose={handleCancel}
                 titleId="confirm-modal-title"
