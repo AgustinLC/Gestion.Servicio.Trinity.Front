@@ -47,11 +47,36 @@ interface UserFormProps {
   onDirtyChange: (dirty: boolean) => void;
 }
 
+// Valores "vacíos" para el alta: hay que pasarle a useForm un valor (aunque
+// sea vacío) para cada campo registrado, si no RHF compara ese campo contra
+// `undefined` en vez de contra el string vacío que en realidad tiene el
+// input, y marca el formulario como "sucio" (isDirty) desde el primer
+// render aunque no se haya tocado nada.
+const EMPTY_FORM_VALUES = {
+  firstName: "",
+  lastName: "",
+  username: "",
+  dni: "",
+  phone: "",
+  digitalInvoiceAdhered: "",
+  ivaInvoiceAdhered: "",
+  pdfInvoiceAdhered: "",
+  residenceDto: {
+    idLocation: "",
+    idFee: "",
+    district: "",
+    street: "",
+    number: "",
+    serialNumber: "",
+    valueMeter: "",
+  },
+} as unknown as Partial<FormValues>;
+
 // Construye los valores del formulario a partir del usuario (o vacío, para
 // alta), forzando los 3 campos booleanos a string para que los CustomSelect
 // muestren la opción correcta.
 const buildFormValues = (source?: UserDto | null): Partial<FormValues> => {
-  if (!source) return {};
+  if (!source) return EMPTY_FORM_VALUES;
   return {
     ...source,
     digitalInvoiceAdhered:
@@ -87,7 +112,10 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
     mode: "onTouched",
   });
 
-  useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
+  useEffect(() => {
+    onDirtyChange(isDirty);
+    return () => onDirtyChange(false);
+  }, [isDirty, onDirtyChange]);
   const summaryFeeName = fees.find((fee) => String(fee.idFee) === String(user?.residenceDto?.idFee))?.name;
   const summaryInitials = `${(user?.firstName?.[0] || "").toUpperCase()}${(user?.lastName?.[0] || "").toUpperCase()}`;
   const summaryAvatarColor = getAvatarColor(`${user?.firstName ?? ""}${user?.lastName ?? ""}${user?.idUser ?? ""}`);
@@ -498,7 +526,7 @@ const UserForm: React.FC<UserFormProps> = ({ onHide, onSave, user, locations, fe
 };
 
 const AddEditModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, onResetPasswordClick, user, locations, fees }) => {
-  const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!user });
+  const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: false });
   const modalZIndex = useModalLayer(show);
 
   return (

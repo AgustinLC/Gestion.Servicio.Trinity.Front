@@ -32,14 +32,22 @@ const FaqForm: React.FC<FaqFormProps> = ({ onHide, onSave, faq, onDirtyChange })
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<FaqDto>({
-        defaultValues: faq || {},
+        // Hay que pasarle a useForm un valor (aunque sea vacío) para cada
+        // campo registrado: si falta una clave, RHF compara ese campo contra
+        // `undefined` en vez de contra el string vacío que en realidad tiene
+        // el input, y marca el formulario como "sucio" (isDirty) desde el
+        // primer render aunque no se haya tocado nada.
+        defaultValues: faq || { question: "", answer: "" },
         // Valida al salir por primera vez del campo y, desde entonces, vuelve a
         // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
         // una opción, sin requerir otro click fuera del control.
         mode: "onTouched",
     });
 
-    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
+    useEffect(() => {
+        onDirtyChange(isDirty);
+        return () => onDirtyChange(false);
+    }, [isDirty, onDirtyChange]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: FaqDto) => {
@@ -87,7 +95,7 @@ const FaqForm: React.FC<FaqFormProps> = ({ onHide, onSave, faq, onDirtyChange })
 };
 
 const AddEditFaqModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, faq }) => {
-    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!faq });
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: false });
     const modalZIndex = useModalLayer(show);
 
     return (

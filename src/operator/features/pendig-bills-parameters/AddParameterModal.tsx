@@ -30,12 +30,22 @@ const ParameterForm: React.FC<ParameterFormProps> = ({ onHide, onSave, parameter
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Props para manejar formulario
+    // Hay que pasarle a useForm un valor (aunque sea vacío) para cada campo
+    // registrado: si falta una clave, RHF compara ese campo contra
+    // `undefined` en vez de contra el valor real que va a tener el input, y
+    // marca el formulario como "sucio" (isDirty) desde el primer render
+    // aunque no se haya tocado nada. "value" usa valueAsNumber, así que un
+    // input vacío se lee como NaN (no ""), y el default tiene que matchear
+    // eso — si no, nunca hay igualdad y queda "sucio" para siempre.
     const { register, handleSubmit, reset, watch, setValue, control, formState: { errors, isDirty }, } = useForm<PendigBillDetail>({
-        defaultValues: {},
+        defaultValues: { idBillingParameter: "" as unknown as number, value: NaN },
         mode: "onTouched",
     });
 
-    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
+    useEffect(() => {
+        onDirtyChange(isDirty);
+        return () => onDirtyChange(false);
+    }, [isDirty, onDirtyChange]);
 
     const selectedParameterId = watch("idBillingParameter");
 

@@ -86,7 +86,8 @@ const CruDataMainPage = () => {
     // confirma siempre al cerrar (ver useConfirmDiscard).
     const { requestClose, showConfirm, confirmDiscard, cancelDiscard } = useConfirmDiscard({
         onHide: () => setEditingSection(null),
-        alwaysConfirm: true,
+        alwaysConfirm: false,
+        enabled: false,
     });
     const modalZIndex = useModalLayer(!!editingSection);
 

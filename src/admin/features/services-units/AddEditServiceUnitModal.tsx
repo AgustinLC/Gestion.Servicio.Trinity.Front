@@ -33,11 +33,14 @@ const ServiceUnitForm: React.FC<ServiceUnitFormProps> = ({ onHide, onSave, servi
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { handleSubmit, reset, control, formState: { errors, isDirty } } = useForm<ServiceUnitDto>({
-        defaultValues: serviceUnit || {},
+        defaultValues: serviceUnit || { idService: "" as unknown as number, idUnit: "" as unknown as number },
         mode: "onTouched",
     });
 
-    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
+    useEffect(() => {
+        onDirtyChange(isDirty);
+        return () => onDirtyChange(false);
+    }, [isDirty, onDirtyChange]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: ServiceUnitDto) => {
@@ -113,7 +116,7 @@ const ServiceUnitForm: React.FC<ServiceUnitFormProps> = ({ onHide, onSave, servi
 };
 
 const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, serviceUnit, services, unities }) => {
-    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!serviceUnit });
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: false });
     const modalZIndex = useModalLayer(show);
 
     return (

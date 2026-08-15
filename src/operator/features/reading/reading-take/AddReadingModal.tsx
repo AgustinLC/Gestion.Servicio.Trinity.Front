@@ -39,9 +39,20 @@ const ReadingFormContent: React.FC<ReadingFormProps> = ({ onHide, onSave, lastRe
     // Valida al salir por primera vez del campo y, desde entonces, vuelve a
     // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
     // una opción, sin requerir otro click fuera del control.
-    const { register, handleSubmit, formState: { errors, isDirty }, reset, } = useForm<ReadingForm>({ mode: "onTouched" });
+    // Hay que pasarle a useForm un valor (aunque sea vacío) para cada campo
+    // registrado: si falta una clave, RHF compara ese campo contra
+    // `undefined` en vez de contra el string vacío que en realidad tiene el
+    // input, y marca el formulario como "sucio" (isDirty) desde el primer
+    // render aunque no se haya tocado nada.
+    const { register, handleSubmit, formState: { errors, isDirty }, reset, } = useForm<ReadingForm>({
+        defaultValues: { readingValue: "" as unknown as number },
+        mode: "onTouched",
+    });
 
-    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
+    useEffect(() => {
+        onDirtyChange(isDirty);
+        return () => onDirtyChange(false);
+    }, [isDirty, onDirtyChange]);
 
     //Manejo del boton guardar
     const onSubmit = async (data: ReadingForm) => {

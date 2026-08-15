@@ -33,14 +33,22 @@ const AdministratorForm: React.FC<AdministratorFormProps> = ({ onHide, onSave, a
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { register, handleSubmit, reset, control, formState: { errors, isDirty } } = useForm<UserDto>({
-        defaultValues: administrator || {},
+        // Hay que pasarle a useForm un valor (aunque sea vacío) para cada
+        // campo registrado: si falta una clave, RHF compara ese campo contra
+        // `undefined` en vez de contra el string vacío que en realidad tiene
+        // el input, y marca el formulario como "sucio" (isDirty) desde el
+        // primer render aunque no se haya tocado nada.
+        defaultValues: administrator || { firstName: "", lastName: "", username: "", dni: "", phone: "" },
         // Valida al salir por primera vez del campo y, desde entonces, vuelve a
         // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
         // una opción, sin requerir otro click fuera del control.
         mode: "onTouched",
     });
 
-    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
+    useEffect(() => {
+        onDirtyChange(isDirty);
+        return () => onDirtyChange(false);
+    }, [isDirty, onDirtyChange]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: UserDto) => {
@@ -158,7 +166,7 @@ const AdministratorForm: React.FC<AdministratorFormProps> = ({ onHide, onSave, a
 };
 
 const AddEditAdministratorModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, administrator }) => {
-    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!administrator });
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: false });
     const modalZIndex = useModalLayer(show);
 
     return (

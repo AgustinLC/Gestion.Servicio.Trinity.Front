@@ -46,7 +46,10 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
 
     // Solo se considera "con cambios" una vez que se eligió un descuento; el
     // importe por sí solo (0 por defecto) no cuenta como modificación.
-    useEffect(() => { setIsDirty(selectedDiscountId !== null); }, [selectedDiscountId, setIsDirty]);
+    useEffect(() => {
+        setIsDirty(selectedDiscountId !== null);
+        return () => setIsDirty(false);
+    }, [selectedDiscountId, setIsDirty]);
 
     // Obtener todos los descuentos
     const fetchAllDiscounts = async () => {

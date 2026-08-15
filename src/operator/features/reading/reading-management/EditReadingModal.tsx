@@ -23,7 +23,7 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
     const [readingValue, setReadingValue] = useState(reading.reading);
     // En edición los valores ya vienen precargados, así que siempre se
     // confirma al cerrar (ver useConfirmDiscard).
-    const { requestClose, showConfirm, confirmDiscard, cancelDiscard } = useConfirmDiscard({ onHide, alwaysConfirm: true });
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard } = useConfirmDiscard({ onHide, alwaysConfirm: false, enabled: false });
     const modalZIndex = useModalLayer(show);
     const isInvalidReading = Number.isNaN(readingValue) || readingValue < 0 || readingValue > 9999999;
 

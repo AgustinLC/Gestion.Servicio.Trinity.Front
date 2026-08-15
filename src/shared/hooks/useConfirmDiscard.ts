@@ -2,6 +2,7 @@ import { useCallback, useState, type MouseEvent as ReactMouseEvent } from "react
 
 interface UseConfirmDiscardOptions {
     onHide: () => void;
+    enabled?: boolean;
     // En edición los campos ya vienen precargados, así que determinar si
     // "cambió algo" es más difícil de garantizar sin falsos negativos; por
     // eso ahí se confirma siempre. En creación solo se confirma si se llegó
@@ -14,20 +15,21 @@ interface UseConfirmDiscardOptions {
 // "X" del header, Escape, o click afuera vía onBackdropClick) para preguntar
 // antes de descartar cambios. `requestClose` debe reemplazar a `onHide` en
 // el <Modal>, el FormModalHeader y el botón "Cancelar" del formulario interno.
-export function useConfirmDiscard({ onHide, alwaysConfirm }: UseConfirmDiscardOptions) {
+export function useConfirmDiscard({ onHide, alwaysConfirm, enabled = true }: UseConfirmDiscardOptions) {
     const [isDirty, setIsDirty] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
 
     const requestClose = useCallback(() => {
-        if (alwaysConfirm || isDirty) {
+        if (enabled && (alwaysConfirm || isDirty)) {
             setShowConfirm(true);
         } else {
             onHide();
         }
-    }, [alwaysConfirm, isDirty, onHide]);
+    }, [alwaysConfirm, enabled, isDirty, onHide]);
 
     const confirmDiscard = useCallback(() => {
         setShowConfirm(false);
+        setIsDirty(false);
         onHide();
     }, [onHide]);
 

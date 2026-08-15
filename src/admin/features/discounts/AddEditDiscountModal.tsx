@@ -33,14 +33,22 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ onHide, onSave, discount, o
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { register, handleSubmit, control, formState: { errors, isDirty }, reset } = useForm<DiscountDto>({
-        defaultValues: discount || {},
+        // Hay que pasarle a useForm un valor (aunque sea vacío) para cada
+        // campo registrado: si falta una clave, RHF compara ese campo contra
+        // `undefined` en vez de contra el string vacío que en realidad tiene
+        // el input, y marca el formulario como "sucio" (isDirty) desde el
+        // primer render aunque no se haya tocado nada.
+        defaultValues: discount || { name: "", description: "", amount: "", applyCondition: "" },
         // Valida al salir por primera vez del campo y, desde entonces, vuelve a
         // validar cada cambio. Así un CustomSelect limpia su error al seleccionar
         // una opción, sin requerir otro click fuera del control.
         mode: "onTouched",
     });
 
-    useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
+    useEffect(() => {
+        onDirtyChange(isDirty);
+        return () => onDirtyChange(false);
+    }, [isDirty, onDirtyChange]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: DiscountDto) => {
@@ -123,7 +131,7 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ onHide, onSave, discount, o
 };
 
 const AddEditDiscountModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, discount }) => {
-    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: !!discount });
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: false });
     const modalZIndex = useModalLayer(show);
 
     return (
