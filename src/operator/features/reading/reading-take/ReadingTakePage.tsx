@@ -17,18 +17,36 @@ import { withFullName } from "../../../../core/utils/userUtils";
 type UserRow = UserDto & { fullName: string };
 
 const ReadingTakePage: React.FC = () => {
-
     // Estados
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const [showAddReadingModal, setShowAddReadingModal] = useState(false);
-    const { operatorReadingUsers, loading, error, refreshOperatorReadingUsers } = useAppData();
+    const {
+        operatorReadingUsers,
+        loading,
+        error,
+        refreshOperatorReadingUsers,
+    } = useAppData();
 
     const uniqueStreets = useMemo(
-        () => Array.from(new Set(operatorReadingUsers.map(u => u.residenceDto?.street).filter(Boolean))) as string[],
+        () =>
+            Array.from(
+                new Set(
+                    operatorReadingUsers
+                        .map((u) => u.residenceDto?.street)
+                        .filter(Boolean)
+                )
+            ) as string[],
         [operatorReadingUsers]
     );
     const uniqueDistricts = useMemo(
-        () => Array.from(new Set(operatorReadingUsers.map(u => u.residenceDto?.district).filter(Boolean))) as string[],
+        () =>
+            Array.from(
+                new Set(
+                    operatorReadingUsers
+                        .map((u) => u.residenceDto?.district)
+                        .filter(Boolean)
+                )
+            ) as string[],
         [operatorReadingUsers]
     );
 
@@ -39,7 +57,10 @@ const ReadingTakePage: React.FC = () => {
                 id: "street",
                 label: "Calle",
                 emptyLabel: "Todas las calles",
-                options: uniqueStreets.map((street) => ({ value: street, label: street })),
+                options: uniqueStreets.map((street) => ({
+                    value: street,
+                    label: street,
+                })),
             },
         ],
         [uniqueStreets, uniqueDistricts]
@@ -49,7 +70,10 @@ const ReadingTakePage: React.FC = () => {
     // Se agrega el nombre y apellido concatenados para poder listarlos en una sola columna
     // y para que el buscador encuentre coincidencias sin importar si se busca por
     // nombre, apellido o ambos juntos.
-    const usersWithFullName = useMemo(() => withFullName(operatorReadingUsers), [operatorReadingUsers]);
+    const usersWithFullName = useMemo(
+        () => withFullName(operatorReadingUsers),
+        [operatorReadingUsers]
+    );
 
     // Hook reutilizable de búsqueda + filtros
     const { filteredData, handleSearch } = useSearch<UserRow>(
@@ -64,13 +88,20 @@ const ReadingTakePage: React.FC = () => {
     // Manejar añadir nueva lectura
     const handleAddReading = async (idUser: number, readingValue: number) => {
         try {
-            await addData(`/operator/register-reading-active/${idUser}/${readingValue}`, {});
+            await addData(
+                `/operator/register-reading-active/${idUser}/${readingValue}`,
+                {}
+            );
             toast.success("Lectura creada exitosamente");
             setShowAddReadingModal(false);
             await refreshOperatorReadingUsers();
         } catch (error) {
             console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al guardar la lectura");
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Error al guardar la lectura"
+            );
         }
     };
 
@@ -80,17 +111,29 @@ const ReadingTakePage: React.FC = () => {
         setSelectedUser(null);
     };
 
-
     // Columnas para la tabla
     const columns: TableColumnDefinition<UserRow>[] = [
         { key: "idUser", label: "N° Conexión", sortable: false },
         { key: "fullName", label: "Nombre y Apellido", sortable: false },
-        { key: "street" as keyof UserRow, label: "Calle", sortable: false, render: (row: UserRow) => row.residenceDto?.street || "Sin dirección" },
-        { key: "houseNumber" as keyof UserRow, label: "N° Casa", sortable: false, render: (row: UserRow) => row.residenceDto?.number || "Sin número" },
-        { key: "meterNumber" as keyof UserRow, label: "N° Medidor", sortable: false, render: (row: UserRow) => row.residenceDto?.serialNumber || "Sin número" },
         {
-            key: "actions", label: "Acciones", actions: (row: UserRow) => (
-                <Button className="text-nowrap" variant="outline-primary" onClick={() => { setSelectedUser(row); setShowAddReadingModal(true); }}>
+            key: "street" as keyof UserRow,
+            label: "Calle",
+            sortable: false,
+            render: (row: UserRow) =>
+                row.residenceDto?.street || "Sin dirección",
+        },
+        {
+            key: "actions",
+            label: "Acciones",
+            actions: (row: UserRow) => (
+                <Button
+                    className="text-nowrap"
+                    variant="outline-primary"
+                    onClick={() => {
+                        setSelectedUser(row);
+                        setShowAddReadingModal(true);
+                    }}
+                >
                     <i className="bi bi-speedometer2 me-1"></i> Cargar lectura
                 </Button>
             ),
@@ -99,7 +142,11 @@ const ReadingTakePage: React.FC = () => {
 
     return (
         <div>
-            <PageHeader title="Toma de Lecturas" subtitle="Cargá las lecturas de los medidores por usuario." icon="bi bi-speedometer2" />
+            <PageHeader
+                title="Toma de Lecturas"
+                subtitle="Cargá las lecturas de los medidores por usuario."
+                icon="bi bi-speedometer2"
+            />
             {loading ? (
                 <TableSkeleton />
             ) : error ? (
@@ -113,10 +160,7 @@ const ReadingTakePage: React.FC = () => {
                         filterState={filterState}
                     />
                     {/* Tabla de usuarios */}
-                    <ReusableTable
-                        data={filteredData}
-                        columns={columns}
-                    />
+                    <ReusableTable data={filteredData} columns={columns} />
 
                     {/* Modal para añadir lectura */}
                     {selectedUser && (
@@ -124,7 +168,12 @@ const ReadingTakePage: React.FC = () => {
                             show={showAddReadingModal}
                             onHide={handleCloseAddReadingModal}
                             user={selectedUser.idUser}
-                            onSave={(readingValue) => handleAddReading(selectedUser.idUser, readingValue)}
+                            onSave={(readingValue) =>
+                                handleAddReading(
+                                    selectedUser.idUser,
+                                    readingValue
+                                )
+                            }
                         />
                     )}
                 </div>

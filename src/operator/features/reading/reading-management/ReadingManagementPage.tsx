@@ -24,10 +24,16 @@ const ReadingManagementPage: React.FC = () => {
     const [showUserReadings, setShowUserReadings] = useState(false);
     const { operatorActiveUsers, loading, error } = useAppData();
 
-
     // Calles únicas para el filtro
     const uniqueStreets = useMemo(
-        () => Array.from(new Set(operatorActiveUsers.map(u => u.residenceDto?.street).filter(Boolean))) as string[],
+        () =>
+            Array.from(
+                new Set(
+                    operatorActiveUsers
+                        .map((u) => u.residenceDto?.street)
+                        .filter(Boolean)
+                )
+            ) as string[],
         [operatorActiveUsers]
     );
 
@@ -38,7 +44,10 @@ const ReadingManagementPage: React.FC = () => {
                 id: "street",
                 label: "Calle",
                 emptyLabel: "Todas las calles",
-                options: uniqueStreets.map((street) => ({ value: street, label: street })),
+                options: uniqueStreets.map((street) => ({
+                    value: street,
+                    label: street,
+                })),
             },
         ],
         [uniqueStreets]
@@ -48,7 +57,10 @@ const ReadingManagementPage: React.FC = () => {
     // Se agrega el nombre y apellido concatenados para poder listarlos en una sola columna
     // y para que el buscador encuentre coincidencias sin importar si se busca por
     // nombre, apellido o ambos juntos.
-    const usersWithFullName = useMemo(() => withFullName(operatorActiveUsers), [operatorActiveUsers]);
+    const usersWithFullName = useMemo(
+        () => withFullName(operatorActiveUsers),
+        [operatorActiveUsers]
+    );
 
     // Hook para buscar por columnas
     const { filteredData, handleSearch } = useSearch<UserRow>(
@@ -57,16 +69,26 @@ const ReadingManagementPage: React.FC = () => {
         { "residenceDto.street": filterState.getActiveValue("street") }
     );
 
-
     // Manejar añadir nueva lectura
-    const handleAddReading = async (idUser: number, date: string, readingValue: number) => {
+    const handleAddReading = async (
+        idUser: number,
+        date: string,
+        readingValue: number
+    ) => {
         try {
-            await addData(`/operator/register-reading-date/${idUser}/${date}/${readingValue}`, {});
+            await addData(
+                `/operator/register-reading-date/${idUser}/${date}/${readingValue}`,
+                {}
+            );
             toast.success("Lectura creada exitosamente");
             setShowAddReadingModal(false);
         } catch (error) {
             console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al guardar la lectura");
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Error al guardar la lectura"
+            );
         }
     };
 
@@ -76,23 +98,39 @@ const ReadingManagementPage: React.FC = () => {
         setSelectedUser(null); // Limpiar el usuario seleccionado
     };
 
-
     // Columnas para la tabla
     const columns: TableColumnDefinition<UserRow>[] = [
         { key: "idUser", label: "N° Conexión", sortable: true },
         { key: "fullName", label: "Nombre y Apellido", sortable: false },
-        { key: "residenceDto", label: "Calle", sortable: false, render: (row: UserRow) => row.residenceDto?.street || "Sin dirección" },
-        { key: "houseNumber" as keyof UserRow, label: "N° Casa", sortable: false, render: (row: UserRow) => row.residenceDto?.number || "Sin número" },
-        { key: "meterNumber" as keyof UserRow, label: "N° Medidor", sortable: false, render: (row: UserRow) => row.residenceDto?.serialNumber || "Sin número" },
+        {
+            key: "residenceDto",
+            label: "Calle",
+            sortable: false,
+            render: (row: UserRow) =>
+                row.residenceDto?.street || "Sin dirección",
+        },
         {
             key: "actions",
             label: "Acciones",
             actions: (row: UserRow) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="outline-primary" onClick={() => { setSelectedUser(row); setShowAddReadingModal(true); }}>
-                        <i className="bi bi-speedometer2 me-1"></i> Cargar lectura
+                    <Button
+                        variant="outline-primary"
+                        onClick={() => {
+                            setSelectedUser(row);
+                            setShowAddReadingModal(true);
+                        }}
+                    >
+                        <i className="bi bi-speedometer2 me-1"></i> Cargar
+                        lectura
                     </Button>
-                    <Button variant="outline-warning" onClick={() => { setSelectedUser(row); setShowUserReadings(true); }}>
+                    <Button
+                        variant="outline-warning"
+                        onClick={() => {
+                            setSelectedUser(row);
+                            setShowUserReadings(true);
+                        }}
+                    >
                         <i className="bi bi-eye me-1"></i> Ver lecturas
                     </Button>
                 </div>
@@ -102,7 +140,11 @@ const ReadingManagementPage: React.FC = () => {
 
     return (
         <div>
-            <PageHeader title="Gestión de Lecturas" subtitle="Registrá y consultá las lecturas de los medidores." icon="bi bi-speedometer2" />
+            <PageHeader
+                title="Gestión de Lecturas"
+                subtitle="Registrá y consultá las lecturas de los medidores."
+                icon="bi bi-speedometer2"
+            />
             {loading ? (
                 <TableSkeleton />
             ) : error ? (
@@ -126,7 +168,13 @@ const ReadingManagementPage: React.FC = () => {
                         <AddReadingModal
                             show={showAddReadingModal}
                             onHide={handleCloseAddReadingModal}
-                            onSave={(date, readingValue) => handleAddReading(selectedUser.idUser, date, readingValue)}
+                            onSave={(date, readingValue) =>
+                                handleAddReading(
+                                    selectedUser.idUser,
+                                    date,
+                                    readingValue
+                                )
+                            }
                         />
                     )}
 
