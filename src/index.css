@@ -1,25 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap");
 
 /* --- MODERN DESIGN SYSTEM VARIABLES --- */
 :root {
-  --bs-font-family-sans-serif: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --bs-body-font-family: var(--bs-font-family-sans-serif);
-  
-  /* Modern Water-Themed Palette: Celeste/Blue & Slate */
-  --bs-primary: #0077ff; /* Celeste / Azul Agua */
-  --bs-primary-rgb: 0, 119, 255;
-  --bs-body-bg: #f8fafc;
-  --bs-body-color: #0f172a;
-  
-  /* Custom variables for borders, shadows and colors */
-  --card-border-radius: 16px;
-  --input-border-radius: 10px;
-  --btn-border-radius: 10px;
-  --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 8px rgba(0, 0, 0, 0.02);
-  --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
-  --navbar-height: 64px;
+    --bs-font-family-sans-serif:
+        "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        sans-serif;
+    --bs-body-font-family: var(--bs-font-family-sans-serif);
+
+    /* Modern Water-Themed Palette: Celeste/Blue & Slate */
+    --bs-primary: #0077ff; /* Celeste / Azul Agua */
+    --bs-primary-rgb: 0, 119, 255;
+    --bs-body-bg: #f8fafc;
+    --bs-body-color: #0f172a;
+
+    /* Custom variables for borders, shadows and colors */
+    --card-border-radius: 16px;
+    --input-border-radius: 10px;
+    --btn-border-radius: 10px;
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-sm:
+        0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 8px rgba(0, 0, 0, 0.02);
+    --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+    --navbar-height: 64px;
 }
 
 /* Global Root Configuration.
@@ -32,29 +35,29 @@
    y se achica esa misma medida (height) para no quedar recortado por el
    overflow:hidden de html. */
 html {
-  height: 100%;
-  overflow: hidden;
+    height: 100%;
+    overflow: hidden;
 }
 
 body {
-  position: relative;
-  height: calc(100% - var(--navbar-height));
-  margin-top: var(--navbar-height);
-  overflow: hidden;
-  background-color: var(--bs-body-bg);
-  color: var(--bs-body-color);
-  font-family: var(--bs-body-font-family);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    position: relative;
+    height: calc(100% - var(--navbar-height));
+    margin-top: var(--navbar-height);
+    overflow: hidden;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    font-family: var(--bs-body-font-family);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: none; /* Firefox: se reemplaza por CustomScrollbar.tsx */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none; /* Firefox: se reemplaza por CustomScrollbar.tsx */
 }
 
 /* Chrome/Edge en Windows tienen un bug ("Fluent scrollbars") que ignora el
@@ -63,14 +66,14 @@ body {
    CustomScrollbar.tsx, que dibuja su propio thumb con un div y por eso es
    inmune a ese bug. */
 #root::-webkit-scrollbar {
-  display: none;
+    display: none;
 }
 
 /* Sin esto, los hijos flex de #root (contenido de cada página, footer, etc.)
    se encogen para entrar en su altura fija en vez de desbordar y generar
    scroll, que es exactamente lo que #root necesita poder hacer. */
 #root > * {
-  flex-shrink: 0;
+    flex-shrink: 0;
 }
 
 /* --- SCROLLBAR ESTILIZADA ---
@@ -82,20 +85,20 @@ body {
    se ve nada. Este bloque solo la afina visualmente: delgada y con los
    colores del sistema en vez de la gris por defecto del navegador. */
 * {
-  scrollbar-width: thin; /* Firefox */
+    scrollbar-width: thin; /* Firefox */
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+    width: 10px;
+    height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+    background: transparent;
 }
 
 ::-webkit-scrollbar-corner {
-  background: transparent;
+    background: transparent;
 }
 
 /* Windows dibuja flechitas arriba/abajo del track por default en scrollbars
@@ -109,51 +112,51 @@ body {
 ::-webkit-scrollbar-button:single-button,
 ::-webkit-scrollbar-button:start:decrement,
 ::-webkit-scrollbar-button:end:increment {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(15, 23, 42, 0.22);
-  border-radius: 999px;
-  /* El grosor visible del thumb queda dado por width(10px) - 2*border(3px):
+    background-color: rgba(15, 23, 42, 0.22);
+    border-radius: 999px;
+    /* El grosor visible del thumb queda dado por width(10px) - 2*border(3px):
      un pill delgado "flotando" centrado en el track, en vez de ocupar todo
      el ancho de la scrollbar. */
-  border: 3px solid transparent;
-  background-clip: padding-box;
+    border: 3px solid transparent;
+    background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 119, 255, 0.4);
+    background-color: rgba(0, 119, 255, 0.4);
 }
 
 /* Con html/body sin scroll propio (ver arriba), Bootstrap nunca detecta una
    scrollbar de ventana que compensar, pero se deja igual como resguardo por
    si algún flujo puntual reactiva el scroll nativo del body. */
 body.modal-open {
-  padding-right: 0 !important;
+    padding-right: 0 !important;
 }
 
 /* Estado de carga (spinner) dentro de .dashboard-main: usa la altura restante
    bajo el navbar en vez de 100vh, para no sumar una pantalla completa extra
    al contenido que ya está debajo de él (evita un scroll innecesario). */
 .loading-vh {
-  min-height: calc(100vh - var(--navbar-height));
+    min-height: calc(100vh - var(--navbar-height));
 }
 
 /* --- CARDS MODERNIZADAS --- */
 .card {
-  border: 1px solid rgba(226, 232, 240, 0.8) !important;
-  border-radius: var(--card-border-radius) !important;
-  box-shadow: var(--shadow-md);
-  background-color: #ffffff;
-  transition: var(--transition-smooth);
-  overflow: hidden;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    border-radius: var(--card-border-radius) !important;
+    box-shadow: var(--shadow-md);
+    background-color: #ffffff;
+    transition: var(--transition-smooth);
+    overflow: hidden;
 }
 
 .card:hover {
-  box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-lg);
 }
 
 /* NOTA: se probó hacer que la card dejara de recortar (overflow:visible)
@@ -167,13 +170,13 @@ body.modal-open {
    borde de la card queda como limitación conocida y menor. */
 
 .card-header {
-  background-color: #ffffff;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-  padding: 1.25rem 1.5rem;
+    background-color: #ffffff;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    padding: 1.25rem 1.5rem;
 }
 
 .card-body {
-  padding: 1.5rem;
+    padding: 1.5rem;
 }
 
 /* Cards de gráficos (Resumen): un poco más compactas para no sumar scroll
@@ -182,33 +185,34 @@ body.modal-open {
    torta, en Resumen) puede desplegar un menú largo y quedar cortado contra
    el borde de la card si la lista de períodos crece. */
 .chart-card {
-  overflow: visible !important;
+    overflow: visible !important;
 }
 
 .chart-card .card-body {
-  padding: 1.1rem 1.25rem;
+    padding: 1.1rem 1.25rem;
 }
 
 .chart-card .card-title {
-  margin-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 /* --- FORMULARIOS E INPUTS MODERNIZADOS --- */
 .form-label {
-  font-weight: 600;
-  color: #475569;
-  font-size: 0.9rem;
-  margin-bottom: 0.4rem;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
 }
 
-.form-control, .form-select {
-  border-radius: var(--input-border-radius);
-  border: 1.5px solid #e2e8f0;
-  padding: 0.6rem 0.9rem;
-  font-size: 0.95rem;
-  color: #1e293b;
-  background-color: #ffffff;
-  transition: var(--transition-smooth);
+.form-control,
+.form-select {
+    border-radius: var(--input-border-radius);
+    border: 1.5px solid #e2e8f0;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.95rem;
+    color: #1e293b;
+    background-color: #ffffff;
+    transition: var(--transition-smooth);
 }
 
 /* El <select> nativo dibuja su flecha como background-image a la derecha;
@@ -219,25 +223,27 @@ body.modal-open {
    su propio padding-right más chico desde bootstrap.min.css, que en algunas
    rutas se reinyecta después de este archivo y gana por orden de cascada. */
 .form-select {
-  padding-right: 2.25rem !important;
+    padding-right: 2.25rem !important;
 }
 
-.form-control:focus, .form-select:focus {
-  border-color: #80bfff;
-  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
-  color: #0f172a;
+.form-control:focus,
+.form-select:focus {
+    border-color: #80bfff;
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
+    color: #0f172a;
 }
 
 .form-control::placeholder {
-  color: #94a3b8;
-  opacity: 1;
+    color: #94a3b8;
+    opacity: 1;
 }
 
-.form-control:disabled, .form-select:disabled {
-  background-color: #f1f5f9;
-  color: #94a3b8;
-  border-color: #e2e8f0;
-  cursor: not-allowed;
+.form-control:disabled,
+.form-select:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
 }
 
 /* --- Labels flotantes que "cortan" el borde superior (estilo legend/notch) ---
@@ -246,33 +252,33 @@ body.modal-open {
    dibuja el borde del fieldset detrás del legend. El corte queda limpio en
    cualquier fondo (no depende de que atrás haya blanco). */
 .floating-fieldset {
-  position: relative;
-  margin: .5rem .5rem;
-  padding: 0 0.9rem 0.5rem;
-  border: 1.5px solid #e2e8f0;
-  border-radius: var(--input-border-radius);
-  transition: var(--transition-smooth);
+    position: relative;
+    margin: 0.5rem 0.5rem;
+    padding: 0 0.9rem 0.5rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: var(--input-border-radius);
+    transition: var(--transition-smooth);
 }
 
 .floating-fieldset:focus-within {
-  border-color: #80bfff;
-  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
+    border-color: #80bfff;
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
 }
 
 /* El Form.Control/CustomSelect interno cede su propio borde rojo de
    "inválido" al quedar sin borde (ver más abajo); se repite acá en el
    fieldset para no perder esa señal visual. */
 .floating-fieldset.is-invalid {
-  border-color: #dc3545;
+    border-color: #dc3545;
 }
 
 .floating-fieldset.is-invalid:focus-within {
-  border-color: #dc3545;
-  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
 }
 
 .invalid-feedback {
-  margin-left: 1.5rem;
+    margin-left: 1.5rem;
 }
 
 /* El legend siempre existe (así el navegador reserva el corte nativo), pero
@@ -280,23 +286,26 @@ body.modal-open {
    queda como una línea continua y el nombre del campo se ve por dentro (ver
    .floating-fieldset-ghost) en vez de arriba cortando el borde. */
 .floating-fieldset-legend {
-  position: relative;
-  z-index: 1;
-  float: none;
-  width: auto;
-  max-width: 0.05px;
-  margin: 0;
-  padding: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1;
-  color: #64748b;
-  background-color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  outline: none !important;
-  transition: max-width 0.15s ease, padding 0.15s ease, margin 0.15s ease;
+    position: relative;
+    z-index: 1;
+    float: none;
+    width: auto;
+    max-width: 0.05px;
+    margin: 0;
+    padding: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1;
+    color: #64748b;
+    background-color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    outline: none !important;
+    transition:
+        max-width 0.15s ease,
+        padding 0.15s ease,
+        margin 0.15s ease;
 }
 
 /* Dentro de un modal el fondo real es var(--bs-modal-bg) (en esta app,
@@ -304,7 +313,7 @@ body.modal-open {
    pisado globalmente). Si el legend queda con fondo #ffffff fijo, se ve un
    parche blanco despegado del gris del modal; se lo hace matchear acá. */
 .modal-content .floating-fieldset-legend {
-  background-color: var(--bs-modal-bg);
+    background-color: var(--bs-modal-bg);
 }
 
 /* Algunos navegadores dibujan un outline propio sobre el <legend> mientras
@@ -313,18 +322,18 @@ body.modal-open {
 .floating-fieldset:focus-within .floating-fieldset-legend,
 .floating-fieldset-legend:focus,
 .floating-fieldset-legend:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .floating-fieldset-floated .floating-fieldset-legend {
-  max-width: calc(100% - 1rem);
-  margin: 0 0 0 0.15rem;
-  padding: 0 0.4rem;
+    max-width: calc(100% - 1rem);
+    margin: 0 0 0 0.15rem;
+    padding: 0 0.4rem;
 }
 
 .floating-fieldset:focus-within .floating-fieldset-legend {
-  color: var(--bs-primary);
+    color: var(--bs-primary);
 }
 
 /* El label también se pone en rojo cuando el campo es inválido (además del
@@ -334,35 +343,35 @@ body.modal-open {
    celeste de foco normal. */
 .floating-fieldset.is-invalid .floating-fieldset-legend,
 .floating-fieldset.is-invalid:focus-within .floating-fieldset-legend {
-  color: #dc3545;
+    color: #dc3545;
 }
 
 .floating-fieldset-body {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
 }
 
 /* Los <textarea> son multilínea: alinear arriba en vez de centrar (el
    texto empieza en la esquina superior, no en el medio del recuadro). */
 .floating-fieldset-textarea .floating-fieldset-body {
-  align-items: flex-start;
-  padding-top: 0.5rem;
+    align-items: flex-start;
+    padding-top: 0.5rem;
 }
 
 .floating-fieldset-textarea .floating-fieldset-ghost {
-  top: 0.5rem;
-  transform: none;
+    top: 0.5rem;
+    transform: none;
 }
 
 .floating-fieldset .form-control,
 .floating-fieldset .form-select {
-  border: none !important;
-  background: transparent !important;
-  padding: 0.5rem 0 !important;
-  box-shadow: none !important;
-  outline: none !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0.5rem 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 /* El aro de foco nativo del navegador (outline) no respeta el border-radius
@@ -370,8 +379,8 @@ body.modal-open {
    el único indicador de foco debe ser el propio :focus-within del fieldset. */
 .floating-fieldset .form-control:focus,
 .floating-fieldset .form-select:focus {
-  outline: none !important;
-  box-shadow: none !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* Componentes a medida con su propio botón/borde (ej: CustomSelect) también
@@ -381,23 +390,23 @@ body.modal-open {
 .floating-fieldset .alert-filter-toggle.btn:hover,
 .floating-fieldset .alert-filter-toggle.btn:focus,
 .floating-fieldset .alert-filter-toggle.btn:active {
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  padding: 0.5rem 0 !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0.5rem 0 !important;
 }
 
 .floating-fieldset-affix {
-  flex-shrink: 0;
-  color: #64748b;
-  font-size: 0.95rem;
+    flex-shrink: 0;
+    color: #64748b;
+    font-size: 0.95rem;
 }
 
 .floating-fieldset-input-wrap {
-  position: relative;
-  flex: 1 1 auto;
-  min-width: 0;
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 /* Label mostrado "adentro" (como si fuera el valor) mientras el campo está
@@ -407,18 +416,18 @@ body.modal-open {
    derecho — ver .floating-fieldset-mask-native para el caso que sí necesita
    tapar todo el ancho. */
 .floating-fieldset-ghost {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  max-width: 100%;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  color: #94a3b8;
-  font-size: 0.95rem;
-  font-weight: 500;
-  pointer-events: none;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    font-weight: 500;
+    pointer-events: none;
 }
 
 /* input[type=date/time/...] dibujan su propio texto nativo de "vacío"
@@ -427,20 +436,20 @@ body.modal-open {
    fondo opaco (acá sí puede ocupar todo el ancho: un <input> no tiene un
    ícono propio del lado derecho que perder, a diferencia de un CustomSelect). */
 .floating-fieldset-mask-native .floating-fieldset-ghost {
-  inset: 0;
-  left: 0;
-  top: 0;
-  transform: none;
-  max-width: none;
-  display: flex;
-  align-items: center;
-  background-color: #ffffff;
+    inset: 0;
+    left: 0;
+    top: 0;
+    transform: none;
+    max-width: none;
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
 }
 
 /* Mismo motivo que el fondo del legend: dentro de un modal el fondo real es
    var(--bs-modal-bg) (#f8fafc en esta app), no blanco puro. */
 .modal-content .floating-fieldset-mask-native .floating-fieldset-ghost {
-  background-color: var(--bs-modal-bg);
+    background-color: var(--bs-modal-bg);
 }
 
 /* --- CURSOR: elementos interactivos deben mostrar mano, no flecha --- */
@@ -453,106 +462,112 @@ select,
 .dropdown-item,
 .nav-link,
 [role="button"] {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 button:disabled,
 .btn:disabled {
-  cursor: not-allowed;
+    cursor: not-allowed;
 }
 
 /* Bootstrap por defecto pinta el link INACTIVO de las nav-tabs con el color
    de link (celeste) y el ACTIVO en gris oscuro: es al revés de lo que se
    espera visualmente (la pestaña activa es la que debería resaltar). */
 .nav-tabs .nav-link {
-  color: #475569;
+    color: #475569;
 }
 
 .nav-tabs .nav-link:hover {
-  color: var(--bs-primary);
+    color: var(--bs-primary);
 }
 
 .nav-tabs .nav-link.active {
-  color: var(--bs-primary);
+    color: var(--bs-primary);
 }
 
 /* --- BOTONES MODERNIZADOS --- */
 .btn {
-  border-radius: var(--btn-border-radius);
-  padding: 0.6rem 1.4rem;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: var(--transition-smooth);
-  border: none;
+    border-radius: var(--btn-border-radius);
+    padding: 0.6rem 1.4rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: var(--transition-smooth);
+    border: none;
 }
 
 .btn:hover {
-  transform: translateY(-1px);
+    transform: translateY(-1px);
 }
 
 .btn:active {
-  transform: translateY(0);
+    transform: translateY(0);
 }
 
 .btn-primary {
-  background-color: var(--bs-primary);
-  color: #ffffff;
-  box-shadow: 0 4px 14px 0 rgba(0, 119, 255, 0.25);
+    background-color: var(--bs-primary);
+    color: #ffffff;
+    box-shadow: 0 4px 14px 0 rgba(0, 119, 255, 0.25);
 }
 
-.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
-  background-color: #0055cc !important;
-  color: #ffffff !important;
-  box-shadow: 0 6px 20px 0 rgba(0, 119, 255, 0.4) !important;
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #0055cc !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 20px 0 rgba(0, 119, 255, 0.4) !important;
 }
 
 .btn-secondary {
-  background-color: #64748b;
-  color: #ffffff;
-  box-shadow: 0 4px 14px 0 rgba(100, 116, 139, 0.2);
+    background-color: #64748b;
+    color: #ffffff;
+    box-shadow: 0 4px 14px 0 rgba(100, 116, 139, 0.2);
 }
 
-.btn-secondary:hover, .btn-secondary:focus {
-  background-color: #475569 !important;
-  color: #ffffff !important;
-  box-shadow: 0 6px 20px 0 rgba(100, 116, 139, 0.35) !important;
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background-color: #475569 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 20px 0 rgba(100, 116, 139, 0.35) !important;
 }
 
 .btn-success {
-  background-color: #10b981;
-  color: #ffffff;
-  box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.2);
+    background-color: #10b981;
+    color: #ffffff;
+    box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.2);
 }
 
-.btn-success:hover, .btn-success:focus {
-  background-color: #059669 !important;
-  color: #ffffff !important;
-  box-shadow: 0 6px 20px 0 rgba(16, 185, 129, 0.35) !important;
+.btn-success:hover,
+.btn-success:focus {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 20px 0 rgba(16, 185, 129, 0.35) !important;
 }
 
 .btn-danger {
-  background-color: #ef4444;
-  color: #ffffff;
-  box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.2);
+    background-color: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.2);
 }
 
-.btn-danger:hover, .btn-danger:focus {
-  background-color: #dc2626 !important;
-  color: #ffffff !important;
-  box-shadow: 0 6px 20px 0 rgba(239, 68, 68, 0.35) !important;
+.btn-danger:hover,
+.btn-danger:focus {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 20px 0 rgba(239, 68, 68, 0.35) !important;
 }
 
 /* Alertas de advertencia (botones amarillos) con alto contraste */
 .btn-warning {
-  background-color: #f59e0b;
-  color: #1e293b !important;
-  box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.2);
+    background-color: #f59e0b;
+    color: #1e293b !important;
+    box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.2);
 }
 
-.btn-warning:hover, .btn-warning:focus {
-  background-color: #d97706 !important;
-  color: #1e293b !important;
-  box-shadow: 0 6px 20px 0 rgba(245, 158, 11, 0.35) !important;
+.btn-warning:hover,
+.btn-warning:focus {
+    background-color: #d97706 !important;
+    color: #1e293b !important;
+    box-shadow: 0 6px 20px 0 rgba(245, 158, 11, 0.35) !important;
 }
 
 /* Variantes "outline" (regla de botones Figma, aplicable a TODOS los
@@ -567,15 +582,15 @@ button:disabled,
 .btn-outline-danger,
 .btn-outline-warning,
 .btn-outline-info {
-  background-color: #ffffff !important;
-  /* !important porque algunas rutas re-importan bootstrap.min.css en su
+    background-color: #ffffff !important;
+    /* !important porque algunas rutas re-importan bootstrap.min.css en su
      propio chunk (dashboards), lo que puede reordenar el CSS final y hacer
      ganar el border-width:1px de Bootstrap por encima de este archivo. */
-  border-width: 1.5px !important;
-  /* .btn resetea "border: none" (border-style: none) para las variantes
+    border-width: 1.5px !important;
+    /* .btn resetea "border: none" (border-style: none) para las variantes
      sólidas; acá hay que reafirmar el estilo para que el borde de color se
      vea (si no, border-width computa 0 aunque se declare un valor). */
-  border-style: solid !important;
+    border-style: solid !important;
 }
 
 /* .btn:hover trae un translateY(-1px) global (efecto "lift" de los botones
@@ -586,187 +601,205 @@ button:disabled,
 [class*="btn-outline-"]:hover,
 [class*="btn-outline-"]:focus,
 [class*="btn-outline-"]:active {
-  transform: none !important;
+    transform: none !important;
 }
 
-.btn-outline-primary:active, .btn-outline-primary.active,
-.btn-outline-secondary:active, .btn-outline-secondary.active,
-.btn-outline-success:active, .btn-outline-success.active,
-.btn-outline-danger:active, .btn-outline-danger.active,
-.btn-outline-warning:active, .btn-outline-warning.active,
-.btn-outline-info:active, .btn-outline-info.active {
-  box-shadow: none !important;
+.btn-outline-primary:active,
+.btn-outline-primary.active,
+.btn-outline-secondary:active,
+.btn-outline-secondary.active,
+.btn-outline-success:active,
+.btn-outline-success.active,
+.btn-outline-danger:active,
+.btn-outline-danger.active,
+.btn-outline-warning:active,
+.btn-outline-warning.active,
+.btn-outline-info:active,
+.btn-outline-info.active {
+    box-shadow: none !important;
 }
 
 .btn-outline-primary {
-  color: var(--bs-primary);
-  border-color: var(--bs-primary);
+    color: var(--bs-primary);
+    border-color: var(--bs-primary);
 }
 
-.btn-outline-primary:hover, .btn-outline-primary:focus {
-  background-color: #eff6ff !important;
-  color: var(--bs-primary) !important;
-  border-color: var(--bs-primary) !important;
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background-color: #eff6ff !important;
+    color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
 }
 
-.btn-outline-primary:active, .btn-outline-primary.active {
-  background-color: #dbeafe !important;
-  color: var(--bs-primary) !important;
-  border-color: var(--bs-primary) !important;
+.btn-outline-primary:active,
+.btn-outline-primary.active {
+    background-color: #dbeafe !important;
+    color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
 }
 
 .btn-outline-secondary {
-  color: #475569;
-  border-color: #64748b;
+    color: #475569;
+    border-color: #64748b;
 }
 
-.btn-outline-secondary:hover, .btn-outline-secondary:focus {
-  background-color: #f1f5f9 !important;
-  color: #475569 !important;
-  border-color: #64748b !important;
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border-color: #64748b !important;
 }
 
-.btn-outline-secondary:active, .btn-outline-secondary.active {
-  background-color: #e2e8f0 !important;
-  color: #334155 !important;
-  border-color: #64748b !important;
+.btn-outline-secondary:active,
+.btn-outline-secondary.active {
+    background-color: #e2e8f0 !important;
+    color: #334155 !important;
+    border-color: #64748b !important;
 }
 
 .btn-outline-success {
-  color: #15803d;
-  border-color: #22c55e;
+    color: #15803d;
+    border-color: #22c55e;
 }
 
-.btn-outline-success:hover, .btn-outline-success:focus {
-  background-color: #ecfdf5 !important;
-  color: #15803d !important;
-  border-color: #22c55e !important;
+.btn-outline-success:hover,
+.btn-outline-success:focus {
+    background-color: #ecfdf5 !important;
+    color: #15803d !important;
+    border-color: #22c55e !important;
 }
 
-.btn-outline-success:active, .btn-outline-success.active {
-  background-color: #bbf7d0 !important;
-  color: #15803d !important;
-  border-color: #22c55e !important;
+.btn-outline-success:active,
+.btn-outline-success.active {
+    background-color: #bbf7d0 !important;
+    color: #15803d !important;
+    border-color: #22c55e !important;
 }
 
 .btn-outline-warning {
-  color: #b45309;
-  border-color: #f59e0b;
+    color: #b45309;
+    border-color: #f59e0b;
 }
 
-.btn-outline-warning:hover, .btn-outline-warning:focus {
-  background-color: #fffbeb !important;
-  color: #b45309 !important;
-  border-color: #f59e0b !important;
+.btn-outline-warning:hover,
+.btn-outline-warning:focus {
+    background-color: #fffbeb !important;
+    color: #b45309 !important;
+    border-color: #f59e0b !important;
 }
 
-.btn-outline-warning:active, .btn-outline-warning.active {
-  background-color: #fde68a !important;
-  color: #b45309 !important;
-  border-color: #f59e0b !important;
+.btn-outline-warning:active,
+.btn-outline-warning.active {
+    background-color: #fde68a !important;
+    color: #b45309 !important;
+    border-color: #f59e0b !important;
 }
 
 .btn-outline-danger {
-  color: #dc2626;
-  border-color: #ef4444;
+    color: #dc2626;
+    border-color: #ef4444;
 }
 
-.btn-outline-danger:hover, .btn-outline-danger:focus {
-  background-color: #fef2f2 !important;
-  color: #dc2626 !important;
-  border-color: #ef4444 !important;
+.btn-outline-danger:hover,
+.btn-outline-danger:focus {
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+    border-color: #ef4444 !important;
 }
 
-.btn-outline-danger:active, .btn-outline-danger.active {
-  background-color: #fecaca !important;
-  color: #dc2626 !important;
-  border-color: #ef4444 !important;
+.btn-outline-danger:active,
+.btn-outline-danger.active {
+    background-color: #fecaca !important;
+    color: #dc2626 !important;
+    border-color: #ef4444 !important;
 }
 
 .btn-outline-info {
-  color: #0d9488;
-  border-color: #2dd4bf;
+    color: #0d9488;
+    border-color: #2dd4bf;
 }
 
-.btn-outline-info:hover, .btn-outline-info:focus {
-  background-color: #f0fdfa !important;
-  color: #0d9488 !important;
-  border-color: #2dd4bf !important;
+.btn-outline-info:hover,
+.btn-outline-info:focus {
+    background-color: #f0fdfa !important;
+    color: #0d9488 !important;
+    border-color: #2dd4bf !important;
 }
 
-.btn-outline-info:active, .btn-outline-info.active {
-  background-color: #ccfbf1 !important;
-  color: #0d9488 !important;
-  border-color: #2dd4bf !important;
+.btn-outline-info:active,
+.btn-outline-info.active {
+    background-color: #ccfbf1 !important;
+    color: #0d9488 !important;
+    border-color: #2dd4bf !important;
 }
 
 /* --- ALERTAS DE ALTO CONTRASTE (WCAG AA) --- */
 .alert {
-  border-radius: 12px;
-  border-width: 1.5px;
-  padding: 1rem 1.25rem;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+    border-radius: 12px;
+    border-width: 1.5px;
+    padding: 1rem 1.25rem;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .alert-success {
-  background-color: #ecfdf5 !important;
-  border-color: #a7f3d0 !important;
-  color: #065f46 !important;
+    background-color: #ecfdf5 !important;
+    border-color: #a7f3d0 !important;
+    color: #065f46 !important;
 }
 
 .alert-danger {
-  background-color: #fef2f2 !important;
-  border-color: #fecaca !important;
-  color: #991b1b !important;
+    background-color: #fef2f2 !important;
+    border-color: #fecaca !important;
+    color: #991b1b !important;
 }
 
 .alert-warning {
-  background-color: #fffbeb !important;
-  border-color: #fde68a !important;
-  color: #92400e !important;
+    background-color: #fffbeb !important;
+    border-color: #fde68a !important;
+    color: #92400e !important;
 }
 
 .alert-info {
-  background-color: #f0f9ff !important;
-  border-color: #bae6fd !important;
-  color: #075985 !important;
+    background-color: #f0f9ff !important;
+    border-color: #bae6fd !important;
+    color: #075985 !important;
 }
 
 /* --- TABLAS Y PAGINADORES --- */
 .table {
-  --bs-table-bg: transparent;
-  color: #1e293b;
-  vertical-align: middle;
+    --bs-table-bg: transparent;
+    color: #1e293b;
+    vertical-align: middle;
 }
 
 .table th {
-  font-weight: 700;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.5px;
-  color: #64748b;
-  border-bottom: 2px solid #e2e8f0;
-  background-color: #f8fafc;
-  padding: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    border-bottom: 2px solid #e2e8f0;
+    background-color: #f8fafc;
+    padding: 1rem;
 }
 
 .table td {
-  padding: 1rem;
-  border-bottom: 1px solid #e2e8f0;
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-  background-color: #f8fafc;
+    background-color: #f8fafc;
 }
 
 /* Tinte celeste muy suave (en vez del gris plano de Bootstrap) para que el
    hover de fila entone con el resto de la paleta pastel/celeste del sistema
    (mismo lenguaje que el hover del sidebar y de row-actions-edit). */
 .table-hover tbody tr:hover {
-  background-color: rgba(0, 119, 255, 0.045);
+    background-color: rgba(0, 119, 255, 0.045);
 }
 
 /* --- Paginación de ReusableTable (regla Figma) ---
@@ -776,81 +809,81 @@ button:disabled,
    estas clases son las únicas que gobiernan el look de la paginación. */
 .table-pagination-nav,
 .table-pagination-item {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 34px;
-  height: 34px;
-  padding: 0 0.4rem;
-  border: 1.5px solid #e2e8f0;
-  background-color: #ffffff;
-  color: #475569;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 0.4rem;
+    border: 1.5px solid #e2e8f0;
+    background-color: #ffffff;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition-smooth);
 }
 
 .table-pagination-nav {
-  border-radius: 50%;
-  color: #64748b;
+    border-radius: 50%;
+    color: #64748b;
 }
 
 .table-pagination-item {
-  border-radius: 8px;
+    border-radius: 8px;
 }
 
 .table-pagination-nav:hover:not(:disabled),
 .table-pagination-item:hover:not(.active) {
-  background-color: #f1f5f9;
-  border-color: #cbd5e1;
-  color: var(--bs-primary);
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: var(--bs-primary);
 }
 
 .table-pagination-nav:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
 .table-pagination-item.active {
-  background-color: var(--bs-primary);
-  border-color: var(--bs-primary);
-  color: #ffffff;
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: #ffffff;
 }
 
 .table-pagination-ellipsis {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 34px;
-  color: #94a3b8;
-  font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 34px;
+    color: #94a3b8;
+    font-weight: 600;
 }
 
 .table-page-size-select {
-  width: auto;
-  min-width: 130px;
-  flex-shrink: 0;
+    width: auto;
+    min-width: 130px;
+    flex-shrink: 0;
 }
 
 /* --- DETALLES ANTERIORES PRESERVADOS --- */
 .pdf-loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  flex-direction: column;
-  gap: 1rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .custom-switch-container .form-check-input {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 /* --- NAVBAR (Fase 1: marca, links con icono y menu de usuario) ---
@@ -860,187 +893,187 @@ button:disabled,
    min-height, cualquier crecimiento quedaría "pegado" para siempre (nunca
    podría volver a achicarse). La altura real sale solo del padding+contenido. */
 .navbar.fixed-top {
-  padding-top: 0.55rem;
-  padding-bottom: 0.55rem;
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
 }
 
 .navbar-brand-icon {
-  width: 36px;
-  height: 36px;
-  object-fit: contain;
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
 }
 
 .navbar-brand-text {
-  line-height: 1.15;
+    line-height: 1.15;
 }
 
 .navbar-brand-title {
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: #ffffff;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #ffffff;
 }
 
 .navbar-brand-subtitle {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.75);
-  font-weight: 400;
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 400;
 }
 
 /* Links del navbar como "pill" (reemplaza el subrayado anterior) */
 .navbar-link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: rgba(255, 255, 255, 0.85) !important;
-  border-radius: 999px;
-  padding: 0.5rem 0.9rem !important;
-  transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.85) !important;
+    border-radius: 999px;
+    padding: 0.5rem 0.9rem !important;
+    transition: var(--transition-smooth);
 }
 
 .navbar-link:hover {
-  background-color: rgba(255, 255, 255, 0.12);
-  color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff !important;
 }
 
 .navbar-link.navbar-link-active {
-  background-color: rgba(255, 255, 255, 0.18);
-  color: #ffffff !important;
-  font-weight: 600;
+    background-color: rgba(255, 255, 255, 0.18);
+    color: #ffffff !important;
+    font-weight: 600;
 }
 
 /* Botón de notificaciones */
 .navbar-icon-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  border: none;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.85);
-  transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    transition: var(--transition-smooth);
 }
 
 .navbar-icon-btn:hover {
-  background-color: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
 }
 
 /* Menú de usuario */
 .navbar-user-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  background: transparent !important;
-  border: none !important;
-  padding: 0.35rem 0.75rem !important;
-  border-radius: 999px;
-  color: #ffffff !important;
-  text-decoration: none !important;
-  box-shadow: none !important;
-  transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: transparent !important;
+    border: none !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: 999px;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+    transition: var(--transition-smooth);
 }
 
 .navbar-user-toggle:hover,
 .navbar-user-toggle:focus {
-  background-color: rgba(255, 255, 255, 0.12) !important;
+    background-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 .navbar-user-toggle::after {
-  display: none;
+    display: none;
 }
 
 .navbar-avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: #ffffff;
-  color: var(--bs-primary);
-  font-weight: 700;
-  font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    color: var(--bs-primary);
+    font-weight: 700;
+    font-size: 0.9rem;
 }
 
 .navbar-user-info {
-  line-height: 1.2;
-  max-width: 160px;
+    line-height: 1.2;
+    max-width: 160px;
 }
 
 .navbar-user-name {
-  font-weight: 600;
-  font-size: 0.9rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    font-weight: 600;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .navbar-user-role {
-  font-size: 0.75rem;
-  opacity: 0.85;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    font-size: 0.75rem;
+    opacity: 0.85;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .navbar-user-chevron {
-  font-size: 0.8rem;
-  opacity: 0.85;
+    font-size: 0.8rem;
+    opacity: 0.85;
 }
 
 /* Encabezado del desplegable de usuario: nombre + correo, a modo de
    contexto (no es una opción, por eso no usa Dropdown.Item). El rol ya se
    ve en el botón que abre el menú, así que acá no se repite. */
 .navbar-dropdown-header {
-  max-width: 260px;
+    max-width: 260px;
 }
 
 /* Invertido respecto de .navbar-avatar: acá el fondo del desplegable es
    claro, así que el círculo pasa a fondo celeste + letra blanca en vez de
    fondo blanco + letra celeste (si no, se pierde contra el fondo). */
 .navbar-avatar-lg {
-  width: 44px;
-  height: 44px;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-  background-color: var(--bs-primary);
-  color: #ffffff;
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    background-color: var(--bs-primary);
+    color: #ffffff;
 }
 
 /* Ítem de cerrar sesión con subtítulo, como el resto de las opciones que se
    sumarán después (Mi perfil, Cambiar contraseña, Preferencias). */
 .navbar-dropdown-logout {
-  display: flex !important;
-  align-items: center;
-  gap: 0.75rem;
+    display: flex !important;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .navbar-dropdown-logout-icon {
-  font-size: 1.1rem;
+    font-size: 1.1rem;
 }
 
 .navbar-dropdown-logout-subtitle {
-  font-size: 0.8rem;
-  font-weight: 400;
-  opacity: 0.75;
+    font-size: 0.8rem;
+    font-weight: 400;
+    opacity: 0.75;
 }
 
 /* --- ANIMACIONES DE ENTRADA --- */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 /* Animación de entrada para el bloque de contenido de páginas tipo
@@ -1048,34 +1081,34 @@ button:disabled,
    nunca al contenedor que también envuelve el PageHeader, para que el
    título quede fijo y no se deslice junto con la card. */
 @keyframes contentFadeInSlide {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .content-fade-in-slide {
-  animation: contentFadeInSlide 0.5s ease-out;
+    animation: contentFadeInSlide 0.5s ease-out;
 }
 
 /* Transición esqueleto -> contenido real: la tabla aparece en el mismo
    lugar exacto que ocupaba el esqueleto, así que solo se desvanece (sin
    deslizar) para no dar sensación de "venir de" ningún lado. */
 @keyframes contentFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .content-fade-in {
-  animation: contentFadeIn 0.5s ease-out;
+    animation: contentFadeIn 0.5s ease-out;
 }
 
 /* --- SKELETON LOADING (shimmer) ---
@@ -1084,33 +1117,33 @@ button:disabled,
    pantallas donde conviene mostrar la forma del contenido que está por
    llegar en vez de un ícono de carga genérico. */
 .skeleton {
-  position: relative;
-  overflow: hidden;
-  background-color: #e2e8f0;
+    position: relative;
+    overflow: hidden;
+    background-color: #e2e8f0;
 }
 
 .skeleton::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  transform: translateX(-100%);
-  background-image: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.65) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  animation: skeletonShimmer 1.6s ease-in-out infinite;
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.65) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    animation: skeletonShimmer 1.6s ease-in-out infinite;
 }
 
 @keyframes skeletonShimmer {
-  100% {
-    transform: translateX(100%);
-  }
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .skeleton-line {
-  border-radius: 6px;
+    border-radius: 6px;
 }
 
 /* --- SKELETON DE TABLA (genérico) ---
@@ -1119,108 +1152,108 @@ button:disabled,
    mismo alto/gap que una fila real, así sirve para cualquier tabla del
    sistema. Ver TableSkeleton.tsx. */
 .table-skeleton-field {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  height: 38px;
-  flex-shrink: 0;
-  padding: 0 0.75rem;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 10px;
-  background: #ffffff;
-  color: #cbd5e1;
-  font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    height: 38px;
+    flex-shrink: 0;
+    padding: 0 0.75rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #cbd5e1;
+    font-size: 0.95rem;
 }
 
 /* El botón principal conserva el color real (celeste): no sabemos su ícono
    ni texto todavía, pero sí que siempre es la acción primaria de la barra. */
 .table-skeleton-primary-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 38px;
-  flex-shrink: 0;
-  padding: 0 1.25rem;
-  border-radius: 10px;
-  background: var(--bs-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 38px;
+    flex-shrink: 0;
+    padding: 0 1.25rem;
+    border-radius: 10px;
+    background: var(--bs-primary);
 }
 
 /* En desktop (>= lg, igual que TableToolbar.tsx real) el buscador y el
    filtro pasan a ancho fijo en una fila horizontal, y el botón se empuja
    a la derecha. En mobile ocupan el 100% apilados en columna. */
 @media (min-width: 992px) {
-  .table-skeleton-field-search {
-    flex: 1 1 260px;
-    width: auto;
-    max-width: 380px;
-  }
+    .table-skeleton-field-search {
+        flex: 1 1 260px;
+        width: auto;
+        max-width: 380px;
+    }
 
-  .table-skeleton-field-filter {
-    flex: 0 1 220px;
-    width: auto;
-  }
+    .table-skeleton-field-filter {
+        flex: 0 1 220px;
+        width: auto;
+    }
 
-  .table-skeleton-primary-btn {
-    width: auto;
-    margin-left: auto;
-  }
+    .table-skeleton-primary-btn {
+        width: auto;
+        margin-left: auto;
+    }
 }
 
 .skeleton-on-primary {
-  background-color: rgba(255, 255, 255, 0.35) !important;
+    background-color: rgba(255, 255, 255, 0.35) !important;
 }
 
 .skeleton-on-primary::after {
-  background-image: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.8) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
+    background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.8) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
 }
 
 .table-skeleton-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.85rem 1.1rem;
-  border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.1rem;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .table-skeleton-row:last-of-type {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 .table-skeleton-cell {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  min-width: 0;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
 }
 
 .table-skeleton-avatar-cell {
-  flex: 0 0 32px;
+    flex: 0 0 32px;
 }
 
 .table-skeleton-actions-cell {
-  flex: 0 0 auto;
-  gap: 0.5rem;
-  color: #cbd5e1;
+    flex: 0 0 auto;
+    gap: 0.5rem;
+    color: #cbd5e1;
 }
 
 /* --- REUSABLE TABLE SORTING STYLES --- */
 .header-content {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
 }
 
 .header-text {
-  white-space: nowrap;
+    white-space: nowrap;
 }
 
 /* --- BARRA DE FILTROS ESTANDARIZADA (buscadores de tableros) --- */
@@ -1228,55 +1261,55 @@ button:disabled,
    como la mitad superior de una única caja (como en el Figma): sin sombra
    propia ni radio/borde inferior, separado solo por una línea divisoria. */
 .table-toolbar {
-  background-color: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  border-bottom: none;
-  border-top-left-radius: var(--card-border-radius);
-  border-top-right-radius: var(--card-border-radius);
-  box-shadow: var(--shadow-sm);
-  padding: 0.85rem 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 0;
+    background-color: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-bottom: none;
+    border-top-left-radius: var(--card-border-radius);
+    border-top-right-radius: var(--card-border-radius);
+    box-shadow: var(--shadow-sm);
+    padding: 0.85rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 0;
 }
 
 /* Mitad inferior de la caja fusionada */
 .table-toolbar + .reusable-table-card {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  border-top: 1px solid rgba(226, 232, 240, 0.8);
-  margin-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    margin-top: 0;
 }
 
 .table-toolbar-main,
 .table-toolbar-active-filters,
 .table-toolbar-filter-toggles {
-  min-width: 0;
+    min-width: 0;
 }
 
 .table-toolbar-filters-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #64748b;
-  white-space: nowrap;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+    white-space: nowrap;
 }
 
 .table-toolbar-filter-check .form-check-label {
-  font-size: 0.875rem;
-  color: #334155;
-  cursor: pointer;
+    font-size: 0.875rem;
+    color: #334155;
+    cursor: pointer;
 }
 
 .table-toolbar-filter-control {
-  width: 100%;
-  min-width: 180px;
+    width: 100%;
+    min-width: 180px;
 }
 
 .search-bar-input {
-  width: auto;
-  max-width: 320px;
-  min-width: 200px;
+    width: auto;
+    max-width: 320px;
+    min-width: 200px;
 }
 
 /* --- FASE 3: buscador y selects como InputGroup con icono a la izquierda ---
@@ -1285,59 +1318,59 @@ button:disabled,
    se aplica desde el breakpoint lg en adelante; en mobile los grupos ocupan
    simplemente el 100% del ancho disponible. */
 .search-bar-group {
-  width: 100%;
-  max-width: 380px;
-  min-width: 0;
+    width: 100%;
+    max-width: 380px;
+    min-width: 0;
 }
 
 .table-toolbar-filter-group {
-  width: 100%;
-  min-width: 0;
+    width: 100%;
+    min-width: 0;
 }
 
 @media (min-width: 992px) {
-  .search-bar-group {
-    flex: 1 1 260px;
-    min-width: 220px;
-  }
+    .search-bar-group {
+        flex: 1 1 260px;
+        min-width: 220px;
+    }
 
-  .table-toolbar-filter-group {
-    flex: 1 1 220px;
-    min-width: 200px;
-  }
+    .table-toolbar-filter-group {
+        flex: 1 1 220px;
+        min-width: 200px;
+    }
 }
 
 .search-bar-group .input-group-text,
 .table-toolbar-filter-group .input-group-text {
-  background-color: #ffffff;
-  border: 1.5px solid #e2e8f0;
-  border-right: none;
-  color: #94a3b8;
-  padding-right: 0.4rem;
+    background-color: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-right: none;
+    color: #94a3b8;
+    padding-right: 0.4rem;
 }
 
 .search-bar-group .form-control,
 .table-toolbar-filter-group .form-select,
 .table-toolbar-filter-group .form-control {
-  border-left: none;
-  padding-left: 0.4rem;
-  max-width: none;
-  min-width: 0;
+    border-left: none;
+    padding-left: 0.4rem;
+    max-width: none;
+    min-width: 0;
 }
 
 /* Al enfocar el input/select, resaltar también el borde del icono para que
    el grupo se vea como una sola pieza. */
 .search-bar-group:focus-within .input-group-text,
 .table-toolbar-filter-group:focus-within .input-group-text {
-  border-color: #80bfff;
-  color: var(--bs-primary);
+    border-color: #80bfff;
+    color: var(--bs-primary);
 }
 
 .sort-arrow {
-  font-size: 0.75rem;
-  color: var(--bs-primary);
-  opacity: 0.8;
-  transition: var(--transition-smooth);
+    font-size: 0.75rem;
+    color: var(--bs-primary);
+    opacity: 0.8;
+    transition: var(--transition-smooth);
 }
 
 /* --- ÍCONOS CIRCULARES REUTILIZABLES ---
@@ -1347,71 +1380,71 @@ button:disabled,
    color; .icon-badge-lg para headers de página/modal (52px), el tamaño base
    (40px) para todo lo demás (secciones, notas). */
 .icon-badge {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(0, 119, 255, 0.1);
-  color: var(--bs-primary);
-  font-size: 1.05rem;
-  flex-shrink: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 119, 255, 0.1);
+    color: var(--bs-primary);
+    font-size: 1.05rem;
+    flex-shrink: 0;
 }
 
 .icon-badge-lg {
-  width: 52px;
-  height: 52px;
-  font-size: 1.4rem;
+    width: 52px;
+    height: 52px;
+    font-size: 1.4rem;
 }
 
 .icon-badge-xl {
-  width: 64px;
-  height: 64px;
-  font-size: 1.75rem;
+    width: 64px;
+    height: 64px;
+    font-size: 1.75rem;
 }
 
 /* Variantes de color para .icon-badge (ver src/shared/components/modal-variant/modalVariant.ts).
    Sin ninguna de estas clases, .icon-badge queda con el celeste neutro de siempre. */
 .icon-badge-info {
-  background: rgba(0, 119, 255, 0.1);
-  color: var(--bs-primary);
+    background: rgba(0, 119, 255, 0.1);
+    color: var(--bs-primary);
 }
 
 .icon-badge-warning {
-  background: rgba(245, 158, 11, 0.14);
-  color: #d97706;
+    background: rgba(245, 158, 11, 0.14);
+    color: #d97706;
 }
 
 .icon-badge-error {
-  background: rgba(239, 68, 68, 0.12);
-  color: #dc2626;
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
 }
 
 .icon-badge-success {
-  background: rgba(34, 197, 94, 0.12);
-  color: #16a34a;
+    background: rgba(34, 197, 94, 0.12);
+    color: #16a34a;
 }
 
 .icon-badge-question {
-  background: rgba(168, 85, 247, 0.12);
-  color: #9333ea;
+    background: rgba(168, 85, 247, 0.12);
+    color: #9333ea;
 }
 
 /* Botón "question" (violeta): variante que no existe en el set por defecto
    de Bootstrap, para acompañar al ícono violeta de la variante "question". */
 .btn-question {
-  background-color: #9333ea;
-  border-color: #9333ea;
-  color: #fff;
+    background-color: #9333ea;
+    border-color: #9333ea;
+    color: #fff;
 }
 
 .btn-question:hover,
 .btn-question:focus {
-  background-color: #7e22ce;
-  border-color: #7e22ce;
-  color: #fff;
+    background-color: #7e22ce;
+    border-color: #7e22ce;
+    color: #fff;
 }
 
 /* Ícono compuesto (persona + insignia superpuesta) para
@@ -1419,41 +1452,41 @@ button:disabled,
    badge-soft-* que se le agregue (mismo criterio que el resto de chips de
    estado), acá solo se define la forma. */
 .status-change-icon {
-  position: relative;
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.9rem;
-  flex-shrink: 0;
+    position: relative;
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.9rem;
+    flex-shrink: 0;
 }
 
 .status-change-icon-badge {
-  position: absolute;
-  right: -2px;
-  bottom: -2px;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  font-size: 0.75rem;
-  border: 3px solid #ffffff;
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.75rem;
+    border: 3px solid #ffffff;
 }
 
 /* Un poco más de aire que el header de modal genérico: acá el ícono es más
    grande (68px vs 52px) y el mensaje tiene más texto, así que el padding
    por defecto de .form-modal-header se sentía apretado. */
 .change-status-header .form-modal-header {
-  padding: 1.75rem 1.75rem 1.5rem;
+    padding: 1.75rem 1.75rem 1.5rem;
 }
 
 .change-status-header .form-modal-header > div:first-child {
-  gap: 1.25rem !important;
+    gap: 1.25rem !important;
 }
 
 /* --- FORMULARIOS/MODALES: patrones reutilizables ---
@@ -1466,14 +1499,14 @@ button:disabled,
    que el modal tenga las mismas esquinas redondeadas que el resto del
    sistema (Bootstrap por default las deja cuadradas). */
 .form-modal-content {
-  border-radius: var(--card-border-radius) !important;
+    border-radius: var(--card-border-radius) !important;
 }
 
 /* Para modales cuyo contenido (tablas anchas, etc.) no entra cómodo en el
    .modal-xl de Bootstrap (1140px). Usar como dialogClassName. */
 .bill-active-modal-dialog {
-  --bs-modal-width: 1180px;
-  max-width: 95vw;
+    --bs-modal-width: 1180px;
+    max-width: 95vw;
 }
 
 /* Con la prop "scrollable" de react-bootstrap, .modal-content también tiene
@@ -1483,7 +1516,7 @@ button:disabled,
    Mismo fix puntual que .filter-card/.chart-card: se libera acá también.
    Ver Modal.Body className="overflow-visible" en el componente. */
 .scrollable-modal-fix .modal-content {
-  overflow: visible !important;
+    overflow: visible !important;
 }
 
 /* Encontrado el verdadero responsable del corte: ReusableTable usa <Table
@@ -1497,7 +1530,17 @@ button:disabled,
    modales (aceptable: son tablas angostas, no las anchas tipo matriz de
    lecturas). */
 .scrollable-modal-fix .table-responsive {
-  overflow: visible !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    max-width: 100%;
+}
+
+.scrollable-modal-fix .reusable-table table {
+    min-width: 680px;
+}
+
+.scrollable-modal-fix .table-row-actions {
+    flex-wrap: nowrap;
 }
 
 /* Backdrop único y compartido para toda la app (ver
@@ -1505,31 +1548,35 @@ button:disabled,
    individual (backdrop={false}), así con N modales apilados se sigue
    pintando un solo <div> en vez de N. */
 .shared-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(15, 23, 42, 0.5);
-  animation: shared-modal-backdrop-fade-in 0.15s ease-out;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.5);
+    animation: shared-modal-backdrop-fade-in 0.15s ease-out;
 }
 
 /* Los modales usan este backdrop nativo, transparente, solo para que
    react-bootstrap pueda detectar el click fuera de .modal-content. El fondo
    oscuro visible sigue siendo el backdrop compartido de ModalStackContext. */
 .modal-click-backdrop {
-  background-color: transparent;
+    background-color: transparent;
 }
 
 @keyframes shared-modal-backdrop-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .form-modal-header {
-  padding: 1.25rem 1.5rem 1rem;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 .form-modal-title {
-  font-weight: 700;
+    font-weight: 700;
 }
 
 /* Layout "centrado" de ConfirmModal (ícono arriba, título y mensaje debajo,
@@ -1537,40 +1584,40 @@ button:disabled,
    ConfirmModal.tsx. Sin variant, ConfirmModal sigue usando FormModalHeader
    (ícono a la izquierda) como siempre. */
 .confirm-modal-close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 1;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1;
 }
 
 .confirm-modal-centered {
-  padding: 2rem 1.75rem 0.25rem;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    padding: 2rem 1.75rem 0.25rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .confirm-modal-title {
-  font-weight: 800;
-  font-size: 1.4rem;
-  color: #0f172a;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: #0f172a;
 }
 
 .confirm-modal-message {
-  color: #64748b;
-  font-size: 0.95rem;
-  max-width: 380px;
+    color: #64748b;
+    font-size: 0.95rem;
+    max-width: 380px;
 }
 
 .confirm-modal-footer {
-  border-top: 1px solid rgba(226, 232, 240, 0.8);
-  margin-top: 1.5rem;
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    margin-top: 1.5rem;
 }
 
 .confirm-modal-footer .btn {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
 }
 
 /* .btn-warning tiene texto oscuro forzado con !important más arriba (pensado
@@ -1578,12 +1625,12 @@ button:disabled,
    blanco da mejor contraste, así que hace falta otro !important, más
    específico, para ganarle a esa regla. */
 .confirm-modal-footer .btn-warning {
-  color: #fff !important;
+    color: #fff !important;
 }
 
 .form-section-title {
-  font-weight: 700;
-  color: #1e293b;
+    font-weight: 700;
+    color: #1e293b;
 }
 
 /* Título de sección con línea inferior (en vez del ícono circular de
@@ -1592,86 +1639,86 @@ button:disabled,
    generaliza acá para reutilizar en cualquier otra página con el mismo
    lenguaje visual (ej. PdfParametersPage). */
 .filter-section-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #edf2f7;
-  padding-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #edf2f7;
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .form-modal-footer {
-  border-top: 1px solid rgba(226, 232, 240, 0.8);
-  padding-top: 0.75rem;
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    padding-top: 0.75rem;
 }
 
 .modal-close-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: transparent;
-  border-radius: 50%;
-  color: #64748b;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-  transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    color: #64748b;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    transition: var(--transition-smooth);
 }
 
 .modal-close-btn:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+    background: #f1f5f9;
+    color: #1e293b;
 }
 
 /* .modal-close-btn también se usa como Dropdown.Toggle para el menú de
    opciones del header (ver FormModalHeader); sin esto Bootstrap le agrega
    el caret triangular por defecto. */
 .modal-close-btn.dropdown-toggle::after {
-  display: none;
+    display: none;
 }
 
 /* Caja de aviso/nota (ícono + texto sobre fondo celeste pastel): usada en
    cualquier formulario para aclaraciones o notas importantes. */
 .hint-box {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  background: rgba(0, 119, 255, 0.06);
-  color: #1e293b;
-  border-radius: 10px;
-  padding: 0.7rem 0.9rem;
-  font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(0, 119, 255, 0.06);
+    color: #1e293b;
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
 }
 
 .hint-box i {
-  color: var(--bs-primary);
-  font-size: 1rem;
-  flex-shrink: 0;
+    color: var(--bs-primary);
+    font-size: 1rem;
+    flex-shrink: 0;
 }
 
 /* Variante roja (HintBox variant="danger"): ej. una fecha de vencimiento ya
    pasada. Misma estructura, solo cambia el color. */
 .hint-box-danger {
-  background: rgba(220, 38, 38, 0.08);
+    background: rgba(220, 38, 38, 0.08);
 }
 
 .hint-box-danger i {
-  color: #dc2626;
+    color: #dc2626;
 }
 
 /* Variante naranja (HintBox variant="warning"): aclaración más suave que
    danger, ej. "esta acción no se puede deshacer" dentro de un ConfirmModal. */
 .hint-box-warning {
-  background: rgba(245, 158, 11, 0.1);
+    background: rgba(245, 158, 11, 0.1);
 }
 
 .hint-box-warning i {
-  color: #d97706;
+    color: #d97706;
 }
 
 /* Franja final tipo "nota destacada" que cubre TODO el ancho de una card
@@ -1679,184 +1726,191 @@ button:disabled,
    con ícono + título en 2 líneas. Usada como cierre de BillGeneratePage
    (nota + botón de envío) y CruDataMainPage ("Importante"). */
 .footer-note-banner {
-  background: rgba(0, 119, 255, 0.05);
-  border-top: 1px solid rgba(226, 232, 240, 0.8);
+    background: rgba(0, 119, 255, 0.05);
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 .footer-note-title {
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--bs-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--bs-primary);
 }
 
 .footer-note-subtitle {
-  font-size: 0.78rem;
+    font-size: 0.78rem;
 }
 
 /* --- PAGE HEADER (título de sección, sin card propia: vive sobre el fondo gris de página) --- */
-.page-header-left { }
-
-.page-header-title {
-  font-size: 1.5rem;
-  margin: 0;
+.page-header-left {
 }
 
-.page-header-right { }
+.page-header-title {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.page-header-right {
+}
 
 .stat-card {
-  background: linear-gradient(180deg,#ffffff,#fbfdff);
-  border: 1px solid rgba(226,232,240,0.8);
-  border-radius: 10px;
-  /* Sin ancho fijo: cada card ocupa lo que su propio contenido necesita
+    background: linear-gradient(180deg, #ffffff, #fbfdff);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 10px;
+    /* Sin ancho fijo: cada card ocupa lo que su propio contenido necesita
      (una sola línea), y solo se re-acomoda si no entra en el ancho
      disponible, gracias al flex-wrap del contenedor. */
-  flex-shrink: 0;
+    flex-shrink: 0;
 }
 
 .stat-card-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  font-size: 1.15rem;
-  flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 1.15rem;
+    flex-shrink: 0;
 }
 
 .stat-label,
 .stat-value {
-  white-space: nowrap;
+    white-space: nowrap;
 }
 
-.stat-label { color: #64748b; }
-.stat-value { font-size: 1.15rem; }
+.stat-label {
+    color: #64748b;
+}
+.stat-value {
+    font-size: 1.15rem;
+}
 
 /* --- REUSABLE TABLE STYLES --- */
 /* Caja blanca que encierra toda la tabla (Fase 4: diferenciar del fondo gris de página) */
 .reusable-table-card {
-  background: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  border-radius: var(--card-border-radius);
-  box-shadow: var(--shadow-sm);
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--shadow-sm);
 }
 
 /* El header (fondo gris) llega hasta las esquinas redondeadas de la caja.
    Se redondea el th en vez de recortar con overflow:hidden en la card, para
    no cortar el menú de acciones (RowActions) cuando se abre en la última fila. */
 .reusable-table-card table thead th:first-child {
-  border-top-left-radius: var(--card-border-radius);
+    border-top-left-radius: var(--card-border-radius);
 }
 
 .reusable-table-card table thead th:last-child {
-  border-top-right-radius: var(--card-border-radius);
+    border-top-right-radius: var(--card-border-radius);
 }
 
 /* Cuando la card está fusionada con el toolbar de arriba, sus esquinas
    superiores son cuadradas, así que el header tampoco debe redondearse. */
 .table-toolbar + .reusable-table-card table thead th:first-child {
-  border-top-left-radius: 0;
+    border-top-left-radius: 0;
 }
 
 .table-toolbar + .reusable-table-card table thead th:last-child {
-  border-top-right-radius: 0;
+    border-top-right-radius: 0;
 }
 
 .reusable-table-footer {
-  padding: 0 1.1rem 1.1rem;
+    padding: 0 1.1rem 1.1rem;
 }
 
 .reusable-table table {
-  border-collapse: collapse;
-  margin-bottom: 0;
+    border-collapse: collapse;
+    margin-bottom: 0;
 }
 
 .reusable-table tbody tr {
-  background: #fff;
+    background: #fff;
 }
 
-.reusable-table td, .reusable-table th {
-  border: none !important;
-  border-bottom: 1px solid #f1f5f9 !important;
-  vertical-align: middle !important;
+.reusable-table td,
+.reusable-table th {
+    border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    vertical-align: middle !important;
 }
 
 .reusable-table tbody tr:last-child td {
-  border-bottom: none !important;
+    border-bottom: none !important;
 }
 
-/* Tablas con edición inline (lecturas, descuentos y conceptos pendientes de
-   un usuario): en ShowDiscountUserModal y UserParameterModal, el modal
-   además tiene dialogClassName="scrollable-modal-fix", que le fuerza
-   overflow:visible en los dos ejes a .table-responsive (necesario para que
-   el menú del CustomSelect no se corte verticalmente al abrirse). El precio
-   de eso es que esa tabla YA NO tiene su propio scroll horizontal de
-   respaldo: si la fila no entra en el ancho disponible, en vez de
-   scrollear adentro de la tabla, el contenido se desborda visualmente
-   afuera de la card del modal. Por eso en mobile no alcanza con acotar el
-   selector/input y apilar los botones (ver debajo): tampoco puede quedar
-   ningún otro empuje de ancho, ni el de los textos largos del header
-   ("FECHA DE CREACIÓN") ni el de botones con texto. */
+/* Tablas con edición inline (lecturas, descuentos y conceptos pendientes) */
 @media (max-width: 576px) {
-  .reusable-table th {
-    white-space: normal;
-  }
+    .reusable-table th {
+        white-space: normal;
+    }
 
-  .table-inline-edit-field {
-    max-width: 90px;
-  }
+    .table-inline-edit-field {
+        max-width: 90px;
+    }
 
-  .table-row-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
+    .table-row-actions .btn {
+        width: auto;
+    }
 
-  .table-row-actions .btn {
-    width: 100%;
-  }
-
-  /* Solo ícono en mobile (el texto ocupa demasiado ancho horizontal
+    /* Solo ícono en mobile (el texto ocupa demasiado ancho horizontal
      apilado en una tabla angosta) — ver <span className="d-none d-sm-inline">
      alrededor del texto de estos botones. */
-  .table-row-actions .btn i {
-    margin-right: 0 !important;
-  }
+    .table-row-actions .btn i {
+        margin-right: 0 !important;
+    }
 
-  .table-inline-edit-date-icon {
-    display: none;
-  }
+    .table-inline-edit-date-icon {
+        display: none;
+    }
 }
 
-/* --- Badges "suaves" reutilizables (pill, fondo pastel + texto saturado):
-   mismo lenguaje de color que KpiCard, para reemplazar los badges de
-   Bootstrap sin restylear (bg-danger/bg-warning sólidos) que desentonan con
-   el resto del sistema. Reemplaza también al viejo .status-badge (ahora
-   unificado acá: ver src/shared/components/labels-traductor/statusStyles.ts
-   para el mapeo Status -> badge-soft-*). --- */
+/* --- Badges "suaves" reutilizables (pill, fondo pastel + texto saturado) --- */
 .badge-soft {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 
-.badge-soft-success { background: #dcfce7; color: #166534; }
-.badge-soft-warning { background: #ffedd5; color: #c2410c; }
-.badge-soft-danger { background: #fee2e2; color: #b91c1c; }
-.badge-soft-info { background: #dbeafe; color: #1d4ed8; }
-.badge-soft-neutral { background: #f1f5f9; color: #475569; }
-.badge-soft-purple { background: #f3e8ff; color: #9333ea; }
-.badge-soft-cyan { background: #ccfbf1; color: #0d9488; }
+.badge-soft-success {
+    background: #dcfce7;
+    color: #166534;
+}
+.badge-soft-warning {
+    background: #ffedd5;
+    color: #c2410c;
+}
+.badge-soft-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+.badge-soft-info {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+.badge-soft-neutral {
+    background: #f1f5f9;
+    color: #475569;
+}
+.badge-soft-purple {
+    background: #f3e8ff;
+    color: #9333ea;
+}
+.badge-soft-cyan {
+    background: #ccfbf1;
+    color: #0d9488;
+}
 
 /* Punto de color chico para usar dentro de un badge-soft o de un
    DotDropdown (ver src/shared/components/dot-dropdown/DotDropdown.tsx),
    cuando el pastel del badge no alcanza para diferenciar el estado de un
    vistazo (ej. Activo/Suspendido/Inactivo). */
 .status-dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
 }
 
 /* Selector de Estado del usuario en 3 botones (StatusSegmentedControl):
@@ -1864,32 +1918,32 @@ button:disabled,
    activo lo pone el badge-soft-* correspondiente (ver STATUS_BADGE_CLASS),
    así queda consistente con el resto de los chips de estado del sistema. */
 .status-segmented-control {
-  display: flex;
-  gap: 0.6rem;
+    display: flex;
+    gap: 0.6rem;
 }
 
 .status-segmented-option {
-  flex: 1 1 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.65rem 0.5rem;
-  border: 1.5px solid rgba(226, 232, 240, 0.9);
-  border-radius: var(--btn-border-radius);
-  background-color: #ffffff;
-  color: #475569;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: var(--transition-smooth);
+    flex: 1 1 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.5rem;
+    border: 1.5px solid rgba(226, 232, 240, 0.9);
+    border-radius: var(--btn-border-radius);
+    background-color: #ffffff;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition-smooth);
 }
 
 .status-segmented-option:hover {
-  border-color: rgba(0, 119, 255, 0.35);
+    border-color: rgba(0, 119, 255, 0.35);
 }
 
 .status-segmented-option.active {
-  border-width: 1.5px;
+    border-width: 1.5px;
 }
 
 /* Wrapper con padding uniforme para las 2 columnas de una fila de secciones
@@ -1900,10 +1954,10 @@ button:disabled,
    subtítulo de un lado ocupa distinta cantidad de líneas que el otro en
    pantallas angostas). Sin color de fondo: solo resuelve el alineado. */
 .form-section-panel {
-  padding: 1rem 1.25rem;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+    padding: 1rem 1.25rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Envuelve el contenido de un .form-section-panel que sea más corto que su
@@ -1912,20 +1966,20 @@ button:disabled,
    centra su contenido ahí, adaptándose a lo que mida el otro lado en cada
    pantalla en vez de un margin fijo calculado a mano. */
 .form-section-panel-content {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 /* Panel con fondo verde suave para secciones tipo "resumen de impacto"
    (ej. BillUpdateExpirationPage), mismo criterio que .hint-box pero en
    verde para diferenciarlo como informativo-positivo en vez de neutro. */
 .impact-panel {
-  background-color: rgba(22, 163, 74, 0.04);
-  border: 1px solid rgba(22, 163, 74, 0.12);
-  border-radius: var(--card-border-radius);
-  padding: 1.25rem;
+    background-color: rgba(22, 163, 74, 0.04);
+    border: 1px solid rgba(22, 163, 74, 0.12);
+    border-radius: var(--card-border-radius);
+    padding: 1.25rem;
 }
 
 /* .stat-value a 1.15rem está pensado para números cortos (ej. "150"); acá
@@ -1933,18 +1987,18 @@ button:disabled,
    tamaño se ven desproporcionadas frente al resto de la tarjeta. Se achica
    solo dentro de .impact-panel, sin tocar el resto de usos de .stat-card. */
 .impact-panel .stat-card {
-  flex: 1 1 200px;
+    flex: 1 1 200px;
 }
 
 .impact-panel .stat-value {
-  font-size: 0.95rem;
+    font-size: 0.95rem;
 }
 
 /* El ícono del FormSectionHeader es celeste por default; acá adentro se
    pisa a verde para que coincida con el resto del panel de impacto. */
 .impact-panel .icon-badge {
-  background: rgba(22, 163, 74, 0.1);
-  color: #16a34a;
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
 }
 
 /* --- Tarjetas seleccionables tipo radio (ícono + texto), reutilizadas en
@@ -1954,133 +2008,133 @@ button:disabled,
    naranja según el estado), pisar border-color/box-shadow con estilo
    inline en el elemento activo. --- */
 .option-card-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .option-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.9rem;
-  border: 1.5px solid rgba(226, 232, 240, 0.9);
-  border-radius: var(--card-border-radius);
-  padding: 1rem 1.1rem;
-  cursor: pointer;
-  transition: var(--transition-smooth);
-  margin: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    border: 1.5px solid rgba(226, 232, 240, 0.9);
+    border-radius: var(--card-border-radius);
+    padding: 1rem 1.1rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    margin: 0;
 }
 
 .option-card:hover {
-  border-color: rgba(0, 119, 255, 0.35);
+    border-color: rgba(0, 119, 255, 0.35);
 }
 
 .option-card.active {
-  border-color: var(--bs-primary);
-  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.08);
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.08);
 }
 
 .option-card .option-card-radio {
-  margin-top: 0.3rem;
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  accent-color: var(--bs-primary);
-  cursor: pointer;
+    margin-top: 0.3rem;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--bs-primary);
+    cursor: pointer;
 }
 
 .option-card-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
 }
 
 /* Campo de contraseña con ícono de candado fijo y botón de mostrar/ocultar */
 .password-reveal-field {
-  position: relative;
-  display: flex;
-  align-items: center;
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
 .password-reveal-icon-start {
-  position: absolute;
-  left: 0.9rem;
-  color: #94a3b8;
-  pointer-events: none;
+    position: absolute;
+    left: 0.9rem;
+    color: #94a3b8;
+    pointer-events: none;
 }
 
 .password-reveal-input.form-control {
-  padding-left: 2.5rem;
-  padding-right: 2.5rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
 }
 
 .password-reveal-toggle {
-  position: absolute;
-  right: 0.75rem;
-  border: none;
-  background: transparent;
-  color: #94a3b8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition-smooth);
+    position: absolute;
+    right: 0.75rem;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
 }
 
 .password-reveal-toggle:hover {
-  color: #475569;
+    color: #475569;
 }
 
 /* Requisitos de contraseña como pills, en vez de lista con viñetas */
 .password-requirement-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .password-requirement-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.65rem;
-  border-radius: 999px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  font-size: 0.78rem;
-  color: #64748b;
-  background-color: #ffffff;
-  transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    font-size: 0.78rem;
+    color: #64748b;
+    background-color: #ffffff;
+    transition: var(--transition-smooth);
 }
 
 .password-requirement-pill.passed {
-  color: #166534;
-  border-color: #bbf7d0;
-  background-color: #f0fdf4;
+    color: #166534;
+    border-color: #bbf7d0;
+    background-color: #f0fdf4;
 }
 
 /* Selector custom de "Inconsistencias" (Lecturas por período): mismo look
    que los selects estándar del TableToolbar (borde, radius, alto), aunque
    por sus opciones con punto de color no puede ser un <Form.Select> nativo. */
 .alert-filter-toggle.btn {
-  background-color: #ffffff !important;
-  border: 1.5px solid #e2e8f0 !important;
-  border-radius: var(--input-border-radius) !important;
-  color: #1e293b !important;
-  font-weight: 400;
-  padding: 0.6rem 0.9rem !important;
-  box-shadow: none !important;
+    background-color: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: var(--input-border-radius) !important;
+    color: #1e293b !important;
+    font-weight: 400;
+    padding: 0.6rem 0.9rem !important;
+    box-shadow: none !important;
 }
 
 .alert-filter-toggle.btn:hover,
 .alert-filter-toggle.btn:focus,
 .alert-filter-toggle.btn:active {
-  background-color: #ffffff !important;
-  border-color: #80bfff !important;
-  color: #1e293b !important;
-  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15) !important;
+    background-color: #ffffff !important;
+    border-color: #80bfff !important;
+    color: #1e293b !important;
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15) !important;
 }
 
 /* Menú desplegable genérico (Bootstrap Dropdown): por default es bastante
@@ -2088,53 +2142,53 @@ button:disabled,
    vez para que CustomSelect, RowActions, el menú de opciones del header y
    cualquier otro <Dropdown> del sistema compartan el mismo look pulido. */
 .dropdown-menu {
-  background-color: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: 12px;
-  box-shadow: var(--shadow-md);
-  padding: 0.4rem;
+    background-color: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    padding: 0.4rem;
 }
 
 .dropdown-item {
-  border-radius: 8px;
-  padding: 0.55rem 0.75rem;
-  transition: var(--transition-smooth);
+    border-radius: 8px;
+    padding: 0.55rem 0.75rem;
+    transition: var(--transition-smooth);
 }
 
 .dropdown-item:hover,
 .dropdown-item:focus {
-  background-color: rgba(0, 119, 255, 0.08);
-  color: var(--bs-primary);
+    background-color: rgba(0, 119, 255, 0.08);
+    color: var(--bs-primary);
 }
 
 .dropdown-item.active,
 .dropdown-item:active {
-  background-color: rgba(0, 119, 255, 0.14);
-  color: var(--bs-primary);
+    background-color: rgba(0, 119, 255, 0.14);
+    color: var(--bs-primary);
 }
 
 .dropdown-item.text-danger:hover,
 .dropdown-item.text-danger:focus {
-  background-color: rgba(220, 38, 38, 0.08);
+    background-color: rgba(220, 38, 38, 0.08);
 }
 
 /* El botón/select que abre un CustomSelect: mismo look que
    .alert-filter-toggle (borde, radius, alto), pero con su propia clase para
    poder afinarlo sin afectar a los otros usos de .alert-filter-toggle. */
 .custom-select-toggle {
-  font-weight: 400;
+    font-weight: 400;
 }
 
 /* Mismo criterio visual que .form-control.is-invalid/.form-select.is-invalid
    de Bootstrap (borde rojo), pero acá a mano porque el toggle no es un
    .form-control real. */
 .custom-select-toggle.is-invalid.btn {
-  border-color: #dc3545 !important;
+    border-color: #dc3545 !important;
 }
 
 .custom-select-toggle.is-invalid.btn:hover,
 .custom-select-toggle.is-invalid.btn:focus {
-  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
 }
 
 /* El menú no se estira al ancho del botón (que puede ser angosto, ej. un
@@ -2144,7 +2198,7 @@ button:disabled,
    en vez de truncarse (ver .dropdown-item más abajo, que por default de
    Bootstrap no wrappea). */
 .custom-select .dropdown-menu {
-  /* strategy "fixed" (para que el menú no se corte contra una card con
+    /* strategy "fixed" (para que el menú no se corte contra una card con
      overflow:hidden) se probó dos veces, incluso con el popperConfig como
      constante de módulo estable para descartar reinicios de Popper por una
      referencia nueva en cada render. Las dos veces el primer render posicionó
@@ -2152,10 +2206,10 @@ button:disabled,
      volver a abrirlo. Se descarta esa vía por completo. Con "absolute" de
      siempre, min-width en % funciona bien porque se resuelve contra el
      botón, no la ventana. */
-  min-width: 100%;
-  width: max-content;
-  max-width: min(90vw, 420px);
-  /* Más chico a propósito (antes 280px): con muchas opciones y el selector
+    min-width: 100%;
+    width: max-content;
+    max-width: min(90vw, 420px);
+    /* Más chico a propósito (antes 280px): con muchas opciones y el selector
      abierto cerca del borde inferior de la pantalla, un menú alto se corta
      contra el viewport y obliga a scrollear la página entera para llegar a
      las últimas opciones (fácil de no notar). Con este tope entran ~5
@@ -2164,8 +2218,8 @@ button:disabled,
      chicas o zoom alto, donde ni 200px llega a entrar completo arriba/abajo
      del botón (el flip de Popper, habilitado en CustomSelect.tsx, ya elige
      el lado con más espacio; esto acorta el menú si ese lado tampoco alcanza). */
-  max-height: min(200px, 40vh);
-  overflow-y: auto;
+    max-height: min(200px, 40vh);
+    overflow-y: auto;
 }
 
 /* El track de la barra de scroll es transparent por regla global (para que
@@ -2173,11 +2227,11 @@ button:disabled,
    deja ver lo que hay detrás del menú (ej. las píldoras de color de una
    tabla). Se pisa a blanco, igual que el resto del menú. */
 .custom-select .dropdown-menu::-webkit-scrollbar-track {
-  background: #ffffff;
+    background: #ffffff;
 }
 
 .custom-select .dropdown-item {
-  white-space: normal;
+    white-space: normal;
 }
 
 /* Se probó reemplazar la barra nativa de .dropdown-menu por un thumb propio
@@ -2192,55 +2246,55 @@ button:disabled,
 
 /* --- FASE 4: pie de tabla (resultados + paginación a la derecha) --- */
 .reusable-table-count i {
-  color: #94a3b8;
+    color: #94a3b8;
 }
 
 /* --- FASE 4: acciones por fila (lápiz + menú de 3 puntos) --- */
 .row-actions-edit,
 .row-actions-menu {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  border: 1.5px solid #e2e8f0;
-  background-color: #ffffff;
-  color: #64748b;
-  transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background-color: #ffffff;
+    color: #64748b;
+    transition: var(--transition-smooth);
 }
 
 .row-actions-edit {
-  border-color: rgba(0, 119, 255, 0.25);
-  color: var(--bs-primary);
+    border-color: rgba(0, 119, 255, 0.25);
+    color: var(--bs-primary);
 }
 
 .row-actions-edit:hover {
-  background-color: rgba(0, 119, 255, 0.08);
-  border-color: #80bfff;
-  color: var(--bs-primary);
+    background-color: rgba(0, 119, 255, 0.08);
+    border-color: #80bfff;
+    color: var(--bs-primary);
 }
 
 .row-actions-menu:hover,
 .row-actions-menu:focus {
-  background-color: #f1f5f9;
-  border-color: #cbd5e1;
-  color: #334155;
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
 }
 
 .row-actions-menu::after {
-  display: none;
+    display: none;
 }
 
 /* --- FASE 4: avatar pastel en filas de tabla --- */
 .row-avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-weight: 700;
-  font-size: 0.85rem;
-  flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
 }

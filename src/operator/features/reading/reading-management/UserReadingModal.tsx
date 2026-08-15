@@ -144,7 +144,7 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
 
     // Render
     return (
-        <Modal show={show} onHide={onHide} centered size="lg" backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="user-reading-modal-title">
+        <Modal show={show} onHide={onHide} centered size="lg" backdrop={false} style={{ zIndex: modalZIndex }} dialogClassName="scrollable-modal-fix" contentClassName="form-modal-content" aria-labelledby="user-reading-modal-title">
             <FormModalHeader
                 icon="bi bi-speedometer2"
                 title={`Lecturas de ${userName}`}
