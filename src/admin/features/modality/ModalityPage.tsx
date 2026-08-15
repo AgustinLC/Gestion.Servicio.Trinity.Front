@@ -108,6 +108,7 @@ const ModalityPage = () => {
                     <ConfirmModal
                         show={showConfirmActiveModal}
                         onHide={() => setShowConfirmActiveModal(false)}
+                        variant="question"
                         title="Confirmar Cambio de Estado"
                         message={
                             <>
@@ -117,6 +118,7 @@ const ModalityPage = () => {
                             </>
                         }
                         confirmText="Confirmar"
+                        confirmIcon="bi bi-check2-circle"
                         isLoading={false} // Puedes agregar un estado de carga si lo necesitas
                         onConfirm={handleConfirmActiveChange}
                     />

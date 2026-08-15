@@ -34,6 +34,8 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
     const [tempData, setTempData] = useState<{ idDiscount: number; value: number; }>({ idDiscount: 0, value: 0 });
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [discountToDelete, setDiscountToDelete] = useState<number | null>(null);
+    const [showConfirmSave, setShowConfirmSave] = useState(false);
+    const [pendingSaveId, setPendingSaveId] = useState<number | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [saving, setSaving] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -78,16 +80,23 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
         return discount?.applyCondition || null;
     };
 
-    // Manejar boton de guardar
-    const handleSave = async (idUserDiscount: number) => {
+    // Manejar boton de guardar: pide confirmación antes de pisar el
+    // descuento, ya que afecta el monto de las próximas facturas del usuario.
+    const handleSaveClick = (idUserDiscount: number) => {
+        setPendingSaveId(idUserDiscount);
+        setShowConfirmSave(true);
+    };
+
+    const handleConfirmSave = async () => {
+        if (pendingSaveId === null) return;
         setSaving(true);
         try {
-            await updateData(`/operator/update-userDiscount?idUserDiscount`, idUserDiscount, {
+            await updateData(`/operator/update-userDiscount?idUserDiscount`, pendingSaveId, {
                 idDiscount: tempData.idDiscount,
                 value: tempData.value
             });
             toast.success("Descuento actualizado");
-            setDiscounts(discounts.map(d => d.idUserDiscount === idUserDiscount ? {
+            setDiscounts(discounts.map(d => d.idUserDiscount === pendingSaveId ? {
                 ...d,
                 idDiscount: tempData.idDiscount,
                 value: tempData.value
@@ -100,6 +109,8 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
             toast.error("Error al actualizar descuento");
         } finally {
             setSaving(false);
+            setShowConfirmSave(false);
+            setPendingSaveId(null);
         }
     };
 
@@ -141,7 +152,7 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
             sortable: true,
             render: (discount) => (
                 <div className="d-flex align-items-center gap-2 text-start">
-                    <div className="icon-badge" style={{ width: 32, height: 32, fontSize: "0.85rem" }}>
+                    <div className="icon-badge table-inline-edit-date-icon" style={{ width: 32, height: 32, fontSize: "0.85rem" }}>
                         <i className="bi bi-calendar3"></i>
                     </div>
                     {formatDate(discount.dateRegister)}
@@ -154,6 +165,7 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
             render: (discount) =>
                 editingId === discount.idUserDiscount ? (
                     <CustomSelect
+                        className="table-inline-edit-field"
                         value={String(tempData.idDiscount)}
                         onChange={(v) => setTempData(prev => ({ ...prev, idDiscount: Number(v) }))}
                         options={billingDiscounts.map((bd) => ({ value: String(bd.idDiscount), label: bd.name }))}
@@ -172,7 +184,7 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
                 return isEditing ? (
                     <Form.Control
                         type="number"
-                        className="text-center"
+                        className="text-center table-inline-edit-field"
                         value={tempData.value}
                         onChange={(e) => setTempData(prev => ({ ...prev, value: Number(e.target.value) }))}
                         disabled={isFixed}
@@ -187,21 +199,21 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
             label: "Acciones",
             actions: (discount) =>
                 editingId === discount.idUserDiscount ? (
-                    <div className="d-flex justify-content-center gap-2">
+                    <div className="d-flex justify-content-center gap-2 table-row-actions">
                         <Button variant="outline-secondary" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={handleCancelEdit} disabled={saving}>
-                            <i className="bi bi-x-circle me-1"></i> Cancelar
+                            <i className="bi bi-x-circle me-1"></i> <span className="d-none d-sm-inline">Cancelar</span>
                         </Button>
-                        <Button variant="success" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={() => handleSave(discount.idUserDiscount)} disabled={saving}>
-                            {saving ? <Spinner as="span" animation="border" size="sm" /> : <><i className="bi bi-check-circle me-1"></i> Guardar</>}
+                        <Button variant="success" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={() => handleSaveClick(discount.idUserDiscount)} disabled={saving}>
+                            {saving ? <Spinner as="span" animation="border" size="sm" /> : <><i className="bi bi-check-circle me-1"></i> <span className="d-none d-sm-inline">Guardar</span></>}
                         </Button>
                     </div>
                 ) : (
-                    <div className="d-flex justify-content-center gap-2">
+                    <div className="d-flex justify-content-center gap-2 table-row-actions">
                         <Button variant="outline-warning" size="sm" onClick={() => handleEdit(discount)}>
-                            <i className="bi bi-pencil me-1"></i> Editar
+                            <i className="bi bi-pencil me-1"></i> <span className="d-none d-sm-inline">Editar</span>
                         </Button>
                         <Button variant="outline-danger" size="sm" onClick={() => handleDeleteClick(discount.idUserDiscount)}>
-                            <i className="bi bi-trash me-1"></i> Eliminar
+                            <i className="bi bi-trash me-1"></i> <span className="d-none d-sm-inline">Eliminar</span>
                         </Button>
                     </div>
                 ),
@@ -210,7 +222,7 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
 
     return (
         <>
-            <Modal show={show} size="lg" onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="show-discount-modal-title">
+            <Modal show={show} size="lg" onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} dialogClassName="scrollable-modal-fix" contentClassName="form-modal-content" aria-labelledby="show-discount-modal-title">
                 <FormModalHeader
                     icon="bi bi-plus-slash-minus"
                     title={`Descuentos de ${displayUserName}`}
@@ -241,16 +253,33 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
             <ConfirmModal
                 show={showConfirmModal}
                 onHide={() => { setShowConfirmModal(false); setDiscountToDelete(null); }}
+                variant="error"
                 title="Confirmar eliminación"
                 message={
                     <>
                         ¿Estás seguro que deseas eliminar el descuento?
                     </>
                 }
+                hint="Esta acción no se puede deshacer."
                 confirmText="Confirmar"
+                confirmIcon="bi bi-trash"
                 isLoading={isDeleting}
                 loadingText="Eliminando..."
                 onConfirm={handleConfirmDelete}
+            />
+
+            <ConfirmModal
+                show={showConfirmSave}
+                onHide={() => { setShowConfirmSave(false); setPendingSaveId(null); }}
+                variant="warning"
+                title="¿Guardar descuento?"
+                message="Vas a modificar un descuento ya asignado a este usuario."
+                hint="Este cambio se reflejará en las próximas facturas del usuario."
+                confirmText="Guardar"
+                confirmIcon="bi bi-check-circle"
+                isLoading={saving}
+                loadingText="Guardando..."
+                onConfirm={handleConfirmSave}
             />
 
             <AddDiscountModal

@@ -31,6 +31,8 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
     const [tempData, setTempData] = useState<{ billingParameterId: number; value: number; }>({ billingParameterId: 0, value: 0 });
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [parameterToDelete, setParameterToDelete] = useState<number | null>(null);
+    const [showConfirmSave, setShowConfirmSave] = useState(false);
+    const [pendingSaveId, setPendingSaveId] = useState<number | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [saving, setSaving] = useState(false);
     const modalZIndex = useModalLayer(show);
@@ -68,16 +70,23 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
         setEditingId(null);
     };
 
-    // Manejar boton de guardar
-    const handleSave = async (idPendingBillDetail: number) => {
+    // Manejar boton de guardar: pide confirmación antes de pisar el
+    // concepto, ya que cambia lo que se le va a cobrar al usuario.
+    const handleSaveClick = (idPendingBillDetail: number) => {
+        setPendingSaveId(idPendingBillDetail);
+        setShowConfirmSave(true);
+    };
+
+    const handleConfirmSave = async () => {
+        if (pendingSaveId === null) return;
         setSaving(true);
         try {
-            await updateData(`/operator/pending-details/update?idPendingBillDetail`, idPendingBillDetail, {
+            await updateData(`/operator/pending-details/update?idPendingBillDetail`, pendingSaveId, {
                 idBillingParameter: tempData.billingParameterId,
                 value: tempData.value
             });
             toast.success("Concepto actualizado");
-            setParameters(parameters.map(p => p.idPendingBillDetail === idPendingBillDetail ? {
+            setParameters(parameters.map(p => p.idPendingBillDetail === pendingSaveId ? {
                 ...p,
                 idBillingParameter: tempData.billingParameterId,
                 value: tempData.value
@@ -90,6 +99,8 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
             toast.error("Error al actualizar concepto");
         } finally {
             setSaving(false);
+            setShowConfirmSave(false);
+            setPendingSaveId(null);
         }
     };
 
@@ -129,7 +140,7 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
             sortable: true,
             render: (parameter) => (
                 <div className="d-flex align-items-center gap-2 text-start">
-                    <div className="icon-badge" style={{ width: 32, height: 32, fontSize: "0.85rem" }}>
+                    <div className="icon-badge table-inline-edit-date-icon" style={{ width: 32, height: 32, fontSize: "0.85rem" }}>
                         <i className="bi bi-calendar3"></i>
                     </div>
                     {formatDate(parameter.dateRegister)}
@@ -142,6 +153,7 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
             render: (parameter) =>
                 editingId === parameter.idPendingBillDetail ? (
                     <CustomSelect
+                        className="table-inline-edit-field"
                         value={String(tempData.billingParameterId)}
                         onChange={(v) => setTempData(prev => ({ ...prev, billingParameterId: Number(v) }))}
                         options={billingParameters.map((bp) => ({ value: String(bp.idBillingParameter), label: bp.name }))}
@@ -158,7 +170,7 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
                 editingId === parameter.idPendingBillDetail ? (
                     <Form.Control
                         type="number"
-                        className="text-center"
+                        className="text-center table-inline-edit-field"
                         value={tempData.value}
                         onChange={(e) => setTempData(prev => ({ ...prev, value: Number(e.target.value) }))}
                     />
@@ -171,21 +183,21 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
             label: "Acciones",
             actions: (parameter) =>
                 editingId === parameter.idPendingBillDetail ? (
-                    <div className="d-flex justify-content-center gap-2">
+                    <div className="d-flex justify-content-center gap-2 table-row-actions">
                         <Button variant="outline-secondary" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={handleCancelEdit} disabled={saving}>
-                            <i className="bi bi-x-circle me-1"></i> Cancelar
+                            <i className="bi bi-x-circle me-1"></i> <span className="d-none d-sm-inline">Cancelar</span>
                         </Button>
-                        <Button variant="success" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={() => handleSave(parameter.idPendingBillDetail)} disabled={saving}>
-                            {saving ? <Spinner as="span" animation="border" size="sm" /> : <><i className="bi bi-check-circle me-1"></i> Guardar</>}
+                        <Button variant="success" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={() => handleSaveClick(parameter.idPendingBillDetail)} disabled={saving}>
+                            {saving ? <Spinner as="span" animation="border" size="sm" /> : <><i className="bi bi-check-circle me-1"></i> <span className="d-none d-sm-inline">Guardar</span></>}
                         </Button>
                     </div>
                 ) : (
-                    <div className="d-flex justify-content-center gap-2">
+                    <div className="d-flex justify-content-center gap-2 table-row-actions">
                         <Button variant="outline-warning" size="sm" onClick={() => handleEdit(parameter)}>
-                            <i className="bi bi-pencil me-1"></i> Editar
+                            <i className="bi bi-pencil me-1"></i> <span className="d-none d-sm-inline">Editar</span>
                         </Button>
                         <Button variant="outline-danger" size="sm" onClick={() => handleDeleteClick(parameter.idPendingBillDetail)}>
-                            <i className="bi bi-trash me-1"></i> Eliminar
+                            <i className="bi bi-trash me-1"></i> <span className="d-none d-sm-inline">Eliminar</span>
                         </Button>
                     </div>
                 ),
@@ -194,7 +206,7 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
 
     return (
         <>
-            <Modal show={show} size="lg" onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="user-parameters-modal-title">
+            <Modal show={show} size="lg" onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} dialogClassName="scrollable-modal-fix" contentClassName="form-modal-content" aria-labelledby="user-parameters-modal-title">
                 <FormModalHeader
                     icon="bi bi-journal-plus"
                     title={`Conceptos de ${userName}`}
@@ -225,16 +237,33 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
             <ConfirmModal
                 show={showConfirmModal}
                 onHide={() => { setShowConfirmModal(false); setParameterToDelete(null); }}
+                variant="error"
                 title="Confirmar eliminación"
                 message={
                     <>
                         ¿Estás seguro que deseas eliminar el concepto:
                     </>
                 }
+                hint="Esta acción no se puede deshacer."
                 confirmText="Confirmar"
+                confirmIcon="bi bi-trash"
                 isLoading={isDeleting}
                 loadingText="Eliminando..."
                 onConfirm={handleConfirmDelete}
+            />
+
+            <ConfirmModal
+                show={showConfirmSave}
+                onHide={() => { setShowConfirmSave(false); setPendingSaveId(null); }}
+                variant="warning"
+                title="¿Guardar concepto?"
+                message="Vas a modificar un concepto pendiente de facturación."
+                hint="Este cambio se reflejará en lo que se le cobre al usuario."
+                confirmText="Guardar"
+                confirmIcon="bi bi-check-circle"
+                isLoading={saving}
+                loadingText="Guardando..."
+                onConfirm={handleConfirmSave}
             />
         </>
     );

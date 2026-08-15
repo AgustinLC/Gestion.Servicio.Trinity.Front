@@ -154,10 +154,12 @@ const AddParameterModal: React.FC<AddParameterModalProps> = ({ show, onHide, onS
             <ConfirmModal
                 show={showConfirm}
                 onHide={cancelDiscard}
+                variant="warning"
                 title="¿Descartar cambios?"
                 message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
-                confirmVariant="danger"
+                hint="Esta acción no se puede deshacer."
                 confirmText="Salir sin guardar"
+                confirmIcon="bi bi-box-arrow-right"
                 onConfirm={confirmDiscard}
             />
         </>

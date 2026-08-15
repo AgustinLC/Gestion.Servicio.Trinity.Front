@@ -76,7 +76,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                     <span className="text-truncate">{selected?.label ?? placeholder}</span>
                 </span>
             </Dropdown.Toggle>
-            <Dropdown.Menu popperConfig={{ modifiers: [{ name: "flip", enabled: false }] }}>
+            {/* flip habilitado (Popper por defecto): si no entra abajo (selector
+                cerca del borde inferior, pantalla chica/zoom alto), abre para
+                arriba en vez de cortarse contra el viewport. */}
+            <Dropdown.Menu>
                 {options.map((option) => (
                     <Dropdown.Item
                         key={option.value}

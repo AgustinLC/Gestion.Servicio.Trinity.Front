@@ -144,6 +144,7 @@ const CrudFeaturePage = () => {
                     <ConfirmModal
                         show={showDeleteModal}
                         onHide={() => setShowDeleteModal(false)}
+                        variant="error"
                         title="Confirmar Eliminación"
                         message={
                             <>
@@ -151,7 +152,9 @@ const CrudFeaturePage = () => {
                                 <strong> {featureToDelete?.name}</strong>?
                             </>
                         }
+                        hint="Esta acción no se puede deshacer."
                         confirmText="Confirmar"
+                        confirmIcon="bi bi-trash"
                         isLoading={isDeleting}
                         loadingText="Eliminando..."
                         onConfirm={handleDelete}

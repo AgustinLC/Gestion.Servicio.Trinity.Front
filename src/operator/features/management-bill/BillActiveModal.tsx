@@ -299,14 +299,12 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
             <ConfirmModal
                 show={showConfirmModal}
                 onHide={() => { setShowConfirmModal(false); setSelectedBillId(null); }}
+                variant="error"
                 title="¿Anular factura?"
-                message={
-                    <>
-                        <p>Estás por anular la factura N° <strong>{selectedBillId}</strong></p>
-                        <p className="text-danger fw-bold">Esta acción no se puede deshacer</p>
-                    </>
-                }
+                message={<>Estás por anular la factura N° <strong>{selectedBillId}</strong></>}
+                hint="Esta acción no se puede deshacer."
                 confirmText="Anular"
+                confirmIcon="bi bi-x-circle"
                 isLoading={anulando}
                 loadingText="Anulando..."
                 onConfirm={handleConfirmAnnular}
@@ -392,9 +390,8 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
             <ConfirmModal
                 show={showConfirmStatusModal}
                 onHide={() => setShowConfirmStatusModal(false)}
+                variant="question"
                 title="Confirmar cambio de estado"
-                icon="bi bi-question-circle"
-                confirmVariant="primary"
                 message={
                     selectedStatus === PaymentStatus.UNPAID ? (
                         <>
@@ -412,6 +409,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                     )
                 }
                 confirmText="Confirmar"
+                confirmIcon="bi bi-check2-circle"
                 onConfirm={handleConfirmStatusChange}
             />
 

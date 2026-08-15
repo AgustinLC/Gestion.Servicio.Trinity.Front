@@ -288,9 +288,8 @@ const BillGeneratePage = () => {
             <ConfirmModal
                 show={showConfirmModal}
                 onHide={() => setShowConfirmModal(false)}
+                variant="warning"
                 title={mode === 'bulk' ? '¿Generar facturas masivas?' : '¿Generar factura individual?'}
-                icon="bi bi-shield-check"
-                confirmVariant="primary"
                 message={
                     mode === 'bulk' ? (
                         <>
@@ -307,6 +306,7 @@ const BillGeneratePage = () => {
                     )
                 }
                 confirmText={mode === 'bulk' ? 'Generar Facturas' : 'Generar Factura'}
+                confirmIcon="bi bi-file-earmark-plus"
                 isLoading={isLoading}
                 loadingText="Generando..."
                 onConfirm={handleConfirmGenerate}

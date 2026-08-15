@@ -185,6 +185,7 @@ const ServicesUnitsPage = () => {
                         <ConfirmModal
                             show={showConfirmActiveModal}
                             onHide={() => setShowConfirmActiveModal(false)}
+                            variant="question"
                             title="Confirmar Cambio de Estado"
                             message={
                                 <>
@@ -194,6 +195,7 @@ const ServicesUnitsPage = () => {
                                 </>
                             }
                             confirmText="Confirmar"
+                            confirmIcon="bi bi-check2-circle"
                             isLoading={false} // Puedes agregar un estado de carga si lo necesitas
                             onConfirm={handleConfirmActiveChange}
                         />
@@ -202,6 +204,7 @@ const ServicesUnitsPage = () => {
                         <ConfirmModal
                             show={showDeleteModal}
                             onHide={() => setShowDeleteModal(false)}
+                            variant="error"
                             title="Confirmar Eliminación"
                             message={
                                 <>
@@ -209,7 +212,9 @@ const ServicesUnitsPage = () => {
                                     <strong> {serviceUnitToDelete?.serviceUnitName}</strong>?
                                 </>
                             }
+                            hint="Esta acción no se puede deshacer."
                             confirmText="Confirmar"
+                            confirmIcon="bi bi-trash"
                             isLoading={isDeleting}
                             loadingText="Eliminando..."
                             onConfirm={handleDelete}

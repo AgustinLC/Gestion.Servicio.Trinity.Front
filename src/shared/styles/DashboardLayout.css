@@ -52,7 +52,9 @@
     overflow-x: auto;
     background-color: var(--bs-body-bg);
     border-top-right-radius: 20px;
-    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+        margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Cada página renderiza un único div raíz dentro de <Outlet/>. Se le pone un
@@ -175,7 +177,7 @@
 }
 
 .sidebar-submenu::before {
-    content: '';
+    content: "";
     position: absolute;
     left: 1.15rem;
     top: 4px;
@@ -247,7 +249,8 @@
 .sidebar-footer-icon img {
     width: 18px;
     height: 18px;
-    filter: invert(36%) sepia(93%) saturate(2661%) hue-rotate(199deg) brightness(103%) contrast(101%);
+    filter: invert(36%) sepia(93%) saturate(2661%) hue-rotate(199deg)
+        brightness(103%) contrast(101%);
 }
 
 .sidebar-footer-text {
@@ -281,5 +284,7 @@
 
 /* --- Animaciones --- */
 @keyframes border-glow {
-    0% { opacity: 0.5; }
+    0% {
+        opacity: 0.5;
+    }
 }

@@ -279,17 +279,17 @@ const NewPeriodPage = () => {
             <ConfirmModal
                 show={showConfirmModal}
                 onHide={() => setShowConfirmModal(false)}
+                variant="warning"
                 title="¿Generar nuevo período?"
-                icon="bi bi-shield-check"
-                confirmVariant="primary"
                 message={
                     <>
                         Estás a punto de crear un nuevo período y generar lecturas para posteriormente cargar a {' '}
-                        <strong>{activeMetersCount} medidores</strong>. El período actual quedará
-                        finalizado y bloqueado para edición.
+                        <strong>{activeMetersCount} medidores</strong>.
                     </>
                 }
+                hint="El período actual quedará finalizado y bloqueado para edición."
                 confirmText="Generar Período"
+                confirmIcon="bi bi-calendar-plus"
                 isLoading={isLoading}
                 loadingText="Generando..."
                 onConfirm={handleNewPeriod}

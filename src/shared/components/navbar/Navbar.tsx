@@ -217,11 +217,12 @@ const Navbar: React.FC = () => {
       <ConfirmModal
         show={showLogoutModal}
         onHide={() => setShowLogoutModal(false)}
-        title="Cerrar sesión"
+        variant="question"
         icon="bi bi-box-arrow-left"
-        confirmVariant="danger"
+        title="Cerrar sesión"
         message="¿Estás seguro que querés cerrar tu sesión?"
         confirmText="Cerrar sesión"
+        confirmIcon="bi bi-box-arrow-left"
         onConfirm={handleLogout}
       />
     </>

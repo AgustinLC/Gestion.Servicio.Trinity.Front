@@ -1347,6 +1347,7 @@ button:disabled,
    color; .icon-badge-lg para headers de página/modal (52px), el tamaño base
    (40px) para todo lo demás (secciones, notas). */
 .icon-badge {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1363,6 +1364,54 @@ button:disabled,
   width: 52px;
   height: 52px;
   font-size: 1.4rem;
+}
+
+.icon-badge-xl {
+  width: 64px;
+  height: 64px;
+  font-size: 1.75rem;
+}
+
+/* Variantes de color para .icon-badge (ver src/shared/components/modal-variant/modalVariant.ts).
+   Sin ninguna de estas clases, .icon-badge queda con el celeste neutro de siempre. */
+.icon-badge-info {
+  background: rgba(0, 119, 255, 0.1);
+  color: var(--bs-primary);
+}
+
+.icon-badge-warning {
+  background: rgba(245, 158, 11, 0.14);
+  color: #d97706;
+}
+
+.icon-badge-error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+}
+
+.icon-badge-success {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+}
+
+.icon-badge-question {
+  background: rgba(168, 85, 247, 0.12);
+  color: #9333ea;
+}
+
+/* Botón "question" (violeta): variante que no existe en el set por defecto
+   de Bootstrap, para acompañar al ícono violeta de la variante "question". */
+.btn-question {
+  background-color: #9333ea;
+  border-color: #9333ea;
+  color: #fff;
+}
+
+.btn-question:hover,
+.btn-question:focus {
+  background-color: #7e22ce;
+  border-color: #7e22ce;
+  color: #fff;
 }
 
 /* Ícono compuesto (persona + insignia superpuesta) para
@@ -1483,6 +1532,55 @@ button:disabled,
   font-weight: 700;
 }
 
+/* Layout "centrado" de ConfirmModal (ícono arriba, título y mensaje debajo,
+   todo centrado) para cuando se le pasa la prop "variant" — ver
+   ConfirmModal.tsx. Sin variant, ConfirmModal sigue usando FormModalHeader
+   (ícono a la izquierda) como siempre. */
+.confirm-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1;
+}
+
+.confirm-modal-centered {
+  padding: 2rem 1.75rem 0.25rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.confirm-modal-title {
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: #0f172a;
+}
+
+.confirm-modal-message {
+  color: #64748b;
+  font-size: 0.95rem;
+  max-width: 380px;
+}
+
+.confirm-modal-footer {
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  margin-top: 1.5rem;
+}
+
+.confirm-modal-footer .btn {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* .btn-warning tiene texto oscuro forzado con !important más arriba (pensado
+   para dar contraste en botones amarillos sueltos); acá adentro el texto
+   blanco da mejor contraste, así que hace falta otro !important, más
+   específico, para ganarle a esa regla. */
+.confirm-modal-footer .btn-warning {
+  color: #fff !important;
+}
+
 .form-section-title {
   font-weight: 700;
   color: #1e293b;
@@ -1564,6 +1662,16 @@ button:disabled,
 
 .hint-box-danger i {
   color: #dc2626;
+}
+
+/* Variante naranja (HintBox variant="warning"): aclaración más suave que
+   danger, ej. "esta acción no se puede deshacer" dentro de un ConfirmModal. */
+.hint-box-warning {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.hint-box-warning i {
+  color: #d97706;
 }
 
 /* Franja final tipo "nota destacada" que cubre TODO el ancho de una card
@@ -1672,6 +1780,48 @@ button:disabled,
 
 .reusable-table tbody tr:last-child td {
   border-bottom: none !important;
+}
+
+/* Tablas con edición inline (lecturas, descuentos y conceptos pendientes de
+   un usuario): en ShowDiscountUserModal y UserParameterModal, el modal
+   además tiene dialogClassName="scrollable-modal-fix", que le fuerza
+   overflow:visible en los dos ejes a .table-responsive (necesario para que
+   el menú del CustomSelect no se corte verticalmente al abrirse). El precio
+   de eso es que esa tabla YA NO tiene su propio scroll horizontal de
+   respaldo: si la fila no entra en el ancho disponible, en vez de
+   scrollear adentro de la tabla, el contenido se desborda visualmente
+   afuera de la card del modal. Por eso en mobile no alcanza con acotar el
+   selector/input y apilar los botones (ver debajo): tampoco puede quedar
+   ningún otro empuje de ancho, ni el de los textos largos del header
+   ("FECHA DE CREACIÓN") ni el de botones con texto. */
+@media (max-width: 576px) {
+  .reusable-table th {
+    white-space: normal;
+  }
+
+  .table-inline-edit-field {
+    max-width: 90px;
+  }
+
+  .table-row-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .table-row-actions .btn {
+    width: 100%;
+  }
+
+  /* Solo ícono en mobile (el texto ocupa demasiado ancho horizontal
+     apilado en una tabla angosta) — ver <span className="d-none d-sm-inline">
+     alrededor del texto de estos botones. */
+  .table-row-actions .btn i {
+    margin-right: 0 !important;
+  }
+
+  .table-inline-edit-date-icon {
+    display: none;
+  }
 }
 
 /* --- Badges "suaves" reutilizables (pill, fondo pastel + texto saturado):
@@ -2005,7 +2155,16 @@ button:disabled,
   min-width: 100%;
   width: max-content;
   max-width: min(90vw, 420px);
-  max-height: 280px;
+  /* Más chico a propósito (antes 280px): con muchas opciones y el selector
+     abierto cerca del borde inferior de la pantalla, un menú alto se corta
+     contra el viewport y obliga a scrollear la página entera para llegar a
+     las últimas opciones (fácil de no notar). Con este tope entran ~5
+     opciones y el resto queda a un scroll interno del propio menú, mucho
+     más visible que el de la página. El 40vh es el resguardo para pantallas
+     chicas o zoom alto, donde ni 200px llega a entrar completo arriba/abajo
+     del botón (el flip de Popper, habilitado en CustomSelect.tsx, ya elige
+     el lado con más espacio; esto acorta el menú si ese lado tampoco alcanza). */
+  max-height: min(200px, 40vh);
   overflow-y: auto;
 }
 
