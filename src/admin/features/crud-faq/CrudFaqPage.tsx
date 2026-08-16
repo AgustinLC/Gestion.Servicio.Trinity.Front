@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { FaqDto } from "../../../core/models/dto/FaqDto";
-import { addData, deleteData, getData, updateData } from "../../../core/services/apiService";
+import {
+    addData,
+    deleteData,
+    getData,
+    updateData,
+} from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { Button } from "react-bootstrap";
@@ -13,9 +18,8 @@ import PageHeader from "../../../shared/components/PageHeader";
 import { useSearch } from "../../../hooks/useSearch";
 
 const CrudFaqPage = () => {
-
     //Estados
-    const [faqData, setFaqData] = useState<FaqDto[]>([])
+    const [faqData, setFaqData] = useState<FaqDto[]>([]);
     const [selectedFaq, setSelectedFaq] = useState<FaqDto | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [faqToDelete, setFaqToDelete] = useState<FaqDto | null>(null);
@@ -25,10 +29,10 @@ const CrudFaqPage = () => {
     const [isDeleting, setIsDeleting] = useState(false);
 
     // Hook para buscar por columnas
-    const { filteredData, handleSearch } = useSearch<FaqDto>(
-        faqData,
-        ["question", "answer"]
-    );
+    const { filteredData, handleSearch } = useSearch<FaqDto>(faqData, [
+        "question",
+        "answer",
+    ]);
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -59,7 +63,11 @@ const CrudFaqPage = () => {
             fetchData();
         } catch (error) {
             console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al eliminar la faq");
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Error al eliminar la faq"
+            );
         } finally {
             setIsDeleting(false);
             setShowDeleteModal(false);
@@ -85,7 +93,11 @@ const CrudFaqPage = () => {
             fetchData();
         } catch (error) {
             console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al guardar la faq");
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Error al guardar la faq"
+            );
         }
     };
 
@@ -95,12 +107,26 @@ const CrudFaqPage = () => {
         { key: "question", label: "Pregunta", sortable: false },
         { key: "answer", label: "Respuesta", sortable: false },
         {
-            key: "actions", label: "Acciones", actions: (row: FaqDto) => (
+            key: "actions",
+            label: "Acciones",
+            actions: (row: FaqDto) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="outline-warning" onClick={() => { setSelectedFaq(row); setShowModal(true); }}>
+                    <Button
+                        variant="outline-warning"
+                        onClick={() => {
+                            setSelectedFaq(row);
+                            setShowModal(true);
+                        }}
+                    >
                         <i className="bi bi-pencil me-1"></i> Editar
                     </Button>
-                    <Button variant="outline-danger" onClick={() => { setFaqToDelete(row); setShowDeleteModal(true); }}>
+                    <Button
+                        variant="outline-danger"
+                        onClick={() => {
+                            setFaqToDelete(row);
+                            setShowDeleteModal(true);
+                        }}
+                    >
                         <i className="bi bi-trash me-1"></i> Eliminar
                     </Button>
                 </div>
@@ -111,7 +137,11 @@ const CrudFaqPage = () => {
     // Render
     return (
         <div>
-            <PageHeader title="Gestión de FAQ" subtitle="Administrá las preguntas frecuentes del sitio." icon="bi bi-question-circle" />
+            <PageHeader
+                title="Gestión de preguntas frecuentes"
+                subtitle="Administrá las preguntas frecuentes del sitio."
+                icon="bi bi-question-circle"
+            />
             {loading ? (
                 <TableSkeleton />
             ) : error ? (
@@ -119,7 +149,12 @@ const CrudFaqPage = () => {
             ) : (
                 <div className="content-fade-in">
                     <TableToolbar onSearch={handleSearch}>
-                        <Button onClick={() => { setSelectedFaq(null); setShowModal(true); }}>
+                        <Button
+                            onClick={() => {
+                                setSelectedFaq(null);
+                                setShowModal(true);
+                            }}
+                        >
                             Añadir Faq
                         </Button>
                     </TableToolbar>

@@ -37,16 +37,19 @@ export const SidebarSubmenuGroup: React.FC<SidebarSubmenuGroupProps> = ({ icon, 
 
 interface SidebarSubmenuItemProps {
     to: string;
+    icon: string;
     label: string;
     active: boolean;
     onClick?: () => void;
 }
 
-export const SidebarSubmenuItem: React.FC<SidebarSubmenuItemProps> = ({ to, label, active, onClick }) => {
+export const SidebarSubmenuItem: React.FC<SidebarSubmenuItemProps> = ({ to, icon, label, active, onClick }) => {
     return (
         <li>
             <Link to={to} className={`sidebar-submenu-link ${active ? "active" : ""}`} onClick={onClick}>
-                <span className="sidebar-submenu-dot"></span>
+                <span className="sidebar-submenu-icon">
+                    <i className={icon}></i>
+                </span>
                 {label}
             </Link>
         </li>
