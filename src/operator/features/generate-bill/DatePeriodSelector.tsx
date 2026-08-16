@@ -22,7 +22,7 @@ const DatePeriodSelector = ({
         />
       </FloatingFieldset>
       <HintBox className="mt-3">
-        <strong>Nota:</strong> Dejá en blanco para usar el período activo actual.
+        Dejá en blanco para usar el período activo actual.
       </HintBox>
     </Form.Group>
   );

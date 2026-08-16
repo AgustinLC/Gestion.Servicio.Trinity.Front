@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Button, Form, Row, Col, Spinner, Alert, Card } from 'react-bootstrap';
+import { Button, Form, Row, Col, Spinner, Card } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { getData } from '../../../core/services/apiService';
 import { BillDetailsDto } from '../../../core/models/dto/BillDetailsDto';
@@ -12,6 +12,7 @@ import ReusableTable from '../../../shared/components/table/ReusableTable';
 import PageHeader from '../../../shared/components/PageHeader';
 import FloatingFieldset from '../../../shared/components/floating-fieldset/FloatingFieldset';
 import CustomSelect from '../../../shared/components/custom-select/CustomSelect';
+import HintBox from '../../../shared/components/hint-box/HintBox';
 import './BillGenerateFilteredPage.css';
 
 const BillGenerateFilteredPage = () => {
@@ -583,12 +584,9 @@ const BillGenerateFilteredPage = () => {
 
             {/* Mensaje de ayuda / intro */}
             {!isLoading && filteredBills.length === 0 && (
-                <Alert variant="info" className="d-flex align-items-center gap-2 rounded-4">
-                    <i className="bi bi-info-circle-fill fs-5"></i>
-                    <div>
-                        <strong>Nota:</strong> Utiliza los filtros superiores para buscar facturas. Podrás previsualizarlas en una tabla interactiva y descargarlas de forma masiva o individual.
-                    </div>
-                </Alert>
+                <HintBox>
+                    Utiliza los filtros superiores para buscar facturas. Podrás previsualizarlas en una tabla interactiva y descargarlas de forma masiva o individual.
+                </HintBox>
             )}
 
             {/* Resultados */}
@@ -643,12 +641,9 @@ const BillGenerateFilteredPage = () => {
 
                     {/* Alertas de consistencia */}
                     {users.length < filteredBills.length && (
-                        <Alert variant="warning" className="d-flex align-items-center gap-2 mb-3 rounded-4">
-                            <i className="bi bi-exclamation-triangle-fill fs-5"></i>
-                            <div>
-                                Advertencia: <strong>{filteredBills.length - users.length}</strong> factura(s) no tienen un usuario asociado cargado en la aplicación. La descarga de estos archivos individuales no estará disponible.
-                            </div>
-                        </Alert>
+                        <HintBox variant="danger" className="mb-3">
+                            <strong>{filteredBills.length - users.length}</strong> factura(s) no tienen un usuario asociado cargado en la aplicación. La descarga de estos archivos individuales no estará disponible.
+                        </HintBox>
                     )}
 
                     {/* Tabla de Facturas */}

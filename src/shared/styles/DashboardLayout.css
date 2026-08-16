@@ -9,9 +9,11 @@
    Igual que en #root: se resta --navbar-height porque este contenedor ya
    arranca desplazado por el margin-top del body (deja lugar al navbar fijo),
    así que 100vh completo generaría siempre ese alto de más.
-   background-color azul: sidebar y dashboard-main lo tapan por completo salvo
-   en sus dos esquinas superiores redondeadas, que es donde este azul asoma
-   por detrás (mismo color que el navbar) generando la curva. */
+   background-color azul: el sidebar lo tapa por completo salvo en su esquina
+   superior izquierda redondeada, que es donde este azul asoma por detrás
+   (mismo color que el navbar) generando la curva. dashboard-main no tiene
+   esquina redondeada arriba (queda pegado al navbar, sin nada de este azul
+   detrás para asomar). */
 .dashboard-container {
     min-height: calc(100vh - var(--navbar-height));
     background-color: var(--bs-primary);
@@ -44,14 +46,16 @@
 /* Contenido principal: fondo gris de página (--bs-body-bg), sin recuadro
    blanco propio, para que las secciones internas (PageHeader, TableToolbar,
    tablas, KPI cards) se diferencien como tarjetas blancas contra ese fondo.
-   border-top-right-radius: mismo redondeo que el sidebar, del otro lado. */
+   Sin border-top-right-radius a propósito: ese borde queda pegado al navbar,
+   así que redondearlo dejaba asomar un triángulo del celeste de
+   .dashboard-container justo debajo del navbar. El sidebar sí mantiene su
+   redondeo (no queda pegado a nada por arriba). */
 .dashboard-main {
     margin-left: 224px;
     width: calc(100% - 224px);
     min-height: calc(100vh - var(--navbar-height));
     overflow-x: auto;
     background-color: var(--bs-body-bg);
-    border-top-right-radius: 20px;
     transition:
         margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
         width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -81,7 +85,6 @@
     .dashboard-main {
         margin-left: 0;
         width: 100%;
-        border-top-right-radius: 0;
     }
 }
 

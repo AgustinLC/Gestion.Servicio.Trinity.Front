@@ -12,7 +12,7 @@ import logo from "../../../assets/img/logoNavbar.svg";
 const ROLE_LABELS: Record<string, string> = {
   ROLE_ADMIN: "Administrador",
   ROLE_OPERATOR: "Operador",
-  ROLE_USER: "Usuario",
+  ROLE_USER: "Consumidor",
 };
 
 const Navbar: React.FC = () => {
