@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
-import { pdf } from '@react-pdf/renderer';
-import { BillDetailsDto } from '../../core/models/dto/BillDetailsDto';
-import { UserDto } from '../../core/models/dto/UserDto';
-import BillPdfDocument from '../components/bill/pdf/BillPdfDocument';
-import { toast } from 'react-toastify';
+import { useState, useCallback } from "react";
+import { pdf } from "@react-pdf/renderer";
+import { BillDetailsDto } from "../../core/models/dto/BillDetailsDto";
+import { UserDto } from "../../core/models/dto/UserDto";
+import BillPdfDocument from "../components/bill/pdf/BillPdfDocument";
+import { toast } from "react-toastify";
 
 // ============================================================================
 // TIPOS E INTERFACES
@@ -41,7 +41,7 @@ interface Progress {
  */
 const downloadBlob = (blob: Blob, fileName: string): void => {
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = `${fileName}.pdf`;
     document.body.appendChild(link);
@@ -55,7 +55,7 @@ const downloadBlob = (blob: Blob, fileName: string): void => {
  */
 const createUserMap = (users: UserDto[]): Map<number, UserDto> => {
     const map = new Map<number, UserDto>();
-    users.forEach(user => map.set(user.idUser, user));
+    users.forEach((user) => map.set(user.idUser, user));
     return map;
 };
 
@@ -63,12 +63,12 @@ const createUserMap = (users: UserDto[]): Map<number, UserDto> => {
  * Filtra facturas válidas (con usuario asociado)
  */
 const filterValidBills = (
-    bills: BillDetailsDto[], 
+    bills: BillDetailsDto[],
     userMap: Map<number, UserDto>
 ): BillWithUser[] => {
     const validBills: BillWithUser[] = [];
-    
-    bills.forEach(bill => {
+
+    bills.forEach((bill) => {
         const user = userMap.get(bill.idUser);
         if (user) {
             validBills.push({ bill, user });
@@ -76,7 +76,7 @@ const filterValidBills = (
             console.warn(`Usuario no encontrado para factura ${bill.idBill}`);
         }
     });
-    
+
     return validBills;
 };
 
@@ -86,33 +86,36 @@ const filterValidBills = (
 
 /**
  * Hook para generar PDFs de facturas usando @react-pdf/renderer
- * 
+ *
  * Ventajas sobre html2canvas + jsPDF:
  * - 10-50x más rápido (genera PDF directamente, sin pasar por canvas)
  * - PDF vectorial (texto seleccionable, zoom infinito)
  * - Archivos más pequeños
  * - Mejor calidad visual
- * 
+ *
  * @example
  * const { generateSinglePdf, generateMultiplePdf, isGenerating } = useBillPdfGeneratorV2();
- * 
+ *
  * // Una factura
  * await generateSinglePdf(bill, user, { fileName: 'mi_factura' });
- * 
+ *
  * // Múltiples facturas
  * await generateMultiplePdf(bills, users, { fileName: 'facturas_enero' });
  */
 export const useBillPdfGeneratorV2 = () => {
     const [isGenerating, setIsGenerating] = useState(false);
-    const [progress, setProgress] = useState<Progress>({ processed: 0, total: 0 });
+    const [progress, setProgress] = useState<Progress>({
+        processed: 0,
+        total: 0,
+    });
 
     /**
      * Genera un PDF de una sola factura
      */
     const generateSinglePdf = useCallback(
         async (
-            bill: BillDetailsDto, 
-            user: UserDto, 
+            bill: BillDetailsDto,
+            user: UserDto,
             options: BillPdfOptions = {}
         ): Promise<void> => {
             const {
@@ -134,14 +137,17 @@ export const useBillPdfGeneratorV2 = () => {
 
                 // Descargar
                 downloadBlob(blob, fileName);
-                
+
                 setProgress({ processed: 1, total: 1 });
-                toast.success('PDF generado exitosamente');
+                toast.success("Factura descargada exitosamente");
                 onComplete?.();
             } catch (error) {
-                const err = error instanceof Error ? error : new Error('Error desconocido');
-                console.error('Error generando PDF:', err);
-                toast.error('Error al generar PDF');
+                const err =
+                    error instanceof Error
+                        ? error
+                        : new Error("Error desconocido");
+                console.error("Error generando PDF:", err);
+                toast.error("Error al generar PDF");
                 onError?.(err);
                 throw err;
             } finally {
@@ -162,7 +168,7 @@ export const useBillPdfGeneratorV2 = () => {
             options: BillPdfOptions = {}
         ): Promise<void> => {
             const {
-                fileName = `facturas_consorcio_${new Date().toISOString().split('T')[0]}`,
+                fileName = `facturas_consorcio_${new Date().toISOString().split("T")[0]}`,
                 onStart,
                 onComplete,
                 onError,
@@ -170,7 +176,7 @@ export const useBillPdfGeneratorV2 = () => {
             } = options;
 
             if (bills.length === 0) {
-                throw new Error('No hay facturas para generar');
+                throw new Error("No hay facturas para generar");
             }
 
             setIsGenerating(true);
@@ -180,16 +186,20 @@ export const useBillPdfGeneratorV2 = () => {
             try {
                 // Crear mapeo de usuarios
                 const userMap = createUserMap(users);
-                
+
                 // Filtrar facturas válidas
                 const validBills = filterValidBills(bills, userMap);
 
                 if (validBills.length === 0) {
-                    throw new Error('No se encontraron facturas con usuarios válidos');
+                    throw new Error(
+                        "No se encontraron facturas con usuarios válidos"
+                    );
                 }
 
                 // Mostrar progreso inicial
-                toast.info(`Generando PDF con ${validBills.length} facturas...`);
+                toast.info(
+                    `Generando PDF con ${validBills.length} facturas...`
+                );
                 onProgress?.(0, validBills.length);
 
                 // Generar PDF con todas las facturas
@@ -198,20 +208,26 @@ export const useBillPdfGeneratorV2 = () => {
                 ).toBlob();
 
                 // Actualizar progreso
-                setProgress({ processed: validBills.length, total: validBills.length });
+                setProgress({
+                    processed: validBills.length,
+                    total: validBills.length,
+                });
                 onProgress?.(validBills.length, validBills.length);
 
                 // Descargar
                 downloadBlob(blob, fileName);
 
                 toast.success(
-                    `PDF generado: ${validBills.length} factura${validBills.length > 1 ? 's' : ''} (${validBills.length} páginas)`
+                    `PDF generado: ${validBills.length} factura${validBills.length > 1 ? "s" : ""} (${validBills.length} páginas)`
                 );
                 onComplete?.();
             } catch (error) {
-                const err = error instanceof Error ? error : new Error('Error desconocido');
-                console.error('Error generando PDF:', err);
-                toast.error('Error al generar PDF');
+                const err =
+                    error instanceof Error
+                        ? error
+                        : new Error("Error desconocido");
+                console.error("Error generando PDF:", err);
+                toast.error("Error al generar PDF");
                 onError?.(err);
                 throw err;
             } finally {
@@ -229,9 +245,9 @@ export const useBillPdfGeneratorV2 = () => {
         async (
             bills: BillDetailsDto[],
             users: UserDto[],
-            options: BillPdfOptions & { 
+            options: BillPdfOptions & {
                 /** Facturas por archivo PDF. Default: 50 */
-                billsPerFile?: number 
+                billsPerFile?: number;
             } = {}
         ): Promise<void> => {
             const {
@@ -244,7 +260,7 @@ export const useBillPdfGeneratorV2 = () => {
             } = options;
 
             if (bills.length === 0) {
-                throw new Error('No hay facturas para generar');
+                throw new Error("No hay facturas para generar");
             }
 
             setIsGenerating(true);
@@ -256,7 +272,9 @@ export const useBillPdfGeneratorV2 = () => {
                 const validBills = filterValidBills(bills, userMap);
 
                 if (validBills.length === 0) {
-                    throw new Error('No se encontraron facturas con usuarios válidos');
+                    throw new Error(
+                        "No se encontraron facturas con usuarios válidos"
+                    );
                 }
 
                 // Dividir en lotes
@@ -269,28 +287,38 @@ export const useBillPdfGeneratorV2 = () => {
 
                 let totalProcessed = 0;
 
-                for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+                for (
+                    let batchIndex = 0;
+                    batchIndex < batches.length;
+                    batchIndex++
+                ) {
                     const batch = batches[batchIndex];
-                    
+
                     // Generar PDF del lote
                     const blob = await pdf(
                         <BillPdfDocument bills={batch} />
                     ).toBlob();
 
                     // Nombre del archivo con índice si hay múltiples
-                    const batchFileName = batches.length > 1 
-                        ? `${fileName}_parte_${batchIndex + 1}` 
-                        : fileName;
+                    const batchFileName =
+                        batches.length > 1
+                            ? `${fileName}_parte_${batchIndex + 1}`
+                            : fileName;
 
                     downloadBlob(blob, batchFileName);
 
                     totalProcessed += batch.length;
-                    setProgress({ processed: totalProcessed, total: validBills.length });
+                    setProgress({
+                        processed: totalProcessed,
+                        total: validBills.length,
+                    });
                     onProgress?.(totalProcessed, validBills.length);
 
                     // Pequeña pausa entre lotes para no sobrecargar
                     if (batchIndex < batches.length - 1) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
+                        await new Promise((resolve) =>
+                            setTimeout(resolve, 100)
+                        );
                     }
                 }
 
@@ -299,9 +327,12 @@ export const useBillPdfGeneratorV2 = () => {
                 );
                 onComplete?.();
             } catch (error) {
-                const err = error instanceof Error ? error : new Error('Error desconocido');
-                console.error('Error generando PDFs:', err);
-                toast.error('Error al generar PDFs');
+                const err =
+                    error instanceof Error
+                        ? error
+                        : new Error("Error desconocido");
+                console.error("Error generando PDFs:", err);
+                toast.error("Error al generar PDFs");
                 onError?.(err);
                 throw err;
             } finally {

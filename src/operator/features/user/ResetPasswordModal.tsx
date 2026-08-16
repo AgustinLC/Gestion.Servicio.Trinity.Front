@@ -7,6 +7,7 @@ import { getPasswordRuleResults, isPasswordValid, generateSecurePassword } from 
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import HintBox from "../../../shared/components/hint-box/HintBox";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
 type ResetMethod = "temporary" | "dni" | "custom";
 
@@ -87,7 +88,7 @@ const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({ show, user, isL
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered size="lg" backdrop={false} style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="reset-password-modal-title">
+        <Modal show={show} onHide={onHide} onClick={onBackdropClick(onHide)} centered size="lg" backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="reset-password-modal-title">
             <FormModalHeader
                 icon="bi bi-shield-lock-fill"
                 title="Restablecer contraseña"

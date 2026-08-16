@@ -4,6 +4,7 @@ import { Status } from "../../../core/models/dto/Status";
 import { STATUS_ACTION_CONFIG, STATUS_BADGE_CLASS, STATUS_DOT_COLORS, STATUS_OPTIONS } from "../labels-traductor/statusStyles";
 import FormModalHeader from "../form-modal-header/FormModalHeader";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { onBackdropClick } from "../../hooks/useConfirmDiscard";
 
 interface ChangeStatusConfirmModalProps {
     show: boolean;
@@ -38,8 +39,10 @@ const ChangeStatusConfirmModal: React.FC<ChangeStatusConfirmModalProps> = ({
         <Modal
             show={show}
             onHide={onCancel}
+            onClick={onBackdropClick(onCancel)}
             centered
-            backdrop={false}
+            backdrop
+            backdropClassName="modal-click-backdrop"
             style={{ zIndex: modalZIndex }}
             contentClassName="form-modal-content"
             aria-labelledby="change-status-modal-title"

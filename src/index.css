@@ -1524,34 +1524,63 @@ button:disabled,
    overflow-x:auto. Por la regla del spec de CSS "si un eje está en visible
    y el otro no, el visible pasa a comportarse como auto", el overflow-y
    (que nunca se toca, queda en su valor inicial "visible") termina
-   comportándose igual que auto y recorta el menú de RowActions verticalmente
-   en la última fila. Hace falta liberar los dos ejes explícitamente, así
-   que se pierde el scroll horizontal de esa tabla puntual dentro de estos
-   modales (aceptable: son tablas angostas, no las anchas tipo matriz de
-   lecturas). */
+   comportándose igual que auto y recorta el menú de RowActions/CustomSelect
+   verticalmente en la última fila. Hace falta liberar los dos ejes
+   explícitamente, así que esta tabla puntual pierde su scroll horizontal
+   de respaldo dentro de estos modales — el trade-off es aceptado acá porque
+   no hay forma de tener "un eje auto y el otro visible" en el mismo
+   elemento (ver .table-mobile-scroll más abajo para las tablas que sí
+   necesitan ese scroll y pueden vivir sin RowActions/CustomSelect
+   arriesgando el corte). */
 .scrollable-modal-fix .table-responsive {
+    overflow: visible !important;
+}
+
+/* Para las tablas con edición inline angostas (lecturas, descuentos,
+   conceptos pendientes de un usuario) que si necesitan poder scrollear
+   horizontalmente en mobile en vez de desbordarse afuera de la card del
+   modal (ver UserReadingModal/ShowDiscountUserModal/UserParameterModal) —
+   agregar ADEMÁS de "scrollable-modal-fix" en dialogClassName. No usar en
+   tablas con RowActions (menú de 3 puntos) o con un CustomSelect que se
+   pueda abrir en cualquier fila en todo momento (ej. BillActiveModal,
+   BillNullModal): ahí gana la prioridad de arriba, que no corta esos menús. */
+.table-mobile-scroll .table-responsive {
     overflow-x: auto !important;
     overflow-y: auto !important;
     max-width: 100%;
 }
 
-.scrollable-modal-fix .reusable-table table {
+.table-mobile-scroll .reusable-table table {
     min-width: 680px;
 }
 
-.scrollable-modal-fix .table-row-actions {
+.table-mobile-scroll .table-row-actions {
     flex-wrap: nowrap;
 }
 
 /* Backdrop único y compartido para toda la app (ver
    src/context/ModalStackContext.tsx): reemplaza el de cada <Modal>
    individual (backdrop={false}), así con N modales apilados se sigue
-   pintando un solo <div> en vez de N. */
+   pintando un solo <div> en vez de N. Queda siempre montado (ver el
+   componente) y se anima con transition en vez de con una @keyframes de
+   "mount", porque una animación de mount no reproduce nada al desmontar: al
+   cerrar el último modal desaparecía de golpe mientras el <Modal> de
+   Bootstrap todavía estaba en medio de su propio fade-out (~0.15s), dejando
+   ver el modal semitransparente sobre la página ya sin oscurecer durante
+   ese lapso. Con transition + la clase -visible, el fade de entrada/salida
+   quedan sincronizados con el del modal. */
 .shared-modal-backdrop {
     position: fixed;
     inset: 0;
     background-color: rgba(15, 23, 42, 0.5);
-    animation: shared-modal-backdrop-fade-in 0.15s ease-out;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease-out;
+}
+
+.shared-modal-backdrop-visible {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* Los modales usan este backdrop nativo, transparente, solo para que
@@ -1559,15 +1588,6 @@ button:disabled,
    oscuro visible sigue siendo el backdrop compartido de ModalStackContext. */
 .modal-click-backdrop {
     background-color: transparent;
-}
-
-@keyframes shared-modal-backdrop-fade-in {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
 }
 
 .form-modal-header {

@@ -12,6 +12,7 @@ import CustomSelect from "../../../shared/components/custom-select/CustomSelect"
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { formatDate, formatCurrency } from "../../../core/utils/formatters";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
 interface UserParametersModalProps {
     show: boolean;
@@ -206,7 +207,7 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
 
     return (
         <>
-            <Modal show={show} size="lg" onHide={onHide} centered backdrop={false} style={{ zIndex: modalZIndex }} dialogClassName="scrollable-modal-fix" contentClassName="form-modal-content" aria-labelledby="user-parameters-modal-title">
+            <Modal show={show} size="lg" onHide={onHide} onClick={onBackdropClick(onHide)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} dialogClassName="scrollable-modal-fix table-mobile-scroll" contentClassName="form-modal-content" aria-labelledby="user-parameters-modal-title">
                 <FormModalHeader
                     icon="bi bi-journal-plus"
                     title={`Conceptos de ${userName}`}
@@ -221,15 +222,20 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
                     ) : error ? (
                         <div className="text-danger text-center">{error}</div>
                     ) : (
-                        <div className="content-fade-in">
-                            <ReusableTable<PendigBillDetail>
-                                data={parameters}
-                                columns={columns}
-                                defaultSort="dateRegister"
-                                defaultPageSize={5}
-                                showPageSizeSelector={false}
-                            />
-                        </div>
+                        // Sin content-fade-in a propósito: es una animación de
+                        // "mount" sin salida, y acá el fetch termina bastante
+                        // después de que el modal ya está abierto y asentado —
+                        // si en ese lapso se llega a cerrar el modal, esta
+                        // animación queda corriendo a la vez que el fade-out del
+                        // modal, sin sincronizarse con él (se ve la tabla
+                        // "destellando" de forma rara al cerrar).
+                        <ReusableTable<PendigBillDetail>
+                            data={parameters}
+                            columns={columns}
+                            defaultSort="dateRegister"
+                            defaultPageSize={5}
+                            showPageSizeSelector={false}
+                        />
                     )}
                 </Modal.Body>
             </Modal>

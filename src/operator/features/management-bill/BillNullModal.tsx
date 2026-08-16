@@ -13,6 +13,7 @@ import TableSkeleton from "../../../shared/components/table-skeleton/TableSkelet
 import RowActions from "../../../shared/components/table/RowActions";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
 interface BillNullModalProps {
     show: boolean;
@@ -118,7 +119,7 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
     // Render
     return (
         <>
-            <Modal show={show} onHide={onHide} size="xl" centered scrollable backdrop={false} style={{ zIndex: modalZIndex }} dialogClassName="scrollable-modal-fix" contentClassName="form-modal-content" aria-labelledby="bill-null-modal-title">
+            <Modal show={show} onHide={onHide} onClick={onBackdropClick(onHide)} size="xl" centered scrollable backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} dialogClassName="scrollable-modal-fix" contentClassName="form-modal-content" aria-labelledby="bill-null-modal-title">
                 <FormModalHeader
                     icon="bi bi-file-earmark-x"
                     title={`Facturas Anuladas - ${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
@@ -132,7 +133,14 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
                     ) : bills.length === 0 ? (
                         <p className="text-center">No hay facturas anuladas</p>
                     ) : (
-                        <div className="content-fade-in">
+                        // Sin content-fade-in a propósito: es una animación de
+                        // "mount" sin salida, y acá el fetch termina bastante
+                        // después de que el modal ya está abierto y asentado —
+                        // si en ese lapso se llega a cerrar el modal, esta
+                        // animación queda corriendo a la vez que el fade-out del
+                        // modal, sin sincronizarse con él (se ve la tabla
+                        // "destellando" de forma rara al cerrar).
+                        <div>
                             <ReusableTable<BillDetailsDto>
                                 data={[...bills].sort((a, b) => b.idBill - a.idBill)}
                                 columns={columns}

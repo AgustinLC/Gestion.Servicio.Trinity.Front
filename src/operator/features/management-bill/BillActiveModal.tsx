@@ -15,6 +15,7 @@ import TableSkeleton from "../../../shared/components/table-skeleton/TableSkelet
 import RowActions from "../../../shared/components/table/RowActions";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { useModalLayer } from "../../../context/ModalStackContext";
+import { onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
 interface BillActiveModalProps {
     show: boolean;
@@ -265,7 +266,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
 
     return (
         <>
-            <Modal show={show} onHide={onHide} size="xl" centered scrollable backdrop={false} style={{ zIndex: modalZIndex }} dialogClassName="bill-active-modal-dialog scrollable-modal-fix" contentClassName="form-modal-content" aria-labelledby="bill-active-modal-title">
+            <Modal show={show} onHide={onHide} onClick={onBackdropClick(onHide)} size="xl" centered scrollable backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} dialogClassName="bill-active-modal-dialog scrollable-modal-fix" contentClassName="form-modal-content" aria-labelledby="bill-active-modal-title">
                 <FormModalHeader
                     icon="bi bi-file-earmark-spreadsheet"
                     title={`Facturas Activas - ${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
@@ -280,7 +281,14 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                     ) : bills.length === 0 ? (
                         <p className="text-center">No hay facturas activas</p>
                     ) : (
-                        <div className="content-fade-in">
+                        // Sin content-fade-in a propósito: es una animación de
+                        // "mount" sin salida, y acá el fetch termina bastante
+                        // después de que el modal ya está abierto y asentado —
+                        // si en ese lapso se llega a cerrar el modal, esta
+                        // animación queda corriendo a la vez que el fade-out del
+                        // modal, sin sincronizarse con él (se ve la tabla
+                        // "destellando" de forma rara al cerrar).
+                        <div>
                             <ReusableTable<BillDetailsDto>
                                 data={[...bills].sort((a, b) => b.idBill - a.idBill)}
                                 columns={columns}
@@ -311,7 +319,7 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
             />
 
             {/* Modal para seleccionar tipo de pago */}
-            <Modal show={showPaymentModal} onHide={() => setShowPaymentModal(false)} centered size="lg" backdrop={false} style={{ zIndex: paymentModalZIndex }} contentClassName="form-modal-content" aria-labelledby="payment-status-modal-title">
+            <Modal show={showPaymentModal} onHide={() => setShowPaymentModal(false)} onClick={onBackdropClick(() => setShowPaymentModal(false))} centered size="lg" backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: paymentModalZIndex }} contentClassName="form-modal-content" aria-labelledby="payment-status-modal-title">
                 <FormModalHeader
                     icon="bi bi-credit-card"
                     title="Seleccionar estado de pago"

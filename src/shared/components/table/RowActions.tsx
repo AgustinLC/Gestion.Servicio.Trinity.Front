@@ -34,7 +34,10 @@ const RowActions: React.FC<RowActionsProps> = ({ onEdit, editTitle = "Editar", i
                     <Dropdown.Toggle as="button" className="row-actions-menu" id={menuId}>
                         <i className="bi bi-three-dots-vertical"></i>
                     </Dropdown.Toggle>
-                    <Dropdown.Menu popperConfig={{ modifiers: [{ name: "flip", enabled: false }] }}>
+                    {/* flip habilitado (Popper por defecto): si no entra abajo
+                        (última fila de la tabla), abre para arriba en vez de
+                        cortarse contra el borde del contenedor. */}
+                    <Dropdown.Menu>
                         {items.map((item, idx) => (
                             <Dropdown.Item
                                 key={idx}

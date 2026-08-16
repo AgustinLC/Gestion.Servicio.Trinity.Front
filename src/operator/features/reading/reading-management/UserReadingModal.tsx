@@ -10,6 +10,7 @@ import TableSkeleton from "../../../../shared/components/table-skeleton/TableSke
 import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
 import { formatDate } from "../../../../core/utils/formatters";
 import { useModalLayer } from "../../../../context/ModalStackContext";
+import { onBackdropClick } from "../../../../shared/hooks/useConfirmDiscard";
 
 interface UserReadingsModalProps {
     show: boolean;
@@ -144,7 +145,7 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
 
     // Render
     return (
-        <Modal show={show} onHide={onHide} centered size="lg" backdrop={false} style={{ zIndex: modalZIndex }} dialogClassName="scrollable-modal-fix" contentClassName="form-modal-content" aria-labelledby="user-reading-modal-title">
+        <Modal show={show} onHide={onHide} onClick={onBackdropClick(onHide)} centered size="lg" backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} dialogClassName="scrollable-modal-fix table-mobile-scroll" contentClassName="form-modal-content" aria-labelledby="user-reading-modal-title">
             <FormModalHeader
                 icon="bi bi-speedometer2"
                 title={`Lecturas de ${userName}`}
@@ -161,16 +162,20 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
                 ) : readings.length === 0 ? (
                     <p className="text-center">No hay lecturas disponibles</p>
                 ) : (
-                    <div className="content-fade-in">
-                        <ReusableTable<ReadReadingDto>
-                            data={readings}
-                            columns={columns}
-                            defaultSort="date"
-                            defaultSortDirection="desc"
-                            defaultPageSize={5}
-                            showPageSizeSelector={false}
-                        />
-                    </div>
+                    // Sin content-fade-in a propósito: es una animación de "mount"
+                    // sin salida, y acá el fetch termina bastante después de que
+                    // el modal ya está abierto y asentado — si en ese lapso se
+                    // llega a cerrar el modal, esta animación queda corriendo a
+                    // la vez que el fade-out del modal, sin sincronizarse con él
+                    // (se ve la tabla "destellando" de forma rara al cerrar).
+                    <ReusableTable<ReadReadingDto>
+                        data={readings}
+                        columns={columns}
+                        defaultSort="date"
+                        defaultSortDirection="desc"
+                        defaultPageSize={5}
+                        showPageSizeSelector={false}
+                    />
                 )}
             </Modal.Body>
 

@@ -36,20 +36,26 @@ export const ModalStackProvider: React.FC<{ children: React.ReactNode }> = ({
         );
     }, []);
 
-    const topZIndex =
-        stack.length > 0
-            ? MODAL_BASE_Z_INDEX + (stack.length - 1) * MODAL_Z_INDEX_STEP
-            : null;
+    const isVisible = stack.length > 0;
+    const topZIndex = isVisible
+        ? MODAL_BASE_Z_INDEX + (stack.length - 1) * MODAL_Z_INDEX_STEP
+        : MODAL_BASE_Z_INDEX;
 
     return (
         <ModalStackContext.Provider value={{ stack, push, remove }}>
             {children}
-            {topZIndex !== null && (
-                <div
-                    className="shared-modal-backdrop"
-                    style={{ zIndex: topZIndex - BACKDROP_Z_OFFSET }}
-                />
-            )}
+            {/* Montado siempre (no condicionado a isVisible): antes se sacaba
+                del DOM apenas se cerraba el último modal, así que desaparecía
+                de golpe mientras el <Modal> de Bootstrap todavía estaba
+                haciendo su propio fade-out (~0.15s) — en ese lapso se veía el
+                modal semitransparente sobre la página ya sin oscurecer, como
+                un "flash". Ahora se anima con transition (ver
+                .shared-modal-backdrop en index.css) igual que el modal, así
+                los dos fades quedan sincronizados. */}
+            <div
+                className={`shared-modal-backdrop${isVisible ? " shared-modal-backdrop-visible" : ""}`}
+                style={{ zIndex: topZIndex - BACKDROP_Z_OFFSET }}
+            />
         </ModalStackContext.Provider>
     );
 };
