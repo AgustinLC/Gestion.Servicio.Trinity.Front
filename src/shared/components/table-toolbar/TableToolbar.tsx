@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form, InputGroup } from "react-bootstrap";
 import SearchBar from "../searcher/SearchBar";
 import CustomSelect from "../custom-select/CustomSelect";
@@ -30,6 +30,34 @@ const TableToolbar: React.FC<TableToolbarProps> = ({
 }) => {
     const hasFilters = filters.length > 0 && !!filterState;
 
+    // No hay forma de "deshacer" la búsqueda/filtros una vez tocados: el
+    // buscador no tiene botón de limpiar, y un CustomSelect de filtro solo
+    // tiene opción "Todos" si su config define defaultValue (varios no lo
+    // hacen). searchResetKey fuerza que SearchBar se vuelva a montar (con su
+    // estado interno de vuelta en "") en vez de convertirlo en un componente
+    // controlado, así no hace falta tocar los ~24 lugares que usan este
+    // toolbar.
+    const [searchResetKey, setSearchResetKey] = useState(0);
+
+    // Solo para habilitar/deshabilitar el botón de limpiar: SearchBar guarda
+    // su propio query como estado interno (no lo expone), así que se
+    // envuelve el callback para además llevar la cuenta acá. Para los
+    // filtros no hace falta nada extra: enabledIds ya viene derivado de
+    // useTableFilters.
+    const [hasQuery, setHasQuery] = useState(false);
+    const handleSearchChange = (query: string) => {
+        setHasQuery(query.length > 0);
+        onSearch(query);
+    };
+    const canReset = hasQuery || (filterState?.enabledIds.size ?? 0) > 0;
+
+    const handleResetFilters = () => {
+        onSearch("");
+        setHasQuery(false);
+        setSearchResetKey((key) => key + 1);
+        filters.forEach((filter) => filterState?.setFilterValue(filter.id, filter.defaultValue ?? ""));
+    };
+
     return (
         <div className="table-toolbar">
             <div className="table-toolbar-main d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2">
@@ -38,7 +66,7 @@ const TableToolbar: React.FC<TableToolbarProps> = ({
                     <InputGroup.Text>
                         <i className="bi bi-search"></i>
                     </InputGroup.Text>
-                    <SearchBar onSearch={onSearch} placeholder={searchPlaceholder} />
+                    <SearchBar key={searchResetKey} onSearch={handleSearchChange} placeholder={searchPlaceholder} />
                 </InputGroup>
 
                 {/* Filtros siempre visibles (uno por config) */}
@@ -116,6 +144,20 @@ const TableToolbar: React.FC<TableToolbarProps> = ({
                         </div>
                     );
                 })}
+
+                {/* Limpia búsqueda + todos los filtros de un click. Deshabilitado
+                    si no hay nada aplicado: además de la señal visual, evita
+                    el click "inofensivo pero inútil". */}
+                <button
+                    type="button"
+                    className="table-toolbar-reset-btn"
+                    onClick={handleResetFilters}
+                    disabled={!canReset}
+                    title="Limpiar filtros"
+                    aria-label="Limpiar filtros"
+                >
+                    <i className="bi bi-arrow-clockwise"></i>
+                </button>
 
                 {/* Acciones (botones de la derecha, ej: "Nuevo Usuario") */}
                 {children && (
