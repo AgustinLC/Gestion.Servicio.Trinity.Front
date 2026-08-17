@@ -1,5 +1,10 @@
 import { Dropdown } from "react-bootstrap";
 
+// Mismo criterio que useTableFilters: un valor vacío o el sentinela de
+// "Todos/as" no cuenta como un filtro realmente aplicado, así que el toggle
+// se pinta igual que el placeholder (gris tenue) en vez de texto normal.
+const EMPTY_SELECT_SENTINELS = new Set(["", "ALL", "all"]);
+
 export interface CustomSelectOption {
     value: string;
     label: string;
@@ -50,6 +55,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     onBlur,
 }) => {
     const selected = options.find((option) => option.value === value);
+    const hasValue = !!value && !EMPTY_SELECT_SENTINELS.has(value);
 
     return (
         <Dropdown className={`custom-select ${fullWidth ? "w-100" : ""} ${className}`} drop="down">
@@ -59,11 +65,11 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 aria-label={ariaLabel}
                 onFocus={onFocus}
                 onBlur={onBlur}
-                className={`custom-select-toggle alert-filter-toggle w-100 d-flex align-items-center justify-content-between ${isInvalid ? "is-invalid" : ""}`}
+                className={`custom-select-toggle alert-filter-toggle w-100 d-flex align-items-center justify-content-between ${hasValue ? "has-value" : ""} ${isInvalid ? "is-invalid" : ""}`}
             >
                 <span className="d-inline-flex align-items-center gap-2 text-truncate">
                     {icon ? (
-                        <i className={`${icon} text-secondary`}></i>
+                        <i className={`${icon} alert-filter-toggle-icon`}></i>
                     ) : selected?.icon ? (
                         <i className={selected.icon}></i>
                     ) : selected?.color ? (

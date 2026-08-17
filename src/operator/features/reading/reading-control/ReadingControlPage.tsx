@@ -136,15 +136,16 @@ const ReadingControlPage = () => {
                 maxWidth: "250px",
                 render: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => {
                     const selectedFilter = ALERT_FILTERS.find((filter) => filter.value === value);
+                    const hasValue = !!value && value !== "all" && value !== "ALL" && value !== "";
 
                     return (
                         <Dropdown className="w-100" drop="down">
                             <Dropdown.Toggle
                                 variant="outline-secondary"
-                                className="alert-filter-toggle w-100 d-flex align-items-center justify-content-between"
+                                className={`alert-filter-toggle w-100 d-flex align-items-center justify-content-between ${hasValue ? "has-value" : ""}`}
                             >
                                 <span className="d-inline-flex align-items-center gap-2">
-                                    <i className="bi bi-funnel text-secondary"></i>
+                                    <i className="bi bi-funnel alert-filter-toggle-icon"></i>
                                     {selectedFilter?.alert && (
                                         <span
                                             className="d-inline-block rounded-circle"

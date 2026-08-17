@@ -208,6 +208,15 @@ body.modal-open {
 .form-select {
     border-radius: var(--input-border-radius);
     border: 1.5px solid #e2e8f0;
+    /* !important: mismo motivo que .btn-outline-* más abajo — en algunas
+       rutas bootstrap.min.css se reinyecta en su propio chunk y reordena el
+       CSS final, haciendo ganar el border-width:1px nativo de Bootstrap por
+       encima de este archivo. Sin esto, el grosor del borde queda distinto
+       según la página (se nota comparando inputs con ícono, ej. buscador vs
+       filtro de calle, uno al lado del otro). Se fija ancho Y color: el gris
+       nativo de Bootstrap (#ced4da/#dee2e6) es más oscuro que este. */
+    border-width: 1.5px !important;
+    border-color: #e2e8f0 !important;
     padding: 0.6rem 0.9rem;
     font-size: 0.95rem;
     color: #1e293b;
@@ -231,10 +240,19 @@ body.modal-open {
     border-color: #80bfff;
     box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
     color: #0f172a;
+    /* Bootstrap pone background-color: var(--bs-body-bg) en :focus por
+       default, y ese token está pisado globalmente a un gris clarito
+       (#f8fafc, el mismo que el fondo de los modales) — sin esto, el input
+       se ve gris apenas se lo clickea en vez de mantenerse blanco. */
+    background-color: #ffffff !important;
 }
 
 .form-control::placeholder {
-    color: #94a3b8;
+    /* !important: mismo motivo que .form-control (border-width) más arriba
+       — sin esto, en algunas rutas gana el gris más oscuro nativo de
+       Bootstrap y el placeholder queda con un tono distinto al de otros
+       inputs (se nota comparando el buscador con un filtro al lado). */
+    color: #94a3b8 !important;
     opacity: 1;
 }
 
@@ -1376,7 +1394,15 @@ button:disabled,
     background-color: #ffffff;
     border: 1.5px solid #e2e8f0;
     border-right: none;
-    color: #94a3b8;
+    /* Los !important van lado por lado (no "border-width: 1.5px") para no
+       pisar el border-right:none de arriba, que es lo que suelda el ícono
+       con el input en una sola pieza sin costura al medio. */
+    border-top-width: 1.5px !important;
+    border-bottom-width: 1.5px !important;
+    border-left-width: 1.5px !important;
+    border-right-width: 0 !important;
+    border-color: #e2e8f0 !important;
+    color: #94a3b8 !important;
     padding-right: 0.4rem;
 }
 
@@ -1384,6 +1410,11 @@ button:disabled,
 .table-toolbar-filter-group .form-select,
 .table-toolbar-filter-group .form-control {
     border-left: none;
+    /* El border-width:1.5px !important de la regla base .form-control (ver
+       más arriba) pisa este border-left:none si no se lo iguala en
+       especificidad — si no, vuelve a aparecer una costura entre el ícono y
+       el input. */
+    border-left-width: 0 !important;
     padding-left: 0.4rem;
     max-width: none;
     min-width: 0;
@@ -2246,10 +2277,26 @@ button:disabled,
     background-color: #ffffff !important;
     border: 1.5px solid #e2e8f0 !important;
     border-radius: var(--input-border-radius) !important;
-    color: #1e293b !important;
+    /* Gris tenue por default — mismo criterio que el placeholder de un
+       input: mientras muestra el placeholder o la opción "Todos/as" (sin
+       filtro realmente aplicado), no un valor elegido de verdad. */
+    color: #94a3b8 !important;
     font-weight: 400;
     padding: 0.6rem 0.9rem !important;
     box-shadow: none !important;
+}
+
+/* Con un valor real elegido (no el placeholder ni la opción "Todos/as"),
+   pasa al mismo tono oscuro que un input con texto tipeado. */
+.alert-filter-toggle.btn.has-value {
+    color: #1e293b !important;
+}
+
+/* Ícono fijo del selector (no cambia según la opción elegida): mismo gris
+   tenue que el ícono del buscador/filtro de calle, en vez del gris propio
+   de Bootstrap (.text-secondary), que se ve más oscuro/distinto. */
+.alert-filter-toggle-icon {
+    color: #94a3b8 !important;
 }
 
 .alert-filter-toggle.btn:hover,

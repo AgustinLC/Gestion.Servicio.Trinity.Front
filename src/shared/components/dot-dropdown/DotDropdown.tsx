@@ -1,5 +1,9 @@
 import { Dropdown } from "react-bootstrap";
 
+// Mismo criterio que CustomSelect/useTableFilters: un valor vacío o el
+// sentinela de "Todos/as" no cuenta como filtro realmente aplicado.
+const EMPTY_SELECT_SENTINELS = new Set(["", "ALL", "all"]);
+
 // Dropdown reutilizable con un punto de color por opción, tanto en el botón
 // (según la opción seleccionada) como en cada ítem del menú. Mismo patrón
 // que el filtro de "Inconsistencias" de ReadingControlPage, generalizado
@@ -29,15 +33,16 @@ const DotDropdown: React.FC<DotDropdownProps> = ({
     className = "",
 }) => {
     const selected = options.find((option) => option.value === value);
+    const hasValue = !!value && !EMPTY_SELECT_SENTINELS.has(value);
 
     return (
         <Dropdown className={`w-100 ${className}`} drop="down">
             <Dropdown.Toggle
                 variant="outline-secondary"
-                className="alert-filter-toggle w-100 d-flex align-items-center justify-content-between"
+                className={`alert-filter-toggle w-100 d-flex align-items-center justify-content-between ${hasValue ? "has-value" : ""}`}
             >
                 <span className="d-inline-flex align-items-center gap-2">
-                    {icon && <i className={`${icon} text-secondary`}></i>}
+                    {icon && <i className={`${icon} alert-filter-toggle-icon`}></i>}
                     {selected?.color && (
                         <span
                             className="d-inline-block rounded-circle"
