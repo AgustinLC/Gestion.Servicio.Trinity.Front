@@ -14,6 +14,7 @@ const ReusableTable = <T,>({
     defaultSortDirection = "desc",
     defaultPageSize = 10,
     showPageSizeSelector = true,
+    getRowClassName,
     emptyIcon = "bi bi-inbox",
     emptyTitle = "No hay datos para mostrar",
     emptyMessage = "Todavía no se registró información acá.",
@@ -132,7 +133,7 @@ const ReusableTable = <T,>({
                 </thead>
                 <tbody className="text-center align-middle">
                     {paginatedData.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
+                        <tr key={rowIndex} className={getRowClassName?.(row)}>
                             {columns.map((column) => (
                                 <td key={String(column.key)}>
                                     {renderCellContent(column, row)}

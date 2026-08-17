@@ -165,6 +165,16 @@ const BillGenerateFilteredPage = () => {
         return filteredBills.filter(bill => bill.paidStatus === PaymentStatus.UNPAID).length;
     }, [filteredBills]);
 
+    // Facturas sin usuario cargado en la app. Ojo: NO es "filteredBills.length
+    // - users.length" (eso compara cantidad de facturas contra cantidad de
+    // usuarios ÚNICOS, y da falsos positivos apenas un mismo usuario tiene
+    // más de una factura en el rango filtrado, ej. varios períodos de un
+    // mismo año). Acá se cuenta factura por factura, igual que el resaltado
+    // de filas de la tabla.
+    const billsWithoutUserCount = useMemo(() => {
+        return filteredBills.filter(bill => !users.some(u => u.idUser === bill.idUser)).length;
+    }, [filteredBills, users]);
+
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('es-AR', {
             style: 'currency',
@@ -223,13 +233,28 @@ const BillGenerateFilteredPage = () => {
             label: "Estado",
             sortable: true,
             render: (row: BillDetailsDto) => {
-                const isPaid = row.paidStatus !== PaymentStatus.UNPAID;
-                return (
-                    <span className={`badge bg-${isPaid ? 'success' : 'danger'}`}>
-                        {row.paidStatus === PaymentStatus.PAID_ON_TIME ? 'Pagada' :
-                         row.paidStatus === PaymentStatus.PAID_LATE ? 'Pagada Fuera de Término' : 'Impaga'}
-                    </span>
-                );
+                switch (row.paidStatus) {
+                    case PaymentStatus.PAID_ON_TIME:
+                        return (
+                            <span className="badge-soft badge-soft-success">
+                                <i className="bi bi-check-circle-fill"></i> Pagada en término
+                            </span>
+                        );
+                    case PaymentStatus.PAID_LATE:
+                        return (
+                            <span className="badge-soft badge-soft-warning">
+                                <i className="bi bi-clock-fill"></i> Pagada fuera de término
+                            </span>
+                        );
+                    case PaymentStatus.UNPAID:
+                        return (
+                            <span className="badge-soft badge-soft-danger">
+                                <i className="bi bi-exclamation-circle-fill"></i> Impaga
+                            </span>
+                        );
+                    default:
+                        return <span className="badge-soft badge-soft-neutral">Desconocido</span>;
+                }
             }
         },
         {
@@ -640,9 +665,9 @@ const BillGenerateFilteredPage = () => {
                     </Row>
 
                     {/* Alertas de consistencia */}
-                    {users.length < filteredBills.length && (
+                    {billsWithoutUserCount > 0 && (
                         <HintBox variant="danger" className="mb-3">
-                            <strong>{filteredBills.length - users.length}</strong> factura(s) no tienen un usuario asociado cargado en la aplicación. La descarga de estos archivos individuales no estará disponible.
+                            <strong>{billsWithoutUserCount}</strong> factura(s) no tienen un usuario asociado cargado en la aplicación. La descarga de estos archivos individuales no estará disponible.
                         </HintBox>
                     )}
 
@@ -653,6 +678,9 @@ const BillGenerateFilteredPage = () => {
                             columns={columns}
                             defaultSort="idBill"
                             defaultSortDirection="desc"
+                            getRowClassName={(row) =>
+                                users.some((u) => u.idUser === row.idUser) ? undefined : "table-row-danger"
+                            }
                         />
                     </Card>
                 </div>

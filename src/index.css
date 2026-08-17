@@ -1924,6 +1924,17 @@ button:disabled,
     border-bottom: none !important;
 }
 
+/* Remarca filas con algún problema (ej. facturas sin usuario asociado en
+   BillGenerateFilteredPage), mismo tono que badge-soft-danger. */
+.reusable-table tbody tr.table-row-danger {
+    background: #fef2f2;
+    box-shadow: inset 3px 0 0 #dc2626;
+}
+
+.reusable-table tbody tr.table-row-danger:hover {
+    background: #fee2e2;
+}
+
 /* Tablas con edición inline (lecturas, descuentos y conceptos pendientes) */
 @media (max-width: 576px) {
     .reusable-table th {

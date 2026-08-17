@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Badge, Button, Spinner } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
 import { getData } from "../../../core/services/apiService";
@@ -47,13 +47,25 @@ const UserBills: React.FC = () => {
     const getPaymentStatusBadge = (status: PaymentStatus) => {
         switch (status) {
             case PaymentStatus.UNPAID:
-                return <Badge bg="danger">Impaga</Badge>;
+                return (
+                    <span className="badge-soft badge-soft-danger">
+                        <i className="bi bi-exclamation-circle-fill"></i> Impaga
+                    </span>
+                );
             case PaymentStatus.PAID_ON_TIME:
-                return <Badge bg="success">Pagada en término</Badge>;
+                return (
+                    <span className="badge-soft badge-soft-success">
+                        <i className="bi bi-check-circle-fill"></i> Pagada en término
+                    </span>
+                );
             case PaymentStatus.PAID_LATE:
-                return <Badge bg="warning" text="dark">Pagada fuera de término</Badge>;
+                return (
+                    <span className="badge-soft badge-soft-warning">
+                        <i className="bi bi-clock-fill"></i> Pagada fuera de término
+                    </span>
+                );
             default:
-                return <Badge bg="secondary">Desconocido</Badge>;
+                return <span className="badge-soft badge-soft-neutral">Desconocido</span>;
         }
     };
 

@@ -21,6 +21,9 @@ export interface ReusableTableProps<T> {
   defaultSortDirection?: "asc" | "desc";
   defaultPageSize?: number;
   showPageSizeSelector?: boolean;
+  // Clase extra por fila (ej. para remarcar registros con algún problema,
+  // como facturas sin usuario asociado en BillGenerateFilteredPage).
+  getRowClassName?: (row: T) => string | undefined;
   // Estado vacío (data=[]): por defecto usa un ícono/título/mensaje genéricos
   // ("No hay datos para mostrar"), pero se puede personalizar por tabla en
   // los casos donde vacío es un resultado esperado (ej. "Sin descuentos
