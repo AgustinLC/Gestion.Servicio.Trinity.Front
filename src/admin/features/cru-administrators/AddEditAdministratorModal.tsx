@@ -8,7 +8,8 @@ import CustomSelect from "../../../shared/components/custom-select/CustomSelect"
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../context/ModalStackContext";
 import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
-import { combineRules, requiredRule, emailRule, exactLengthRule, maxLengthRule, onlyDigitsRule, noSpecialCharsRule } from "../../../core/utils/formValidationRules";
+import { combineRules, requiredRule, emailRule, exactLengthRule, maxLengthRule, minValueRule, onlyDigitsRule, noSpecialCharsRule } from "../../../core/utils/formValidationRules";
+import { withNonNegativeGuard } from "../../../core/utils/numberInput";
 
 interface AddEditModalProps {
     show: boolean;
@@ -134,7 +135,8 @@ const AdministratorForm: React.FC<AdministratorFormProps> = ({ onHide, onSave, a
                 <FloatingFieldset label="DNI">
                     <Form.Control
                         type="number"
-                        {...register("dni", combineRules(requiredRule(), exactLengthRule(8, "El DNI debe tener 8 números")))}
+                        min={0}
+                        {...withNonNegativeGuard(register("dni", combineRules(requiredRule(), minValueRule(0), exactLengthRule(8, "El DNI debe tener 8 números"))))}
                         isInvalid={!!errors.dni}
                     />
                 </FloatingFieldset>

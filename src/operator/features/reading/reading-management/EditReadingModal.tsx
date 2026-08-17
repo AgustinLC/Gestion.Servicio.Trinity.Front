@@ -5,6 +5,7 @@ import FloatingFieldset from "../../../../shared/components/floating-fieldset/Fl
 import ConfirmModal from "../../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../../context/ModalStackContext";
 import { useConfirmDiscard, onBackdropClick } from "../../../../shared/hooks/useConfirmDiscard";
+import { isNegativeInput } from "../../../../core/utils/numberInput";
 
 interface EditReadingModalProps {
     show: boolean;
@@ -62,7 +63,10 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
                                 min="0"
                                 max="9999999"
                                 value={readingValue}
-                                onChange={(e) => setReadingValue(Number(e.target.value))}
+                                onChange={(e) => {
+                                    if (isNegativeInput(e.target.value)) return;
+                                    setReadingValue(Number(e.target.value));
+                                }}
                                 isInvalid={isInvalidReading}
                             />
                         </FloatingFieldset>

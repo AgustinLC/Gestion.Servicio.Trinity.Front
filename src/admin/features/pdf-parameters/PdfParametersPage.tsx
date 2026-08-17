@@ -9,6 +9,7 @@ import {
 import PageHeader from "../../../shared/components/PageHeader";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
+import { isNegativeInput } from "../../../core/utils/numberInput";
 import "./PdfParametersPage.css";
 
 const PdfParametersPage: React.FC = () => {
@@ -44,7 +45,8 @@ const PdfParametersPage: React.FC = () => {
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
+        if (type === "number" && isNegativeInput(value)) return;
         setParams((prev) => ({
             ...prev,
             [name]:

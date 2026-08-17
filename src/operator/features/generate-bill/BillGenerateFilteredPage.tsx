@@ -6,6 +6,7 @@ import { BillDetailsDto } from '../../../core/models/dto/BillDetailsDto';
 import { UserDto } from '../../../core/models/dto/UserDto';
 import { PaymentStatus } from '../../../core/models/dto/PaymentStatus';
 import { TableColumnDefinition } from '../../../core/models/types/TableTypes';
+import { isNegativeInput } from '../../../core/utils/numberInput';
 import { useBillPdfGeneratorV2 } from '../../../shared/hooks/useBillPdfGeneratorV2';
 import useAppData from '../../../hooks/useAppData';
 import ReusableTable from '../../../shared/components/table/ReusableTable';
@@ -56,7 +57,8 @@ const BillGenerateFilteredPage = () => {
     }, [operatorUsers]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
+        if (type === "number" && isNegativeInput(value)) return;
         setFilters((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -337,6 +339,7 @@ const BillGenerateFilteredPage = () => {
                                             <Form.Control
                                                 type="number"
                                                 name="idUser"
+                                                min={0}
                                                 value={filters.idUser}
                                                 onChange={handleChange}
                                             />
@@ -373,6 +376,7 @@ const BillGenerateFilteredPage = () => {
                                             <Form.Control
                                                 type="number"
                                                 name="year"
+                                                min={0}
                                                 value={filters.year}
                                                 onChange={handleChange}
                                             />
@@ -385,6 +389,8 @@ const BillGenerateFilteredPage = () => {
                                             <Form.Control
                                                 type="number"
                                                 name="month"
+                                                min={1}
+                                                max={12}
                                                 value={filters.month}
                                                 onChange={handleChange}
                                             />
@@ -461,14 +467,14 @@ const BillGenerateFilteredPage = () => {
                                         <Col xs={6}>
                                             <Form.Group>
                                                 <FloatingFieldset label="Total Mínimo">
-                                                    <Form.Control type="number" name="minTotal" value={filters.minTotal} onChange={handleChange} />
+                                                    <Form.Control type="number" name="minTotal" min={0} value={filters.minTotal} onChange={handleChange} />
                                                 </FloatingFieldset>
                                             </Form.Group>
                                         </Col>
                                         <Col xs={6}>
                                             <Form.Group>
                                                 <FloatingFieldset label="Total Máximo">
-                                                    <Form.Control type="number" name="maxTotal" value={filters.maxTotal} onChange={handleChange} />
+                                                    <Form.Control type="number" name="maxTotal" min={0} value={filters.maxTotal} onChange={handleChange} />
                                                 </FloatingFieldset>
                                             </Form.Group>
                                         </Col>

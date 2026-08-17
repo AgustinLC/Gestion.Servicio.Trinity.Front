@@ -10,6 +10,7 @@ import TableEmptyState from "../../../../shared/components/table-empty-state/Tab
 import TableSkeleton from "../../../../shared/components/table-skeleton/TableSkeleton";
 import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
 import { formatDate } from "../../../../core/utils/formatters";
+import { isNegativeInput } from "../../../../core/utils/numberInput";
 import { useModalLayer } from "../../../../context/ModalStackContext";
 import { onBackdropClick } from "../../../../shared/hooks/useConfirmDiscard";
 
@@ -116,8 +117,12 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
                     <Form.Control
                         type="number"
                         className="text-center table-inline-edit-field"
+                        min={0}
                         value={tempReading}
-                        onChange={(e) => setTempReading(Number(e.target.value))}
+                        onChange={(e) => {
+                            if (isNegativeInput(e.target.value)) return;
+                            setTempReading(Number(e.target.value));
+                        }}
                     />
                 ) : (
                     reading.reading

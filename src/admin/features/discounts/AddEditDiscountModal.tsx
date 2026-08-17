@@ -7,6 +7,7 @@ import FloatingFieldset from "../../../shared/components/floating-fieldset/Float
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { combineRules, requiredRule, minValueRule, maxValueRule, maxLengthRule } from "../../../core/utils/formValidationRules";
+import { withNonNegativeGuard } from "../../../core/utils/numberInput";
 import { useModalLayer } from "../../../context/ModalStackContext";
 import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
@@ -86,7 +87,8 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ onHide, onSave, discount, o
             <Form.Group>
                 <FloatingFieldset label="Precio" prefix="$"><Form.Control
                     type="number"
-                    {...register("amount", combineRules(requiredRule(), minValueRule(0.01, "El importe debe ser mayor a 0"), maxValueRule(9999999)))}
+                    min={0.01}
+                    {...withNonNegativeGuard(register("amount", combineRules(requiredRule(), minValueRule(0.01, "El importe debe ser mayor a 0"), maxValueRule(9999999))))}
                     isInvalid={!!errors.amount}
                 /></FloatingFieldset>
                 <Form.Control.Feedback type="invalid">

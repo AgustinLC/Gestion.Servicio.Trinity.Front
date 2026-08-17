@@ -7,6 +7,7 @@ import FloatingFieldset from "../../../shared/components/floating-fieldset/Float
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { combineRules, requiredRule, minValueRule, maxValueRule, maxLengthRule } from "../../../core/utils/formValidationRules";
+import { withNonNegativeGuard } from "../../../core/utils/numberInput";
 import { useModalLayer } from "../../../context/ModalStackContext";
 import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
@@ -91,7 +92,8 @@ const BillingParameterForm: React.FC<BillingParameterFormProps> = ({ onHide, onS
                 <FloatingFieldset label="Importe" prefix="$">
                     <Form.Control
                         type="number"
-                        {...register("value", combineRules(requiredRule(), minValueRule(0.01, "El importe debe ser mayor a 0"), maxValueRule(9999999)))}
+                        min={0.01}
+                        {...withNonNegativeGuard(register("value", combineRules(requiredRule(), minValueRule(0.01, "El importe debe ser mayor a 0"), maxValueRule(9999999))))}
                         isInvalid={!!errors.value}
                     />
                 </FloatingFieldset>

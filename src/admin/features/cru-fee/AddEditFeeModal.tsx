@@ -8,6 +8,7 @@ import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../context/ModalStackContext";
 import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 import { combineRules, requiredRule, minValueRule, maxValueRule, maxLengthRule } from "../../../core/utils/formValidationRules";
+import { withNonNegativeGuard } from "../../../core/utils/numberInput";
 
 interface AddEditModalProps {
     show: boolean;
@@ -90,7 +91,8 @@ const FeeForm: React.FC<FeeFormProps> = ({ onHide, onSave, fee, onDirtyChange })
                 <FloatingFieldset label="Precio" prefix="$">
                     <Form.Control
                         type="number"
-                        {...register("price", combineRules(requiredRule(), minValueRule(0.01, "El precio debe ser mayor a 0"), maxValueRule(9999999)))}
+                        min={0.01}
+                        {...withNonNegativeGuard(register("price", combineRules(requiredRule(), minValueRule(0.01, "El precio debe ser mayor a 0"), maxValueRule(9999999))))}
                         isInvalid={!!errors.price}
                     />
                 </FloatingFieldset>
@@ -102,7 +104,8 @@ const FeeForm: React.FC<FeeFormProps> = ({ onHide, onSave, fee, onDirtyChange })
                 <FloatingFieldset label="Consumo Max.">
                     <Form.Control
                         type="number"
-                        {...register("consumptionMax", combineRules(requiredRule(), minValueRule(0), maxValueRule(9999999)))}
+                        min={0}
+                        {...withNonNegativeGuard(register("consumptionMax", combineRules(requiredRule(), minValueRule(0), maxValueRule(9999999))))}
                         isInvalid={!!errors.consumptionMax}
                     />
                 </FloatingFieldset>
@@ -114,7 +117,8 @@ const FeeForm: React.FC<FeeFormProps> = ({ onHide, onSave, fee, onDirtyChange })
                 <FloatingFieldset label="Costo por Exceso" prefix="$">
                     <Form.Control
                         type="number"
-                        {...register("surplusChargePerUnit", combineRules(requiredRule(), minValueRule(0), maxValueRule(9999999)))}
+                        min={0}
+                        {...withNonNegativeGuard(register("surplusChargePerUnit", combineRules(requiredRule(), minValueRule(0), maxValueRule(9999999))))}
                         isInvalid={!!errors.surplusChargePerUnit}
                     />
                 </FloatingFieldset>
@@ -126,7 +130,8 @@ const FeeForm: React.FC<FeeFormProps> = ({ onHide, onSave, fee, onDirtyChange })
                 <FloatingFieldset label="Costo por Vencimiento" prefix="$">
                     <Form.Control
                         type="number"
-                        {...register("maturityAmount", combineRules(requiredRule(), minValueRule(0), maxValueRule(9999999)))}
+                        min={0}
+                        {...withNonNegativeGuard(register("maturityAmount", combineRules(requiredRule(), minValueRule(0), maxValueRule(9999999))))}
                         isInvalid={!!errors.maturityAmount}
                     />
                 </FloatingFieldset>

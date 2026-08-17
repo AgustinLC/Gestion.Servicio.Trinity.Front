@@ -3,6 +3,7 @@ import { Form, InputGroup } from "react-bootstrap";
 import SearchBar from "../searcher/SearchBar";
 import CustomSelect from "../custom-select/CustomSelect";
 import { TableFilterConfig, TableFilterState } from "./types";
+import { isNegativeInput } from "../../../core/utils/numberInput";
 
 interface TableToolbarProps {
     onSearch: (query: string) => void;
@@ -103,11 +104,14 @@ const TableToolbar: React.FC<TableToolbarProps> = ({
                                 )}
                                 <Form.Control
                                     type="number"
-                                    min={filter.min}
+                                    min={filter.min ?? 0}
                                     max={filter.max}
                                     placeholder={filter.placeholder ?? filter.label}
                                     value={value}
-                                    onChange={(event) => onChange(event.target.value)}
+                                    onChange={(event) => {
+                                        if (isNegativeInput(event.target.value)) return;
+                                        onChange(event.target.value);
+                                    }}
                                     aria-label={filter.label}
                                 />
                             </InputGroup>

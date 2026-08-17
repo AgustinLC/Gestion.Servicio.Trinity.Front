@@ -6,6 +6,7 @@ import FloatingFieldset from "../../../../shared/components/floating-fieldset/Fl
 import ConfirmModal from "../../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../../context/ModalStackContext";
 import { useConfirmDiscard, onBackdropClick } from "../../../../shared/hooks/useConfirmDiscard";
+import { withNonNegativeGuard } from "../../../../core/utils/numberInput";
 
 // Interfaces/modelos
 interface AddReadingModalProps {
@@ -82,11 +83,12 @@ const ReadingFormContent: React.FC<ReadingFormProps> = ({ onHide, onSave, onDirt
                 <FloatingFieldset label="Valor de Lectura">
                     <Form.Control
                         type="number"
-                        {...register("readingValue", {
+                        min={0}
+                        {...withNonNegativeGuard(register("readingValue", {
                             required: "El valor de lectura es obligatorio",
                             min: { value: 0, message: "El valor debe ser mayor o igual a 0" },
                             max: { value: 9999999, message: "El valor no puede superar 9999999" },
-                        })}
+                        }))}
                         isInvalid={!!errors.readingValue}
                     />
                 </FloatingFieldset>

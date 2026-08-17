@@ -12,6 +12,7 @@ import CustomSelect from "../../../shared/components/custom-select/CustomSelect"
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../context/ModalStackContext";
 import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
+import { isNegativeInput } from "../../../core/utils/numberInput";
 
 interface AddDiscountModalProps {
     show: boolean;
@@ -163,7 +164,10 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
                                         min="0.01"
                                         max="9999999"
                                         value={amount}
-                                        onChange={(e) => setAmount(Number(e.target.value))}
+                                        onChange={(e) => {
+                                            if (isNegativeInput(e.target.value)) return;
+                                            setAmount(Number(e.target.value));
+                                        }}
                                         disabled={isFixed || !selectedDiscountId}
                                         isInvalid={amount <= 0}
                                     />

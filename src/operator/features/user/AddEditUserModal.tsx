@@ -29,6 +29,7 @@ import {
     minValueRule,
     maxValueRule,
 } from "../../../core/utils/formValidationRules";
+import { withNonNegativeGuard } from "../../../core/utils/numberInput";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import "./AddEditUserModal.css";
 import { formatDate } from "../../../core/utils/formatters";
@@ -336,16 +337,18 @@ const UserForm: React.FC<UserFormProps> = ({
                                     <FloatingFieldset label="DNI">
                                         <Form.Control
                                             type="number"
-                                            {...register(
+                                            min={0}
+                                            {...withNonNegativeGuard(register(
                                                 "dni",
                                                 combineRules(
                                                     requiredRule(),
+                                                    minValueRule(0),
                                                     exactLengthRule(
                                                         8,
                                                         "El DNI debe tener 8 números"
                                                     )
                                                 )
-                                            )}
+                                            ))}
                                             isInvalid={!!errors.dni}
                                         />
                                     </FloatingFieldset>
@@ -510,14 +513,15 @@ const UserForm: React.FC<UserFormProps> = ({
                                     <FloatingFieldset label="N° de Casa">
                                         <Form.Control
                                             type="number"
-                                            {...register(
+                                            min={0}
+                                            {...withNonNegativeGuard(register(
                                                 "residenceDto.number",
                                                 combineRules(
                                                     requiredRule(),
                                                     minValueRule(0),
                                                     maxValueRule(99999)
                                                 )
-                                            )}
+                                            ))}
                                             isInvalid={
                                                 !!errors.residenceDto?.number
                                             }
@@ -563,7 +567,8 @@ const UserForm: React.FC<UserFormProps> = ({
                                         <FloatingFieldset label="Val. actual del Medidor">
                                             <Form.Control
                                                 type="number"
-                                                {...register(
+                                                min={0}
+                                                {...withNonNegativeGuard(register(
                                                     "residenceDto.valueMeter",
                                                     {
                                                         required:
@@ -579,7 +584,7 @@ const UserForm: React.FC<UserFormProps> = ({
                                                                 "El valor no puede superar 9999999",
                                                         },
                                                     }
-                                                )}
+                                                ))}
                                                 isInvalid={
                                                     !!errors.residenceDto
                                                         ?.valueMeter

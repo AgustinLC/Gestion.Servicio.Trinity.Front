@@ -55,7 +55,14 @@ const AutocompleteFilter: React.FC<AutocompleteFilterProps> = ({
 
     const [searchText, setSearchText] = useState(displayValue);
     const [isOpen, setIsOpen] = useState(false);
+    // Índice resaltado por teclado/mouse dentro de filteredOptions (-1 =
+    // ninguno). El resto de los selectores del sistema navegan con
+    // flechas + Enter "gratis" porque usan el Dropdown de react-bootstrap
+    // (maneja el teclado internamente); este es una lista propia, así que
+    // hay que replicarlo a mano.
+    const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const listRef = useRef<HTMLUListElement>(null);
 
     // Si el valor cambia desde afuera (ej. "Limpiar filtros"), resincroniza
     // el texto mostrado con la selección real.
@@ -90,10 +97,19 @@ const AutocompleteFilter: React.FC<AutocompleteFilterProps> = ({
             .slice(0, 50);
     }, [options, searchText]);
 
+    // Mantiene visible el ítem resaltado al navegar con flechas fuera del
+    // área visible de la lista (max-height + overflow-y: auto).
+    useEffect(() => {
+        if (!isOpen || highlightedIndex < 0) return;
+        const item = listRef.current?.children[highlightedIndex] as HTMLElement | undefined;
+        item?.scrollIntoView({ block: "nearest" });
+    }, [highlightedIndex, isOpen]);
+
     const commitSelection = (option: AutocompleteFilterOption) => {
         onChange(option.value);
         setSearchText(option.label);
         setIsOpen(false);
+        setHighlightedIndex(-1);
     };
 
     const handleClear = () => {
@@ -102,25 +118,47 @@ const AutocompleteFilter: React.FC<AutocompleteFilterProps> = ({
         setIsOpen(false);
     };
 
-    // Si lo tipeado coincide exactamente (sin importar mayúsculas) con una
-    // única opción, Enter la confirma sin necesidad de clickear la sugerencia.
-    // En modo texto libre no hace falta: el valor ya se aplicó tecla a tecla.
+    // Flechas para moverse entre las sugerencias filtradas (con wrap-around)
+    // y Enter para confirmar la resaltada — mismo comportamiento que el
+    // resto de los selectores del sistema.
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key !== "Enter") return;
-        const term = searchText.trim().toLowerCase();
-        const exactMatch = options.find(
-            (option) => option.label.toLowerCase() === term
-        );
-        if (exactMatch) {
-            commitSelection(exactMatch);
-        } else {
-            (event.target as HTMLInputElement).blur();
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            if (!isOpen) {
+                setIsOpen(true);
+                return;
+            }
+            if (filteredOptions.length === 0) return;
+            setHighlightedIndex((prev) => (prev + 1) % filteredOptions.length);
+        } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            if (!isOpen) {
+                setIsOpen(true);
+                return;
+            }
+            if (filteredOptions.length === 0) return;
+            setHighlightedIndex((prev) => (prev <= 0 ? filteredOptions.length - 1 : prev - 1));
+        } else if (event.key === "Enter") {
+            event.preventDefault();
+            const highlighted = filteredOptions[highlightedIndex];
+            if (highlighted) {
+                commitSelection(highlighted);
+            } else if (!freeText) {
+                (event.target as HTMLInputElement).blur();
+            } else {
+                setIsOpen(false);
+            }
+        } else if (event.key === "Escape") {
+            setIsOpen(false);
+            setHighlightedIndex(-1);
+            if (!freeText) setSearchText(selectedLabel);
         }
     };
 
     const handleChangeText = (text: string) => {
         setSearchText(text);
         setIsOpen(true);
+        setHighlightedIndex(-1);
         if (freeText) onChange(text);
     };
 
@@ -146,6 +184,7 @@ const AutocompleteFilter: React.FC<AutocompleteFilterProps> = ({
                     onKeyDown={handleKeyDown}
                     onBlur={(event) => {
                         setIsOpen(false);
+                        setHighlightedIndex(-1);
                         if (!freeText) setSearchText(selectedLabel);
                         onBlur?.(event);
                     }}
@@ -165,12 +204,13 @@ const AutocompleteFilter: React.FC<AutocompleteFilterProps> = ({
             )}
 
             {isOpen && filteredOptions.length > 0 && (
-                <ul className="autocomplete-filter-suggestions">
-                    {filteredOptions.map((option) => (
+                <ul className="autocomplete-filter-suggestions" ref={listRef}>
+                    {filteredOptions.map((option, index) => (
                         <li
                             key={option.value}
-                            className="autocomplete-filter-suggestion-item"
+                            className={`autocomplete-filter-suggestion-item${index === highlightedIndex ? " active" : ""}`}
                             onMouseDown={(event) => event.preventDefault()}
+                            onMouseEnter={() => setHighlightedIndex(index)}
                             onClick={() => commitSelection(option)}
                         >
                             {option.label}

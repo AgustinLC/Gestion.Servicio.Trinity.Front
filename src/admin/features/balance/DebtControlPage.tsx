@@ -192,12 +192,15 @@ const DebtControlPage = () => {
             periods.set(bill.idPeriod, bill.periodName);
         });
 
-        return Array.from(periods.entries()).map(
-            ([idPeriod, periodName]) => ({
+        // Los períodos se crean secuencialmente (ver "Generar nuevo período"),
+        // así que el id más alto es siempre el más reciente: ordenar por acá
+        // evita tener que parsear el nombre ("Marzo - Abril 2026").
+        return Array.from(periods.entries())
+            .map(([idPeriod, periodName]) => ({
                 idPeriod,
                 periodName
-            })
-        );
+            }))
+            .sort((a, b) => b.idPeriod - a.idPeriod);
     }, [unpaidBillsData, collectedBillsData]);
 
     // Filtros activables con checkbox (período, estado y monto mínimo)

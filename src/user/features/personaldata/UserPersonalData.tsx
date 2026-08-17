@@ -8,6 +8,7 @@ import PageHeader from "../../../shared/components/PageHeader";
 import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { getPasswordRuleResults, isPasswordValid } from "../../../core/utils/passwordValidation";
+import { isNegativeInput } from "../../../core/utils/numberInput";
 
 const UserPersonalData: React.FC = () => {
     const { userId } = useAuth(); // Obtén el userId desde el hook useAuth
@@ -169,7 +170,11 @@ const UserPersonalData: React.FC = () => {
                         <Form.Control
                             type="number"
                             value={user.dni}
-                            onChange={(e) => setUser({ ...user, dni: parseInt(e.target.value) })}
+                            onChange={(e) => {
+                                if (isNegativeInput(e.target.value)) return;
+                                setUser({ ...user, dni: parseInt(e.target.value) });
+                            }}
+                            min="0"
                             max="99999999"
                         />
                     </FloatingFieldset>

@@ -10,6 +10,7 @@ import CustomSelect from "../../../shared/components/custom-select/CustomSelect"
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../context/ModalStackContext";
 import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
+import { withNonNegativeGuard } from "../../../core/utils/numberInput";
 
 interface AddParameterModalProps {
     show: boolean;
@@ -106,12 +107,13 @@ const ParameterForm: React.FC<ParameterFormProps> = ({ onHide, onSave, parameter
                 <FloatingFieldset label="Importe" prefix="$">
                     <Form.Control
                         type="number"
-                        {...register("value", {
+                        min={0.01}
+                        {...withNonNegativeGuard(register("value", {
                             required: "Este campo es obligatorio",
                             valueAsNumber: true,
                             min: { value: 0.01, message: "El importe debe ser mayor a 0" },
                             max: { value: 9999999, message: "El valor no puede superar 9999999" },
-                        })}
+                        }))}
                         disabled={!selectedParameterId}
                         isInvalid={!!errors.value}
                     />

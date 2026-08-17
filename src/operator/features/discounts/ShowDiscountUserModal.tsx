@@ -14,6 +14,7 @@ import TableSkeleton from "../../../shared/components/table-skeleton/TableSkelet
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import { formatDate, formatCurrency } from "../../../core/utils/formatters";
+import { isNegativeInput } from "../../../core/utils/numberInput";
 import { useModalLayer } from "../../../context/ModalStackContext";
 import { onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
@@ -186,8 +187,12 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
                     <Form.Control
                         type="number"
                         className="text-center table-inline-edit-field"
+                        min={0}
                         value={tempData.value}
-                        onChange={(e) => setTempData(prev => ({ ...prev, value: Number(e.target.value) }))}
+                        onChange={(e) => {
+                            if (isNegativeInput(e.target.value)) return;
+                            setTempData(prev => ({ ...prev, value: Number(e.target.value) }));
+                        }}
                         disabled={isFixed}
                     />
                 ) : (
