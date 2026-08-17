@@ -11,6 +11,7 @@ import { useTableFilters } from "../../../hooks/useTableFilters";
 import { useDebtDisconnectionPdfs } from "../../../shared/hooks/useDebtDisconnectionPdfs";
 import { getData } from "../../../core/services/apiService";
 import { withFullName } from "../../../core/utils/userUtils";
+import AutocompleteFilter from "../../../shared/components/autocomplete-filter/AutocompleteFilter";
 
 type UserDebtRow = UserDebtDto & { fullName: string };
 
@@ -59,8 +60,16 @@ const DebtDisconnectionPage = () => {
             {
                 id: "street",
                 label: "Calle",
-                emptyLabel: "Todas las calles",
-                options: uniqueStreets.map((street) => ({ value: street, label: street })),
+                type: "custom" as const,
+                render: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
+                    <AutocompleteFilter
+                        options={uniqueStreets.map((street) => ({ value: street, label: street }))}
+                        value={value}
+                        onChange={onChange}
+                        placeholder="Todas las calles"
+                        icon="bi bi-geo-alt"
+                    />
+                ),
             },
             {
                 id: "minPeriods",

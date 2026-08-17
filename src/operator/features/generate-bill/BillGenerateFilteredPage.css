@@ -34,65 +34,6 @@
     box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
 }
 
-/* Autocomplete Street Dropdown */
-.street-autocomplete-wrapper {
-    position: relative;
-}
-
-.street-suggestions-list {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 1050;
-    max-height: 250px;
-    overflow-y: auto;
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    margin-top: 5px;
-    padding: 0.4rem 0;
-    list-style: none;
-}
-
-.street-suggestion-item {
-    padding: 0.7rem 1.2rem;
-    cursor: pointer;
-    font-size: 0.9rem;
-    color: #2d3748;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.street-suggestion-item:hover, .street-suggestion-item.active {
-    background-color: rgba(0, 119, 255, 0.08);
-    color: #0077ff;
-}
-
-/* Botón de limpiar dentro del FloatingFieldset (pasado como "suffix"): ya
-   queda bien ubicado por el layout en flex del propio fieldset, no necesita
-   posicionarse a mano. */
-.input-clear-btn {
-    background: none;
-    border: none;
-    color: #a0aec0;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.input-clear-btn:hover {
-    background-color: #edf2f7;
-    color: #475569;
-}
-
 /* Stats Cards */
 .stats-row {
     margin-bottom: 1.5rem;

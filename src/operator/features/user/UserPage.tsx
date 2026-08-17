@@ -23,6 +23,7 @@ import {
     STATUS_TRANSITION_ORDER,
 } from "../../../shared/components/labels-traductor/statusStyles";
 import DotDropdown from "../../../shared/components/dot-dropdown/DotDropdown";
+import AutocompleteFilter from "../../../shared/components/autocomplete-filter/AutocompleteFilter";
 import { useSearch } from "../../../hooks/useSearch";
 import { useTableFilters } from "../../../hooks/useTableFilters";
 import useAppData from "../../../hooks/useAppData";
@@ -62,8 +63,16 @@ const UserPage = () => {
             {
                 id: "street",
                 label: "Calle",
-                emptyLabel: "Todas las calles",
-                options: uniqueStreets.map((street) => ({ value: street, label: street })),
+                type: "custom" as const,
+                render: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
+                    <AutocompleteFilter
+                        options={uniqueStreets.map((street) => ({ value: street, label: street }))}
+                        value={value}
+                        onChange={onChange}
+                        placeholder="Todas las calles"
+                        icon="bi bi-geo-alt"
+                    />
+                ),
             },
             {
                 id: "status",

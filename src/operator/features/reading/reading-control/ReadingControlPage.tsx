@@ -13,6 +13,7 @@ import { useTableFilters } from "../../../../hooks/useTableFilters";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 import useAppData from "../../../../hooks/useAppData";
+import AutocompleteFilter from "../../../../shared/components/autocomplete-filter/AutocompleteFilter";
 type AlertType = | "decreasing" | "duplicate" | "jump" | "missing" | "noMeter" | null;
 
 const ALERT_FILTERS: { value: string; label: string; alert?: Exclude<AlertType, null> }[] = [
@@ -116,8 +117,16 @@ const ReadingControlPage = () => {
             {
                 id: "street",
                 label: "Calle",
-                emptyLabel: "Todas las calles",
-                options: uniqueStreets.map((street) => ({ value: street, label: street })),
+                type: "custom" as const,
+                render: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
+                    <AutocompleteFilter
+                        options={uniqueStreets.map((street) => ({ value: street, label: street }))}
+                        value={value}
+                        onChange={onChange}
+                        placeholder="Todas las calles"
+                        icon="bi bi-geo-alt"
+                    />
+                ),
             },
             {
                 id: "alert",

@@ -1397,6 +1397,31 @@ button:disabled,
     color: var(--bs-primary);
 }
 
+/* El halo de foco (box-shadow) de .form-control:focus solo abarca el propio
+   input, dejando al ícono con su borde celeste pero sin brillo: se ve
+   partido en dos piezas en vez de un solo control (a diferencia de
+   CustomSelect, que al ser un solo <button> no tiene este problema). Se
+   apaga el halo individual y se lo reemplaza por uno en el grupo entero. */
+.search-bar-group:focus-within,
+.table-toolbar-filter-group:focus-within {
+    border-radius: var(--input-border-radius);
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
+}
+
+.search-bar-group .form-control:focus,
+.table-toolbar-filter-group .form-control:focus,
+.table-toolbar-filter-group .form-select:focus {
+    box-shadow: none;
+}
+
+/* Un AutocompleteFilter dentro de un FloatingFieldset (ej: "Calle" en
+   BillGenerateFilteredPage) trae su propio .table-toolbar-filter-group
+   adentro; sin esto, su halo se suma al que ya pone el propio fieldset
+   (.floating-fieldset:focus-within) y quedan dos anillos anidados. */
+.floating-fieldset .table-toolbar-filter-group:focus-within {
+    box-shadow: none;
+}
+
 .sort-arrow {
     font-size: 0.75rem;
     color: var(--bs-primary);

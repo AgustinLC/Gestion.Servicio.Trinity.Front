@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { Button, Form, Row, Col, Spinner, Card } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { getData } from '../../../core/services/apiService';
@@ -13,6 +13,7 @@ import PageHeader from '../../../shared/components/PageHeader';
 import FloatingFieldset from '../../../shared/components/floating-fieldset/FloatingFieldset';
 import CustomSelect from '../../../shared/components/custom-select/CustomSelect';
 import HintBox from '../../../shared/components/hint-box/HintBox';
+import AutocompleteFilter from '../../../shared/components/autocomplete-filter/AutocompleteFilter';
 import './BillGenerateFilteredPage.css';
 
 const BillGenerateFilteredPage = () => {
@@ -43,11 +44,6 @@ const BillGenerateFilteredPage = () => {
     // Hook para generar PDFs (V2 - usa @react-pdf/renderer, 10-50x más rápido)
     const { isGenerating: pdfLoading, generateSinglePdf, generateMultiplePdf } = useBillPdfGeneratorV2();
 
-    // Autocomplete para la calle
-    const [streetSearch, setStreetSearch] = useState('');
-    const [showStreetSuggestions, setShowStreetSuggestions] = useState(false);
-    const suggestionsRef = useRef<HTMLDivElement>(null);
-
     // Obtener calles únicas de los usuarios
     const uniqueStreets = useMemo(() => {
         return Array.from(
@@ -58,31 +54,6 @@ const BillGenerateFilteredPage = () => {
             )
         ).sort() as string[];
     }, [operatorUsers]);
-
-    // Filtrar sugerencias
-    const streetSuggestions = useMemo(() => {
-        const term = streetSearch.trim().toLowerCase();
-        const filtered = term
-            ? uniqueStreets.filter((st) => st.toLowerCase().includes(term))
-            : uniqueStreets;
-        return filtered.slice(0, 50); // Limitar a 50 para rendimiento
-    }, [streetSearch, uniqueStreets]);
-
-    // Cerrar sugerencias al hacer clic fuera
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (
-                suggestionsRef.current &&
-                !suggestionsRef.current.contains(event.target as Node)
-            ) {
-                setShowStreetSuggestions(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -109,7 +80,6 @@ const BillGenerateFilteredPage = () => {
             sortBy: 'date',
             sortDirection: 'ASC',
         });
-        setStreetSearch('');
         setFilteredBills([]);
         setUsers([]);
         toast.info('Filtros reiniciados');
@@ -350,53 +320,15 @@ const BillGenerateFilteredPage = () => {
                             </h5>
                             <Row>
                                 <Col md={12} className="mb-3">
-                                    <Form.Group className="street-autocomplete-wrapper" ref={suggestionsRef}>
-                                        <FloatingFieldset
-                                            label="Calle"
-                                            suffix={streetSearch && (
-                                                <button
-                                                    type="button"
-                                                    className="input-clear-btn"
-                                                    onClick={() => {
-                                                        setStreetSearch('');
-                                                        setFilters(prev => ({ ...prev, street: '' }));
-                                                        setShowStreetSuggestions(false);
-                                                    }}
-                                                >
-                                                    <i className="bi bi-x"></i>
-                                                </button>
-                                            )}
-                                        >
-                                            <Form.Control
-                                                name="street"
-                                                value={streetSearch}
-                                                onChange={(e) => {
-                                                    const val = e.target.value;
-                                                    setStreetSearch(val);
-                                                    setFilters(prev => ({ ...prev, street: val }));
-                                                    setShowStreetSuggestions(true);
-                                                }}
-                                                onFocus={() => setShowStreetSuggestions(true)}
+                                    <Form.Group>
+                                        <FloatingFieldset label="Calle">
+                                            <AutocompleteFilter
+                                                options={uniqueStreets.map((street) => ({ value: street, label: street }))}
+                                                value={filters.street}
+                                                onChange={(value) => setFilters(prev => ({ ...prev, street: value }))}
+                                                freeText
                                             />
                                         </FloatingFieldset>
-
-                                        {showStreetSuggestions && streetSuggestions.length > 0 && (
-                                            <ul className="street-suggestions-list">
-                                                {streetSuggestions.map((street) => (
-                                                    <li
-                                                        key={street}
-                                                        className="street-suggestion-item"
-                                                        onClick={() => {
-                                                            setStreetSearch(street);
-                                                            setFilters(prev => ({ ...prev, street }));
-                                                            setShowStreetSuggestions(false);
-                                                        }}
-                                                    >
-                                                        <i className="bi bi-geo-alt text-muted"></i> {street}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
