@@ -13,7 +13,7 @@ import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
 import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import RowActions from "../../../shared/components/table/RowActions";
-import ChangeStatusConfirmModal from "../../../shared/components/change-status-confirm/ChangeStatusConfirmModal";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import statusLabels from "../../../shared/components/labels-traductor/statusLabels";
 import {
     STATUS_BADGE_CLASS,
@@ -297,15 +297,35 @@ const UserPage = () => {
                         onConfirm={handleConfirmResetPassword}
                     />
 
-                    {/* Confirmación de cambio de estado (solo desde el menú rápido de la fila) */}
-                    <ChangeStatusConfirmModal
-                        show={!!statusChangeRequest}
-                        userName={statusChangeRequest ? `${statusChangeRequest.user.firstName} ${statusChangeRequest.user.lastName}` : ""}
-                        nextStatus={statusChangeRequest?.nextStatus ?? null}
-                        isLoading={isChangingStatus}
-                        onConfirm={handleConfirmChangeStatus}
-                        onCancel={() => setStatusChangeRequest(null)}
-                    />
+                    {/* Confirmación de cambio de estado (solo desde el menú rápido de la fila).
+                        Variant/ícono por estado destino vienen de STATUS_ACTION_CONFIG, así
+                        que quedan consistentes con el resto del sistema (success/warning/neutral)
+                        en vez de un modal a medida solo para este caso. */}
+                    {statusChangeRequest && (() => {
+                        const config = STATUS_ACTION_CONFIG[statusChangeRequest.nextStatus];
+                        const statusLabel = STATUS_OPTIONS.find((o) => o.value === statusChangeRequest.nextStatus)?.label ?? statusChangeRequest.nextStatus;
+                        const userName = `${statusChangeRequest.user.firstName} ${statusChangeRequest.user.lastName}`;
+                        return (
+                            <ConfirmModal
+                                show={!!statusChangeRequest}
+                                onHide={() => setStatusChangeRequest(null)}
+                                variant={config.modalVariant}
+                                icon={config.modalIcon}
+                                title="Cambiar estado del usuario"
+                                message={
+                                    <>
+                                        ¿Cambiar el estado de <strong>{userName}</strong> a "
+                                        <strong style={{ color: config.color }}>{statusLabel}</strong>"?
+                                    </>
+                                }
+                                confirmText={config.actionLabel}
+                                confirmIcon={`bi ${config.badgeIcon}`}
+                                isLoading={isChangingStatus}
+                                loadingText="Guardando..."
+                                onConfirm={handleConfirmChangeStatus}
+                            />
+                        );
+                    })()}
 
                     {/* Facturas del usuario, acceso rápido desde el menú de la fila */}
                     <BillActiveModal

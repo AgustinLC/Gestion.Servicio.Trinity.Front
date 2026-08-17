@@ -1515,65 +1515,31 @@ button:disabled,
 }
 
 .icon-badge-question {
-    background: rgba(168, 85, 247, 0.12);
-    color: #9333ea;
+    background: rgba(99, 102, 241, 0.12);
+    color: #6366f1;
 }
 
-/* Botón "question" (violeta): variante que no existe en el set por defecto
-   de Bootstrap, para acompañar al ícono violeta de la variante "question". */
+/* Mismo gris que STATUS_DOT_COLORS[INACTIVE]/badge-soft-neutral. */
+.icon-badge-neutral {
+    background: rgba(100, 116, 139, 0.12);
+    color: #64748b;
+}
+
+/* Botón "question" (índigo): variante que no existe en el set por defecto
+   de Bootstrap, para acompañar al ícono índigo de la variante "question".
+   Antes era violeta (#9333ea) — más apagado y más cerca del celeste del
+   sistema, pero igual distinguible de var(--bs-primary). */
 .btn-question {
-    background-color: #9333ea;
-    border-color: #9333ea;
+    background-color: #6366f1;
+    border-color: #6366f1;
     color: #fff;
 }
 
 .btn-question:hover,
 .btn-question:focus {
-    background-color: #7e22ce;
-    border-color: #7e22ce;
+    background-color: #4f46e5;
+    border-color: #4f46e5;
     color: #fff;
-}
-
-/* Ícono compuesto (persona + insignia superpuesta) para
-   ChangeStatusConfirmModal: el color de fondo/texto lo pone la clase
-   badge-soft-* que se le agregue (mismo criterio que el resto de chips de
-   estado), acá solo se define la forma. */
-.status-change-icon {
-    position: relative;
-    width: 68px;
-    height: 68px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.9rem;
-    flex-shrink: 0;
-}
-
-.status-change-icon-badge {
-    position: absolute;
-    right: -2px;
-    bottom: -2px;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ffffff;
-    font-size: 0.75rem;
-    border: 3px solid #ffffff;
-}
-
-/* Un poco más de aire que el header de modal genérico: acá el ícono es más
-   grande (68px vs 52px) y el mensaje tiene más texto, así que el padding
-   por defecto de .form-modal-header se sentía apretado. */
-.change-status-header .form-modal-header {
-    padding: 1.75rem 1.75rem 1.5rem;
-}
-
-.change-status-header .form-modal-header > div:first-child {
-    gap: 1.25rem !important;
 }
 
 /* --- FORMULARIOS/MODALES: patrones reutilizables ---

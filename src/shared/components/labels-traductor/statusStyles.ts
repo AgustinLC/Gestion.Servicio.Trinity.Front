@@ -1,4 +1,5 @@
 import { Status } from "../../../core/models/dto/Status";
+import { ModalVariant } from "../modal-variant/modalVariant";
 
 // Única fuente de verdad para los colores del estado de usuario (Activo/
 // Inactivo/Suspendido). Antes había 3 sistemas paralelos: las clases
@@ -38,13 +39,17 @@ export const STATUS_OPTIONS: { value: Status; label: string; color: string }[] =
 // con STATUS_DOT_COLORS para que la acción se lea como "hacia qué estado
 // pasa" con el mismo lenguaje visual que el badge/punto de estado.
 // actionLabel: verbo corto sin "usuario" al final, para el botón del modal
-// de confirmación de cambio de estado (ChangeStatusConfirmModal), donde el
-// sujeto ya es obvio por contexto. badgeIcon: ícono chico que se superpone
-// sobre el avatar de persona en ese mismo modal.
-export const STATUS_ACTION_CONFIG: Record<Status, { label: string; actionLabel: string; icon: string; badgeIcon: string; color: string; confirmVariant: string }> = {
-    [Status.ACTIVE]: { label: "Activar usuario", actionLabel: "Activar", icon: "bi bi-check-circle", badgeIcon: "bi-check-lg", color: STATUS_DOT_COLORS[Status.ACTIVE], confirmVariant: "success" },
-    [Status.SUSPENDED]: { label: "Suspender usuario", actionLabel: "Suspender", icon: "bi bi-slash-circle", badgeIcon: "bi-pause-fill", color: STATUS_DOT_COLORS[Status.SUSPENDED], confirmVariant: "warning" },
-    [Status.INACTIVE]: { label: "Inactivar usuario", actionLabel: "Inactivar", icon: "bi bi-x-circle", badgeIcon: "bi-dash-lg", color: STATUS_DOT_COLORS[Status.INACTIVE], confirmVariant: "secondary" },
+// de confirmación de cambio de estado, donde el sujeto ya es obvio por
+// contexto. badgeIcon: ícono chico que se superpone sobre el avatar de
+// persona en el menú de la tabla. modalVariant/modalIcon: variante y (si
+// hace falta pisar el ícono por defecto de esa variante) ícono grande para
+// el ConfirmModal "centrado" que confirma el cambio — incluyendo el nuevo
+// "neutral" para Inactivar, ya que ese estado no es ni positivo (success)
+// ni de precaución (warning).
+export const STATUS_ACTION_CONFIG: Record<Status, { label: string; actionLabel: string; icon: string; badgeIcon: string; color: string; confirmVariant: string; modalVariant: ModalVariant; modalIcon?: string }> = {
+    [Status.ACTIVE]: { label: "Activar usuario", actionLabel: "Activar", icon: "bi bi-check-circle", badgeIcon: "bi-check-lg", color: STATUS_DOT_COLORS[Status.ACTIVE], confirmVariant: "success", modalVariant: "success" },
+    [Status.SUSPENDED]: { label: "Suspender usuario", actionLabel: "Suspender", icon: "bi bi-slash-circle", badgeIcon: "bi-pause-fill", color: STATUS_DOT_COLORS[Status.SUSPENDED], confirmVariant: "warning", modalVariant: "warning", modalIcon: "bi bi-pause-circle-fill" },
+    [Status.INACTIVE]: { label: "Inactivar usuario", actionLabel: "Inactivar", icon: "bi bi-x-circle", badgeIcon: "bi-dash-lg", color: STATUS_DOT_COLORS[Status.INACTIVE], confirmVariant: "secondary", modalVariant: "neutral" },
 };
 
 // Mensaje de confirmación (toast) al aplicar cada acción rápida de estado.

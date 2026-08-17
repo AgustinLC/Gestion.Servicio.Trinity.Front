@@ -13,6 +13,7 @@ const HINT_VARIANT: Record<ModalVariant, "info" | "danger" | "warning"> = {
     error: "danger",
     success: "info",
     question: "info",
+    neutral: "info",
 };
 
 // Ícono por defecto según confirmVariant, para el layout "clásico" (sin la
