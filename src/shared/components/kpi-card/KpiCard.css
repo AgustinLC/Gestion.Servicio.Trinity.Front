@@ -20,10 +20,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
+    width: 58px;
+    height: 58px;
     border-radius: 50%;
-    font-size: 1.3rem;
+    font-size: 1.6rem;
     flex-shrink: 0;
 }
 
@@ -47,32 +47,4 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.kpi-card-trend {
-    position: absolute;
-    top: 0.85rem;
-    right: 0.85rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    font-size: 0.8rem;
-}
-
-.kpi-card-trend-up {
-    background-color: #dcfce7;
-    color: #16a34a;
-}
-
-.kpi-card-trend-down {
-    background-color: #fee2e2;
-    color: #dc2626;
-}
-
-.kpi-card-trend-neutral {
-    background-color: #f1f5f9;
-    color: #94a3b8;
 }

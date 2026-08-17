@@ -495,8 +495,7 @@ const DebtControlPage = () => {
     const currentResultsCount = activeTab === "DEBTS" ? sortedVisibleData.length : sortedVisibleDataCollected.length;
 
     // Deuda pendiente = mala noticia (rojo), recaudado = buena noticia (verde).
-    // Mismos tonos que usa KpiCard para el badge de tendencia, para que todo
-    // el conjunto (ícono, valor y badge) sea consistente entre sí.
+    // Mismos tonos rojo/verde que usa KpiCard en el resto del sistema.
     const summaryColor = activeTab === "DEBTS" ? "#dc2626" : "#16a34a";
     const summaryBg = activeTab === "DEBTS" ? "#fee2e2" : "#dcfce7";
 
@@ -557,7 +556,6 @@ const DebtControlPage = () => {
                         label={activeTab === "DEBTS" ? "Usuarios con deuda" : "Usuarios con pagos"}
                         value={activeTab === "DEBTS" ? filteredSummary.usersWithDebt : filteredSummaryCollected.usersWithPayment}
                         valueColor={summaryColor}
-                        trend={activeTab === "DEBTS" ? "down" : "up"}
                     />
                 </Col>
 
@@ -569,7 +567,6 @@ const DebtControlPage = () => {
                         label={activeTab === "DEBTS" ? "Facturas impagas" : "Facturas cobradas"}
                         value={activeTab === "DEBTS" ? filteredSummary.unpaidBillCount : filteredSummaryCollected.paidBillCount}
                         valueColor={summaryColor}
-                        trend={activeTab === "DEBTS" ? "down" : "up"}
                     />
                 </Col>
 
@@ -581,7 +578,6 @@ const DebtControlPage = () => {
                         label={activeTab === "DEBTS" ? "Deuda total actual" : "Total recaudado"}
                         value={activeTab === "DEBTS" ? formatCurrency(filteredSummary.totalDebt) : formatCurrency(filteredSummaryCollected.totalCollected)}
                         valueColor={summaryColor}
-                        trend={activeTab === "DEBTS" ? "down" : "up"}
                     />
                 </Col>
             </Row>

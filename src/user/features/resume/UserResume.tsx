@@ -6,7 +6,7 @@ import { SummaryDto } from "../../../core/models/dto/SummaryDto";
 import { getData } from "../../../core/services/apiService";
 import useAuth from "../../../hooks/useAuth";
 import { toast } from "react-toastify";
-import KpiCard, { KpiTrend } from "../../../shared/components/kpi-card/KpiCard";
+import KpiCard from "../../../shared/components/kpi-card/KpiCard";
 import PageHeader from "../../../shared/components/PageHeader";
 import DashboardSkeleton from "../../../shared/components/dashboard-skeleton/DashboardSkeleton";
 
@@ -51,8 +51,9 @@ const UserResume = () => {
         }
     };
 
-    // Datos para el gráfico de dona. Mismos tonos que ya usan las KpiCard de
-    // esta pantalla (Facturas Pagas/Impagas, Fecha de Periodo).
+    // Datos para el gráfico de dona. Mismos tonos verde/rojo que ya usan las
+    // KpiCard de esta pantalla (Facturas Pagas/Impagas), con un tercer tono
+    // propio (naranja) para distinguir "pagas fuera de término".
     const invoicesData = useMemo(() => [
         { name: "Pagas en término", value: data?.billsPaid || 0, color: "#16a34a" },
         { name: "Pagas fuera de término", value: data?.billsPaidLate || 0, color: "#ea580c" },
@@ -82,20 +83,21 @@ const UserResume = () => {
         }
     }, [userId]);
 
-    // Datos para las tarjetas KPI (Fase 5)
+    // Datos para las tarjetas KPI. Misma paleta de 3 tonos que el resto del
+    // sistema (ver comentario en Resume.tsx): verde = positivo, rojo = a
+    // resolver, azul = dato de contexto.
     const summaryData = useMemo(() => [
-        { title: "Facturas Pagas", value: data?.billsPaid || 0, icon: "bi bi-check-circle-fill", iconBg: "#dcfce7", color: "#16a34a", trend: "up" as KpiTrend },
-        { title: "Facturas Impagas", value: data?.unpaidBills || 0, icon: "bi bi-x-circle-fill", iconBg: "#fee2e2", color: "#dc2626", trend: "down" as KpiTrend },
-        { title: "Modalidad Activa", value: data?.activeModality || "No disponible", icon: "bi bi-arrow-repeat", iconBg: "#ede9fe", color: "#7c3aed", trend: "neutral" as KpiTrend },
-        { title: "Fecha de Periodo (Activo)", value: data?.activePeriod ? new Date(data.activePeriod).toLocaleDateString() : "No disponible", icon: "bi bi-calendar-event-fill", iconBg: "#ffedd5", color: "#ea580c", trend: "neutral" as KpiTrend },
-        { title: "Servicio/Unidad", value: data?.activeUnitService || "No disponible", icon: "bi bi-droplet-fill", iconBg: "#ccfbf1", color: "#0d9488", trend: "neutral" as KpiTrend },
+        { title: "Facturas Pagas", value: data?.billsPaid || 0, icon: "bi bi-check-circle-fill", iconBg: "rgba(34, 197, 94, 0.12)", color: "#16a34a" },
+        { title: "Facturas Impagas", value: data?.unpaidBills || 0, icon: "bi bi-x-circle-fill", iconBg: "rgba(239, 68, 68, 0.12)", color: "#dc2626" },
+        { title: "Modalidad Activa", value: data?.activeModality || "No disponible", icon: "bi bi-arrow-repeat", iconBg: "rgba(0, 119, 255, 0.1)", color: "var(--bs-primary)" },
+        { title: "Fecha de Periodo (Activo)", value: data?.activePeriod ? new Date(data.activePeriod).toLocaleDateString() : "No disponible", icon: "bi bi-calendar-event-fill", iconBg: "rgba(0, 119, 255, 0.1)", color: "var(--bs-primary)" },
+        { title: "Servicio/Unidad", value: data?.activeUnitService || "No disponible", icon: "bi bi-droplet-fill", iconBg: "rgba(0, 119, 255, 0.1)", color: "var(--bs-primary)" },
         {
             title: "Estado de Cuenta",
             value: data?.statusUser === 1 ? "Activa" : "Inactiva",
             icon: data?.statusUser === 1 ? "bi bi-person-check-fill" : "bi bi-person-x-fill",
-            iconBg: data?.statusUser === 1 ? "#dcfce7" : "#fee2e2",
+            iconBg: data?.statusUser === 1 ? "rgba(34, 197, 94, 0.12)" : "rgba(239, 68, 68, 0.12)",
             color: data?.statusUser === 1 ? "#16a34a" : "#dc2626",
-            trend: (data?.statusUser === 1 ? "up" : "down") as KpiTrend,
         },
     ], [data]);
 
@@ -152,7 +154,6 @@ const UserResume = () => {
                                     label={item.title}
                                     value={item.value}
                                     valueColor={item.color}
-                                    trend={item.trend}
                                 />
                             </Col>
                         ))}

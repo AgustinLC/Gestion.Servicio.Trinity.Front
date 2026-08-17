@@ -5,7 +5,7 @@ import { ResumeDto } from "../../../core/models/dto/ResumeDto";
 import { getData } from "../../../core/services/apiService";
 import { PeriodSelectorDto } from "../../../core/models/dto/PeriodSelectorDto";
 import { BillCountsDto } from "../../../core/models/dto/BillCountDto";
-import KpiCard, { KpiTrend } from "../../../shared/components/kpi-card/KpiCard";
+import KpiCard from "../../../shared/components/kpi-card/KpiCard";
 import PageHeader from "../../../shared/components/PageHeader";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
 import DashboardSkeleton from "../../../shared/components/dashboard-skeleton/DashboardSkeleton";
@@ -117,17 +117,22 @@ const Resume = () => {
     // Generación de Facturas y Generar Nuevo Período.
     const activePeriod = useMemo(() => periods.find((period) => period.active), [periods]);
 
-    // Datos para las tarjetas KPI (Fase 5)
+    // Datos para las tarjetas KPI. Paleta reducida a los 3 tonos semánticos
+    // que ya usa el resto del sistema (mismos valores que .icon-badge-info/
+    // -success/-error en index.css): verde = valor saludable/deseable,
+    // rojo = cuenta que conviene llevar a cero, azul = dato de contexto sin
+    // connotación positiva ni negativa. Antes cada tarjeta tenía un color
+    // distinto sin relación entre sí (6 tonos para 9 tarjetas).
     const summaryData = useMemo(() => [
-        { title: "Usuarios Activos", value: data?.activeUsers || 0, icon: "bi bi-people-fill", iconBg: "#dcfce7", color: "#16a34a", trend: "up" as KpiTrend },
-        { title: "Usuarios Suspendidos", value: data?.suspendedUsers || 0, icon: "bi bi-person-dash-fill", iconBg: "#ffedd5", color: "#ea580c", trend: "down" as KpiTrend },
-        { title: "Usuarios Inactivos", value: data?.inactiveUsers || 0, icon: "bi bi-person-x-fill", iconBg: "#fee2e2", color: "#dc2626", trend: "down" as KpiTrend },
-        { title: "Medidores faltantes", value: data?.missingMeters || 0, icon: "bi bi-exclamation-triangle-fill", iconBg: "#f3e8ff", color: "#9333ea", trend: "down" as KpiTrend },
-        { title: "Lecturas Realizadas", value: data?.fullReadings || 0, icon: "bi bi-file-earmark-text-fill", iconBg: "#dbeafe", color: "#2563eb", trend: "up" as KpiTrend },
-        { title: "Lecturas Pendientes", value: data?.incompleteReadings || 0, icon: "bi bi-clipboard-data-fill", iconBg: "#dbeafe", color: "#2563eb", trend: "down" as KpiTrend },
-        { title: "Modalidad activa", value: data?.activeModality || "No disponible", icon: "bi bi-arrow-repeat", iconBg: "#d1fae5", color: "#059669", trend: "neutral" as KpiTrend },
-        { title: "Período activo", value: activePeriod?.label ?? "No disponible", icon: "bi bi-calendar-event-fill", iconBg: "#ffedd5", color: "#ea580c", trend: "neutral" as KpiTrend },
-        { title: "Servicio/Unidad", value: data?.activeUnitService || "No disponible", icon: "bi bi-droplet-fill", iconBg: "#ccfbf1", color: "#0d9488", trend: "neutral" as KpiTrend },
+        { title: "Usuarios Activos", value: data?.activeUsers || 0, icon: "bi bi-people-fill", iconBg: "rgba(34, 197, 94, 0.12)", color: "#16a34a" },
+        { title: "Usuarios Suspendidos", value: data?.suspendedUsers || 0, icon: "bi bi-person-dash-fill", iconBg: "rgba(239, 68, 68, 0.12)", color: "#dc2626" },
+        { title: "Usuarios Inactivos", value: data?.inactiveUsers || 0, icon: "bi bi-person-x-fill", iconBg: "rgba(239, 68, 68, 0.12)", color: "#dc2626" },
+        { title: "Medidores faltantes", value: data?.missingMeters || 0, icon: "bi bi-exclamation-triangle-fill", iconBg: "rgba(239, 68, 68, 0.12)", color: "#dc2626" },
+        { title: "Lecturas Realizadas", value: data?.fullReadings || 0, icon: "bi bi-file-earmark-text-fill", iconBg: "rgba(34, 197, 94, 0.12)", color: "#16a34a" },
+        { title: "Lecturas Pendientes", value: data?.incompleteReadings || 0, icon: "bi bi-clipboard-data-fill", iconBg: "rgba(239, 68, 68, 0.12)", color: "#dc2626" },
+        { title: "Modalidad activa", value: data?.activeModality || "No disponible", icon: "bi bi-arrow-repeat", iconBg: "rgba(0, 119, 255, 0.1)", color: "var(--bs-primary)" },
+        { title: "Período activo", value: activePeriod?.label ?? "No disponible", icon: "bi bi-calendar-event-fill", iconBg: "rgba(0, 119, 255, 0.1)", color: "var(--bs-primary)" },
+        { title: "Servicio/Unidad", value: data?.activeUnitService || "No disponible", icon: "bi bi-droplet-fill", iconBg: "rgba(0, 119, 255, 0.1)", color: "var(--bs-primary)" },
     ], [data, activePeriod]);
 
     // Datos del gráfico de barras (Usuarios por tarifa)
@@ -135,9 +140,8 @@ const Resume = () => {
         data?.usersForFee?.map(fee => ({ fee: fee.fee, cantidad: fee.count })) ?? [],
         [data]);
 
-    // Datos para el gráfico de dona. Mismos tonos que ya usan las KpiCard de
-    // esta pantalla (Usuarios Activos/Inactivos), un poco más suaves que el
-    // verde/rojo puro de Bootstrap.
+    // Datos para el gráfico de dona. Mismos tonos verde/rojo que ya usan las
+    // KpiCard de esta pantalla para "positivo"/"a resolver".
     const invoicesData = useMemo(() => [
         { name: "Pagas", value: billChartData?.paidBills || 0, color: "#16a34a" },
         { name: "Impagas", value: billChartData?.unpaidBills || 0, color: "#dc2626" },
@@ -177,7 +181,6 @@ const Resume = () => {
                                     label={item.title}
                                     value={item.value}
                                     valueColor={item.color}
-                                    trend={item.trend}
                                 />
                             </Col>
                         ))}

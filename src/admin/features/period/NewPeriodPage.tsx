@@ -119,37 +119,33 @@ const NewPeriodPage = () => {
                             iconColor="var(--bs-primary)"
                             label="Medidores activos"
                             value={activeMetersCount}
-                            trend="neutral"
                         />
                     </Col>
                     <Col xl={3} md={6}>
                         <KpiCard
                             icon="bi bi-clipboard-data"
-                            iconBg="#f3e8ff"
-                            iconColor="#9333ea"
+                            iconBg="rgba(239, 68, 68, 0.12)"
+                            iconColor="#dc2626"
                             label="Pendientes de lectura"
                             value={pendingReadingCount}
-                            trend="neutral"
                         />
                     </Col>
                     <Col xl={3} md={6}>
                         <KpiCard
                             icon="bi bi-calendar-check"
-                            iconBg="#ccfbf1"
-                            iconColor="#0d9488"
+                            iconBg="rgba(0, 119, 255, 0.1)"
+                            iconColor="var(--bs-primary)"
                             label="Período actual activo"
                             value={activePeriod?.label ?? 'Sin período activo'}
-                            trend="neutral"
                         />
                     </Col>
                     <Col xl={3} md={6}>
                         <KpiCard
                             icon="bi bi-person-x"
-                            iconBg="#f1f5f9"
-                            iconColor="#64748b"
+                            iconBg="rgba(0, 119, 255, 0.1)"
+                            iconColor="var(--bs-primary)"
                             label="Usuarios no incluidos (inactivos)"
                             value={excludedUsersCount}
-                            trend="neutral"
                         />
                     </Col>
                 </Row>
