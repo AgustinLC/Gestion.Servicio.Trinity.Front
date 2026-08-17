@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Table } from "react-bootstrap";
 import { ReusableTableProps, TableColumnDefinition } from "../../../core/models/types/TableTypes";
 import CustomSelect from "../custom-select/CustomSelect";
+import TableEmptyState from "../table-empty-state/TableEmptyState";
 import React from "react";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 30];
@@ -13,6 +14,9 @@ const ReusableTable = <T,>({
     defaultSortDirection = "desc",
     defaultPageSize = 10,
     showPageSizeSelector = true,
+    emptyIcon = "bi bi-inbox",
+    emptyTitle = "No hay datos para mostrar",
+    emptyMessage = "Todavía no se registró información acá.",
 }: ReusableTableProps<T>) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(defaultPageSize);
@@ -87,7 +91,11 @@ const ReusableTable = <T,>({
 
     // Validacion de datos para que data y columns no esten vacios
     if (!data || data.length === 0) {
-        return <div className="reusable-table-card text-muted p-4">No hay datos para mostrar.</div>;
+        return (
+            <div className="reusable-table-card">
+                <TableEmptyState icon={emptyIcon} title={emptyTitle} message={emptyMessage} />
+            </div>
+        );
     }
     if (!columns || columns.length === 0) {
         return <div className="reusable-table-card text-muted p-4">No hay columnas definidas.</div>;

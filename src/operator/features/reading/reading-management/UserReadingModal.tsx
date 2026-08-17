@@ -6,6 +6,7 @@ import { ReadReadingDto } from "../../../../core/models/dto/ReadReadingDto";
 import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
 import ConfirmModal from "../../../../shared/components/confirm/ConfirmModal";
 import ReusableTable from "../../../../shared/components/table/ReusableTable";
+import TableEmptyState from "../../../../shared/components/table-empty-state/TableEmptyState";
 import TableSkeleton from "../../../../shared/components/table-skeleton/TableSkeleton";
 import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
 import { formatDate } from "../../../../core/utils/formatters";
@@ -160,7 +161,11 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
                 ) : error ? (
                     <div className="text-danger text-center">{error}</div>
                 ) : readings.length === 0 ? (
-                    <p className="text-center">No hay lecturas disponibles</p>
+                    <TableEmptyState
+                        icon="bi bi-speedometer2"
+                        title="Sin lecturas registradas"
+                        message="Este usuario todavía no tiene lecturas cargadas."
+                    />
                 ) : (
                     // Sin content-fade-in a propósito: es una animación de "mount"
                     // sin salida, y acá el fetch termina bastante después de que

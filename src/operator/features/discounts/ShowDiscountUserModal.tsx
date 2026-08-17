@@ -251,6 +251,9 @@ const ShowDiscountUserModal: React.FC<ShowDiscountUserModalProps> = ({ show, onH
                             defaultSort="dateRegister"
                             defaultPageSize={5}
                             showPageSizeSelector={false}
+                            emptyIcon="bi bi-percent"
+                            emptyTitle="Sin descuentos registrados"
+                            emptyMessage="Este usuario no tiene descuentos registrados actualmente."
                         />
                     )}
                 </Modal.Body>

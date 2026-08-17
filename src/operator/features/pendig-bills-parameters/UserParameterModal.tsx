@@ -235,6 +235,9 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
                             defaultSort="dateRegister"
                             defaultPageSize={5}
                             showPageSizeSelector={false}
+                            emptyIcon="bi bi-journal-plus"
+                            emptyTitle="Sin conceptos pendientes"
+                            emptyMessage="Este usuario no tiene conceptos pendientes de facturación."
                         />
                     )}
                 </Modal.Body>

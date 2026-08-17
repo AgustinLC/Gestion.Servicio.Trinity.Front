@@ -211,6 +211,9 @@ const DebtDisconnectionPage = () => {
                         data={filteredData}
                         columns={columns}
                         defaultSort="idUser"
+                        emptyIcon="bi bi-check-circle"
+                        emptyTitle="Sin deudores"
+                        emptyMessage="Todos los usuarios están al día con sus pagos."
                     />
                 </div>
             )}

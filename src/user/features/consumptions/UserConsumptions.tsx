@@ -78,6 +78,9 @@ const UserConsumptions: React.FC = () => {
                     <ReusableTable
                         data={filteredData} // Ahora filteredData tiene el tipo correcto
                         columns={columns}
+                        emptyIcon="bi bi-droplet"
+                        emptyTitle="Sin consumos registrados"
+                        emptyMessage="Todavía no hay lecturas de consumo cargadas para tu conexión."
                     />
                 </div>
             )}

@@ -11,6 +11,7 @@ import { PaymentStatus } from "../../../core/models/dto/PaymentStatus";
 import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
 import HintBox from "../../../shared/components/hint-box/HintBox";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableEmptyState from "../../../shared/components/table-empty-state/TableEmptyState";
 import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import RowActions from "../../../shared/components/table/RowActions";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
@@ -279,7 +280,11 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                     {loading ? (
                         <TableSkeleton showToolbar={false} rows={6} />
                     ) : bills.length === 0 ? (
-                        <p className="text-center">No hay facturas activas</p>
+                        <TableEmptyState
+                            icon="bi bi-receipt"
+                            title="Sin facturas activas"
+                            message="Este usuario no tiene facturas activas registradas."
+                        />
                     ) : (
                         // Sin content-fade-in a propósito: es una animación de
                         // "mount" sin salida, y acá el fetch termina bastante

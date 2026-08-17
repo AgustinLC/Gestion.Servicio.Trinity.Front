@@ -608,6 +608,9 @@ const DebtControlPage = () => {
                     data={sortedVisibleData}
                     columns={columns}
                     defaultSort="expirationDate"
+                    emptyIcon="bi bi-check-circle"
+                    emptyTitle="Sin deudas pendientes"
+                    emptyMessage="No hay facturas impagas para este período/filtro."
                 />
             ) : (
                 <ReusableTable
@@ -615,6 +618,9 @@ const DebtControlPage = () => {
                     data={sortedVisibleDataCollected}
                     columns={columnsCollected}
                     defaultSort="paymentDate"
+                    emptyIcon="bi bi-cash-stack"
+                    emptyTitle="Sin cobros registrados"
+                    emptyMessage="Todavía no se registraron facturas cobradas para este período/filtro."
                 />
             )}
             </div>

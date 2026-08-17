@@ -149,6 +149,9 @@ const UserBills: React.FC = () => {
                     <ReusableTable
                         data={filteredData}
                         columns={columns}
+                        emptyIcon="bi bi-receipt"
+                        emptyTitle="Sin facturas"
+                        emptyMessage="Todavía no se generaron facturas para tu conexión."
                     />
                 </div>
             )}
