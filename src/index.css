@@ -1515,31 +1515,27 @@ button:disabled,
 }
 
 .icon-badge-question {
-    background: rgba(99, 102, 241, 0.12);
-    color: #6366f1;
+    background: rgba(59, 130, 160, 0.12);
+    color: #3b82a0;
 }
 
-/* Mismo gris que STATUS_DOT_COLORS[INACTIVE]/badge-soft-neutral. */
-.icon-badge-neutral {
-    background: rgba(100, 116, 139, 0.12);
-    color: #64748b;
-}
-
-/* Botón "question" (índigo): variante que no existe en el set por defecto
-   de Bootstrap, para acompañar al ícono índigo de la variante "question".
-   Antes era violeta (#9333ea) — más apagado y más cerca del celeste del
-   sistema, pero igual distinguible de var(--bs-primary). */
 .btn-question {
-    background-color: #6366f1;
-    border-color: #6366f1;
+    background-color: #3b82a0;
+    border-color: #3b82a0;
     color: #fff;
 }
 
 .btn-question:hover,
 .btn-question:focus {
-    background-color: #4f46e5;
-    border-color: #4f46e5;
+    background-color: #327089;
+    border-color: #327089;
     color: #fff;
+}
+
+/* NEUTRAL — Información sin carga semántica */
+.icon-badge-neutral {
+    background: rgba(100, 116, 139, 0.12);
+    color: #64748b;
 }
 
 /* --- FORMULARIOS/MODALES: patrones reutilizables ---
