@@ -74,8 +74,6 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
         );
 
     // Totales para las tarjetas resumen
-    const totalConsumption = bills.reduce((sum, bill) => sum + (bill.consumption ?? 0), 0);
-    const totalAmount = bills.reduce((sum, bill) => sum + (bill.total ?? 0), 0);
 
     // Columnas de la tabla de facturas anuladas
     const columns: TableColumnDefinition<BillDetailsDto>[] = [

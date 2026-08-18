@@ -191,9 +191,6 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
         : false;
 
     // Totales para las tarjetas resumen
-    const totalConsumption = bills.reduce((sum, bill) => sum + (bill.consumption ?? 0), 0);
-    const totalBilled = bills.reduce((sum, bill) => sum + (bill.total ?? 0), 0);
-    const totalDiscounts = bills.reduce((sum, bill) => sum + (bill.totalDiscounts ?? 0), 0);
 
     // Columnas de la tabla de facturas activas
     const columns: TableColumnDefinition<BillDetailsDto>[] = [
