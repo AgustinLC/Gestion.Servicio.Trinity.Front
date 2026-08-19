@@ -134,65 +134,73 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({ show, onHide, user,
             />
 
             <Modal.Body>
-                {loading ? (
-                    <div className="text-center py-3">
-                        <Spinner animation="border" />
-                        <div className="mt-2">Cargando descuentos disponibles...</div>
-                    </div>
-                ) : (
+                {/* Gateado en "show" para que al cerrar el body quede vacío de
+                    inmediato en vez de seguir mostrando el formulario reseteado
+                    durante el fade-out — mismo patrón que AddReadingModal
+                    ("Cargar Lectura"), que no presenta el glitch al cerrar. */}
+                {show && (
                     <>
-                        {/* Selector de descuentos */}
-                        <Form.Group controlId="discountSelect" className="mb-3">
-                            <FloatingFieldset label="Descuento">
-                                <CustomSelect
-                                    value={selectedDiscountId ? String(selectedDiscountId) : ""}
-                                    onChange={handleDiscountChange}
-                                    options={allDiscounts.map((d) => ({
-                                        value: String(d.idDiscount),
-                                        label: `${d.name} - ${applyConditionLabels[d.applyCondition]}`,
-                                    }))}
-                                />
-                            </FloatingFieldset>
-                        </Form.Group>
+                        {loading ? (
+                            <div className="text-center py-3">
+                                <Spinner animation="border" />
+                                <div className="mt-2">Cargando descuentos disponibles...</div>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Selector de descuentos */}
+                                <Form.Group controlId="discountSelect" className="mb-3">
+                                    <FloatingFieldset label="Descuento">
+                                        <CustomSelect
+                                            value={selectedDiscountId ? String(selectedDiscountId) : ""}
+                                            onChange={handleDiscountChange}
+                                            options={allDiscounts.map((d) => ({
+                                                value: String(d.idDiscount),
+                                                label: `${d.name} - ${applyConditionLabels[d.applyCondition]}`,
+                                            }))}
+                                        />
+                                    </FloatingFieldset>
+                                </Form.Group>
 
-                        {/* Input numérico para el importe */}
-                        {selectedDiscountId && (
-                            <Form.Group controlId="discountAmount" className="mb-3">
-                                <FloatingFieldset label="Importe" prefix="$">
-                                    <Form.Control
-                                        type="number"
-                                        min="0.01"
-                                        max="9999999"
-                                        value={amount}
-                                        onChange={(e) => {
-                                            if (isNegativeInput(e.target.value)) return;
-                                            setAmount(Number(e.target.value));
-                                        }}
-                                        disabled={isFixed || !selectedDiscountId}
-                                        isInvalid={amount <= 0}
-                                    />
-                                </FloatingFieldset>
-                                {isFixed && (
-                                    <Form.Text className="text-muted">
-                                        Este descuento es fijo, el importe no se puede modificar.
-                                    </Form.Text>
+                                {/* Input numérico para el importe */}
+                                {selectedDiscountId && (
+                                    <Form.Group controlId="discountAmount" className="mb-3">
+                                        <FloatingFieldset label="Importe" prefix="$">
+                                            <Form.Control
+                                                type="number"
+                                                min="0.01"
+                                                max="9999999"
+                                                value={amount}
+                                                onChange={(e) => {
+                                                    if (isNegativeInput(e.target.value)) return;
+                                                    setAmount(Number(e.target.value));
+                                                }}
+                                                disabled={isFixed || !selectedDiscountId}
+                                                isInvalid={amount <= 0}
+                                            />
+                                        </FloatingFieldset>
+                                        {isFixed && (
+                                            <Form.Text className="text-muted">
+                                                Este descuento es fijo, el importe no se puede modificar.
+                                            </Form.Text>
+                                        )}
+                                        <Form.Control.Feedback type="invalid">
+                                            El importe debe ser mayor a 0
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
                                 )}
-                                <Form.Control.Feedback type="invalid">
-                                    El importe debe ser mayor a 0
-                                </Form.Control.Feedback>
-                            </Form.Group>
+                            </>
                         )}
+
+                        <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
+                            <Button variant="outline-secondary" onClick={requestClose} disabled={assigning}>
+                                <i className="bi bi-x-circle me-1"></i> Cancelar
+                            </Button>
+                            <Button variant="primary" onClick={handleAssign} disabled={assigning || loading || !selectedDiscountId}>
+                                <i className="bi bi-save me-1"></i> {assigning ? "Guardando..." : "Guardar"}
+                            </Button>
+                        </div>
                     </>
                 )}
-
-                <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
-                    <Button variant="outline-secondary" onClick={requestClose} disabled={assigning}>
-                        <i className="bi bi-x-circle me-1"></i> Cancelar
-                    </Button>
-                    <Button variant="primary" onClick={handleAssign} disabled={assigning || loading || !selectedDiscountId}>
-                        <i className="bi bi-save me-1"></i> {assigning ? "Guardando..." : "Guardar"}
-                    </Button>
-                </div>
             </Modal.Body>
         </Modal>
         <ConfirmModal

@@ -222,28 +222,27 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
                 />
 
                 <Modal.Body>
-                    {loading ? (
-                        <TableSkeleton showToolbar={false} rows={6} />
-                    ) : error ? (
-                        <div className="text-danger text-center">{error}</div>
-                    ) : (
-                        // Sin content-fade-in a propósito: es una animación de
-                        // "mount" sin salida, y acá el fetch termina bastante
-                        // después de que el modal ya está abierto y asentado —
-                        // si en ese lapso se llega a cerrar el modal, esta
-                        // animación queda corriendo a la vez que el fade-out del
-                        // modal, sin sincronizarse con él (se ve la tabla
-                        // "destellando" de forma rara al cerrar).
-                        <ReusableTable<PendigBillDetail>
-                            data={parameters}
-                            columns={columns}
-                            defaultSort="dateRegister"
-                            defaultPageSize={5}
-                            showPageSizeSelector={false}
-                            emptyIcon="bi bi-journal-plus"
-                            emptyTitle="Sin conceptos pendientes"
-                            emptyMessage="Este usuario no tiene conceptos pendientes de facturación."
-                        />
+                    {/* Gateado en "show" para que al cerrar el body quede vacío
+                        de inmediato en vez de seguir mostrando la tabla estática
+                        durante el fade-out — mismo patrón que AddReadingModal
+                        ("Cargar Lectura"), que no presenta el glitch al cerrar. */}
+                    {show && (
+                        loading ? (
+                            <TableSkeleton showToolbar={false} rows={6} />
+                        ) : error ? (
+                            <div className="text-danger text-center">{error}</div>
+                        ) : (
+                            <ReusableTable<PendigBillDetail>
+                                data={parameters}
+                                columns={columns}
+                                defaultSort="dateRegister"
+                                defaultPageSize={5}
+                                showPageSizeSelector={false}
+                                emptyIcon="bi bi-journal-plus"
+                                emptyTitle="Sin conceptos pendientes"
+                                emptyMessage="Este usuario no tiene conceptos pendientes de facturación."
+                            />
+                        )
                     )}
                 </Modal.Body>
             </Modal>

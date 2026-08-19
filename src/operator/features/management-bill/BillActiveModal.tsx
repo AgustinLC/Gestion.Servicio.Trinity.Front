@@ -274,33 +274,32 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                 />
 
                 <Modal.Body className="overflow-visible">
-                    {loading ? (
-                        <TableSkeleton showToolbar={false} rows={6} />
-                    ) : bills.length === 0 ? (
-                        <TableEmptyState
-                            icon="bi bi-receipt"
-                            title="Sin facturas activas"
-                            message="Este usuario no tiene facturas activas registradas."
-                        />
-                    ) : (
-                        // Sin content-fade-in a propósito: es una animación de
-                        // "mount" sin salida, y acá el fetch termina bastante
-                        // después de que el modal ya está abierto y asentado —
-                        // si en ese lapso se llega a cerrar el modal, esta
-                        // animación queda corriendo a la vez que el fade-out del
-                        // modal, sin sincronizarse con él (se ve la tabla
-                        // "destellando" de forma rara al cerrar).
-                        <div>
-                            <ReusableTable<BillDetailsDto>
-                                data={[...bills].sort((a, b) => b.idBill - a.idBill)}
-                                columns={columns}
-                                defaultPageSize={5}
-                                showPageSizeSelector={false}
+                    {/* Gateado en "show" para que al cerrar el body quede vacío
+                        de inmediato en vez de seguir mostrando la tabla estática
+                        durante el fade-out — mismo patrón que AddReadingModal
+                        ("Cargar Lectura"), que no presenta el glitch al cerrar. */}
+                    {show && (
+                        loading ? (
+                            <TableSkeleton showToolbar={false} rows={6} />
+                        ) : bills.length === 0 ? (
+                            <TableEmptyState
+                                icon="bi bi-receipt"
+                                title="Sin facturas activas"
+                                message="Este usuario no tiene facturas activas registradas."
                             />
-                            <HintBox className="mt-3">
-                                Las facturas pagadas no pueden ser anuladas.
-                            </HintBox>
-                        </div>
+                        ) : (
+                            <div>
+                                <ReusableTable<BillDetailsDto>
+                                    data={[...bills].sort((a, b) => b.idBill - a.idBill)}
+                                    columns={columns}
+                                    defaultPageSize={5}
+                                    showPageSizeSelector={false}
+                                />
+                                <HintBox className="mt-3">
+                                    Las facturas pagadas no pueden ser anuladas.
+                                </HintBox>
+                            </div>
+                        )
                     )}
                 </Modal.Body>
             </Modal>
@@ -330,6 +329,8 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                     titleId="payment-status-modal-title"
                 />
                 <Modal.Body>
+                  {showPaymentModal && (
+                    <>
                     <div className="fw-bold mb-3">¿Cómo deseas marcar esta factura como pagada?</div>
 
                     <div className="option-card-list">
@@ -393,6 +394,8 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
                             <i className="bi bi-check-circle me-1"></i> Confirmar selección
                         </Button>
                     </div>
+                    </>
+                  )}
                 </Modal.Body>
             </Modal>
 

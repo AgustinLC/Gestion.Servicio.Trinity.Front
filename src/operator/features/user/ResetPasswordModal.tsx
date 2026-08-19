@@ -74,15 +74,18 @@ const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({ show, user, isL
         }
     }, [show, user]);
 
-    if (!user) return null;
-
-    const avatarColor = getAvatarColor(`${user.firstName ?? ""}${user.lastName ?? ""}${user.idUser ?? ""}`);
-    const initials = `${(user.firstName?.[0] || "").toUpperCase()}${(user.lastName?.[0] || "").toUpperCase()}`;
+    // Sin "if (!user) return null": show y user viven en lockstep en el único
+    // consumidor (UserPage: show={!!userToResetPassword}), así que ese early
+    // return desmontaba el <Modal> entero en el mismo render en el que se
+    // cierra, sin dejarle correr su transición de salida — a diferencia de
+    // "Cargar Lectura", que solo vacía el body y deja que el <Modal> anime su
+    // cierre. Se gatea el contenido en el JSX en vez de acá arriba.
     const customPasswordRules = getPasswordRuleResults(customPassword.trim());
     const isCustomInvalid = customPassword.trim().length > 0 && !isPasswordValid(customPassword.trim());
     const canConfirm = mode !== "custom" || isPasswordValid(customPassword.trim());
 
     const handleConfirmClick = () => {
+        if (!user) return;
         const value = mode === "temporary" ? temporaryPassword : mode === "dni" ? user.dni?.toString() ?? "" : customPassword.trim();
         onConfirm(value);
     };
@@ -98,6 +101,15 @@ const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({ show, user, isL
             />
 
             <Modal.Body>
+              {/* Gateado en "show && user" para que al cerrar el body quede
+                  vacío de inmediato en vez de seguir mostrando el formulario
+                  durante el fade-out — mismo patrón que AddReadingModal
+                  ("Cargar Lectura"), que no presenta el glitch al cerrar. */}
+              {show && user && (() => {
+                const avatarColor = getAvatarColor(`${user.firstName ?? ""}${user.lastName ?? ""}${user.idUser ?? ""}`);
+                const initials = `${(user.firstName?.[0] || "").toUpperCase()}${(user.lastName?.[0] || "").toUpperCase()}`;
+                return (
+                <>
                 <div className="user-summary-card mb-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
                     <div className="d-flex align-items-center gap-3">
                         <div className="row-avatar user-summary-avatar" style={{ backgroundColor: avatarColor.bg, color: avatarColor.color }}>
@@ -220,6 +232,9 @@ const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({ show, user, isL
                         </Button>
                     </div>
                 </div>
+                </>
+                );
+              })()}
             </Modal.Body>
         </Modal>
     );

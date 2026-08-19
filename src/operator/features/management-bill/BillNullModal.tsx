@@ -127,33 +127,32 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
                     titleId="bill-null-modal-title"
                 />
                 <Modal.Body className="overflow-visible">
-                    {loading ? (
-                        <TableSkeleton showToolbar={false} rows={6} />
-                    ) : bills.length === 0 ? (
-                        <TableEmptyState
-                            icon="bi bi-file-earmark-x"
-                            title="Sin facturas anuladas"
-                            message="Este usuario no tiene facturas anuladas registradas."
-                        />
-                    ) : (
-                        // Sin content-fade-in a propósito: es una animación de
-                        // "mount" sin salida, y acá el fetch termina bastante
-                        // después de que el modal ya está abierto y asentado —
-                        // si en ese lapso se llega a cerrar el modal, esta
-                        // animación queda corriendo a la vez que el fade-out del
-                        // modal, sin sincronizarse con él (se ve la tabla
-                        // "destellando" de forma rara al cerrar).
-                        <div>
-                            <ReusableTable<BillDetailsDto>
-                                data={[...bills].sort((a, b) => b.idBill - a.idBill)}
-                                columns={columns}
-                                defaultPageSize={5}
-                                showPageSizeSelector={false}
+                    {/* Gateado en "show" para que al cerrar el body quede vacío
+                        de inmediato en vez de seguir mostrando la tabla estática
+                        durante el fade-out — mismo patrón que AddReadingModal
+                        ("Cargar Lectura"), que no presenta el glitch al cerrar. */}
+                    {show && (
+                        loading ? (
+                            <TableSkeleton showToolbar={false} rows={6} />
+                        ) : bills.length === 0 ? (
+                            <TableEmptyState
+                                icon="bi bi-file-earmark-x"
+                                title="Sin facturas anuladas"
+                                message="Este usuario no tiene facturas anuladas registradas."
                             />
-                            <HintBox className="mt-3">
-                                Las facturas anuladas quedan como registro histórico y no pueden reactivarse ni marcarse como pagadas.
-                            </HintBox>
-                        </div>
+                        ) : (
+                            <div>
+                                <ReusableTable<BillDetailsDto>
+                                    data={[...bills].sort((a, b) => b.idBill - a.idBill)}
+                                    columns={columns}
+                                    defaultPageSize={5}
+                                    showPageSizeSelector={false}
+                                />
+                                <HintBox className="mt-3">
+                                    Las facturas anuladas quedan como registro histórico y no pueden reactivarse ni marcarse como pagadas.
+                                </HintBox>
+                            </div>
+                        )
                     )}
                 </Modal.Body>
             </Modal>

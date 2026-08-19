@@ -43,47 +43,55 @@ const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, readi
                 titleId="edit-reading-modal-title"
             />
             <Modal.Body>
-                <Form>
-                    <Form.Group className="mb-3">
-                        <FloatingFieldset label="Fecha">
-                            <Form.Control type="text" value={reading.date || ""} disabled />
-                        </FloatingFieldset>
-                    </Form.Group>
+                {/* Gateado en "show" para que al cerrar el body quede vacío de
+                    inmediato en vez de seguir mostrando el formulario durante
+                    el fade-out — mismo patrón que AddReadingModal ("Cargar
+                    Lectura"), que no presenta el glitch al cerrar. */}
+                {show && (
+                    <>
+                        <Form>
+                            <Form.Group className="mb-3">
+                                <FloatingFieldset label="Fecha">
+                                    <Form.Control type="text" value={reading.date || ""} disabled />
+                                </FloatingFieldset>
+                            </Form.Group>
 
-                    <Form.Group className="mb-3">
-                        <FloatingFieldset label="Periodo">
-                            <Form.Control type="text" value={reading.periodName || ""} disabled />
-                        </FloatingFieldset>
-                    </Form.Group>
+                            <Form.Group className="mb-3">
+                                <FloatingFieldset label="Periodo">
+                                    <Form.Control type="text" value={reading.periodName || ""} disabled />
+                                </FloatingFieldset>
+                            </Form.Group>
 
-                    <Form.Group className="mb-3">
-                        <FloatingFieldset label="Valor de Lectura">
-                            <Form.Control
-                                type="number"
-                                min="0"
-                                max="9999999"
-                                value={readingValue}
-                                onChange={(e) => {
-                                    if (isNegativeInput(e.target.value)) return;
-                                    setReadingValue(Number(e.target.value));
-                                }}
-                                isInvalid={isInvalidReading}
-                            />
-                        </FloatingFieldset>
-                        <Form.Control.Feedback type="invalid">
-                            El valor debe estar entre 0 y 9999999
-                        </Form.Control.Feedback>
-                    </Form.Group>
-                </Form>
+                            <Form.Group className="mb-3">
+                                <FloatingFieldset label="Valor de Lectura">
+                                    <Form.Control
+                                        type="number"
+                                        min="0"
+                                        max="9999999"
+                                        value={readingValue}
+                                        onChange={(e) => {
+                                            if (isNegativeInput(e.target.value)) return;
+                                            setReadingValue(Number(e.target.value));
+                                        }}
+                                        isInvalid={isInvalidReading}
+                                    />
+                                </FloatingFieldset>
+                                <Form.Control.Feedback type="invalid">
+                                    El valor debe estar entre 0 y 9999999
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                        </Form>
 
-                <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
-                    <Button variant="outline-secondary" onClick={requestClose}>
-                        <i className="bi bi-x-circle me-1"></i> Cancelar
-                    </Button>
-                    <Button variant="primary" onClick={handleSubmit} disabled={isInvalidReading}>
-                        <i className="bi bi-save me-1"></i> Guardar
-                    </Button>
-                </div>
+                        <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
+                            <Button variant="outline-secondary" onClick={requestClose}>
+                                <i className="bi bi-x-circle me-1"></i> Cancelar
+                            </Button>
+                            <Button variant="primary" onClick={handleSubmit} disabled={isInvalidReading}>
+                                <i className="bi bi-save me-1"></i> Guardar
+                            </Button>
+                        </div>
+                    </>
+                )}
             </Modal.Body>
         </Modal>
         <ConfirmModal

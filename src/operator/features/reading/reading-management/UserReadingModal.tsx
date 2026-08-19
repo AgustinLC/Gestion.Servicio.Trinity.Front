@@ -161,31 +161,32 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
             />
 
             <Modal.Body>
-                {loading ? (
-                    <TableSkeleton showToolbar={false} rows={6} />
-                ) : error ? (
-                    <div className="text-danger text-center">{error}</div>
-                ) : readings.length === 0 ? (
-                    <TableEmptyState
-                        icon="bi bi-speedometer2"
-                        title="Sin lecturas registradas"
-                        message="Este usuario todavía no tiene lecturas cargadas."
-                    />
-                ) : (
-                    // Sin content-fade-in a propósito: es una animación de "mount"
-                    // sin salida, y acá el fetch termina bastante después de que
-                    // el modal ya está abierto y asentado — si en ese lapso se
-                    // llega a cerrar el modal, esta animación queda corriendo a
-                    // la vez que el fade-out del modal, sin sincronizarse con él
-                    // (se ve la tabla "destellando" de forma rara al cerrar).
-                    <ReusableTable<ReadReadingDto>
-                        data={readings}
-                        columns={columns}
-                        defaultSort="date"
-                        defaultSortDirection="desc"
-                        defaultPageSize={5}
-                        showPageSizeSelector={false}
-                    />
+                {/* Gateado en "show" (no solo en loading/error/data) para que al
+                    cerrar el body quede vacío de inmediato en vez de seguir
+                    mostrando la tabla estática durante el fade-out del modal —
+                    mismo patrón que AddReadingModal ("Cargar Lectura"), que es
+                    el que no presenta el glitch visual al cerrar. */}
+                {show && (
+                    loading ? (
+                        <TableSkeleton showToolbar={false} rows={6} />
+                    ) : error ? (
+                        <div className="text-danger text-center">{error}</div>
+                    ) : readings.length === 0 ? (
+                        <TableEmptyState
+                            icon="bi bi-speedometer2"
+                            title="Sin lecturas registradas"
+                            message="Este usuario todavía no tiene lecturas cargadas."
+                        />
+                    ) : (
+                        <ReusableTable<ReadReadingDto>
+                            data={readings}
+                            columns={columns}
+                            defaultSort="date"
+                            defaultSortDirection="desc"
+                            defaultPageSize={5}
+                            showPageSizeSelector={false}
+                        />
+                    )
                 )}
             </Modal.Body>
 

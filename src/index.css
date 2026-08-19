@@ -1639,6 +1639,10 @@ button:disabled,
     background-color: transparent;
 }
 
+.modal.fade {
+    transition: none !important;
+}
+
 .form-modal-header {
     padding: 1.25rem 1.5rem 1rem;
     border-bottom: 1px solid rgba(226, 232, 240, 0.8);
@@ -1809,16 +1813,9 @@ button:disabled,
     font-size: 0.78rem;
 }
 
-/* --- PAGE HEADER (título de sección, sin card propia: vive sobre el fondo gris de página) --- */
-.page-header-left {
-}
-
 .page-header-title {
     font-size: 1.5rem;
     margin: 0;
-}
-
-.page-header-right {
 }
 
 .stat-card {
