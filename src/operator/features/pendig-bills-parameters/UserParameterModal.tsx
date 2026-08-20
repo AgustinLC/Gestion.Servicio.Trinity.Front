@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Spinner, Form } from "react-bootstrap";
+import { Button, Modal, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { PendigBillDetail } from "../../../core/models/dto/PendingBillDetail";
 import { getData, updateData, deleteData } from "../../../core/services/apiService";
@@ -193,8 +193,13 @@ const UserParametersModal: React.FC<UserParametersModalProps> = ({ show, onHide,
                         <Button variant="outline-secondary" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={handleCancelEdit} disabled={saving}>
                             <i className="bi bi-x-circle me-1"></i> <span className="d-none d-sm-inline">Cancelar</span>
                         </Button>
+                        {/* Sin spinner propio: el ConfirmModal de abajo ya
+                            anima "Guardando..." con este mismo estado
+                            mientras está abierto — tenerlo acá también se veía
+                            como dos cosas guardando a la vez. Solo se
+                            deshabilita para evitar un segundo click. */}
                         <Button variant="success" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={() => handleSaveClick(parameter.idPendingBillDetail)} disabled={saving}>
-                            {saving ? <Spinner as="span" animation="border" size="sm" /> : <><i className="bi bi-check-circle me-1"></i> <span className="d-none d-sm-inline">Guardar</span></>}
+                            <i className="bi bi-check-circle me-1"></i> <span className="d-none d-sm-inline">Guardar</span>
                         </Button>
                     </div>
                 ) : (

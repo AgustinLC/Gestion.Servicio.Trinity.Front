@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { Button, Spinner, Card, Form } from 'react-bootstrap';
+import { Button, Card, Form } from 'react-bootstrap';
 import DatePeriodSelector from './DatePeriodSelector';
 import UserSearchInput from './UserSearchInput';
 import { addData, getData } from '../../../core/services/apiService';
@@ -256,6 +256,11 @@ const BillGeneratePage = () => {
                                     <div className="footer-note-subtitle text-muted">No cierres la página durante el proceso.</div>
                                 </div>
                             </div>
+                            {/* Sin spinner propio: el ConfirmModal de abajo ya
+                                anima "Generando..." con este mismo estado
+                                mientras está abierto — tenerlo acá también se
+                                veía como dos cosas generando a la vez. Solo se
+                                deshabilita para evitar un segundo click. */}
                             <Button
                                 variant="primary"
                                 type="submit"
@@ -263,12 +268,7 @@ const BillGeneratePage = () => {
                                 className="px-4 py-2 fw-semibold btn-submit"
                                 aria-label={mode === 'bulk' ? 'Generar facturas masivas' : 'Generar factura individual'}
                             >
-                                {isLoading ? (
-                                    <>
-                                        <Spinner animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
-                                        Generando...
-                                    </>
-                                ) : mode === 'bulk' ? (
+                                {mode === 'bulk' ? (
                                     <>
                                         <i className="bi bi-lightning-charge me-2"></i>
                                         Generar Facturas

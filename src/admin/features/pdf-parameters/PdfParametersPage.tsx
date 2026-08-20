@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, Button, Card, Row, Col, Spinner } from "react-bootstrap";
+import { Form, Button, Card, Row, Col } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../config/axiosConfig";
 import {
@@ -477,27 +477,20 @@ const PdfParametersPage: React.FC = () => {
                             </Row>
 
                             <div className="d-flex justify-content-end gap-3 mt-4">
+                                {/* El propio spinner/"Guardando..." lo muestra
+                                    solo el ConfirmModal de abajo (isLoading):
+                                    este botón queda atrás de ese modal, así que
+                                    tener los dos animando el mismo estado a la
+                                    vez se veía como un bug duplicado. Acá solo
+                                    se deshabilita para evitar un segundo click. */}
                                 <Button
                                     variant="primary"
                                     type="submit"
                                     disabled={saving}
                                     className="px-4 py-2 fw-semibold rounded-3 btn-submit shadow-sm"
                                 >
-                                    {saving ? (
-                                        <>
-                                            <Spinner
-                                                animation="border"
-                                                size="sm"
-                                                className="me-2"
-                                            />
-                                            Guardando...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <i className="bi bi-save me-2"></i>
-                                            Guardar Parámetros
-                                        </>
-                                    )}
+                                    <i className="bi bi-save me-2"></i>
+                                    Guardar Parámetros
                                 </Button>
                             </div>
                         </Form>

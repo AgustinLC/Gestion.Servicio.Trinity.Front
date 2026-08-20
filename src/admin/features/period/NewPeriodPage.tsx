@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Spinner, Row, Col } from 'react-bootstrap';
+import { Button, Row, Col } from 'react-bootstrap';
 import { LightningChargeFill } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { addData, getData } from '../../../core/services/apiService';
@@ -254,18 +254,14 @@ const NewPeriodPage = () => {
                             </div>
                         </div>
                         <div className="d-flex flex-column align-items-end gap-1">
+                            {/* Sin spinner propio: el ConfirmModal de abajo ya
+                                anima "Guardando..." con este mismo estado
+                                mientras está abierto — tenerlo acá también se
+                                veía como dos cosas procesando a la vez. Solo
+                                se deshabilita para evitar un segundo click. */}
                             <Button variant="primary" onClick={() => setShowConfirmModal(true)} disabled={isLoading} className="px-4 py-2 fw-semibold">
-                                {isLoading ? (
-                                    <>
-                                        <Spinner animation="border" size="sm" className="me-2" />
-                                        Procesando...
-                                    </>
-                                ) : (
-                                    <>
-                                        <LightningChargeFill className="me-2" />
-                                        Generar Nuevo Período
-                                    </>
-                                )}
+                                <LightningChargeFill className="me-2" />
+                                Generar Nuevo Período
                             </Button>
                         </div>
                     </div>

@@ -78,36 +78,53 @@ const ConfirmModal = ({
     const modalZIndex = useModalLayer(props.show ?? false);
 
     const resolvedIcon = variant
-        ? icon ?? MODAL_VARIANTS[variant].icon
-        : icon ?? DEFAULT_VARIANT_ICON[confirmVariant ?? "danger"] ?? "bi bi-question-circle-fill";
-    const resolvedButtonVariant = confirmVariant ?? (variant ? MODAL_VARIANTS[variant].buttonVariant : "danger");
+        ? (icon ?? MODAL_VARIANTS[variant].icon)
+        : (icon ??
+          DEFAULT_VARIANT_ICON[confirmVariant ?? "danger"] ??
+          "bi bi-question-circle-fill");
+    const resolvedButtonVariant =
+        confirmVariant ??
+        (variant ? MODAL_VARIANTS[variant].buttonVariant : "danger");
 
-    // Render
     return (
         <Modal
             {...props}
             centered
-            backdrop
+            backdrop={variant ? "static" : true}
+            keyboard={!variant}
             backdropClassName="modal-click-backdrop"
             style={{ zIndex: modalZIndex }}
             contentClassName="form-modal-content"
             aria-labelledby="confirm-modal-title"
             aria-describedby="confirm-modal-description"
-            onClick={onBackdropClick(handleCancel)}
+            onClick={variant ? undefined : onBackdropClick(handleCancel)}
         >
             {variant ? (
                 <>
-                    <button type="button" className="modal-close-btn confirm-modal-close" onClick={handleCancel} aria-label="Cerrar">
-                        <i className="bi bi-x-lg"></i>
-                    </button>
                     <div className="confirm-modal-centered">
-                        <div className={`icon-badge icon-badge-xl icon-badge-${variant}`}>
+                        <div
+                            className={`icon-badge icon-badge-xl icon-badge-${variant}`}
+                        >
                             <i className={resolvedIcon}></i>
                         </div>
-                        <h4 id="confirm-modal-title" className="confirm-modal-title mt-3 mb-2">{title}</h4>
-                        <div id="confirm-modal-description" className="confirm-modal-message">{message}</div>
+                        <h4
+                            id="confirm-modal-title"
+                            className="confirm-modal-title mt-3 mb-2"
+                        >
+                            {title}
+                        </h4>
+                        <div
+                            id="confirm-modal-description"
+                            className="confirm-modal-message"
+                        >
+                            {message}
+                        </div>
                         {hint && (
-                            <HintBox variant={HINT_VARIANT[variant]} icon={hintIcon} className="mt-3 w-100">
+                            <HintBox
+                                variant={HINT_VARIANT[variant]}
+                                icon={hintIcon}
+                                className="mt-3 w-100"
+                            >
                                 {hint}
                             </HintBox>
                         )}
@@ -120,7 +137,10 @@ const ConfirmModal = ({
                             aria-label={cancelText}
                             disabled={isLoading}
                         >
-                            {cancelIcon && <i className={`${cancelIcon} me-1`}></i>} {cancelText}
+                            {cancelIcon && (
+                                <i className={`${cancelIcon} me-1`}></i>
+                            )}{" "}
+                            {cancelText}
                         </Button>
                         <Button
                             variant={resolvedButtonVariant}
@@ -129,7 +149,18 @@ const ConfirmModal = ({
                             aria-label={confirmText}
                             disabled={isLoading || confirmDisabled}
                         >
-                            {isLoading ? loadingText : <>{confirmIcon && <i className={`${confirmIcon} me-1`}></i>} {confirmText}</>}
+                            {isLoading ? (
+                                loadingText
+                            ) : (
+                                <>
+                                    {confirmIcon && (
+                                        <i
+                                            className={`${confirmIcon} me-1`}
+                                        ></i>
+                                    )}{" "}
+                                    {confirmText}
+                                </>
+                            )}
                         </Button>
                     </div>
                 </>
@@ -152,7 +183,10 @@ const ConfirmModal = ({
                                 aria-label={cancelText}
                                 disabled={isLoading}
                             >
-                                {cancelIcon && <i className={`${cancelIcon} me-1`}></i>} {cancelText}
+                                {cancelIcon && (
+                                    <i className={`${cancelIcon} me-1`}></i>
+                                )}{" "}
+                                {cancelText}
                             </Button>
                             <Button
                                 variant={resolvedButtonVariant}
@@ -160,7 +194,18 @@ const ConfirmModal = ({
                                 aria-label={confirmText}
                                 disabled={isLoading || confirmDisabled}
                             >
-                                {isLoading ? loadingText : <>{confirmIcon && <i className={`${confirmIcon} me-1`}></i>} {confirmText}</>}
+                                {isLoading ? (
+                                    loadingText
+                                ) : (
+                                    <>
+                                        {confirmIcon && (
+                                            <i
+                                                className={`${confirmIcon} me-1`}
+                                            ></i>
+                                        )}{" "}
+                                        {confirmText}
+                                    </>
+                                )}
                             </Button>
                         </div>
                     </Modal.Body>

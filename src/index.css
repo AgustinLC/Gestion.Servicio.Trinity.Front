@@ -1656,13 +1656,6 @@ button:disabled,
    todo centrado) para cuando se le pasa la prop "variant" — ver
    ConfirmModal.tsx. Sin variant, ConfirmModal sigue usando FormModalHeader
    (ícono a la izquierda) como siempre. */
-.confirm-modal-close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    z-index: 1;
-}
-
 .confirm-modal-centered {
     padding: 2rem 1.75rem 0.25rem;
     text-align: center;
