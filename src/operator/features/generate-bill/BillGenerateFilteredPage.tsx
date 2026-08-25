@@ -15,6 +15,7 @@ import FloatingFieldset from '../../../shared/components/floating-fieldset/Float
 import CustomSelect from '../../../shared/components/custom-select/CustomSelect';
 import HintBox from '../../../shared/components/hint-box/HintBox';
 import AutocompleteFilter from '../../../shared/components/autocomplete-filter/AutocompleteFilter';
+import AppDatePicker from '../../../shared/components/date-picker/AppDatePicker';
 import './BillGenerateFilteredPage.css';
 
 const BillGenerateFilteredPage = () => {
@@ -400,14 +401,20 @@ const BillGenerateFilteredPage = () => {
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
                                         <FloatingFieldset label="Fecha Desde">
-                                            <Form.Control type="date" name="dateFrom" value={filters.dateFrom} onChange={handleChange} />
+                                            <AppDatePicker
+                                                value={filters.dateFrom}
+                                                onChange={(value) => setFilters(prev => ({ ...prev, dateFrom: value }))}
+                                            />
                                         </FloatingFieldset>
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
                                         <FloatingFieldset label="Fecha Hasta">
-                                            <Form.Control type="date" name="dateTo" value={filters.dateTo} onChange={handleChange} />
+                                            <AppDatePicker
+                                                value={filters.dateTo}
+                                                onChange={(value) => setFilters(prev => ({ ...prev, dateTo: value }))}
+                                            />
                                         </FloatingFieldset>
                                     </Form.Group>
                                 </Col>

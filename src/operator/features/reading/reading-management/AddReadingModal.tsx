@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
 import FloatingFieldset from "../../../../shared/components/floating-fieldset/FloatingFieldset";
+import AppDatePicker from "../../../../shared/components/date-picker/AppDatePicker";
 import ConfirmModal from "../../../../shared/components/confirm/ConfirmModal";
 import { useModalLayer } from "../../../../context/ModalStackContext";
 import { useConfirmDiscard, onBackdropClick } from "../../../../shared/hooks/useConfirmDiscard";
@@ -42,7 +43,7 @@ const ReadingFormContent: React.FC<ReadingFormProps> = ({ onHide, onSave, onDirt
     // `undefined` en vez de contra el string vacío que en realidad tiene el
     // input, y marca el formulario como "sucio" (isDirty) desde el primer
     // render aunque no se haya tocado nada.
-    const { register, handleSubmit, formState: { errors, isDirty }, reset, } = useForm<ReadingForm>({
+    const { register, control, handleSubmit, formState: { errors, isDirty }, reset, } = useForm<ReadingForm>({
         defaultValues: { date: "", readingValue: "" as unknown as number },
         mode: "onTouched",
     });
@@ -68,13 +69,21 @@ const ReadingFormContent: React.FC<ReadingFormProps> = ({ onHide, onSave, onDirt
     return (
         <Form onSubmit={handleSubmit(onSubmit)}>
             <Form.Group>
-                <FloatingFieldset label="Fecha">
-                    <Form.Control
-                        type="date"
-                        {...register("date", { required: "La fecha es obligatoria" })}
-                        isInvalid={!!errors.date}
-                    />
-                </FloatingFieldset>
+                <Controller
+                    name="date"
+                    control={control}
+                    rules={{ required: "La fecha es obligatoria" }}
+                    render={({ field }) => (
+                        <FloatingFieldset label="Fecha">
+                            <AppDatePicker
+                                value={field.value}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                isInvalid={!!errors.date}
+                            />
+                        </FloatingFieldset>
+                    )}
+                />
                 <Form.Control.Feedback type="invalid">
                     {errors.date?.message}
                 </Form.Control.Feedback>

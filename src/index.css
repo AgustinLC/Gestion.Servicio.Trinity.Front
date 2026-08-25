@@ -2421,3 +2421,104 @@ button:disabled,
     font-size: 0.85rem;
     flex-shrink: 0;
 }
+
+/* --- REACT-DATEPICKER: el calendario nativo (input type="date") no se
+   puede estilar más allá del propio input — el popup lo pinta el sistema
+   operativo. Se reemplaza por react-datepicker en los campos de fecha y se
+   sobreescribe acá su CSS por defecto para que combine con el resto del
+   sistema (bordes, radios, sombra, celeste de acento) en vez de quedar con
+   el look genérico de la librería. Un solo lugar para que cualquier campo
+   de fecha del sistema que migre a este componente salga ya estilado. */
+.react-datepicker {
+    font-family: inherit;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.react-datepicker__triangle {
+    display: none;
+}
+
+.react-datepicker-popper {
+    z-index: 1060;
+}
+
+.react-datepicker__header {
+    background-color: #f8fafc;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    padding: 0.5rem 0 0.4rem;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.875rem;
+}
+
+.react-datepicker__month {
+    margin: 0.4rem;
+}
+
+.react-datepicker__day-name {
+    color: #64748b;
+    font-weight: 500;
+    font-size: 0.8rem;
+    width: 1rem;
+    line-height: 1.75rem;
+    margin: 0.1rem;
+}
+
+.react-datepicker__day {
+    width: 1.75rem;
+    line-height: 1.75rem;
+    font-size: 0.85rem;
+    margin: 0.1rem;
+    border-radius: 50% !important;
+    transition: var(--transition-smooth);
+}
+
+.react-datepicker__day:hover {
+    background-color: rgba(0, 119, 255, 0.1);
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+    background-color: var(--bs-primary) !important;
+    color: #ffffff !important;
+}
+
+.react-datepicker__day--today:not(.react-datepicker__day--selected) {
+    font-weight: 700;
+    color: var(--bs-primary);
+}
+
+/* Oculta (sin descuadrar la grilla — visibility, no display) los días de
+   los meses anterior/siguiente que rellenan la primera y última semana:
+   solo quedan a la vista los del mes que se está mirando. */
+.react-datepicker__day--outside-month {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.react-datepicker__navigation-icon::before {
+    border-color: #64748b;
+    transition: var(--transition-smooth);
+}
+
+.react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+    border-color: var(--bs-primary);
+}
+
+.react-datepicker__close-icon {
+    padding-right: 0.75rem;
+}
+
+.react-datepicker__close-icon::after {
+    background-color: transparent;
+    color: #94a3b8;
+    font-size: 1.3rem;
+    line-height: 1;
+}

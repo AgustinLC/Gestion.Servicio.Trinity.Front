@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Button, Spinner, Form, Row, Col } from 'react-bootstrap';
+import { Button, Spinner, Row, Col } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../../config/axiosConfig';
 import { WebApiResponse } from '../../../core/models/types/WebApiResponse';
 import PageHeader from '../../../shared/components/PageHeader';
 import FormSectionHeader from '../../../shared/components/form-section-header/FormSectionHeader';
 import HintBox from '../../../shared/components/hint-box/HintBox';
+import AppDatePicker from '../../../shared/components/date-picker/AppDatePicker';
 
 const MONTH_NAMES = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -129,10 +130,9 @@ const BillUpdateExpirationPage = () => {
                                 <div className="fw-bold">Fecha del Período <span className="text-danger">*</span></div>
                             </div>
                             <div className="text-muted small mb-2">Seleccioná el período del cual querés modificar el vencimiento.</div>
-                            <Form.Control
-                                type="date"
+                            <AppDatePicker
                                 value={periodDate}
-                                onChange={(e) => setPeriodDate(e.target.value)}
+                                onChange={setPeriodDate}
                                 disabled={isLoading}
                             />
                             <HintBox className="mt-2">El sistema identificará automáticamente el período correspondiente.</HintBox>
@@ -146,11 +146,10 @@ const BillUpdateExpirationPage = () => {
                                 <div className="fw-bold">Nueva Fecha de Vencimiento <span className="text-danger">*</span></div>
                             </div>
                             <div className="text-muted small mb-2">Ingresá la nueva fecha de vencimiento para todas las facturas activas de este período.</div>
-                            <Form.Control
-                                type="date"
+                            <AppDatePicker
                                 value={newExpirationDate}
-                                onChange={(e) => setNewExpirationDate(e.target.value)}
-                                min={new Date().toISOString().split('T')[0]}
+                                onChange={setNewExpirationDate}
+                                minDate={new Date()}
                                 disabled={isLoading}
                             />
                             <HintBox className="mt-2">La nueva fecha debe ser igual o posterior a la fecha actual.</HintBox>
