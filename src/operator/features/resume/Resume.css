@@ -1,0 +1,904 @@
+/* Rediseño de Resumen — propuesta "2a: Flujo del período" (ver
+   design_handoff_resumen_1a/README.md, sección final). El ciclo operativo
+   Lecturas → Facturación → Cobranza es la columna vertebral de la pantalla;
+   cada cifra aparece una sola vez. Paleta y espaciados son los del handoff
+   (hi-fi, marcados como finales), no los tokens globales del resto del
+   sistema — de ahí las clases "rr-*" con sus propios colores.
+   La tarjeta de "Facturación" (donut + leyenda) se mantiene tal cual estaba
+   antes de este rediseño (pedido explícito), reutilizando sus clases
+   rr-billing-* y rr-donut-*. */
+
+.rr-shell {
+    background: #f2f5f9;
+    border: 1px solid #e3e8f0;
+    border-radius: 20px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.rr-card {
+    background: #ffffff;
+    border: 1px solid #e3e8f0;
+    border-radius: 16px;
+}
+
+.rr-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.rr-card-title-sub {
+    font-size: 13px;
+    color: #8b97a8;
+}
+
+.rr-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+
+.rr-badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.rr-badge-warning {
+    background: #fff4e5;
+    border-color: #ffe0b8;
+    color: #8a5206;
+}
+
+.rr-badge-warning .rr-badge-dot {
+    background: #e8890c;
+}
+
+.rr-badge-info {
+    background: #eef4ff;
+    border-color: #dbe6ff;
+    color: #0f6bff;
+}
+
+.rr-badge-info .rr-badge-dot {
+    background: #0f6bff;
+}
+
+.rr-badge-success {
+    background: #e9f8ef;
+    color: #0f6b3a;
+}
+
+.rr-badge-success .rr-badge-dot {
+    background: #18a957;
+}
+
+.rr-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition:
+        background-color 150ms ease-out,
+        border-color 150ms ease-out,
+        color 150ms ease-out,
+        opacity 150ms ease-out;
+}
+
+.rr-btn-primary {
+    background: #0f6bff;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.rr-btn-primary:hover {
+    background: #0a54cc;
+    color: #ffffff;
+}
+
+.rr-btn-secondary {
+    background: #ffffff;
+    border-color: #d7dee9;
+    color: #33415c;
+    font-weight: 500;
+}
+
+.rr-btn-secondary:hover {
+    border-color: #0f6bff;
+    color: #0f6bff;
+}
+
+.rr-btn-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.rr-legend {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.rr-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: #33415c;
+}
+
+.rr-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.rr-stack-track {
+    height: 8px;
+    border-radius: 999px;
+    overflow: hidden;
+    display: flex;
+    gap: 2px;
+    background: #edf1f7;
+}
+
+.rr-stack-seg {
+    height: 100%;
+}
+
+/* --- Header: PageHeader compartido + controles propios de esta pantalla
+   (chips informativos + selector de período) a la derecha, todo en una
+   sola fila con el selector al final. --- */
+.rr-header-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.rr-info-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: #e8eef7;
+    font-size: 12.5px;
+    color: #4a5a73;
+}
+
+/* --- Pipeline: "Estado del período" --- */
+.rr-pipeline-card {
+    padding: 26px 30px;
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    flex-wrap: wrap;
+}
+
+.rr-pipeline-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.rr-pipeline-title-text {
+    font-size: 17px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.rr-pipeline-steps {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    min-width: 280px;
+}
+
+.rr-pipeline-step {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 30px;
+    border-right: 1px solid #c6ceda;
+}
+
+.rr-pipeline-step:first-child {
+    padding-left: 0;
+}
+
+.rr-pipeline-step-last {
+    border-right: none;
+    padding-right: 0;
+}
+
+.rr-pipeline-step-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.rr-pipeline-step-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+    background: #edf1f7;
+    color: #8b97a8;
+}
+
+.rr-pipeline-step-name {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #8b97a8;
+}
+
+.rr-pipeline-step-active .rr-pipeline-step-circle,
+.rr-pipeline-step-done .rr-pipeline-step-circle {
+    background: #0f6bff;
+    color: #ffffff;
+}
+
+.rr-pipeline-step-active .rr-pipeline-step-name,
+.rr-pipeline-step-done .rr-pipeline-step-name {
+    color: #0f172a;
+}
+
+.rr-pipeline-step-track {
+    height: 6px;
+    border-radius: 999px;
+    background: #edf1f7;
+    overflow: hidden;
+}
+
+.rr-pipeline-step-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 400ms ease-out;
+}
+
+.rr-pipeline-step-caption {
+    font-size: 13px;
+    color: #5a6a80;
+}
+
+.rr-pipeline-cta {
+    flex-shrink: 0;
+    padding: 13px 22px;
+}
+
+/* --- Padrón: 3 tarjetas --- */
+.rr-padron-row {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr 1fr;
+    gap: 20px;
+}
+
+/* Sin pie ni divisoria: el destino ("Ver X") viaja como ícono en la misma
+   fila que el eyebrow. Toda la superficie de la card es clickeable, pero el
+   click real lo maneja el <a> (rr-padron-icon-link) vía un ::after que se
+   estira sobre toda la card — así el árbol de accesibilidad ve un solo
+   link con nombre corto en vez de leer toda la tarjeta como texto de link. */
+.rr-padron-card {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #e3e8f0;
+    border-radius: 16px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+    transition:
+        border-color 150ms ease-out,
+        box-shadow 150ms ease-out;
+}
+
+.rr-padron-card:hover {
+    border-color: #c9d8f2;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+}
+
+.rr-padron-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.rr-padron-eyebrow {
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #8b97a8;
+}
+
+.rr-padron-icon-link {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    background: #f1f4f9;
+    color: #5a6a80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.rr-padron-icon-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+}
+
+.rr-padron-icon-link:focus-visible::after {
+    outline: 2px solid #0f6bff;
+    outline-offset: 2px;
+}
+
+.rr-padron-figure {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.rr-padron-value {
+    font-size: 44px;
+    line-height: 1;
+    font-weight: 600;
+    color: #0f172a;
+    letter-spacing: -0.03em;
+}
+
+.rr-padron-sub {
+    font-size: 13px;
+    color: #5a6a80;
+    padding-bottom: 6px;
+}
+
+.rr-padron-note {
+    font-size: 13px;
+    color: #5a6a80;
+    line-height: 1.5;
+}
+
+.rr-padron-debt-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rr-padron-debt-track {
+    flex: 1;
+    height: 8px;
+    border-radius: 999px;
+    background: #fdecec;
+    overflow: hidden;
+}
+
+.rr-padron-debt-fill {
+    height: 100%;
+    background: #e5484d;
+    border-radius: 999px;
+}
+
+.rr-padron-debt-amount {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    white-space: nowrap;
+}
+
+/* Pill reutilizado para "Medidores faltantes" (mismo criterio que otras
+   tarjetas de estado: verde = ok, rojo = a resolver). */
+.rr-tile-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.rr-tile-pill-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.rr-tile-pill-success {
+    background: #e9f8ef;
+    color: #0f6b3a;
+}
+
+.rr-tile-pill-success .rr-tile-pill-dot {
+    background: #18a957;
+}
+
+.rr-tile-pill-danger {
+    background: #fdecec;
+    color: #e5484d;
+}
+
+.rr-tile-pill-danger .rr-tile-pill-dot {
+    background: #e5484d;
+}
+
+/* --- Fila de análisis: Usuarios por tarifa + Facturación --- */
+/* flex en vez de grid a propósito: con grid, el alto de esta fila no
+   quedaba siempre igual entre las dos cards en todos los estados de
+   Facturación (vacío/cargando/con datos) — flex + align-items:stretch (por
+   default) es el patrón clásico para "dos columnas, mismo alto siempre" y
+   se comporta de forma más predecible acá. */
+.rr-analysis-row {
+    display: flex;
+    align-items: stretch;
+    gap: 20px;
+}
+
+.rr-analysis-row > .rr-fee-card {
+    flex: 1.3 1 0%;
+    min-width: 0;
+}
+
+.rr-analysis-row > .rr-billing-card {
+    flex: 1 1 0%;
+    min-width: 0;
+}
+
+.rr-fee-card {
+    padding: 26px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.rr-fee-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.rr-fee-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.rr-fee-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 46px 44px;
+    align-items: center;
+    gap: 14px;
+}
+
+.rr-fee-label {
+    font-size: 14px;
+    color: #33415c;
+}
+
+.rr-fee-track {
+    height: 10px;
+    border-radius: 999px;
+    background: #edf1f7;
+    overflow: hidden;
+}
+
+.rr-fee-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 400ms ease-out;
+}
+
+.rr-fee-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    text-align: right;
+}
+
+.rr-fee-pct {
+    font-size: 13.5px;
+    color: #8b97a8;
+    text-align: right;
+}
+
+/* --- Facturación: variante "5a" (mismo cuerpo de la "4c" — dona + cajas
+   tintadas en ancho, dona chica + lista con divisor en angosto — pero sin
+   botón al pie: el destino "Gestionar facturas" sube a la cabecera como
+   ícono ↗, mismo patrón que las tres cards de Padrón/Medidores/Deuda, y la
+   card entera queda clickeable). El botón solo se conserva en el estado
+   vacío, donde no es navegación sino la acción que destraba el período. */
+.rr-billing-card {
+    position: relative;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.rr-billing-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.rr-billing-head-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rr-billing-period {
+    font-size: 13px;
+    color: #8b97a8;
+    white-space: nowrap;
+}
+
+.rr-billing-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 16px;
+}
+
+.rr-billing-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.rr-billing-narrow {
+    display: none;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Selector de período: vive en el header y controla tanto el pipeline
+   (pasos 2 y 3) como la card de Facturación — reskin del CustomSelect
+   compartido para que combine con los chips de esta maqueta. */
+.rr-header-period-select .custom-select-toggle {
+    padding: 7px 13px !important;
+    min-height: auto !important;
+    border-radius: 999px !important;
+    border: 1px solid #dbe6ff !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #0f172a !important;
+    background: #eef4ff !important;
+    box-shadow: none !important;
+}
+
+.rr-header-period-select .custom-select-toggle:hover,
+.rr-header-period-select .custom-select-toggle:focus,
+.rr-header-period-select .custom-select-toggle:active,
+.rr-header-period-select .custom-select-toggle.show {
+    border-color: #0f6bff !important;
+    background: #eef4ff !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+}
+
+/* Dona arriba (centrada), cajas de Pagas/Impagas abajo ocupando todo el
+   ancho de la card — si la dona queda al costado, las cajas se comprimen
+   en una columna angosta y pierden la proporción de la referencia. */
+.rr-donut-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+}
+
+.rr-donut {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.rr-donut-lg {
+    width: 150px;
+    height: 150px;
+    min-width: 150px;
+    min-height: 150px;
+}
+
+.rr-donut-sm {
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    min-height: 96px;
+}
+
+.rr-donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.rr-donut-center-lg {
+    width: 102px;
+    height: 102px;
+}
+
+.rr-donut-center-sm {
+    width: 66px;
+    height: 66px;
+}
+
+.rr-donut-pct {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.rr-donut-pct-lg {
+    font-size: 28px;
+    letter-spacing: -0.02em;
+}
+
+.rr-donut-pct-sm {
+    font-size: 20px;
+}
+
+.rr-donut-caption {
+    font-size: 11.5px;
+    color: #8b97a8;
+}
+
+.rr-billing-narrow .rr-donut-caption {
+    font-size: 10.5px;
+}
+
+/* Cajas de Pagas/Impagas: apiladas (una arriba de la otra), tintadas, con
+   borde propio, ocupando todo el ancho de la card (la dona ya no compite
+   por ese ancho — ver rr-donut-row). El monto por estado que pide el
+   diseño no está disponible en la API todavía — el porcentaje ocupa ese
+   lugar por ahora, no es un dato inventado. */
+.rr-billing-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.rr-billing-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    border-radius: 12px;
+}
+
+.rr-billing-stat-success {
+    background: #f0faf4;
+    border: 1px solid #d6f0e1;
+}
+
+.rr-billing-stat-danger {
+    background: #fef3f3;
+    border: 1px solid #fbdcdc;
+}
+
+.rr-billing-stat-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+/* La etiqueta ("Pagas"/"Impagas") va en gris neutro a propósito — el color
+   del estado queda solo en el punto y en el porcentaje, para no comunicar
+   el estado únicamente por color (ver Accesibilidad en el handoff). */
+.rr-billing-stat-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #33415c;
+}
+
+.rr-billing-legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.rr-billing-stat-pct {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rr-billing-stat-success .rr-billing-stat-pct {
+    color: #0f6b3a;
+}
+
+.rr-billing-stat-danger .rr-billing-stat-pct {
+    color: #c0353a;
+}
+
+.rr-billing-stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+}
+
+/* Variante angosta (<1000px): sin cajas tintadas, lista con divisor. */
+.rr-billing-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.rr-billing-list-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.rr-billing-list-label {
+    font-size: 13px;
+    color: #5a6a80;
+}
+
+.rr-billing-list-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-left: auto;
+}
+
+.rr-billing-divider {
+    height: 1px;
+    background: #edf1f7;
+}
+
+.rr-empty-billing {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 14px;
+    padding: 8px 0 12px;
+}
+
+.rr-empty-rule {
+    height: 6px;
+    width: 56px;
+    border-radius: 999px;
+    background: #e9edf4;
+}
+
+.rr-empty-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.rr-empty-body {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #5a6a80;
+}
+
+/* Responsive: 900–1199px todo a una columna salvo el padrón (según el
+   handoff de 1a, cuyas reglas siguen valiendo); <900px también colapsa el
+   padrón y el pipeline. */
+@media (max-width: 1199px) {
+    .rr-analysis-row {
+        flex-direction: column;
+    }
+
+    .rr-padron-row {
+        grid-template-columns: 1fr;
+    }
+
+    .rr-pipeline-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .rr-pipeline-steps {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .rr-pipeline-step {
+        border-right: none;
+        border-bottom: 1px solid #edf1f7;
+        padding: 0 0 16px !important;
+    }
+
+    .rr-pipeline-step-last {
+        border-bottom: none;
+        padding-bottom: 0 !important;
+    }
+
+    .rr-pipeline-cta {
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 899px) {
+    .rr-shell {
+        padding: 20px;
+    }
+
+    .rr-padron-value {
+        font-size: 34px;
+    }
+
+    .rr-fee-row {
+        grid-template-columns: 120px 1fr 40px 36px;
+    }
+
+    .rr-header-controls {
+        justify-content: flex-start;
+    }
+}
+
+/* Facturación angosta (<1000px, ver design_handoff_facturacion_4c): se cae
+   la dona grande + cajas tintadas por la dona chica + lista con divisor —
+   a este ancho el relleno de color de las cajas come el ancho útil. */
+@media (max-width: 999px) {
+    .rr-billing-card {
+        padding: 20px 22px;
+    }
+
+    .rr-billing-period {
+        font-size: 12.5px;
+    }
+
+    .rr-billing-period-actual {
+        display: none;
+    }
+
+    .rr-billing-wide {
+        display: none;
+    }
+
+    .rr-billing-narrow {
+        display: flex;
+    }
+}

@@ -160,7 +160,7 @@ const DashboardOperator: React.FC = () => {
                         <SidebarSubmenuItem
                             to="/dashboard/operator/bills/update-expiration"
                             icon="bi bi-calendar-event-fill"
-                            label="Actualizar Vencimiento"
+                            label="Vencimientos"
                             active={
                                 currentPath ===
                                 "/dashboard/operator/bills/update-expiration"
