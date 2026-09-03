@@ -388,6 +388,10 @@
     font-size: 13px;
     color: #5a6a80;
     line-height: 1.5;
+    /* Permite que un "\n" dentro del texto (ver Resume.tsx) se muestre como
+       salto de línea real — por defecto HTML colapsa saltos de línea igual
+       que cualquier otro espacio en blanco. */
+    white-space: pre-line;
 }
 
 .rr-padron-debt-row {
