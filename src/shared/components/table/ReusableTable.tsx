@@ -132,15 +132,49 @@ const ReusableTable = <T,>({
                     </tr>
                 </thead>
                 <tbody className="text-center align-middle">
-                    {paginatedData.map((row, rowIndex) => (
-                        <tr key={rowIndex} className={getRowClassName?.(row)}>
-                            {columns.map((column) => (
-                                <td key={String(column.key)}>
-                                    {renderCellContent(column, row)}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
+                    {paginatedData.map((row, rowIndex) => {
+                        // La última fila real de una página incompleta ya no es
+                        // ":last-child" del tbody (las filas de relleno quedan
+                        // después) y por eso ganaría un border-bottom que en una
+                        // página llena no tiene — un 1px de diferencia de alto
+                        // entre páginas. Esta clase replica ahí el mismo "sin
+                        // borde" que :last-child le da a la última fila real.
+                        const isLastVisibleRow = rowIndex === paginatedData.length - 1 && paginatedData.length < itemsPerPage;
+                        const rowClassName = [getRowClassName?.(row), isLastVisibleRow ? "reusable-table-last-visible-row" : undefined]
+                            .filter(Boolean)
+                            .join(" ") || undefined;
+                        return (
+                            <tr key={rowIndex} className={rowClassName}>
+                                {columns.map((column) => (
+                                    <td key={String(column.key)}>
+                                        {renderCellContent(column, row)}
+                                    </td>
+                                ))}
+                            </tr>
+                        );
+                    })}
+                    {/* Filas de relleno: en la última página (o cualquiera con
+                        menos resultados que itemsPerPage), completan hasta el
+                        mismo alto que una página llena — así el modal/tabla no
+                        "salta" de tamaño al cambiar de página. En vez de una
+                        celda vacía (que termina más baja que una fila real con
+                        botones/badges), se re-renderiza el contenido de la
+                        última fila real de la página y se lo oculta con
+                        visibility:hidden — así el alto queda idéntico al de
+                        una fila real de ESTA tabla, sin números mágicos ni
+                        depender de qué tan alto sea el contenido de cada
+                        columna en cada tabla distinta. */}
+                    {paginatedData.length > 0 &&
+                        Array.from({ length: Math.max(0, itemsPerPage - paginatedData.length) }).map((_, index) => {
+                            const templateRow = paginatedData[paginatedData.length - 1];
+                            return (
+                                <tr key={`filler-${index}`} className="reusable-table-filler-row" aria-hidden="true">
+                                    {columns.map((column) => (
+                                        <td key={String(column.key)}>{renderCellContent(column, templateRow)}</td>
+                                    ))}
+                                </tr>
+                            );
+                        })}
                 </tbody>
             </Table>
 

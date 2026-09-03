@@ -1921,15 +1921,23 @@ button:disabled,
     background: #fff;
 }
 
+/* La línea divisoria entre filas se pinta con box-shadow (no con
+   border-bottom): con border-collapse:collapse, un border SÍ ocupa espacio
+   de layout y su ancho se reparte entre la fila y su vecina de forma no
+   determinística cuando una tiene borde y la otra no (ver filas de
+   relleno más abajo) — eso generaba diferencias de hasta ~1px de alto
+   entre páginas. Un box-shadow es puramente visual, nunca afecta el alto
+   de la fila, así que todas miden exactamente lo mismo tengan o no línea. */
 .reusable-table td,
 .reusable-table th {
     border: none !important;
-    border-bottom: 1px solid #f1f5f9 !important;
+    box-shadow: inset 0 -1px 0 #f1f5f9 !important;
     vertical-align: middle !important;
 }
 
-.reusable-table tbody tr:last-child td {
-    border-bottom: none !important;
+.reusable-table tbody tr:last-child:not(.reusable-table-filler-row) td,
+.reusable-table tbody tr.reusable-table-last-visible-row td {
+    box-shadow: none !important;
 }
 
 /* Remarca filas con algún problema (ej. facturas sin usuario asociado en
@@ -1941,6 +1949,23 @@ button:disabled,
 
 .reusable-table tbody tr.table-row-danger:hover {
     background: #fee2e2;
+}
+
+/* Filas de relleno (completan la página hasta itemsPerPage para que la
+   tabla/modal no cambie de alto entre páginas): reutilizan el contenido de
+   la última fila real (ver ReusableTable.tsx) para heredar su alto exacto,
+   pero quedan invisibles e inertes con visibility:hidden — que además de
+   ocultar contenido, botones y borde, saca la fila del tab order sin
+   necesitar deshabilitar cada botón a mano. A propósito NO se les saca el
+   border-bottom (a diferencia de reusable-table-last-visible-row): sacarlo
+   reduce el alto real de la fila ~0.5px (el borde ocupa espacio aunque sea
+   invisible), y con varias filas de relleno eso se nota. Como
+   visibility:hidden ya oculta el borde igual, no hace falta tocarlo. */
+.reusable-table tbody tr.reusable-table-filler-row,
+.reusable-table tbody tr.reusable-table-filler-row:hover {
+    background: transparent !important;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 /* Tablas con edición inline (lecturas, descuentos y conceptos pendientes) */
