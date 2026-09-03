@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Spinner, Row, Col } from 'react-bootstrap';
+import { Button, Row, Col } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../../config/axiosConfig';
 import { WebApiResponse } from '../../../core/models/types/WebApiResponse';
@@ -7,6 +7,7 @@ import PageHeader from '../../../shared/components/PageHeader';
 import FormSectionHeader from '../../../shared/components/form-section-header/FormSectionHeader';
 import HintBox from '../../../shared/components/hint-box/HintBox';
 import AppDatePicker from '../../../shared/components/date-picker/AppDatePicker';
+import ConfirmModal from '../../../shared/components/confirm/ConfirmModal';
 
 const MONTH_NAMES = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -25,19 +26,31 @@ const getPeriodLabel = (dateStr: string): string | null => {
     return `${MONTH_NAMES[pairStart]} - ${MONTH_NAMES[pairStart + 1]}`;
 };
 
+// "dd/mm/aaaa" para mostrar la nueva fecha de vencimiento en el modal de
+// confirmación.
+const formatDisplayDate = (dateStr: string): string | null => {
+    if (!dateStr) return null;
+    const date = new Date(`${dateStr}T00:00:00`);
+    if (isNaN(date.getTime())) return null;
+    return date.toLocaleDateString('es-AR');
+};
+
 const BillUpdateExpirationPage = () => {
     // Estados
     const [periodDate, setPeriodDate] = useState<string>('');
     const [newExpirationDate, setNewExpirationDate] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
     const [updatedCount, setUpdatedCount] = useState<number | null>(null);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     // Validar formulario
     const isFormValid = periodDate !== '' && newExpirationDate !== '';
     const periodLabel = getPeriodLabel(periodDate);
 
-    // Manejar envío del formulario
-    const handleSubmit = async () => {
+    // El botón del formulario solo valida y abre el modal de confirmación;
+    // la actualización real ocurre en handleConfirmUpdate, disparada desde
+    // el ConfirmModal (mismo patrón que BillGeneratePage).
+    const handleSubmit = () => {
         if (!isFormValid) {
             toast.warning('Debe completar ambas fechas');
             return;
@@ -50,6 +63,13 @@ const BillUpdateExpirationPage = () => {
             return;
         }
 
+        setShowConfirmModal(true);
+    };
+
+    // Manejar la actualización una vez confirmada. El modal no se cierra
+    // (showConfirmModal solo pasa a false en el "finally") hasta que el
+    // endpoint responde, para no dar por hecho que terminó antes de tiempo.
+    const handleConfirmUpdate = async () => {
         setIsLoading(true);
         setUpdatedCount(null);
 
@@ -69,6 +89,7 @@ const BillUpdateExpirationPage = () => {
             toast.error(errorMessage);
         } finally {
             setIsLoading(false);
+            setShowConfirmModal(false);
         }
     };
 
@@ -178,17 +199,13 @@ const BillUpdateExpirationPage = () => {
                         <Button variant="outline-secondary" onClick={handleClear} disabled={isLoading}>
                             <i className="bi bi-x-circle me-1"></i> Limpiar
                         </Button>
+                        {/* Sin spinner propio: el ConfirmModal de abajo ya
+                            anima "Actualizando..." con este mismo estado
+                            mientras está abierto — tenerlo acá también se
+                            veía como dos cosas actualizando a la vez. Solo se
+                            deshabilita para evitar un segundo click. */}
                         <Button variant="primary" onClick={handleSubmit} disabled={isLoading || !isFormValid}>
-                            {isLoading ? (
-                                <>
-                                    <Spinner animation="border" size="sm" className="me-2" />
-                                    Actualizando...
-                                </>
-                            ) : (
-                                <>
-                                    <i className="bi bi-check-circle me-1"></i> Actualizar Vencimiento
-                                </>
-                            )}
+                            <i className="bi bi-check-circle me-1"></i> Actualizar Vencimiento
                         </Button>
                     </div>
                 </div>
@@ -214,6 +231,26 @@ const BillUpdateExpirationPage = () => {
                 </ul>
             </div>
             </div>
+
+            <ConfirmModal
+                show={showConfirmModal}
+                onHide={() => setShowConfirmModal(false)}
+                variant="warning"
+                title="¿Actualizar fecha de vencimiento?"
+                message={
+                    <>
+                        Vas a actualizar la fecha de vencimiento de <strong>todas las facturas activas</strong> del
+                        período <strong>{periodLabel}</strong>. La nueva fecha será{' '}
+                        <strong>{formatDisplayDate(newExpirationDate)}</strong>.
+                    </>
+                }
+                hint="Esta acción no elimina ni anula ninguna factura, solo modifica su vencimiento."
+                confirmText="Actualizar Vencimiento"
+                confirmIcon="bi bi-check-circle"
+                isLoading={isLoading}
+                loadingText="Actualizando..."
+                onConfirm={handleConfirmUpdate}
+            />
         </div>
     );
 };
