@@ -40,13 +40,22 @@ const TableSkeleton: React.FC<TableSkeletonProps> = ({ columns = 5, rows = 9, sh
                             <i className="bi bi-chevron-down small"></i>
                         </div>
 
-                        {/* Botón de "Limpiar filtros" (ver TableToolbar.tsx): mismo tamaño
-                            que el real, para que no salte el layout al terminar de cargar. */}
-                        <div className="skeleton" style={{ width: 38, height: 38, borderRadius: 8, flexShrink: 0 }}></div>
+                        {/* Botón de "Limpiar filtros" + acción principal, agrupados igual
+                            que en TableToolbar.tsx real (misma clase
+                            table-toolbar-reset-group, con su regla de
+                            display:contents en desktop): así, si el layout real
+                            vuelve a cambiar, el esqueleto lo sigue automáticamente
+                            en vez de quedar desincronizado de nuevo. */}
+                        <div className="table-toolbar-reset-group d-flex justify-content-between align-items-center gap-2">
+                            {/* Botón de "Limpiar filtros": mismo tamaño que el
+                                real, para que no salte el layout al terminar de
+                                cargar. */}
+                            <div className="skeleton" style={{ width: 38, height: 38, borderRadius: 8, flexShrink: 0 }}></div>
 
-                        {/* Botón de acción principal (ej: "Añadir Usuario") */}
-                        <div className="table-skeleton-primary-btn">
-                            <div className="skeleton skeleton-line skeleton-on-primary" style={{ width: 110, height: 12 }}></div>
+                            {/* Botón de acción principal (ej: "Añadir Usuario") */}
+                            <div className="table-skeleton-primary-btn">
+                                <div className="skeleton skeleton-line skeleton-on-primary" style={{ width: 110, height: 12 }}></div>
+                            </div>
                         </div>
                     </div>
                 </div>

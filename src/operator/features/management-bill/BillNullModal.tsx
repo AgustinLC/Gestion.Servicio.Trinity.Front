@@ -118,7 +118,7 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
     // Render
     return (
         <>
-            <Modal show={show} onHide={onHide} onClick={onBackdropClick(onHide)} size="xl" centered scrollable backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} dialogClassName="scrollable-modal-fix" contentClassName="form-modal-content" aria-labelledby="bill-null-modal-title">
+            <Modal show={show} onHide={onHide} onClick={onBackdropClick(onHide)} size="xl" centered scrollable backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} dialogClassName="scrollable-modal-fix table-mobile-scroll" contentClassName="form-modal-content" aria-labelledby="bill-null-modal-title">
                 <FormModalHeader
                     icon="bi bi-file-earmark-x"
                     title={`Facturas Anuladas - ${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
@@ -126,7 +126,7 @@ const BillNullModal: React.FC<BillNullModalProps> = ({ show, onHide, user }) => 
                     onClose={onHide}
                     titleId="bill-null-modal-title"
                 />
-                <Modal.Body className="overflow-visible">
+                <Modal.Body>
                     {/* Gateado en "show" para que al cerrar el body quede vacío
                         de inmediato en vez de seguir mostrando la tabla estática
                         durante el fade-out — mismo patrón que AddReadingModal

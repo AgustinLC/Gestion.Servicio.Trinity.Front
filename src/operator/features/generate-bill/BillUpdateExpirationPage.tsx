@@ -195,8 +195,8 @@ const BillUpdateExpirationPage = () => {
                         </div>
                     </div>
 
-                    <div className="d-flex justify-content-end gap-2 mt-4">
-                        <Button variant="outline-secondary" onClick={handleClear} disabled={isLoading}>
+                    <div className="d-flex flex-column flex-sm-row justify-content-sm-end gap-2 mt-4">
+                        <Button variant="outline-secondary" onClick={handleClear} disabled={isLoading} className="w-100-until-sm">
                             <i className="bi bi-x-circle me-1"></i> Limpiar
                         </Button>
                         {/* Sin spinner propio: el ConfirmModal de abajo ya
@@ -204,14 +204,14 @@ const BillUpdateExpirationPage = () => {
                             mientras está abierto — tenerlo acá también se
                             veía como dos cosas actualizando a la vez. Solo se
                             deshabilita para evitar un segundo click. */}
-                        <Button variant="primary" onClick={handleSubmit} disabled={isLoading || !isFormValid}>
+                        <Button variant="primary" onClick={handleSubmit} disabled={isLoading || !isFormValid} className="w-100-until-sm">
                             <i className="bi bi-check-circle me-1"></i> Actualizar Vencimiento
                         </Button>
                     </div>
                 </div>
             </div>
 
-            <div className="hint-box mt-3">
+            <div className="hint-box hint-box-info-list mt-3">
                 <div className="icon-badge">
                     <i className="bi bi-info-circle-fill"></i>
                 </div>

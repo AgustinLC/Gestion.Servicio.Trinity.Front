@@ -56,7 +56,9 @@ const TableToolbar: React.FC<TableToolbarProps> = ({
         onSearch("");
         setHasQuery(false);
         setSearchResetKey((key) => key + 1);
-        filters.forEach((filter) => filterState?.setFilterValue(filter.id, filter.defaultValue ?? ""));
+        filters.forEach((filter) =>
+            filterState?.setFilterValue(filter.id, filter.defaultValue ?? "")
+        );
     };
 
     return (
@@ -67,108 +69,148 @@ const TableToolbar: React.FC<TableToolbarProps> = ({
                     <InputGroup.Text>
                         <i className="bi bi-search"></i>
                     </InputGroup.Text>
-                    <SearchBar key={searchResetKey} onSearch={handleSearchChange} placeholder={searchPlaceholder} />
+                    <SearchBar
+                        key={searchResetKey}
+                        onSearch={handleSearchChange}
+                        placeholder={searchPlaceholder}
+                    />
                 </InputGroup>
 
                 {/* Filtros siempre visibles (uno por config) */}
-                {hasFilters && filters.map((filter) => {
-                    const value = filterState!.values[filter.id] ?? filter.defaultValue ?? "";
-                    const onChange = (nextValue: string) =>
-                        filterState!.setFilterValue(filter.id, nextValue);
+                {hasFilters &&
+                    filters.map((filter) => {
+                        const value =
+                            filterState!.values[filter.id] ??
+                            filter.defaultValue ??
+                            "";
+                        const onChange = (nextValue: string) =>
+                            filterState!.setFilterValue(filter.id, nextValue);
 
-                    if (filter.type === "custom" && filter.render) {
+                        if (filter.type === "custom" && filter.render) {
+                            return (
+                                <div
+                                    key={filter.id}
+                                    className="table-toolbar-filter-control"
+                                    style={{
+                                        maxWidth: filter.maxWidth ?? "260px",
+                                    }}
+                                >
+                                    {filter.render({ value, onChange })}
+                                </div>
+                            );
+                        }
+
+                        const iconClass =
+                            filter.icon ?? DEFAULT_FILTER_ICONS[filter.id];
+
+                        if (filter.type === "number") {
+                            return (
+                                <InputGroup
+                                    key={filter.id}
+                                    className="table-toolbar-filter-group"
+                                    style={{
+                                        maxWidth: filter.maxWidth ?? "260px",
+                                    }}
+                                >
+                                    {iconClass && (
+                                        <InputGroup.Text>
+                                            <i className={iconClass}></i>
+                                        </InputGroup.Text>
+                                    )}
+                                    <Form.Control
+                                        type="number"
+                                        min={filter.min ?? 0}
+                                        max={filter.max}
+                                        placeholder={
+                                            filter.placeholder ?? filter.label
+                                        }
+                                        value={value}
+                                        onChange={(event) => {
+                                            if (
+                                                isNegativeInput(
+                                                    event.target.value
+                                                )
+                                            )
+                                                return;
+                                            onChange(event.target.value);
+                                        }}
+                                        aria-label={filter.label}
+                                    />
+                                </InputGroup>
+                            );
+                        }
+
                         return (
                             <div
                                 key={filter.id}
                                 className="table-toolbar-filter-control"
                                 style={{ maxWidth: filter.maxWidth ?? "260px" }}
                             >
-                                {filter.render({ value, onChange })}
+                                <CustomSelect
+                                    icon={iconClass}
+                                    value={value}
+                                    onChange={onChange}
+                                    placeholder={
+                                        filter.emptyLabel ??
+                                        `Seleccionar ${filter.label}...`
+                                    }
+                                    aria-label={filter.label}
+                                    options={
+                                        // Solo se agrega la opción "vacía" a la lista cuando el
+                                        // filtro define un defaultValue real (ej: "ALL" para
+                                        // "Todos los períodos" en DebtControlPage): ahí "Todos"
+                                        // es una opción elegible más, no un simple placeholder.
+                                        // Si no hay defaultValue, no se pre-selecciona nada: el
+                                        // placeholder de arriba ya indica qué elegir.
+                                        filter.defaultValue !== undefined
+                                            ? [
+                                                  {
+                                                      value: filter.defaultValue,
+                                                      label:
+                                                          filter.emptyLabel ??
+                                                          `Seleccionar ${filter.label}...`,
+                                                  },
+                                                  ...(filter.options ?? []),
+                                              ]
+                                            : (filter.options ?? [])
+                                    }
+                                />
                             </div>
                         );
-                    }
+                    })}
 
-                    const iconClass = filter.icon ?? DEFAULT_FILTER_ICONS[filter.id];
+                {/* Botón de limpiar + acciones: en mobile van agrupados en su
+                    propia fila (uno pegado al otro, ver .table-toolbar-reset-group
+                    en index.css) porque como flex items sueltos del contenedor
+                    en flex-column quedaban apilados uno debajo del otro. En
+                    desktop (lg+) ese agrupamiento se deshace con
+                    display:contents — el div "desaparece" como caja y sus
+                    hijos vuelven a ser flex items directos de la fila
+                    principal, así el botón de limpiar queda pegado a los
+                    filtros (como antes) y solo el de acciones se empuja
+                    al extremo derecho con ms-lg-auto. */}
+                <div className="table-toolbar-reset-group d-flex justify-content-between align-items-center gap-2">
+                    {/* Limpia búsqueda + todos los filtros de un click. Deshabilitado
+                        si no hay nada aplicado: además de la señal visual, evita
+                        el click "inofensivo pero inútil". */}
+                    <button
+                        type="button"
+                        className="table-toolbar-reset-btn"
+                        onClick={handleResetFilters}
+                        disabled={!canReset}
+                        title="Limpiar filtros"
+                        aria-label="Limpiar filtros"
+                    >
+                        <i className="bi bi-arrow-clockwise"></i>
+                    </button>
 
-                    if (filter.type === "number") {
-                        return (
-                            <InputGroup
-                                key={filter.id}
-                                className="table-toolbar-filter-group"
-                                style={{ maxWidth: filter.maxWidth ?? "260px" }}
-                            >
-                                {iconClass && (
-                                    <InputGroup.Text>
-                                        <i className={iconClass}></i>
-                                    </InputGroup.Text>
-                                )}
-                                <Form.Control
-                                    type="number"
-                                    min={filter.min ?? 0}
-                                    max={filter.max}
-                                    placeholder={filter.placeholder ?? filter.label}
-                                    value={value}
-                                    onChange={(event) => {
-                                        if (isNegativeInput(event.target.value)) return;
-                                        onChange(event.target.value);
-                                    }}
-                                    aria-label={filter.label}
-                                />
-                            </InputGroup>
-                        );
-                    }
-
-                    return (
-                        <div
-                            key={filter.id}
-                            className="table-toolbar-filter-control"
-                            style={{ maxWidth: filter.maxWidth ?? "260px" }}
-                        >
-                            <CustomSelect
-                                icon={iconClass}
-                                value={value}
-                                onChange={onChange}
-                                placeholder={filter.emptyLabel ?? `Seleccionar ${filter.label}...`}
-                                aria-label={filter.label}
-                                options={
-                                    // Solo se agrega la opción "vacía" a la lista cuando el
-                                    // filtro define un defaultValue real (ej: "ALL" para
-                                    // "Todos los períodos" en DebtControlPage): ahí "Todos"
-                                    // es una opción elegible más, no un simple placeholder.
-                                    // Si no hay defaultValue, no se pre-selecciona nada: el
-                                    // placeholder de arriba ya indica qué elegir.
-                                    filter.defaultValue !== undefined
-                                        ? [
-                                            { value: filter.defaultValue, label: filter.emptyLabel ?? `Seleccionar ${filter.label}...` },
-                                            ...(filter.options ?? []),
-                                        ]
-                                        : (filter.options ?? [])
-                                }
-                            />
+                    {/* Acciones (botones de la derecha, ej: "Nuevo Usuario") */}
+                    {children && (
+                        <div className="table-toolbar-actions d-flex flex-wrap align-items-center gap-2 ms-lg-auto">
+                            {children}
                         </div>
-                    );
-                })}
-
-                {/* Limpia búsqueda + todos los filtros de un click. Deshabilitado
-                    si no hay nada aplicado: además de la señal visual, evita
-                    el click "inofensivo pero inútil". */}
-                <button
-                    type="button"
-                    className="table-toolbar-reset-btn"
-                    onClick={handleResetFilters}
-                    disabled={!canReset}
-                    title="Limpiar filtros"
-                    aria-label="Limpiar filtros"
-                >
-                    <i className="bi bi-arrow-clockwise"></i>
-                </button>
-
-                {/* Acciones (botones de la derecha, ej: "Nuevo Usuario") */}
-                {children && (
-                    <div className="table-toolbar-actions d-flex flex-wrap align-items-center gap-2 ms-lg-auto">
-                        {children}
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );

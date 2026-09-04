@@ -204,12 +204,15 @@ const UserPersonalData: React.FC = () => {
                 </Form.Group>
 
 
-                {/* Contenedor para los botones */}
-                <div className="d-flex gap-3 mb-3">
+                {/* Contenedor para los botones. Apilados a ancho completo hasta
+                    sm: lado a lado en mobile el texto envolvía a 2 líneas
+                    dentro de cada botón. */}
+                <div className="d-flex flex-column flex-sm-row gap-3 mb-3">
                     {/* Botón para mostrar campos de contraseña */}
                     <Button
                         variant="secondary"
                         onClick={() => setShowPasswordFields(!showPasswordFields)}
+                        className="w-100-until-sm"
                     >
                         Cambiar Contraseña
                     </Button>
@@ -219,6 +222,7 @@ const UserPersonalData: React.FC = () => {
                         variant="primary"
                         onClick={handleUpdateUser}
                         disabled={loading}
+                        className="w-100-until-sm"
                     >
                         Guardar Cambios
                     </Button>

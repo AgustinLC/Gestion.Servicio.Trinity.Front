@@ -1185,14 +1185,21 @@ button:disabled,
 }
 
 /* El botón principal conserva el color real (celeste): no sabemos su ícono
-   ni texto todavía, pero sí que siempre es la acción primaria de la barra. */
+   ni texto todavía, pero sí que siempre es la acción primaria de la barra.
+   Ancho de contenido (flex:0 1 auto), NO 100%/flex:1 (que lo estiraba a
+   ocupar todo el resto de la fila): el botón real ("Añadir Usuario") es
+   compacto, no se estira, así que el esqueleto debe reflejar ese mismo
+   tamaño — ver .table-toolbar-reset-group en TableSkeleton.tsx, cuyo
+   justify-content-between ya lo empuja a la derecha del botón de limpiar
+   sin necesidad de que crezca. min-width:0 solo por seguridad, para que
+   pueda achicarse en vez de desbordar si un día no entrara. */
 .table-skeleton-primary-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    flex: 0 1 auto;
+    min-width: 0;
     height: 38px;
-    flex-shrink: 0;
     padding: 0 1.25rem;
     border-radius: 10px;
     background: var(--bs-primary);
@@ -1214,6 +1221,7 @@ button:disabled,
     }
 
     .table-skeleton-primary-btn {
+        flex: 0 0 auto;
         width: auto;
         margin-left: auto;
     }
@@ -1324,6 +1332,24 @@ button:disabled,
     min-width: 180px;
 }
 
+/* Cada filtro trae un maxWidth inline (ver TableToolbar.tsx, 260px por
+   defecto) pensado para no ensancharlo de más en la fila de desktop — pero
+   ese mismo tope inline le ganaba al width:100% de acá en mobile (el estilo
+   inline siempre gana por sobre la hoja de estilos), dejando los filtros más
+   angostos que el buscador. A su vez .search-bar-group tiene su propio
+   max-width:380px fijo (ver más abajo) que en pantallas medianas (más
+   anchas que 380px pero por debajo de lg, donde el toolbar sigue apilado en
+   columna) lo dejaba más CORTO que los filtros ya destopados — incoherente
+   en la dirección contraria. Por debajo de lg se anulan los dos topes para
+   que los tres midan exactamente lo mismo, sea cual sea el ancho. */
+@media (max-width: 991.98px) {
+    .table-toolbar-filter-control,
+    .table-toolbar-filter-group,
+    .search-bar-group {
+        max-width: none !important;
+    }
+}
+
 /* Limpia búsqueda + filtros del toolbar de un click (ver TableToolbar.tsx).
    Mismo lenguaje visual que .row-actions-edit (botón cuadrado con borde
    suave), pero es una clase propia: conceptualmente es una acción del
@@ -1353,6 +1379,24 @@ button:disabled,
 .table-toolbar-reset-btn:disabled {
     opacity: 0.45;
     cursor: not-allowed;
+}
+
+/* Agrupa el botón de limpiar con las acciones (ej. "Añadir Usuario") en su
+   propia fila solo en mobile — ver TableToolbar.tsx. Desde lg, el grupo se
+   "disuelve" con display:contents: el div deja de generar caja propia y sus
+   dos hijos pasan a ser flex items directos de .table-toolbar-main, así el
+   botón de limpiar queda pegado a los filtros (flujo normal) y solo
+   .table-toolbar-actions (con su propio ms-lg-auto) se empuja al extremo
+   derecho — el layout de desktop que había antes de agrupar para mobile.
+   Necesita !important: el div trae la utilidad d-flex de Bootstrap, que
+   define display:flex !important — sin importar acá, ese !important le
+   ganaba a este display:contents (quedaba siempre en flex, agrupado
+   también en desktop, con el botón de acciones atrapado sin espacio libre
+   dentro de esa cajita en vez de en la fila principal). */
+@media (min-width: 992px) {
+    .table-toolbar-reset-group {
+        display: contents !important;
+    }
 }
 
 .search-bar-input {
@@ -1558,41 +1602,38 @@ button:disabled,
     max-width: 95vw;
 }
 
-/* Con la prop "scrollable" de react-bootstrap, .modal-content también tiene
-   su propio overflow:hidden (además del de .modal-body), para poder pinnear
-   header/footer mientras el body scrollea. Eso corta el menú de acciones
-   (RowActions) de la última fila de la tabla, igual que pasaba con .card.
-   Mismo fix puntual que .filter-card/.chart-card: se libera acá también.
-   Ver Modal.Body className="overflow-visible" en el componente. */
-.scrollable-modal-fix .modal-content {
-    overflow: visible !important;
-}
+/* Antes .modal-content (con la prop "scrollable" de react-bootstrap, que le
+   agrega su propio overflow:hidden para poder pinnear header/footer
+   mientras el body scrollea) y el className="overflow-visible" del propio
+   Modal.Body se liberaban acá a propósito, para no cortar el menú de
+   RowActions de la última fila. Ya no hace falta (ver comentario de
+   .table-responsive más abajo: el posicionamiento default de Popper, sin
+   popperConfig propio, ya calcula bien el offset y no lo corta) — y
+   dejarlo liberado tenía un costo real: sin el overflow:hidden/auto de
+   .modal-content/.modal-body, el contenido más alto que el modal se
+   desbordaba por abajo hacia la página en vez de scrollear adentro (ver
+   BillActiveModal/BillNullModal, que además ya sacaron el
+   className="overflow-visible" de su Modal.Body). */
 
-/* Encontrado el verdadero responsable del corte: ReusableTable usa <Table
-   responsive>, que envuelve la tabla en .table-responsive con
-   overflow-x:auto. Por la regla del spec de CSS "si un eje está en visible
-   y el otro no, el visible pasa a comportarse como auto", el overflow-y
-   (que nunca se toca, queda en su valor inicial "visible") termina
-   comportándose igual que auto y recorta el menú de RowActions/CustomSelect
-   verticalmente en la última fila. Hace falta liberar los dos ejes
-   explícitamente, así que esta tabla puntual pierde su scroll horizontal
-   de respaldo dentro de estos modales — el trade-off es aceptado acá porque
-   no hay forma de tener "un eje auto y el otro visible" en el mismo
-   elemento (ver .table-mobile-scroll más abajo para las tablas que sí
-   necesitan ese scroll y pueden vivir sin RowActions/CustomSelect
-   arriesgando el corte). */
+/* Antes esta tabla puntual perdía su scroll horizontal por completo dentro
+   de estos modales, para no cortar el menú de RowActions/CustomSelect de la
+   última fila contra el overflow del contenedor. Verificado con capturas
+   reales (primera fila, última fila, con flip hacia arriba cuando no entra
+   abajo): el posicionamiento default de Popper (sin popperConfig propio, ver
+   RowActions.tsx/CustomSelect.tsx) ya calcula bien el offset dentro de
+   .table-responsive y no lo corta, así que agregar además
+   "table-mobile-scroll" en dialogClassName (ver más abajo) es seguro incluso
+   con esos menús — BillActiveModal/BillNullModal ya lo hacen. Esta regla
+   queda solo como fallback para algún modal que use "scrollable-modal-fix"
+   sin sumar también "table-mobile-scroll". */
 .scrollable-modal-fix .table-responsive {
     overflow: visible !important;
 }
 
-/* Para las tablas con edición inline angostas (lecturas, descuentos,
-   conceptos pendientes de un usuario) que si necesitan poder scrollear
-   horizontalmente en mobile en vez de desbordarse afuera de la card del
-   modal (ver UserReadingModal/ShowDiscountUserModal/UserParameterModal) —
-   agregar ADEMÁS de "scrollable-modal-fix" en dialogClassName. No usar en
-   tablas con RowActions (menú de 3 puntos) o con un CustomSelect que se
-   pueda abrir en cualquier fila en todo momento (ej. BillActiveModal,
-   BillNullModal): ahí gana la prioridad de arriba, que no corta esos menús. */
+/* Scroll horizontal real de la tabla dentro del modal (en vez de
+   desbordarse afuera de la card) — sumar junto con "scrollable-modal-fix"
+   en dialogClassName. Ver comentario de arriba: ya es seguro combinarla con
+   tablas que usan RowActions o CustomSelect por fila. */
 .table-mobile-scroll .table-responsive {
     overflow-x: auto !important;
     overflow-y: auto !important;
@@ -1641,6 +1682,29 @@ button:disabled,
 
 .modal.fade {
     transition: none !important;
+}
+
+/* Bootstrap anima la apertura/cierre del modal deslizando .modal-dialog
+   (.modal.fade .modal-dialog{transform:translate(0,-50px)} ->
+   .modal.show .modal-dialog{transform:none}). Mientras esa transición no
+   termine de resolver a "none" — con interacciones rápidas (reabrir antes
+   de que cierre del todo, doble click, etc.) a veces queda pisada a mitad
+   de camino — un transform activo convierte a .modal-dialog en el
+   "containing block" de cualquier hijo position:fixed. Eso incluye los
+   Dropdown.Menu de RowActions/CustomSelect (ver popperConfig
+   strategy:"fixed" en esos componentes): en vez de posicionarse relativo al
+   viewport como corresponde, quedan relativos al modal, apareciendo lejos
+   del botón que los abrió — el bug intermitente reportado ("a veces
+   aparece en una posición diferente"), reproducido a propósito forzando el
+   transform con JS y confirmado con las coordenadas exactas antes de este
+   fix. Se desactiva el transform de entrada/salida (no la opacidad, que
+   sigue animando via .shared-modal-backdrop) para que .modal-dialog nunca
+   pueda quedar en ese estado intermedio — se sacrifica el pequeño
+   deslizamiento de apertura a cambio de que el bug no pueda volver a
+   pasar, sea cual sea la velocidad con la que se interactúe. */
+.modal-dialog {
+    transition: none !important;
+    transform: none !important;
 }
 
 .form-modal-header {
@@ -1785,6 +1849,17 @@ button:disabled,
 
 .hint-box-warning i {
     color: #d97706;
+}
+
+/* Variante para el único uso de .hint-box con 3 hijos (ícono + título +
+   lista larga, ver BillUpdateExpirationPage) en vez del ícono+texto simple
+   de una línea para el que .hint-box fue pensado: sin wrap, en mobile el
+   título (min-width:150) y la lista se apretujaban todos en la misma fila.
+   align-items:flex-start además evita que el ícono quede centrado contra
+   toda la altura de la lista larga. */
+.hint-box-info-list {
+    flex-wrap: wrap;
+    align-items: flex-start;
 }
 
 /* Franja final tipo "nota destacada" que cubre TODO el ancho de una card
@@ -2090,6 +2165,21 @@ button:disabled,
     height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+/* El padding horizontal de acá arriba solo tiene sentido mientras las dos
+   columnas conviven lado a lado (para que el ícono+título de cada una
+   arranque a la misma altura, ver el comentario de arriba) — por debajo de
+   md (donde .row > Col md={6} las apila en una sola columna, ver
+   AddEditUserModal.tsx) esas dos columnas ya no compiten por alinearse
+   entre sí, así que ese inset queda sin motivo y solo desalinea los campos
+   de "Configuración"/"Estado del usuario" respecto a los del resto del
+   formulario (Nombre, Calle, etc., que no pasan por .form-section-panel). */
+@media (max-width: 767.98px) {
+    .form-section-panel {
+        padding-left: 0;
+        padding-right: 0;
+    }
 }
 
 /* Envuelve el contenido de un .form-section-panel que sea más corto que su
@@ -2546,4 +2636,16 @@ button:disabled,
     color: #94a3b8;
     font-size: 1.3rem;
     line-height: 1;
+}
+
+/* --- UTILIDADES RESPONSIVE COMPARTIDAS --- */
+/* Bootstrap solo trae w-25/50/75/100/auto sin variante responsive; esta
+   completa el hueco para el caso típico de "dos botones de acción que en
+   desktop van lado a lado con ancho de contenido, pero en mobile apilados
+   necesitan ancho completo para no verse angostos/con texto envuelto".
+   Usar junto con d-flex flex-column flex-sm-row en el contenedor. */
+@media (max-width: 575.98px) {
+    .w-100-until-sm {
+        width: 100% !important;
+    }
 }

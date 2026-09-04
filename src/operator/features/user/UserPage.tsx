@@ -33,27 +33,51 @@ import { withFullName } from "../../../core/utils/userUtils";
 type UserRow = UserDto & { fullName: string };
 
 const UserPage = () => {
-
     //Estados
     const [showModal, setShowModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
-    const [userToResetPassword, setUserToResetPassword] = useState<UserDto | null>(null);
+    const [userToResetPassword, setUserToResetPassword] =
+        useState<UserDto | null>(null);
     const [isResettingPassword, setIsResettingPassword] = useState(false);
-    const [statusChangeRequest, setStatusChangeRequest] = useState<{ user: UserDto; nextStatus: Status } | null>(null);
+    const [statusChangeRequest, setStatusChangeRequest] = useState<{
+        user: UserDto;
+        nextStatus: Status;
+    } | null>(null);
     const [isChangingStatus, setIsChangingStatus] = useState(false);
     const [billsUser, setBillsUser] = useState<UserDto | null>(null);
     const [showBillActiveModal, setShowBillActiveModal] = useState(false);
-    const { operatorUsers, locations, fees, loading, error, refreshOperatorUsers, refreshOperatorActiveUsers } = useAppData();
+    const {
+        operatorUsers,
+        locations,
+        fees,
+        loading,
+        error,
+        refreshOperatorUsers,
+        refreshOperatorActiveUsers,
+    } = useAppData();
 
     // Estadísticas para la cabecera
     const totalUsers = operatorUsers.length;
-    const activeUsers = operatorUsers.filter(u => u.status === "ACTIVE").length;
-    const inactiveUsers = operatorUsers.filter(u => u.status === "INACTIVE").length;
-    const suspendedUsers = operatorUsers.filter(u => u.status === "SUSPENDED").length;
+    const activeUsers = operatorUsers.filter(
+        (u) => u.status === "ACTIVE"
+    ).length;
+    const inactiveUsers = operatorUsers.filter(
+        (u) => u.status === "INACTIVE"
+    ).length;
+    const suspendedUsers = operatorUsers.filter(
+        (u) => u.status === "SUSPENDED"
+    ).length;
 
     // Calles únicas para el filtro
     const uniqueStreets = useMemo(
-        () => Array.from(new Set(operatorUsers.map(u => u.residenceDto?.street).filter(Boolean))) as string[],
+        () =>
+            Array.from(
+                new Set(
+                    operatorUsers
+                        .map((u) => u.residenceDto?.street)
+                        .filter(Boolean)
+                )
+            ) as string[],
         [operatorUsers]
     );
 
@@ -64,9 +88,18 @@ const UserPage = () => {
                 id: "street",
                 label: "Calle",
                 type: "custom" as const,
-                render: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
+                render: ({
+                    value,
+                    onChange,
+                }: {
+                    value: string;
+                    onChange: (value: string) => void;
+                }) => (
                     <AutocompleteFilter
-                        options={uniqueStreets.map((street) => ({ value: street, label: street }))}
+                        options={uniqueStreets.map((street) => ({
+                            value: street,
+                            label: street,
+                        }))}
                         value={value}
                         onChange={onChange}
                         placeholder="Todas las calles"
@@ -78,7 +111,13 @@ const UserPage = () => {
                 id: "status",
                 label: "Estado",
                 type: "custom" as const,
-                render: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
+                render: ({
+                    value,
+                    onChange,
+                }: {
+                    value: string;
+                    onChange: (value: string) => void;
+                }) => (
                     <DotDropdown
                         options={STATUS_OPTIONS}
                         value={value}
@@ -96,7 +135,10 @@ const UserPage = () => {
     // Se agrega el nombre y apellido concatenados para poder listarlos en una sola columna
     // y para que el buscador encuentre coincidencias sin importar si se busca por
     // nombre, apellido o ambos juntos.
-    const usersWithFullName = useMemo(() => withFullName(operatorUsers), [operatorUsers]);
+    const usersWithFullName = useMemo(
+        () => withFullName(operatorUsers),
+        [operatorUsers]
+    );
 
     // Hook para buscar por columnas
     const { filteredData, handleSearch } = useSearch<UserRow>(
@@ -144,14 +186,19 @@ const UserPage = () => {
         const { user, nextStatus } = statusChangeRequest;
         setIsChangingStatus(true);
         try {
-            await updateData("/user/update?idUser", user.idUser, { ...user, status: nextStatus });
+            await updateData("/user/update?idUser", user.idUser, {
+                ...user,
+                status: nextStatus,
+            });
             toast.success(STATUS_ACTION_SUCCESS_MESSAGE[nextStatus]);
             await refreshOperatorUsers();
             await refreshOperatorActiveUsers();
             setStatusChangeRequest(null);
         } catch (error: any) {
             console.error(error);
-            toast.error(error.message || "Error al cambiar el estado del usuario");
+            toast.error(
+                error.message || "Error al cambiar el estado del usuario"
+            );
         } finally {
             setIsChangingStatus(false);
         }
@@ -167,7 +214,11 @@ const UserPage = () => {
         if (!userToResetPassword) return;
         setIsResettingPassword(true);
         try {
-            await updateData("/user/change-password?idUser", userToResetPassword.idUser, newPassword);
+            await updateData(
+                "/user/change-password?idUser",
+                userToResetPassword.idUser,
+                newPassword
+            );
             toast.success("Contraseña restablecida exitosamente");
             setUserToResetPassword(null);
         } catch (error: any) {
@@ -186,15 +237,26 @@ const UserPage = () => {
             label: "Nombre y Apellido",
             sortable: false,
             render: (row) => {
-                const avatarColor = getAvatarColor(`${row.firstName ?? ""}${row.lastName ?? ""}${row.idUser ?? ""}`);
+                const avatarColor = getAvatarColor(
+                    `${row.firstName ?? ""}${row.lastName ?? ""}${row.idUser ?? ""}`
+                );
                 return (
                     <div className="d-flex align-items-center gap-3">
-                        <div className="row-avatar" style={{ backgroundColor: avatarColor.bg, color: avatarColor.color }}>
-                            {(row.firstName?.[0] || "") + (row.lastName?.[0] || "")}
+                        <div
+                            className="row-avatar"
+                            style={{
+                                backgroundColor: avatarColor.bg,
+                                color: avatarColor.color,
+                            }}
+                        >
+                            {(row.firstName?.[0] || "") +
+                                (row.lastName?.[0] || "")}
                         </div>
                         <div className="text-start">
                             <div>{row.fullName}</div>
-                            <div className="text-muted small">{row.residenceDto?.street ?? ""}</div>
+                            <div className="text-muted small">
+                                {row.residenceDto?.street ?? ""}
+                            </div>
                         </div>
                     </div>
                 );
@@ -202,25 +264,41 @@ const UserPage = () => {
         },
         { key: "dni", label: "DNI", sortable: false },
         { key: "phone", label: "Teléfono", sortable: false },
-        { key: "status", label: "Estado", sortable: false, render: (row) => (
-            <span className={`badge-soft ${STATUS_BADGE_CLASS[row.status]}`}>
-                {statusLabels[row.status] || row.status}
-            </span>
-        ) },
         {
-            key: "actions", label: "Acciones", actions: (row: UserRow) => (
+            key: "status",
+            label: "Estado",
+            sortable: false,
+            render: (row) => (
+                <span
+                    className={`badge-soft ${STATUS_BADGE_CLASS[row.status]}`}
+                >
+                    {statusLabels[row.status] || row.status}
+                </span>
+            ),
+        },
+        {
+            key: "actions",
+            label: "Acciones",
+            actions: (row: UserRow) => (
                 <RowActions
                     editTitle="Editar usuario"
-                    onEdit={() => { setSelectedUser(row); setShowModal(true); }}
+                    onEdit={() => {
+                        setSelectedUser(row);
+                        setShowModal(true);
+                    }}
                     items={[
-                        ...STATUS_TRANSITION_ORDER
-                            .filter((status) => status !== row.status)
-                            .map((status) => ({
-                                label: STATUS_ACTION_CONFIG[status].label,
-                                icon: STATUS_ACTION_CONFIG[status].icon,
-                                color: STATUS_ACTION_CONFIG[status].color,
-                                onClick: () => setStatusChangeRequest({ user: row, nextStatus: status }),
-                            })),
+                        ...STATUS_TRANSITION_ORDER.filter(
+                            (status) => status !== row.status
+                        ).map((status) => ({
+                            label: STATUS_ACTION_CONFIG[status].label,
+                            icon: STATUS_ACTION_CONFIG[status].icon,
+                            color: STATUS_ACTION_CONFIG[status].color,
+                            onClick: () =>
+                                setStatusChangeRequest({
+                                    user: row,
+                                    nextStatus: status,
+                                }),
+                        })),
                         {
                             label: "Restablecer contraseña",
                             icon: "bi bi-key",
@@ -229,7 +307,10 @@ const UserPage = () => {
                         {
                             label: "Ver facturas",
                             icon: "bi bi-receipt",
-                            onClick: () => { setBillsUser(row); setShowBillActiveModal(true); },
+                            onClick: () => {
+                                setBillsUser(row);
+                                setShowBillActiveModal(true);
+                            },
                         },
                     ]}
                 />
@@ -243,12 +324,6 @@ const UserPage = () => {
                 title="Usuarios"
                 subtitle="Gestiona altas, modificaciones y estados de los usuarios."
                 icon="bi bi-people-fill"
-                stats={[
-                    { label: "Total usuarios", value: <>{totalUsers}</>, icon: "bi bi-people-fill", iconBg: "rgba(0, 119, 255, 0.1)", iconColor: "#0077ff" },
-                    { label: "Activos", value: <>{activeUsers}</>, icon: "bi bi-check-circle-fill", iconBg: "#dcfce7", iconColor: "#16a34a" },
-                    { label: "Suspendidos", value: <>{suspendedUsers}</>, icon: "bi bi-slash-circle-fill", iconBg: "#ffedd5", iconColor: "#ea580c" },
-                    { label: "Inactivos", value: <>{inactiveUsers}</>, icon: "bi bi-x-circle-fill", iconBg: "#f1f5f9", iconColor: "#64748b" },
-                ]}
             />
             {loading ? (
                 <TableSkeleton />
@@ -261,7 +336,12 @@ const UserPage = () => {
                         filters={filterConfigs}
                         filterState={filterState}
                     >
-                        <Button onClick={() => { setSelectedUser(null); setShowModal(true); }}>
+                        <Button
+                            onClick={() => {
+                                setSelectedUser(null);
+                                setShowModal(true);
+                            }}
+                        >
                             Añadir Usuario
                         </Button>
                     </TableToolbar>
@@ -301,31 +381,46 @@ const UserPage = () => {
                         Variant/ícono por estado destino vienen de STATUS_ACTION_CONFIG, así
                         que quedan consistentes con el resto del sistema (success/warning/neutral)
                         en vez de un modal a medida solo para este caso. */}
-                    {statusChangeRequest && (() => {
-                        const config = STATUS_ACTION_CONFIG[statusChangeRequest.nextStatus];
-                        const statusLabel = STATUS_OPTIONS.find((o) => o.value === statusChangeRequest.nextStatus)?.label ?? statusChangeRequest.nextStatus;
-                        const userName = `${statusChangeRequest.user.firstName} ${statusChangeRequest.user.lastName}`;
-                        return (
-                            <ConfirmModal
-                                show={!!statusChangeRequest}
-                                onHide={() => setStatusChangeRequest(null)}
-                                variant={config.modalVariant}
-                                icon={config.modalIcon}
-                                title="Cambiar estado del usuario"
-                                message={
-                                    <>
-                                        ¿Cambiar el estado de <strong>{userName}</strong> a "
-                                        <strong style={{ color: config.color }}>{statusLabel}</strong>"?
-                                    </>
-                                }
-                                confirmText={config.actionLabel}
-                                confirmIcon={`bi ${config.badgeIcon}`}
-                                isLoading={isChangingStatus}
-                                loadingText="Guardando..."
-                                onConfirm={handleConfirmChangeStatus}
-                            />
-                        );
-                    })()}
+                    {statusChangeRequest &&
+                        (() => {
+                            const config =
+                                STATUS_ACTION_CONFIG[
+                                    statusChangeRequest.nextStatus
+                                ];
+                            const statusLabel =
+                                STATUS_OPTIONS.find(
+                                    (o) =>
+                                        o.value ===
+                                        statusChangeRequest.nextStatus
+                                )?.label ?? statusChangeRequest.nextStatus;
+                            const userName = `${statusChangeRequest.user.firstName} ${statusChangeRequest.user.lastName}`;
+                            return (
+                                <ConfirmModal
+                                    show={!!statusChangeRequest}
+                                    onHide={() => setStatusChangeRequest(null)}
+                                    variant={config.modalVariant}
+                                    icon={config.modalIcon}
+                                    title="Cambiar estado del usuario"
+                                    message={
+                                        <>
+                                            ¿Cambiar el estado de{" "}
+                                            <strong>{userName}</strong> a "
+                                            <strong
+                                                style={{ color: config.color }}
+                                            >
+                                                {statusLabel}
+                                            </strong>
+                                            "?
+                                        </>
+                                    }
+                                    confirmText={config.actionLabel}
+                                    confirmIcon={`bi ${config.badgeIcon}`}
+                                    isLoading={isChangingStatus}
+                                    loadingText="Guardando..."
+                                    onConfirm={handleConfirmChangeStatus}
+                                />
+                            );
+                        })()}
 
                     {/* Facturas del usuario, acceso rápido desde el menú de la fila */}
                     <BillActiveModal

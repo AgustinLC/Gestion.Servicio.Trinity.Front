@@ -471,14 +471,19 @@ const BillGenerateFilteredPage = () => {
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Row>
-                                        <Col xs={6}>
+                                        {/* xs=12/sm=6 en vez de xs=6 fijo: con las dos etiquetas
+                                            ("Total Mínimo"/"Total Máximo") apretadas a la mitad
+                                            de un Col que YA es la mitad de la fila, en mobile
+                                            quedaban truncadas ("Total Mini..."). Apiladas hasta
+                                            sm se leen completas. */}
+                                        <Col xs={12} sm={6}>
                                             <Form.Group>
                                                 <FloatingFieldset label="Total Mínimo">
                                                     <Form.Control type="number" name="minTotal" min={0} value={filters.minTotal} onChange={handleChange} />
                                                 </FloatingFieldset>
                                             </Form.Group>
                                         </Col>
-                                        <Col xs={6}>
+                                        <Col xs={12} sm={6}>
                                             <Form.Group>
                                                 <FloatingFieldset label="Total Máximo">
                                                     <Form.Control type="number" name="maxTotal" min={0} value={filters.maxTotal} onChange={handleChange} />
@@ -531,12 +536,14 @@ const BillGenerateFilteredPage = () => {
                         </Col>
                     </Row>
 
-                    {/* Botones de acción */}
-                    <div className="d-flex gap-3 justify-content-end mt-3">
-                        <Button variant="outline-secondary" onClick={handleClearFilters} disabled={isLoading} className="px-4 py-2" style={{ borderRadius: '10px' }}>
+                    {/* Botones de acción. Apilados y a ancho completo hasta sm: dos
+                        botones de texto largo lado a lado no entraban en mobile y el
+                        texto envolvía a dos líneas dentro del botón. */}
+                    <div className="d-flex flex-column flex-sm-row gap-3 justify-content-sm-end mt-3">
+                        <Button variant="outline-secondary" onClick={handleClearFilters} disabled={isLoading} className="px-4 py-2 w-100-until-sm" style={{ borderRadius: '10px' }}>
                             <i className="bi bi-arrow-counterclockwise me-1"></i> Reiniciar Filtros
                         </Button>
-                        <Button variant="primary" onClick={handleSubmit} disabled={isLoading} className="px-4 py-2" style={{ borderRadius: '10px' }}>
+                        <Button variant="primary" onClick={handleSubmit} disabled={isLoading} className="px-4 py-2 w-100-until-sm" style={{ borderRadius: '10px' }}>
                             {isLoading ? (
                                 <>
                                     <Spinner animation="border" size="sm" className="me-2" />

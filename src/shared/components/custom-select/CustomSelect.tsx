@@ -84,7 +84,12 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
             </Dropdown.Toggle>
             {/* flip habilitado (Popper por defecto): si no entra abajo (selector
                 cerca del borde inferior, pantalla chica/zoom alto), abre para
-                arriba en vez de cortarse contra el viewport. */}
+                arriba en vez de cortarse contra el viewport. Ver el comentario
+                de RowActions.tsx: se probó strategy:"fixed" acá también, pero
+                se revirtió por la misma razón (rompía la posición dentro de
+                modales por el transform de apertura/cierre de .modal-dialog,
+                ya neutralizado en index.css). El default "absolute" posiciona
+                bien tanto en tablas sueltas como dentro de modales. */}
             <Dropdown.Menu>
                 {options.map((option) => (
                     <Dropdown.Item

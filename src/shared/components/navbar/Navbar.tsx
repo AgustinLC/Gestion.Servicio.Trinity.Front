@@ -84,9 +84,20 @@ const Navbar: React.FC = () => {
                 <i className="bi bi-list fs-4"></i>
               </button>
             )}
-            <a className="navbar-brand d-flex align-items-center gap-2" href="#">
+            {/* Todo el link de marca (gota + texto) oculto por debajo de sm,
+                no solo sus hijos: un <a> con d-flex pero con AMBOS hijos en
+                d-none igual sigue en el DOM y sigue ocupando su propio
+                padding/margin de Bootstrap (.navbar-brand), como una caja
+                vacía "fantasma" — hay que sacar el <a> completo, no vaciarlo.
+                Si no entran la marca completa + los íconos de la derecha en
+                una sola fila, Bootstrap los pasa a una segunda línea (bug
+                reportado); por debajo de sm la marca queda reducida al botón
+                de menú nada más, para maximizar el espacio disponible del
+                lado derecho — se prioriza que nunca ocurra el bug por sobre
+                mantener la gota visible en mobile. */}
+            <a className="navbar-brand d-none d-sm-flex align-items-center gap-2" href="#">
               <img src={logo} alt="Logo" className="navbar-brand-icon" width="36" height="36" />
-              <span className="navbar-brand-text d-none d-sm-flex flex-column">
+              <span className="navbar-brand-text d-flex flex-column">
                 <span className="navbar-brand-title">Consorcio</span>
                 <span className="navbar-brand-subtitle">Gestión de Agua</span>
               </span>
