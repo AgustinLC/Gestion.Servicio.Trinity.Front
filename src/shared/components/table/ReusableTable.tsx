@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { Table } from "react-bootstrap";
-import { ReusableTableProps, TableColumnDefinition } from "../../../core/models/types/TableTypes";
+import {
+    ReusableTableProps,
+    TableColumnDefinition,
+} from "../../../core/models/types/TableTypes";
 import CustomSelect from "../custom-select/CustomSelect";
 import TableEmptyState from "../table-empty-state/TableEmptyState";
 import React from "react";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 30];
+const SMALL_DATASET_PAGE_SIZE = 5;
 
 const ReusableTable = <T,>({
     data,
@@ -21,22 +25,36 @@ const ReusableTable = <T,>({
 }: ReusableTableProps<T>) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(defaultPageSize);
-    const [sortField, setSortField] = useState<keyof T | undefined>(defaultSort);
-    const [sortDirection, setSortDirection] = useState<"asc" | "desc">(defaultSortDirection);
+    const [sortField, setSortField] = useState<keyof T | undefined>(
+        defaultSort
+    );
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
+        defaultSortDirection
+    );
+    const [userSetPageSize, setUserSetPageSize] = useState(false);
 
     const totalItems = data.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const rangeStart = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+    const rangeStart =
+        totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
     const rangeEnd = Math.min(currentPage * itemsPerPage, totalItems);
 
-    // Si el tamaño de página o un filtro externo reducen totalPages por debajo
-    // de la página en la que estábamos parados, la reacomoda para no mostrar
-    // una página vacía.
     useEffect(() => {
         if (totalPages > 0 && currentPage > totalPages) {
             setCurrentPage(totalPages);
         }
     }, [totalPages, currentPage]);
+
+    useEffect(() => {
+        if (userSetPageSize || totalItems === 0) return;
+        const nextSize =
+            totalItems <= SMALL_DATASET_PAGE_SIZE
+                ? SMALL_DATASET_PAGE_SIZE
+                : defaultPageSize;
+        setItemsPerPage((current) =>
+            current === nextSize ? current : nextSize
+        );
+    }, [totalItems, userSetPageSize, defaultPageSize]);
 
     // Ordenar los datos
     const sortedData = [...data].sort((a, b) => {
@@ -44,7 +62,9 @@ const ReusableTable = <T,>({
         const aValue = a[sortField];
         const bValue = b[sortField];
         if (typeof aValue === "string" && typeof bValue === "string") {
-            return sortDirection === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+            return sortDirection === "asc"
+                ? aValue.localeCompare(bValue)
+                : bValue.localeCompare(aValue);
         }
         if (typeof aValue === "number" && typeof bValue === "number") {
             return sortDirection === "desc" ? aValue - bValue : bValue - aValue;
@@ -65,6 +85,7 @@ const ReusableTable = <T,>({
 
     // Funcion para cambiar la cantidad de resultados por página
     const handlePageSizeChange = (size: number) => {
+        setUserSetPageSize(true);
         setItemsPerPage(size);
         setCurrentPage(1);
     };
@@ -94,12 +115,20 @@ const ReusableTable = <T,>({
     if (!data || data.length === 0) {
         return (
             <div className="reusable-table-card">
-                <TableEmptyState icon={emptyIcon} title={emptyTitle} message={emptyMessage} />
+                <TableEmptyState
+                    icon={emptyIcon}
+                    title={emptyTitle}
+                    message={emptyMessage}
+                />
             </div>
         );
     }
     if (!columns || columns.length === 0) {
-        return <div className="reusable-table-card text-muted p-4">No hay columnas definidas.</div>;
+        return (
+            <div className="reusable-table-card text-muted p-4">
+                No hay columnas definidas.
+            </div>
+        );
     }
 
     return (
@@ -112,18 +141,35 @@ const ReusableTable = <T,>({
                                 className="align-middle"
                                 key={String(column.key)}
                                 onClick={() =>
-                                    "sortable" in column && column.sortable && handleSort(column.key as keyof T)
+                                    "sortable" in column &&
+                                    column.sortable &&
+                                    handleSort(column.key as keyof T)
                                 }
-                                style={{ cursor: "sortable" in column && column.sortable ? "pointer" : "default" }}
-                                aria-sort={sortField === column.key ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                                style={{
+                                    cursor:
+                                        "sortable" in column && column.sortable
+                                            ? "pointer"
+                                            : "default",
+                                }}
+                                aria-sort={
+                                    sortField === column.key
+                                        ? sortDirection === "asc"
+                                            ? "ascending"
+                                            : "descending"
+                                        : "none"
+                                }
                             >
                                 <div className="header-content">
-                                    <span className="header-text">{column.label}</span>
+                                    <span className="header-text">
+                                        {column.label}
+                                    </span>
                                     {"sortable" in column &&
                                         column.sortable &&
                                         sortField === column.key && (
                                             <span className="sort-arrow">
-                                                {sortDirection === "asc" ? "▲" : "▼"}
+                                                {sortDirection === "asc"
+                                                    ? "▲"
+                                                    : "▼"}
                                             </span>
                                         )}
                                 </div>
@@ -133,16 +179,18 @@ const ReusableTable = <T,>({
                 </thead>
                 <tbody className="text-center align-middle">
                     {paginatedData.map((row, rowIndex) => {
-                        // La última fila real de una página incompleta ya no es
-                        // ":last-child" del tbody (las filas de relleno quedan
-                        // después) y por eso ganaría un border-bottom que en una
-                        // página llena no tiene — un 1px de diferencia de alto
-                        // entre páginas. Esta clase replica ahí el mismo "sin
-                        // borde" que :last-child le da a la última fila real.
-                        const isLastVisibleRow = rowIndex === paginatedData.length - 1 && paginatedData.length < itemsPerPage;
-                        const rowClassName = [getRowClassName?.(row), isLastVisibleRow ? "reusable-table-last-visible-row" : undefined]
-                            .filter(Boolean)
-                            .join(" ") || undefined;
+                        const isLastVisibleRow =
+                            rowIndex === paginatedData.length - 1 &&
+                            paginatedData.length < itemsPerPage;
+                        const rowClassName =
+                            [
+                                getRowClassName?.(row),
+                                isLastVisibleRow
+                                    ? "reusable-table-last-visible-row"
+                                    : undefined,
+                            ]
+                                .filter(Boolean)
+                                .join(" ") || undefined;
                         return (
                             <tr key={rowIndex} className={rowClassName}>
                                 {columns.map((column) => (
@@ -153,24 +201,28 @@ const ReusableTable = <T,>({
                             </tr>
                         );
                     })}
-                    {/* Filas de relleno: en la última página (o cualquiera con
-                        menos resultados que itemsPerPage), completan hasta el
-                        mismo alto que una página llena — así el modal/tabla no
-                        "salta" de tamaño al cambiar de página. En vez de una
-                        celda vacía (que termina más baja que una fila real con
-                        botones/badges), se re-renderiza el contenido de la
-                        última fila real de la página y se lo oculta con
-                        visibility:hidden — así el alto queda idéntico al de
-                        una fila real de ESTA tabla, sin números mágicos ni
-                        depender de qué tan alto sea el contenido de cada
-                        columna en cada tabla distinta. */}
                     {paginatedData.length > 0 &&
-                        Array.from({ length: Math.max(0, itemsPerPage - paginatedData.length) }).map((_, index) => {
-                            const templateRow = paginatedData[paginatedData.length - 1];
+                        Array.from({
+                            length: Math.max(
+                                0,
+                                itemsPerPage - paginatedData.length
+                            ),
+                        }).map((_, index) => {
+                            const templateRow =
+                                paginatedData[paginatedData.length - 1];
                             return (
-                                <tr key={`filler-${index}`} className="reusable-table-filler-row" aria-hidden="true">
+                                <tr
+                                    key={`filler-${index}`}
+                                    className="reusable-table-filler-row"
+                                    aria-hidden="true"
+                                >
                                     {columns.map((column) => (
-                                        <td key={String(column.key)}>{renderCellContent(column, templateRow)}</td>
+                                        <td key={String(column.key)}>
+                                            {renderCellContent(
+                                                column,
+                                                templateRow
+                                            )}
+                                        </td>
                                     ))}
                                 </tr>
                             );
@@ -182,7 +234,8 @@ const ReusableTable = <T,>({
             <div className="reusable-table-footer d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mt-2">
                 <div className="reusable-table-count text-muted small d-flex align-items-center gap-2">
                     <i className="bi bi-list-ul"></i>
-                    Mostrando {rangeStart} a {rangeEnd} de {totalItems} resultados
+                    Mostrando {rangeStart} a {rangeEnd} de {totalItems}{" "}
+                    resultados
                 </div>
 
                 <div className="table-pagination d-flex align-items-center gap-1 flex-wrap justify-content-center">
@@ -200,8 +253,14 @@ const ReusableTable = <T,>({
                         const visiblePages = 5; // cantidad de botones visibles
                         const pages = [];
 
-                        let start = Math.max(1, currentPage - Math.floor(visiblePages / 2));
-                        const end = Math.min(totalPages, start + visiblePages - 1);
+                        let start = Math.max(
+                            1,
+                            currentPage - Math.floor(visiblePages / 2)
+                        );
+                        const end = Math.min(
+                            totalPages,
+                            start + visiblePages - 1
+                        );
 
                         if (end - start < visiblePages - 1) {
                             start = Math.max(1, end - visiblePages + 1);
@@ -210,13 +269,23 @@ const ReusableTable = <T,>({
                         // Mostrar primer botón y puntos suspensivos
                         if (start > 1) {
                             pages.push(
-                                <button key={1} type="button" className="table-pagination-item" onClick={() => handlePageChange(1)}>
+                                <button
+                                    key={1}
+                                    type="button"
+                                    className="table-pagination-item"
+                                    onClick={() => handlePageChange(1)}
+                                >
                                     1
                                 </button>
                             );
                             if (start > 2) {
                                 pages.push(
-                                    <span key="start-ellipsis" className="table-pagination-ellipsis">…</span>
+                                    <span
+                                        key="start-ellipsis"
+                                        className="table-pagination-ellipsis"
+                                    >
+                                        …
+                                    </span>
                                 );
                             }
                         }
@@ -229,7 +298,9 @@ const ReusableTable = <T,>({
                                     type="button"
                                     className={`table-pagination-item${i === currentPage ? " active" : ""}`}
                                     onClick={() => handlePageChange(i)}
-                                    aria-current={i === currentPage ? "page" : undefined}
+                                    aria-current={
+                                        i === currentPage ? "page" : undefined
+                                    }
                                 >
                                     {i}
                                 </button>
@@ -240,7 +311,12 @@ const ReusableTable = <T,>({
                         if (end < totalPages) {
                             if (end < totalPages - 1) {
                                 pages.push(
-                                    <span key="end-ellipsis" className="table-pagination-ellipsis">…</span>
+                                    <span
+                                        key="end-ellipsis"
+                                        className="table-pagination-ellipsis"
+                                    >
+                                        …
+                                    </span>
                                 );
                             }
                             pages.push(
@@ -276,7 +352,10 @@ const ReusableTable = <T,>({
                         value={String(itemsPerPage)}
                         onChange={(v) => handlePageSizeChange(Number(v))}
                         aria-label="Resultados por página"
-                        options={PAGE_SIZE_OPTIONS.map((size) => ({ value: String(size), label: `${size} por página` }))}
+                        options={PAGE_SIZE_OPTIONS.map((size) => ({
+                            value: String(size),
+                            label: `${size} por página`,
+                        }))}
                     />
                 )}
             </div>
@@ -284,4 +363,6 @@ const ReusableTable = <T,>({
     );
 };
 
-export default React.memo(ReusableTable) as <T>(props: ReusableTableProps<T>) => JSX.Element;
+export default React.memo(ReusableTable) as <T>(
+    props: ReusableTableProps<T>
+) => JSX.Element;
