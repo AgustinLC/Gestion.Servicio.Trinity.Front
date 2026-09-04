@@ -204,9 +204,8 @@ const UserPersonalData: React.FC = () => {
                 </Form.Group>
 
 
-                {/* Contenedor para los botones. Apilados a ancho completo hasta
-                    sm: lado a lado en mobile el texto envolvía a 2 líneas
-                    dentro de cada botón. */}
+                {/* Apilados a ancho completo hasta sm: lado a lado el texto
+                    envolvía a 2 líneas. */}
                 <div className="d-flex flex-column flex-sm-row gap-3 mb-3">
                     {/* Botón para mostrar campos de contraseña */}
                     <Button

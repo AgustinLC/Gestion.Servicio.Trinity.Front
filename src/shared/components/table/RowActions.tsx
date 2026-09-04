@@ -34,23 +34,11 @@ const RowActions: React.FC<RowActionsProps> = ({ onEdit, editTitle = "Editar", i
                     <Dropdown.Toggle as="button" className="row-actions-menu" id={menuId}>
                         <i className="bi bi-three-dots-vertical"></i>
                     </Dropdown.Toggle>
-                    {/* flip habilitado (Popper por defecto): si no entra abajo
-                        (última fila de la tabla), abre para arriba en vez de
-                        cortarse contra el borde del contenedor. Sin
-                        popperConfig propio a propósito: se probó
-                        strategy:"fixed" pensando que "absolute" calculaba mal
-                        el offset dentro de .table-responsive, pero esa
-                        conclusión salió de clicks de prueba sobre botones que
-                        en realidad estaban fuera de pantalla (sin scrollear
-                        antes) — "absolute" (el default) posiciona bien tanto
-                        en tablas sueltas como dentro de modales, verificado
-                        con capturas reales. "fixed" en cambio rompía la
-                        posición dentro de un modal, porque .modal-dialog
-                        puede tener temporalmente un transform activo (la
-                        animación de apertura/cierre) que lo convierte en el
-                        "containing block" de cualquier hijo position:fixed —
-                        ver .modal-dialog en index.css, que ahora neutraliza
-                        ese transform por la misma razón. */}
+                    {/* Sin popperConfig propio a propósito: el default
+                        ("absolute") posiciona bien tanto en tablas sueltas
+                        como en modales. strategy:"fixed" se probó y se
+                        revirtió — rompía la posición dentro de modales (ver
+                        .modal-dialog en index.css). */}
                     <Dropdown.Menu>
                         {items.map((item, idx) => (
                             <Dropdown.Item

@@ -40,12 +40,8 @@ const TableSkeleton: React.FC<TableSkeletonProps> = ({ columns = 5, rows = 9, sh
                             <i className="bi bi-chevron-down small"></i>
                         </div>
 
-                        {/* Botón de "Limpiar filtros" + acción principal, agrupados igual
-                            que en TableToolbar.tsx real (misma clase
-                            table-toolbar-reset-group, con su regla de
-                            display:contents en desktop): así, si el layout real
-                            vuelve a cambiar, el esqueleto lo sigue automáticamente
-                            en vez de quedar desincronizado de nuevo. */}
+                        {/* Misma clase que el toolbar real (table-toolbar-reset-group),
+                            para que el esqueleto siga el layout real sin duplicar reglas. */}
                         <div className="table-toolbar-reset-group d-flex justify-content-between align-items-center gap-2">
                             {/* Botón de "Limpiar filtros": mismo tamaño que el
                                 real, para que no salte el layout al terminar de

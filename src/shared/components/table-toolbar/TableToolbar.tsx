@@ -179,16 +179,10 @@ const TableToolbar: React.FC<TableToolbarProps> = ({
                         );
                     })}
 
-                {/* Botón de limpiar + acciones: en mobile van agrupados en su
-                    propia fila (uno pegado al otro, ver .table-toolbar-reset-group
-                    en index.css) porque como flex items sueltos del contenedor
-                    en flex-column quedaban apilados uno debajo del otro. En
-                    desktop (lg+) ese agrupamiento se deshace con
-                    display:contents — el div "desaparece" como caja y sus
-                    hijos vuelven a ser flex items directos de la fila
-                    principal, así el botón de limpiar queda pegado a los
-                    filtros (como antes) y solo el de acciones se empuja
-                    al extremo derecho con ms-lg-auto. */}
+                {/* Limpiar + acciones agrupados en mobile (ver
+                    .table-toolbar-reset-group en index.css); en desktop el
+                    grupo se "disuelve" con display:contents y cada uno
+                    vuelve a su posición normal. */}
                 <div className="table-toolbar-reset-group d-flex justify-content-between align-items-center gap-2">
                     {/* Limpia búsqueda + todos los filtros de un click. Deshabilitado
                         si no hay nada aplicado: además de la señal visual, evita

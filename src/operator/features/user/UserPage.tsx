@@ -56,18 +56,6 @@ const UserPage = () => {
         refreshOperatorActiveUsers,
     } = useAppData();
 
-    // Estadísticas para la cabecera
-    const totalUsers = operatorUsers.length;
-    const activeUsers = operatorUsers.filter(
-        (u) => u.status === "ACTIVE"
-    ).length;
-    const inactiveUsers = operatorUsers.filter(
-        (u) => u.status === "INACTIVE"
-    ).length;
-    const suspendedUsers = operatorUsers.filter(
-        (u) => u.status === "SUSPENDED"
-    ).length;
-
     // Calles únicas para el filtro
     const uniqueStreets = useMemo(
         () =>
