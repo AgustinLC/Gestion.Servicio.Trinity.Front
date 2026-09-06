@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { ResumeDto } from "../../../core/models/dto/ResumeDto";
 import { getData } from "../../../core/services/apiService";
 import { PeriodSelectorDto } from "../../../core/models/dto/PeriodSelectorDto";
@@ -8,6 +7,7 @@ import { BillCountsDto } from "../../../core/models/dto/BillCountDto";
 import { UserDebtDto } from "../../../core/models/dto/UserDebtDto";
 import { ReadingMatrixDto } from "../../../core/models/dto/ReadingMatrixDto";
 import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
+import RoundedDonutChart from "../../../shared/components/rounded-donut/RoundedDonutChart";
 import PageHeader from "../../../shared/components/PageHeader";
 import "./Resume.css";
 
@@ -961,40 +961,13 @@ const Resume = () => {
                                         <div className="rr-billing-main rr-billing-wide">
                                             <div className="rr-donut-row">
                                                 <div className="rr-donut rr-donut-lg">
-                                                    <ResponsiveContainer
-                                                        width={150}
-                                                        height={150}
-                                                    >
-                                                        <PieChart>
-                                                            <Pie
-                                                                data={
-                                                                    invoicesData
-                                                                }
-                                                                dataKey="value"
-                                                                nameKey="name"
-                                                                cx="50%"
-                                                                cy="50%"
-                                                                innerRadius={47}
-                                                                outerRadius={72}
-                                                                paddingAngle={3}
-                                                                cornerRadius={7}
-                                                                stroke="none"
-                                                            >
-                                                                {invoicesData.map(
-                                                                    (entry) => (
-                                                                        <Cell
-                                                                            key={
-                                                                                entry.name
-                                                                            }
-                                                                            fill={
-                                                                                entry.color
-                                                                            }
-                                                                        />
-                                                                    )
-                                                                )}
-                                                            </Pie>
-                                                        </PieChart>
-                                                    </ResponsiveContainer>
+                                                    <RoundedDonutChart
+                                                        data={invoicesData}
+                                                        size={150}
+                                                        innerRadius={47}
+                                                        outerRadius={72}
+                                                        cornerRadius={7}
+                                                    />
                                                     <div className="rr-donut-center rr-donut-center-lg">
                                                         <div className="rr-donut-pct rr-donut-pct-lg">
                                                             {pagasPct}%
@@ -1056,38 +1029,13 @@ const Resume = () => {
                                         {/* <1000px: dona chica + lista con divisor */}
                                         <div className="rr-billing-narrow">
                                             <div className="rr-donut rr-donut-sm">
-                                                <ResponsiveContainer
-                                                    width={96}
-                                                    height={96}
-                                                >
-                                                    <PieChart>
-                                                        <Pie
-                                                            data={invoicesData}
-                                                            dataKey="value"
-                                                            nameKey="name"
-                                                            cx="50%"
-                                                            cy="50%"
-                                                            innerRadius={32}
-                                                            outerRadius={48}
-                                                            paddingAngle={3}
-                                                            cornerRadius={5}
-                                                            stroke="none"
-                                                        >
-                                                            {invoicesData.map(
-                                                                (entry) => (
-                                                                    <Cell
-                                                                        key={
-                                                                            entry.name
-                                                                        }
-                                                                        fill={
-                                                                            entry.color
-                                                                        }
-                                                                    />
-                                                                )
-                                                            )}
-                                                        </Pie>
-                                                    </PieChart>
-                                                </ResponsiveContainer>
+                                                <RoundedDonutChart
+                                                    data={invoicesData}
+                                                    size={96}
+                                                    innerRadius={32}
+                                                    outerRadius={48}
+                                                    cornerRadius={5}
+                                                />
                                                 <div className="rr-donut-center rr-donut-center-sm">
                                                     <div className="rr-donut-pct rr-donut-pct-sm">
                                                         {pagasPct}%
