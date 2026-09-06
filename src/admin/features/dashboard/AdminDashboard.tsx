@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useSidebar } from "../../../context/SidebarContext";
-import {
-    SidebarSubmenuGroup,
-    SidebarSubmenuItem,
-} from "../../../shared/components/sidebar-submenu/SidebarSubmenu";
+import { SidebarSubmenuGroup, SidebarSubmenuItem } from "../../../shared/components/sidebar-submenu/SidebarSubmenu";
 import logo from "../../../assets/img/logoNavbar.svg";
 import "./AdminDashboard.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -16,11 +13,7 @@ const AdminDashboard: React.FC = () => {
     const location = useLocation();
     const currentPath = location.pathname;
 
-    const isWebSection = [
-        "/dashboard/admin/faq",
-        "/dashboard/admin/functions",
-        "/dashboard/admin/data-main",
-    ].some((path) => currentPath === path);
+    const isWebSection = ["/dashboard/admin/faq", "/dashboard/admin/functions", "/dashboard/admin/data-main"].some((path) => currentPath === path);
 
     // Expande automáticamente el grupo "Web" al entrar en una de sus rutas
     // (por link directo, F5, etc.), sin pisar un cierre manual posterior
@@ -33,9 +26,7 @@ const AdminDashboard: React.FC = () => {
     return (
         <div className="dashboard-container d-flex">
             {/* Sidebar */}
-            <aside
-                className={`sidebar d-flex flex-column p-3 ${isMobile ? (sidebarOpen ? "open" : "collapsed") : "open"}`}
-            >
+            <aside className={`sidebar d-flex flex-column p-3 ${isMobile ? (sidebarOpen ? "open" : "collapsed") : "open"}`}>
                 <ul className="nav nav-pills flex-column w-100">
                     {/* Operarios */}
                     <li className="nav-item">
@@ -147,11 +138,7 @@ const AdminDashboard: React.FC = () => {
                         label="Web"
                         active={isWebSection}
                         expanded={expandedMenu === "web"}
-                        onToggle={() =>
-                            setExpandedMenu((prev) =>
-                                prev === "web" ? null : "web"
-                            )
-                        }
+                        onToggle={() => setExpandedMenu((prev) => (prev === "web" ? null : "web"))}
                     >
                         <SidebarSubmenuItem
                             to="/dashboard/admin/faq"
@@ -164,18 +151,14 @@ const AdminDashboard: React.FC = () => {
                             to="/dashboard/admin/functions"
                             icon="bi bi-stars"
                             label="Funcionalidades"
-                            active={
-                                currentPath === "/dashboard/admin/functions"
-                            }
+                            active={currentPath === "/dashboard/admin/functions"}
                             onClick={closeSidebar}
                         />
                         <SidebarSubmenuItem
                             to="/dashboard/admin/data-main"
                             icon="bi bi-house-fill"
                             label="Pagina principal"
-                            active={
-                                currentPath === "/dashboard/admin/data-main"
-                            }
+                            active={currentPath === "/dashboard/admin/data-main"}
                             onClick={closeSidebar}
                         />
                     </SidebarSubmenuGroup>
@@ -202,9 +185,7 @@ const AdminDashboard: React.FC = () => {
                             onClick={closeSidebar}
                         >
                             <i className="bi bi-calculator fs-4"></i>
-                            <span className="ms-2 d-lg-inline">
-                                Serv./Unid.
-                            </span>
+                            <span className="ms-2 d-lg-inline">Serv./Unid.</span>
                         </Link>
                     </li>
                 </ul>
@@ -215,15 +196,9 @@ const AdminDashboard: React.FC = () => {
                         <img src={logo} alt="Logo" />
                     </div>
                     <div className="sidebar-footer-text">
-                        <div className="sidebar-footer-title">
-                            Sistema de gestión
-                        </div>
-                        <div className="sidebar-footer-subtitle">
-                            Consorcio de Agua
-                        </div>
-                        <div className="sidebar-footer-version">
-                            Versión 1.0.0
-                        </div>
+                        <div className="sidebar-footer-title">Sistema de gestión</div>
+                        <div className="sidebar-footer-subtitle">Consorcio de Agua</div>
+                        <div className="sidebar-footer-version">Versión {__APP_VERSION__}</div>
                     </div>
                 </div>
             </aside>

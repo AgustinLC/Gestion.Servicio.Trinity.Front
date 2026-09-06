@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useSidebar } from "../../../context/SidebarContext";
-import {
-    SidebarSubmenuGroup,
-    SidebarSubmenuItem,
-} from "../../../shared/components/sidebar-submenu/SidebarSubmenu";
+import { SidebarSubmenuGroup, SidebarSubmenuItem } from "../../../shared/components/sidebar-submenu/SidebarSubmenu";
 import logo from "../../../assets/img/logoNavbar.svg";
 import "./OperatorDashboard.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -15,11 +12,7 @@ const DashboardOperator: React.FC = () => {
     const location = useLocation();
     const currentPath = location.pathname;
 
-    const isReadingSection = [
-        "/dashboard/operator/readings/management",
-        "/dashboard/operator/readings/take",
-        "/dashboard/operator/readings/control",
-    ].includes(currentPath);
+    const isReadingSection = ["/dashboard/operator/readings/management", "/dashboard/operator/readings/take", "/dashboard/operator/readings/control"].includes(currentPath);
 
     const isBillSection = [
         "/dashboard/operator/bills/management",
@@ -42,9 +35,7 @@ const DashboardOperator: React.FC = () => {
     return (
         <div className="dashboard-container d-flex">
             {/* Sidebar */}
-            <aside
-                className={`sidebar d-flex flex-column p-3 ${isMobile ? (sidebarOpen ? "open" : "collapsed") : "open"}`}
-            >
+            <aside className={`sidebar d-flex flex-column p-3 ${isMobile ? (sidebarOpen ? "open" : "collapsed") : "open"}`}>
                 <ul className="nav nav-pills flex-column w-100">
                     {/* Resumen */}
                     <li className="nav-item">
@@ -77,40 +68,27 @@ const DashboardOperator: React.FC = () => {
                         label="Lecturas"
                         active={isReadingSection}
                         expanded={expandedMenu === "readings"}
-                        onToggle={() =>
-                            setExpandedMenu((prev) =>
-                                prev === "readings" ? null : "readings"
-                            )
-                        }
+                        onToggle={() => setExpandedMenu((prev) => (prev === "readings" ? null : "readings"))}
                     >
                         <SidebarSubmenuItem
                             to="/dashboard/operator/readings/management"
                             icon="bi bi-bar-chart-line-fill"
                             label="Gestionar"
-                            active={
-                                currentPath ===
-                                "/dashboard/operator/readings/management"
-                            }
+                            active={currentPath === "/dashboard/operator/readings/management"}
                             onClick={closeSidebar}
                         />
                         <SidebarSubmenuItem
                             to="/dashboard/operator/readings/take"
                             icon="bi bi-calendar2-check-fill"
                             label="Cargar actuales"
-                            active={
-                                currentPath ===
-                                "/dashboard/operator/readings/take"
-                            }
+                            active={currentPath === "/dashboard/operator/readings/take"}
                             onClick={closeSidebar}
                         />
                         <SidebarSubmenuItem
                             to="/dashboard/operator/readings/control"
                             icon="bi bi-shield-check"
                             label="Controlar"
-                            active={
-                                currentPath ===
-                                "/dashboard/operator/readings/control"
-                            }
+                            active={currentPath === "/dashboard/operator/readings/control"}
                             onClick={closeSidebar}
                         />
                     </SidebarSubmenuGroup>
@@ -121,50 +99,34 @@ const DashboardOperator: React.FC = () => {
                         label="Facturas"
                         active={isBillSection}
                         expanded={expandedMenu === "bills"}
-                        onToggle={() =>
-                            setExpandedMenu((prev) =>
-                                prev === "bills" ? null : "bills"
-                            )
-                        }
+                        onToggle={() => setExpandedMenu((prev) => (prev === "bills" ? null : "bills"))}
                     >
                         <SidebarSubmenuItem
                             to="/dashboard/operator/bills/management"
                             icon="bi bi-search"
                             label="Gestionar"
-                            active={
-                                currentPath ===
-                                "/dashboard/operator/bills/management"
-                            }
+                            active={currentPath === "/dashboard/operator/bills/management"}
                             onClick={closeSidebar}
                         />
                         <SidebarSubmenuItem
                             to="/dashboard/operator/bills/generate"
                             icon="bi bi-file-earmark-plus-fill"
                             label="Generar"
-                            active={
-                                currentPath ===
-                                "/dashboard/operator/bills/generate"
-                            }
+                            active={currentPath === "/dashboard/operator/bills/generate"}
                             onClick={closeSidebar}
                         />
                         <SidebarSubmenuItem
                             to="/dashboard/operator/bills/generate-filtered"
                             icon="bi bi-file-earmark-pdf-fill"
                             label="Descargar PDF's"
-                            active={
-                                currentPath ===
-                                "/dashboard/operator/bills/generate-filtered"
-                            }
+                            active={currentPath === "/dashboard/operator/bills/generate-filtered"}
                             onClick={closeSidebar}
                         />
                         <SidebarSubmenuItem
                             to="/dashboard/operator/bills/update-expiration"
                             icon="bi bi-calendar-event-fill"
                             label="Vencimientos"
-                            active={
-                                currentPath ===
-                                "/dashboard/operator/bills/update-expiration"
-                            }
+                            active={currentPath === "/dashboard/operator/bills/update-expiration"}
                             onClick={closeSidebar}
                         />
                     </SidebarSubmenuGroup>
@@ -228,15 +190,9 @@ const DashboardOperator: React.FC = () => {
                         <img src={logo} alt="Logo" />
                     </div>
                     <div className="sidebar-footer-text">
-                        <div className="sidebar-footer-title">
-                            Sistema de gestión
-                        </div>
-                        <div className="sidebar-footer-subtitle">
-                            Consorcio de Agua
-                        </div>
-                        <div className="sidebar-footer-version">
-                            Versión 1.0.0
-                        </div>
+                        <div className="sidebar-footer-title">Sistema de gestión</div>
+                        <div className="sidebar-footer-subtitle">Consorcio de Agua</div>
+                        <div className="sidebar-footer-version">Versión {__APP_VERSION__}</div>
                     </div>
                 </div>
             </aside>
