@@ -44,6 +44,8 @@ import DiscountsPage from "./operator/features/discounts/DiscountsPage";
 import BillGenerateFilteredPage from "./operator/features/generate-bill/BillGenerateFilteredPage";
 import DebtDisconnectionPage from "./operator/features/debt-disconnection/DebtDisconnectionPage";
 import NotFoundPage from "./shared/features/not-found-page/NotFoundPage";
+import ConnectionErrorPage from "./shared/features/connection-error-page/ConnectionErrorPage";
+import { useConnectionError } from "./context/ConnectionErrorContext";
 import ReadingControlPage from "./operator/features/reading/reading-control/ReadingControlPage";
 import DebtControlPage from "./admin/features/balance/DebtControlPage";
 import PdfParametersPage from "./admin/features/pdf-parameters/PdfParametersPage";
@@ -52,113 +54,120 @@ import { ModalStackProvider } from "./context/ModalStackContext";
 import CustomScrollbar from "./shared/components/custom-scrollbar/CustomScrollbar";
 
 const AppContent: React.FC = () => {
-  const location = useLocation();
+    const location = useLocation();
+    const { hasConnectionError, clearConnectionError } = useConnectionError();
+    const isExemptFromConnectionErrorPage = location.pathname === "/" || location.pathname === "/faq";
 
-  // Restaurar el scroll arriba de la página al cambiar de ruta.
-  // El scroll real de la app vive en #root, no en window/body (ver index.css).
-  useEffect(() => {
-    document.getElementById("root")?.scrollTo(0, 0);
-  }, [location.pathname]);
+    useEffect(() => {
+        document.getElementById("root")?.scrollTo(0, 0);
+    }, [location.pathname]);
 
-  // Rutas donde queremos mostrar el Footer
-  const showFooterPaths = ["/", "/faq", "/login", "/forgot-password", "/reset-password"];
+    useEffect(() => {
+        if (isExemptFromConnectionErrorPage && hasConnectionError) {
+            clearConnectionError();
+        }
+    }, [isExemptFromConnectionErrorPage, hasConnectionError, clearConnectionError]);
 
-  // Verificar si es una ruta 404 (cualquier ruta que no esté en las rutas definidas)
-  const isNotFoundPage = !location.pathname.startsWith("/dashboard") &&
-    !showFooterPaths.includes(location.pathname) &&
-    location.pathname !== "/faq";
+    const toastContainer = <ToastContainer position="top-center" autoClose={4000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />;
 
-  const shouldShowFooter = showFooterPaths.includes(location.pathname) || isNotFoundPage;
+    if (hasConnectionError && !isExemptFromConnectionErrorPage) {
+        return (
+            <>
+                <ConnectionErrorPage />
+                {toastContainer}
+            </>
+        );
+    }
 
-  return (
-    <ModalStackProvider>
-    <SidebarProvider>
-      {/* Barra de navegacion */}
-      <Navbar />
+    // Rutas donde queremos mostrar el Footer
+    const showFooterPaths = ["/", "/faq", "/login", "/forgot-password", "/reset-password"];
 
-      {/* Scrollbar propia de #root (ver CustomScrollbar.tsx) */}
-      <CustomScrollbar targetId="root" />
-      <Routes>
-        {/* Rutas sin permisos comunes a cualquier usuario */}
-        <Route path="/" element={<MainPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/faq" element={<Faq />} />
+    // Verificar si es una ruta 404 (cualquier ruta que no esté en las rutas definidas)
+    const isNotFoundPage = !location.pathname.startsWith("/dashboard") && !showFooterPaths.includes(location.pathname) && location.pathname !== "/faq";
 
-        {/* Rutas solo para usuario común */}
-        <Route path="/dashboard/user" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]}><UserDashboard /></RoleProtectedRoute>}>
-          <Route path="resume" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]}><UserResume /></RoleProtectedRoute>} />
-          <Route path="bills" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]}><UserBills /></RoleProtectedRoute>} />
-          <Route path="consumptions" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]}><UserConsumptions /></RoleProtectedRoute>} />
-          <Route path="personal-data" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]}><UserPersonalData /></RoleProtectedRoute>} />
-        </Route>
+    const shouldShowFooter = showFooterPaths.includes(location.pathname) || isNotFoundPage;
 
-        {/* Rutas solo para usuario operario */}
-        <Route path="/dashboard/operator" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><OperatorDashboard /></RoleProtectedRoute>}>
-          <Route path="resume" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><Resume /></RoleProtectedRoute>} />
-          <Route path="users" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><User /></RoleProtectedRoute>} />
-          <Route path="readings/management" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReadingManagement /></RoleProtectedRoute>} />
-          <Route path="readings/take" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReadingTake /></RoleProtectedRoute>} />
-          <Route path="readings/control" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReadingControlPage /></RoleProtectedRoute>} />
-          <Route path="parameters/bills" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><PendigBillsParameterPage /></RoleProtectedRoute>} />
-          <Route path="bills/generate" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillGeneratePage /></RoleProtectedRoute>} />
-          <Route path="bills/generate-filtered" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillGenerateFilteredPage /></RoleProtectedRoute>} />
-          <Route path="bills/update-expiration" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillUpdateExpirationPage /></RoleProtectedRoute>} />
-          <Route path="bills/management" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><BillManagementPage /></RoleProtectedRoute>} />
-          <Route path="reports" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><ReportsPage /></RoleProtectedRoute>} />
-          <Route path="discounts" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DiscountsPage /></RoleProtectedRoute>} />
-          <Route path="debt-disconnection" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]}><DebtDisconnectionPage /></RoleProtectedRoute>} />
-        </Route>
+    return (
+        <ModalStackProvider>
+            <SidebarProvider>
+                {/* Barra de navegacion */}
+                <Navbar />
 
-        {/* Rutas solo para usuario administrador */}
-        <Route path="/dashboard/admin" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><AdminDashboard /></RoleProtectedRoute>}>
-          <Route path="faq" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><CrudFaqPage /></RoleProtectedRoute>} />
-          <Route path="functions" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><CrudFeaturePage /></RoleProtectedRoute>} />
-          <Route path="data-main" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><CruDataMainPage /></RoleProtectedRoute>} />
-          <Route path="fee" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><CrudFeePage /></RoleProtectedRoute>} />
-          <Route path="workers" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><CruWorkerPage /></RoleProtectedRoute>} />
-          <Route path="administrators" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><CruAdministratorPage /></RoleProtectedRoute>} />
-          <Route path="services-units" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><ServicesUnitsPage /></RoleProtectedRoute>} />
-          <Route path="units" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><UnitPage /></RoleProtectedRoute>} />
-          <Route path="services" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><ServicePage /></RoleProtectedRoute>} />
-          <Route path="billing-parameters" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><BillingParameterPage /></RoleProtectedRoute>} />
-          <Route path="new/period" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><NewPeriodPage /></RoleProtectedRoute>} />
-          <Route path="modalities" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><ModalityPage /></RoleProtectedRoute>} />
-          <Route path="discounts/management" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><DiscountManagementPage /></RoleProtectedRoute>} />
-          <Route path="pdf-parameters" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><PdfParametersPage /></RoleProtectedRoute>} />
-          <Route path="balance" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]}><DebtControlPage /></RoleProtectedRoute>} />
-        </Route>
+                {/* Scrollbar propia de #root (ver CustomScrollbar.tsx) */}
+                <CustomScrollbar targetId="root" />
+                <Routes>
+                    {/* Rutas sin permisos comunes a cualquier usuario */}
+                    <Route path="/" element={<MainPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                    <Route path="/reset-password" element={<ResetPasswordPage />} />
+                    <Route path="/faq" element={<Faq />} />
 
-        {/* Ruta catch-all para páginas no encontradas */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+                    {/* Rutas solo para usuario común */}
+                    <Route path="/dashboard/user" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]} element={<UserDashboard />} />}>
+                        <Route path="resume" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]} element={<UserResume />} />} />
+                        <Route path="bills" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]} element={<UserBills />} />} />
+                        <Route path="consumptions" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]} element={<UserConsumptions />} />} />
+                        <Route path="personal-data" element={<RoleProtectedRoute allowedRoles={["ROLE_USER"]} element={<UserPersonalData />} />} />
+                    </Route>
 
-      {/* Pie de pagina */}
-      {shouldShowFooter && <Footer />}
+                    {/* Rutas solo para usuario operario */}
+                    <Route path="/dashboard/operator" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<OperatorDashboard />} />}>
+                        <Route path="resume" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<Resume />} />} />
+                        <Route path="users" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<User />} />} />
+                        <Route path="readings/management" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<ReadingManagement />} />} />
+                        <Route path="readings/take" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<ReadingTake />} />} />
+                        <Route path="readings/control" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<ReadingControlPage />} />} />
+                        <Route path="parameters/bills" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<PendigBillsParameterPage />} />} />
+                        <Route path="bills/generate" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<BillGeneratePage />} />} />
+                        <Route path="bills/generate-filtered" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<BillGenerateFilteredPage />} />} />
+                        <Route path="bills/update-expiration" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<BillUpdateExpirationPage />} />} />
+                        <Route path="bills/management" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<BillManagementPage />} />} />
+                        <Route path="reports" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<ReportsPage />} />} />
+                        <Route path="discounts" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<DiscountsPage />} />} />
+                        <Route path="debt-disconnection" element={<RoleProtectedRoute allowedRoles={["ROLE_OPERATOR"]} element={<DebtDisconnectionPage />} />} />
+                    </Route>
 
-      {/* Banner de cookies */}
-      <CookieBanner />
+                    {/* Rutas solo para usuario administrador */}
+                    <Route path="/dashboard/admin" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<AdminDashboard />} />}>
+                        <Route path="faq" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<CrudFaqPage />} />} />
+                        <Route path="functions" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<CrudFeaturePage />} />} />
+                        <Route path="data-main" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<CruDataMainPage />} />} />
+                        <Route path="fee" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<CrudFeePage />} />} />
+                        <Route path="workers" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<CruWorkerPage />} />} />
+                        <Route path="administrators" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<CruAdministratorPage />} />} />
+                        <Route path="services-units" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<ServicesUnitsPage />} />} />
+                        <Route path="units" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<UnitPage />} />} />
+                        <Route path="services" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<ServicePage />} />} />
+                        <Route path="billing-parameters" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<BillingParameterPage />} />} />
+                        <Route path="new/period" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<NewPeriodPage />} />} />
+                        <Route path="modalities" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<ModalityPage />} />} />
+                        <Route path="discounts/management" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<DiscountManagementPage />} />} />
+                        <Route path="pdf-parameters" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<PdfParametersPage />} />} />
+                        <Route path="balance" element={<RoleProtectedRoute allowedRoles={["ROLE_ADMIN"]} element={<DebtControlPage />} />} />
+                    </Route>
 
-      {/* Notificaciones/Alertas */}
-      <ToastContainer
-        position="top-center"
-        autoClose={4000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        draggable
-      />
-    </SidebarProvider>
-    </ModalStackProvider>
-  );
+                    {/* Ruta catch-all para páginas no encontradas */}
+                    <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+
+                {/* Pie de pagina */}
+                {shouldShowFooter && <Footer />}
+
+                {/* Banner de cookies */}
+                <CookieBanner />
+
+                {/* Notificaciones/Alertas */}
+                {toastContainer}
+            </SidebarProvider>
+        </ModalStackProvider>
+    );
 };
 
 const App: React.FC = () => (
-  <Router>
-    <AppContent />
-  </Router>
+    <Router>
+        <AppContent />
+    </Router>
 );
 
 export default App;

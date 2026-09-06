@@ -1,0 +1,111 @@
+.connection-error-page {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%);
+    overflow: hidden;
+    animation: connection-error-fade-in 0.4s ease-out;
+}
+
+@keyframes connection-error-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.connection-error-blob {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(0, 119, 255, 0.08);
+    pointer-events: none;
+}
+
+.connection-error-blob-1 {
+    width: 420px;
+    height: 420px;
+    top: -160px;
+    right: -140px;
+}
+
+.connection-error-blob-2 {
+    width: 320px;
+    height: 320px;
+    bottom: -140px;
+    left: -120px;
+}
+
+.connection-error-card {
+    position: relative;
+    text-align: center;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+    padding: 3rem 2.5rem;
+    max-width: 480px;
+    width: 100%;
+}
+
+.connection-error-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: rgba(0, 119, 255, 0.08);
+    color: var(--bs-primary);
+    font-size: 2.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.connection-error-icon-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bs-danger, #dc3545);
+    color: #fff;
+    font-size: 0.85rem;
+    border: 3px solid #fff;
+}
+
+.connection-error-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+}
+
+.connection-error-message {
+    color: #475569;
+    margin-bottom: 0.35rem;
+}
+
+.connection-error-hint {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.connection-error-spin {
+    display: inline-block;
+    animation: connection-error-spin 0.8s linear infinite;
+}
+
+@keyframes connection-error-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

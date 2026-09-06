@@ -1,14 +1,10 @@
 import { useState } from "react";
 import { Container, Row, Col, Spinner, Card } from "react-bootstrap";
+import { toast } from "react-toastify";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 import { getData } from "../../../core/services/apiService";
-import {
-    PeopleFill,
-    Cash,
-    FileEarmarkText,
-    Activity,
-} from "react-bootstrap-icons";
+import { PeopleFill, Cash, FileEarmarkText, Activity } from "react-bootstrap-icons";
 import "./ReportPage.css";
 import { processReportData } from "../../../core/utils/flattenObject";
 import PageHeader from "../../../shared/components/PageHeader";
@@ -36,11 +32,7 @@ const ReportPage = () => {
             Icon: PeopleFill,
             endpoint: "/operator/users-actives",
             variant: "primary",
-            exclude: [
-                "password",
-                "residenceDto_idLocation",
-                "residenceDto_idResidence",
-            ],
+            exclude: ["password", "residenceDto_idLocation", "residenceDto_idResidence"],
             rename: {
                 idUser: "ID Usuario",
                 firstName: "Nombre",
@@ -94,11 +86,7 @@ const ReportPage = () => {
 
             const worksheet = XLSX.utils.json_to_sheet(processedData);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(
-                workbook,
-                worksheet,
-                report.title.substring(0, 31)
-            );
+            XLSX.utils.book_append_sheet(workbook, worksheet, report.title.substring(0, 31));
 
             const excelBuffer = XLSX.write(workbook, {
                 bookType: "xlsx",
@@ -108,13 +96,10 @@ const ReportPage = () => {
                 type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             });
 
-            saveAs(
-                blob,
-                `${report.title}_${new Date().toISOString().split("T")[0]}.xlsx`
-            );
+            saveAs(blob, `${report.title}_${new Date().toISOString().split("T")[0]}.xlsx`);
         } catch (error) {
             console.error("Error generando reporte:", error);
-            alert(`Error al generar ${report.title}`);
+            toast.error(`Error al generar ${report.title}`);
         } finally {
             setLoadingReport(null);
         }
@@ -122,40 +107,21 @@ const ReportPage = () => {
 
     // Render
     return (
-        <div
-            className="report-page d-flex flex-column"
-            style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}
-        >
-            <PageHeader
-                title="Generador de Reportes"
-                subtitle="Descargá reportes en Excel del sistema."
-                icon="bi bi-clipboard-data"
-            />
+        <div className="report-page d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+            <PageHeader title="Generador de Reportes" subtitle="Descargá reportes en Excel del sistema." icon="bi bi-clipboard-data" />
             <Container className="my-auto content-fade-in-slide">
                 <Card className="shadow-lg border-0 rounded-4 p-4 bg-white">
                     <Row className="g-4" xs={1} md={2}>
                         {REPORTS.map((report) => (
                             <Col key={report.id}>
-                                <Card
-                                    onClick={() => handleGenerateReport(report)}
-                                    className={`report-card ${report.variant}`}
-                                    data-testid={`report-card-${report.id}`}
-                                >
+                                <Card onClick={() => handleGenerateReport(report)} className={`report-card ${report.variant}`} data-testid={`report-card-${report.id}`}>
                                     <Card.Body className="d-flex flex-column justify-content-center align-items-center">
                                         <report.Icon className="report-icon" />
-                                        <h3 className="report-title mt-3">
-                                            {report.title}
-                                        </h3>
+                                        <h3 className="report-title mt-3">{report.title}</h3>
                                         {loadingReport === report.id ? (
-                                            <Spinner
-                                                animation="border"
-                                                variant="light"
-                                                className="mt-2"
-                                            />
+                                            <Spinner animation="border" variant="light" className="mt-2" />
                                         ) : (
-                                            <span className="report-subtitle mt-2">
-                                                Descargar Excel
-                                            </span>
+                                            <span className="report-subtitle mt-2">Descargar Excel</span>
                                         )}
                                     </Card.Body>
                                 </Card>
