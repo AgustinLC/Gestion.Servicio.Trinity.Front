@@ -26,7 +26,7 @@ export const SidebarSubmenuGroup: React.FC<SidebarSubmenuGroupProps> = ({ icon, 
             >
                 <i className={`${icon} fs-4`}></i>
                 <span className="ms-2 d-lg-inline flex-grow-1 text-start">{label}</span>
-                <i className={`bi-chevron-down sidebar-submenu-chevron d-none d-lg-inline ${expanded ? "rotate" : ""}`}></i>
+                <i className={`bi-chevron-down sidebar-submenu-chevron ${expanded ? "rotate" : ""}`}></i>
             </button>
             <Collapse in={expanded}>
                 <ul className="sidebar-submenu list-unstyled">{children}</ul>

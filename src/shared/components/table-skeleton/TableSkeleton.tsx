@@ -58,40 +58,46 @@ const TableSkeleton: React.FC<TableSkeletonProps> = ({ columns = 5, rows = 9, sh
             )}
 
             <div className={`reusable-table-card ${showToolbar ? "" : "overflow-hidden"}`}>
-                <div className="table-skeleton-row">
-                    <div className="table-skeleton-cell table-skeleton-avatar-cell"></div>
-                    {Array.from({ length: middleColumns }).map((_, colIndex) => (
-                        <div key={colIndex} className="table-skeleton-cell">
-                            <div className="skeleton skeleton-line" style={{ width: "55%", height: 12 }}></div>
-                        </div>
-                    ))}
-                    <div className="table-skeleton-cell table-skeleton-actions-cell">
-                        <div className="skeleton skeleton-line" style={{ width: 110, height: 12 }}></div>
-                    </div>
-                </div>
-
-                {Array.from({ length: rows }).map((_, rowIndex) => (
-                    <div key={rowIndex} className="table-skeleton-row">
-                        <div className="table-skeleton-cell table-skeleton-avatar-cell">
-                            <div className="skeleton" style={{ width: 28, height: 28, borderRadius: "50%" }}></div>
-                        </div>
-
+                {/* Igual que la tabla real (Table responsive de Bootstrap):
+                    scrollea de costado en vez de achicar las columnas hasta
+                    volverlas ilegibles — antes, en mobile, esto se apretaba
+                    todo en una sola fila angosta y se veía amontonado. */}
+                <div className="table-skeleton-scroll">
+                    <div className="table-skeleton-row">
+                        <div className="table-skeleton-cell table-skeleton-avatar-cell"></div>
                         {Array.from({ length: middleColumns }).map((_, colIndex) => (
                             <div key={colIndex} className="table-skeleton-cell">
-                                <div
-                                    className="skeleton skeleton-line"
-                                    style={{ width: `${40 + ((rowIndex * 13 + colIndex * 23) % 45)}%`, height: 14 }}
-                                ></div>
+                                <div className="skeleton skeleton-line" style={{ width: "55%", height: 12 }}></div>
                             </div>
                         ))}
-
                         <div className="table-skeleton-cell table-skeleton-actions-cell">
-                            <div className="skeleton" style={{ width: 68, height: 30, borderRadius: 8 }}></div>
-                            <div className="skeleton" style={{ width: 68, height: 30, borderRadius: 8 }}></div>
-                            <i className="bi bi-three-dots-vertical"></i>
+                            <div className="skeleton skeleton-line" style={{ width: 110, height: 12 }}></div>
                         </div>
                     </div>
-                ))}
+
+                    {Array.from({ length: rows }).map((_, rowIndex) => (
+                        <div key={rowIndex} className="table-skeleton-row">
+                            <div className="table-skeleton-cell table-skeleton-avatar-cell">
+                                <div className="skeleton" style={{ width: 28, height: 28, borderRadius: "50%" }}></div>
+                            </div>
+
+                            {Array.from({ length: middleColumns }).map((_, colIndex) => (
+                                <div key={colIndex} className="table-skeleton-cell">
+                                    <div
+                                        className="skeleton skeleton-line"
+                                        style={{ width: `${40 + ((rowIndex * 13 + colIndex * 23) % 45)}%`, height: 14 }}
+                                    ></div>
+                                </div>
+                            ))}
+
+                            <div className="table-skeleton-cell table-skeleton-actions-cell">
+                                <div className="skeleton" style={{ width: 68, height: 30, borderRadius: 8 }}></div>
+                                <div className="skeleton" style={{ width: 68, height: 30, borderRadius: 8 }}></div>
+                                <i className="bi bi-three-dots-vertical"></i>
+                            </div>
+                        </div>
+                    ))}
+                </div>
 
                 {showToolbar && (
                     <div className="reusable-table-footer d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mt-2">

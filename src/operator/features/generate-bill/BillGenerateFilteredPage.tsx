@@ -57,6 +57,13 @@ const BillGenerateFilteredPage = () => {
         ).sort() as string[];
     }, [operatorUsers]);
 
+    // "Reiniciar Filtros" solo tiene sentido si se cargó algún filtro —
+    // sortBy/sortDirection quedan afuera porque no son un filtro que el
+    // usuario haya escrito, son el orden por defecto de la tabla.
+    const hasActiveFilters = Object.entries(filters).some(
+        ([key, value]) => key !== 'sortBy' && key !== 'sortDirection' && value !== ''
+    );
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
         if (type === "number" && isNegativeInput(value)) return;
@@ -536,7 +543,7 @@ const BillGenerateFilteredPage = () => {
                     {/* Apilados a ancho completo hasta sm: lado a lado el texto
                         envolvía a dos líneas dentro del botón. */}
                     <div className="d-flex flex-column flex-sm-row gap-3 justify-content-sm-end mt-3">
-                        <Button variant="outline-secondary" onClick={handleClearFilters} disabled={isLoading} className="px-4 py-2 w-100-until-sm" style={{ borderRadius: '10px' }}>
+                        <Button variant="outline-secondary" onClick={handleClearFilters} disabled={isLoading || !hasActiveFilters} className="px-4 py-2 w-100-until-sm" style={{ borderRadius: '10px' }}>
                             <i className="bi bi-arrow-counterclockwise me-1"></i> Reiniciar Filtros
                         </Button>
                         <Button variant="primary" onClick={handleSubmit} disabled={isLoading} className="px-4 py-2 w-100-until-sm" style={{ borderRadius: '10px' }}>

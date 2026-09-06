@@ -45,6 +45,9 @@ const BillUpdateExpirationPage = () => {
 
     // Validar formulario
     const isFormValid = periodDate !== '' && newExpirationDate !== '';
+    // "Limpiar" solo tiene sentido si hay algo cargado — si no, queda
+    // deshabilitado para que no se pueda apretar en vacío.
+    const hasFormData = periodDate !== '' || newExpirationDate !== '';
     const periodLabel = getPeriodLabel(periodDate);
 
     // El botón del formulario solo valida y abre el modal de confirmación;
@@ -196,7 +199,7 @@ const BillUpdateExpirationPage = () => {
                     </div>
 
                     <div className="d-flex flex-column flex-sm-row justify-content-sm-end gap-2 mt-4">
-                        <Button variant="outline-secondary" onClick={handleClear} disabled={isLoading} className="w-100-until-sm">
+                        <Button variant="outline-secondary" onClick={handleClear} disabled={isLoading || !hasFormData} className="w-100-until-sm">
                             <i className="bi bi-x-circle me-1"></i> Limpiar
                         </Button>
                         {/* Sin spinner propio: el ConfirmModal de abajo ya

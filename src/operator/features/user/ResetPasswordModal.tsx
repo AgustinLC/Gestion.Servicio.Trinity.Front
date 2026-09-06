@@ -86,12 +86,23 @@ const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({ show, user, isL
 
     const handleConfirmClick = () => {
         if (!user) return;
-        const value = mode === "temporary" ? temporaryPassword : mode === "dni" ? user.dni?.toString() ?? "" : customPassword.trim();
+        const value = mode === "temporary" ? temporaryPassword : mode === "dni" ? (user.dni?.toString() ?? "") : customPassword.trim();
         onConfirm(value);
     };
 
     return (
-        <Modal show={show} onHide={onHide} onClick={onBackdropClick(onHide)} centered size="lg" backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="reset-password-modal-title">
+        <Modal
+            show={show}
+            onHide={onHide}
+            onClick={onBackdropClick(onHide)}
+            centered
+            size="lg"
+            backdrop
+            backdropClassName="modal-click-backdrop"
+            style={{ zIndex: modalZIndex }}
+            contentClassName="form-modal-content"
+            aria-labelledby="reset-password-modal-title"
+        >
             <FormModalHeader
                 icon="bi bi-shield-lock-fill"
                 title="Restablecer contraseña"
@@ -101,140 +112,148 @@ const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({ show, user, isL
             />
 
             <Modal.Body>
-              {/* Gateado en "show && user" para que al cerrar el body quede
+                {/* Gateado en "show && user" para que al cerrar el body quede
                   vacío de inmediato en vez de seguir mostrando el formulario
                   durante el fade-out — mismo patrón que AddReadingModal
                   ("Cargar Lectura"), que no presenta el glitch al cerrar. */}
-              {show && user && (() => {
-                const avatarColor = getAvatarColor(`${user.firstName ?? ""}${user.lastName ?? ""}${user.idUser ?? ""}`);
-                const initials = `${(user.firstName?.[0] || "").toUpperCase()}${(user.lastName?.[0] || "").toUpperCase()}`;
-                return (
-                <>
-                <div className="user-summary-card mb-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
-                    <div className="d-flex align-items-center gap-3">
-                        <div className="row-avatar user-summary-avatar" style={{ backgroundColor: avatarColor.bg, color: avatarColor.color }}>
-                            {initials || "US"}
-                        </div>
-                        <div>
-                            <div className="fw-bold">{user.firstName} {user.lastName}</div>
-                            <div className="text-muted small">
-                                Conexión N.° {user.idUser}
-                                {user.residenceDto?.serialNumber && <> &bull; Medidor {user.residenceDto.serialNumber}</>}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="d-flex align-items-center gap-2 text-muted small">
-                        <i className="bi bi-calendar3"></i>
-                        <div>
-                            <div>Fecha de registro</div>
-                            <div className="fw-semibold text-dark">{formatDate(user.dateRegister)}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="fw-bold mb-2">Método de restablecimiento</div>
-
-                <div className="option-card-list">
-                    <label className={`option-card ${mode === "temporary" ? "active" : ""}`}>
-                        <input type="radio" className="option-card-radio" name="reset-method" checked={mode === "temporary"} onChange={() => setMode("temporary")} />
-                        <div className="option-card-icon" style={{ backgroundColor: "#dbeafe", color: "#1d4ed8" }}>
-                            <i className="bi bi-shield-check"></i>
-                        </div>
-                        <div className="flex-grow-1">
-                            <div className="d-flex align-items-center gap-2 flex-wrap">
-                                <span className="fw-bold">Generar contraseña temporal</span>
-                                <span className="badge-soft badge-soft-success">Recomendado</span>
-                            </div>
-                            <div className="text-muted small">El sistema generará una contraseña temporal segura.</div>
-                            {mode === "temporary" && (
-                                <>
-                                    <HintBox className="mt-2">El usuario deberá cambiarla al iniciar sesión.</HintBox>
-                                    <div className="d-flex align-items-center gap-2 mt-2">
-                                        <div className="flex-grow-1">
-                                            <PasswordRevealField value={temporaryPassword} readOnly />
+                {show &&
+                    user &&
+                    (() => {
+                        const avatarColor = getAvatarColor(`${user.firstName ?? ""}${user.lastName ?? ""}${user.idUser ?? ""}`);
+                        const initials = `${(user.firstName?.[0] || "").toUpperCase()}${(user.lastName?.[0] || "").toUpperCase()}`;
+                        return (
+                            <>
+                                <div className="user-summary-card mb-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                    <div className="d-flex align-items-center gap-3">
+                                        <div className="row-avatar user-summary-avatar" style={{ backgroundColor: avatarColor.bg, color: avatarColor.color }}>
+                                            {initials || "US"}
                                         </div>
-                                        <button
-                                            type="button"
-                                            className="row-actions-edit"
-                                            title="Generar otra"
-                                            onClick={(e) => { e.preventDefault(); setTemporaryPassword(generateSecurePassword()); }}
-                                        >
-                                            <i className="bi bi-arrow-clockwise"></i>
-                                        </button>
+                                        <div>
+                                            <div className="fw-bold">
+                                                {user.firstName} {user.lastName}
+                                            </div>
+                                            <div className="text-muted small">
+                                                Conexión N.° {user.idUser}
+                                                {user.residenceDto?.serialNumber && <> &bull; Medidor {user.residenceDto.serialNumber}</>}
+                                            </div>
+                                        </div>
                                     </div>
-                                </>
-                            )}
-                        </div>
-                    </label>
+                                    <div className="d-flex align-items-center gap-2 text-muted small">
+                                        <i className="bi bi-calendar3"></i>
+                                        <div>
+                                            <div>Fecha de registro</div>
+                                            <div className="fw-semibold text-dark">{formatDate(user.dateRegister)}</div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                    <label className={`option-card ${mode === "dni" ? "active" : ""}`}>
-                        <input type="radio" className="option-card-radio" name="reset-method" checked={mode === "dni"} onChange={() => setMode("dni")} />
-                        <div className="option-card-icon" style={{ backgroundColor: "#dcfce7", color: "#16a34a" }}>
-                            <i className="bi bi-person-vcard-fill"></i>
-                        </div>
-                        <div className="flex-grow-1">
-                            <div className="fw-bold">Usar el DNI del usuario</div>
-                            <div className="text-muted small">La contraseña será el DNI del usuario ({user.dni}).</div>
-                        </div>
-                    </label>
+                                <div className="fw-bold mb-2">Método de restablecimiento</div>
 
-                    <label className={`option-card ${mode === "custom" ? "active" : ""}`}>
-                        <input type="radio" className="option-card-radio" name="reset-method" checked={mode === "custom"} onChange={() => setMode("custom")} />
-                        <div className="option-card-icon" style={{ backgroundColor: "#f3e8ff", color: "#9333ea" }}>
-                            <i className="bi bi-key-fill"></i>
-                        </div>
-                        <div className="flex-grow-1">
-                            <div className="fw-bold">Definir una nueva contraseña</div>
-                            <div className="text-muted small">Ingresá la nueva contraseña que utilizará el usuario.</div>
-                            {mode === "custom" && (
-                                <>
-                                    <div className="mt-2">
-                                        <PasswordRevealField
-                                            value={customPassword}
-                                            onChange={setCustomPassword}
-                                            placeholder="Nueva contraseña"
-                                            autoFocus
+                                <div className="option-card-list">
+                                    <label className={`option-card ${mode === "temporary" ? "active" : ""}`}>
+                                        <input
+                                            type="radio"
+                                            className="option-card-radio"
+                                            name="reset-method"
+                                            checked={mode === "temporary"}
+                                            onChange={() => setMode("temporary")}
                                         />
-                                    </div>
-                                    <div className="text-muted small mt-2 mb-1">La contraseña debe cumplir con:</div>
-                                    <div className="password-requirement-pills">
-                                        {customPasswordRules.map((rule) => (
-                                            <span key={rule.key} className={`password-requirement-pill ${rule.passed ? "passed" : ""}`}>
-                                                <i className={`bi ${rule.passed ? "bi-check-circle-fill" : "bi-circle"}`}></i>
-                                                {rule.label}
-                                            </span>
-                                        ))}
-                                    </div>
-                                    {isCustomInvalid && <div className="text-danger small mt-1">La contraseña no cumple con los requisitos.</div>}
-                                </>
-                            )}
-                        </div>
-                    </label>
-                </div>
+                                        <div className="option-card-icon" style={{ backgroundColor: "#dbeafe", color: "#1d4ed8" }}>
+                                            <i className="bi bi-shield-check"></i>
+                                        </div>
+                                        <div className="flex-grow-1">
+                                            <div className="d-flex align-items-center gap-2 flex-wrap">
+                                                <span className="fw-bold">Generar contraseña temporal</span>
+                                                <span className="badge-soft badge-soft-success">Recomendado</span>
+                                            </div>
+                                            <div className="text-muted small">El sistema generará una contraseña temporal segura.</div>
+                                            {mode === "temporary" && (
+                                                <>
+                                                    <HintBox className="mt-2">El usuario deberá cambiarla al iniciar sesión.</HintBox>
+                                                    <div className="d-flex align-items-center gap-2 mt-2">
+                                                        <div className="flex-grow-1">
+                                                            <PasswordRevealField value={temporaryPassword} readOnly />
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            className="row-actions-edit"
+                                                            title="Generar otra"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                setTemporaryPassword(generateSecurePassword());
+                                                            }}
+                                                        >
+                                                            <i className="bi bi-arrow-clockwise"></i>
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    </label>
 
-                <div className="form-modal-footer d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <HintBox>El usuario deberá cambiar su contraseña al iniciar sesión por seguridad.</HintBox>
-                    <div className="d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
-                        <Button variant="outline-secondary" onClick={onHide} disabled={isLoading}>
-                            <i className="bi bi-x-circle me-1"></i> Cancelar
-                        </Button>
-                        <Button variant="warning" onClick={handleConfirmClick} disabled={isLoading || !canConfirm}>
-                            {isLoading ? (
-                                <>
-                                    <Spinner animation="border" size="sm" className="me-2" />
-                                    Restableciendo...
-                                </>
-                            ) : (
-                                <>
-                                    <i className="bi bi-shield-lock me-1"></i> Restablecer contraseña
-                                </>
-                            )}
-                        </Button>
-                    </div>
-                </div>
-                </>
-                );
-              })()}
+                                    <label className={`option-card ${mode === "dni" ? "active" : ""}`}>
+                                        <input type="radio" className="option-card-radio" name="reset-method" checked={mode === "dni"} onChange={() => setMode("dni")} />
+                                        <div className="option-card-icon" style={{ backgroundColor: "#dcfce7", color: "#16a34a" }}>
+                                            <i className="bi bi-person-vcard-fill"></i>
+                                        </div>
+                                        <div className="flex-grow-1">
+                                            <div className="fw-bold">Usar el DNI del usuario</div>
+                                            <div className="text-muted small">La contraseña será el DNI del usuario ({user.dni}).</div>
+                                        </div>
+                                    </label>
+
+                                    <label className={`option-card ${mode === "custom" ? "active" : ""}`}>
+                                        <input type="radio" className="option-card-radio" name="reset-method" checked={mode === "custom"} onChange={() => setMode("custom")} />
+                                        <div className="option-card-icon" style={{ backgroundColor: "#f3e8ff", color: "#9333ea" }}>
+                                            <i className="bi bi-key-fill"></i>
+                                        </div>
+                                        <div className="flex-grow-1">
+                                            <div className="fw-bold">Definir una nueva contraseña</div>
+                                            <div className="text-muted small">Ingresá la nueva contraseña que utilizará el usuario.</div>
+                                            {mode === "custom" && (
+                                                <>
+                                                    <div className="mt-2">
+                                                        <PasswordRevealField value={customPassword} onChange={setCustomPassword} placeholder="Nueva contraseña" autoFocus />
+                                                    </div>
+                                                    <div className="text-muted small mt-2 mb-1">La contraseña debe cumplir con:</div>
+                                                    <div className="password-requirement-pills">
+                                                        {customPasswordRules.map((rule) => (
+                                                            <span key={rule.key} className={`password-requirement-pill ${rule.passed ? "passed" : ""}`}>
+                                                                <i className={`bi ${rule.passed ? "bi-check-circle-fill" : "bi-circle"}`}></i>
+                                                                {rule.label}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                    {isCustomInvalid && <div className="text-danger small mt-1">La contraseña no cumple con los requisitos.</div>}
+                                                </>
+                                            )}
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div className="form-modal-footer d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <HintBox>El usuario deberá cambiar su contraseña al iniciar sesión por seguridad.</HintBox>
+                                    <div className="d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                                        <Button variant="outline-secondary" onClick={onHide} disabled={isLoading}>
+                                            <i className="bi bi-x-circle me-1"></i> Cancelar
+                                        </Button>
+                                        <Button variant="warning" onClick={handleConfirmClick} disabled={isLoading || !canConfirm}>
+                                            {isLoading ? (
+                                                <>
+                                                    <Spinner animation="border" size="sm" className="me-2" />
+                                                    Restableciendo...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <i className="bi bi-shield-lock me-1"></i> Restablecer
+                                                </>
+                                            )}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </>
+                        );
+                    })()}
             </Modal.Body>
         </Modal>
     );

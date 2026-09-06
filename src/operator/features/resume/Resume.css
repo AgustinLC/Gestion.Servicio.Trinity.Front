@@ -196,6 +196,7 @@
 .rr-pipeline-title {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 12px;
     flex-shrink: 0;
 }
@@ -845,6 +846,7 @@
 
     .rr-pipeline-steps {
         grid-template-columns: 1fr;
+        min-width: 0;
         gap: 16px;
     }
 
@@ -879,6 +881,36 @@
 
     .rr-header-controls {
         justify-content: flex-start;
+    }
+}
+
+/* Con 120px de etiqueta + valor + porcentaje, a los celulares angostos casi
+   no les queda ancho para la barra (queda prácticamente invisible). Acá
+   pasa a dos filas: etiqueta/valor/porcentaje arriba, la barra ocupando
+   todo el ancho abajo. */
+@media (max-width: 480px) {
+    .rr-fee-row {
+        grid-template-columns: 1fr auto auto;
+        grid-template-areas:
+            "label value pct"
+            "track track track";
+        row-gap: 6px;
+    }
+
+    .rr-fee-label {
+        grid-area: label;
+    }
+
+    .rr-fee-value {
+        grid-area: value;
+    }
+
+    .rr-fee-pct {
+        grid-area: pct;
+    }
+
+    .rr-fee-track {
+        grid-area: track;
     }
 }
 

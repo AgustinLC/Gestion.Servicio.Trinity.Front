@@ -235,6 +235,27 @@ body.modal-open {
     padding-right: 2.25rem !important;
 }
 
+/* En mobile, Safari/Chrome hacen zoom automático al enfocar un campo con
+   tipografía menor a 16px (y ese zoom no se deshace solo al desenfocar,
+   hay que hacer pinch-zoom a mano) — es un comportamiento del navegador
+   pensado para legibilidad, no un bug de layout. La solución no es
+   deshabilitar el zoom del usuario (rompe accesibilidad), sino asegurar
+   16px como mínimo en los campos reales — <input>/<select>/<textarea>,
+   sea cual sea el wrapper (FloatingFieldset, CustomSelect, buscador,
+   filtros...) — y solo en mobile, para no tocar el tamaño de diseño en
+   desktop, donde el bug no ocurre. */
+@media (max-width: 767.98px) {
+    /* !important: selectores como .form-control/.form-select (más
+       específicos por clase) fijan su propio font-size más abajo en este
+       mismo archivo y le ganarían a un simple `input`/`select`/`textarea`
+       por especificidad, sin importar el orden. */
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
 .form-control:focus,
 .form-select:focus {
     border-color: #80bfff;
@@ -1240,12 +1261,19 @@ button:disabled,
     );
 }
 
+/* Scrollea de costado igual que la tabla real (Table responsive de
+   Bootstrap) en vez de apretar las columnas — ver table-skeleton-cell. */
+.table-skeleton-scroll {
+    overflow-x: auto;
+}
+
 .table-skeleton-row {
     display: flex;
     align-items: center;
     gap: 1rem;
     padding: 0.85rem 1.1rem;
     border-bottom: 1px solid #f1f5f9;
+    min-width: max-content;
 }
 
 .table-skeleton-row:last-of-type {
@@ -1253,10 +1281,9 @@ button:disabled,
 }
 
 .table-skeleton-cell {
-    flex: 1;
+    flex: 1 0 110px;
     display: flex;
     justify-content: center;
-    min-width: 0;
 }
 
 .table-skeleton-avatar-cell {
@@ -2017,6 +2044,12 @@ button:disabled,
     border-radius: 999px;
     font-size: 0.85rem;
     font-weight: 600;
+    /* Sin esto, en una columna angosta (mobile) el texto envuelve en varias
+       líneas y el border-radius:999px (pensado para una píldora de una
+       línea) achata la forma en un círculo — se rompe visualmente. Con
+       nowrap se mantiene la píldora y es la tabla la que scrollea de
+       costado si hace falta, no el badge el que se deforma. */
+    white-space: nowrap;
 }
 
 .badge-soft-success {

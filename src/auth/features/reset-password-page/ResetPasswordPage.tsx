@@ -47,10 +47,7 @@ const ResetPasswordPage = () => {
                         <div className="card-body">
                             <h1 className="text-center">Restablecer Contraseña</h1>
                             {success ? (
-                                <div className="alert alert-success">
-                                    Contraseña restablecida exitosamente. Redirigiendo al inicio de
-                                    sesión...
-                                </div>
+                                <div className="alert alert-success">Contraseña restablecida exitosamente. Redirigiendo al inicio de sesión...</div>
                             ) : (
                                 <form onSubmit={handleSubmit}>
                                     {error && <div className="alert alert-danger">{error}</div>}
@@ -73,11 +70,7 @@ const ResetPasswordPage = () => {
                                             ))}
                                         </ul>
                                     </div>
-                                    <button
-                                        type="submit"
-                                        className="btn btn-primary w-100"
-                                        disabled={loading || !isPasswordValid(newPassword)}
-                                    >
+                                    <button type="submit" className="btn btn-primary w-100" disabled={loading || !isPasswordValid(newPassword)}>
                                         {loading ? "Procesando..." : "Restablecer Contraseña"}
                                     </button>
                                 </form>
