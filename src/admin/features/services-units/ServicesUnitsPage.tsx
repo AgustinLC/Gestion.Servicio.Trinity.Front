@@ -2,13 +2,17 @@ import { useEffect, useState } from "react";
 import { addData, deleteData, getData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Form, Spinner } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import { ServiceUnitDto } from "../../../core/models/dto/ServiceUnitDto";
 import AddEditServiceUnitModal from "./AddEditServiceUnitModal";
 import { Link } from "react-router-dom";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import useAppData from "../../../hooks/useAppData";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
+import { useSearch } from "../../../hooks/useSearch";
 
 const ServicesUnitsPage = () => {
 
@@ -24,6 +28,12 @@ const ServicesUnitsPage = () => {
     const [showConfirmActiveModal, setShowConfirmActiveModal] = useState(false);
     const [serviceUnitToUpdate, setServiceUnitToUpdate] = useState<ServiceUnitDto | null>(null);
     const { adminServices, adminUnits } = useAppData();
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<ServiceUnitDto>(
+        serviceUnitData,
+        ["serviceUnitName"]
+    );
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -125,11 +135,11 @@ const ServicesUnitsPage = () => {
         {
             key: "actions", label: "Acciones", actions: (row: ServiceUnitDto) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="warning" onClick={() => { setSelectedServiceUnit(row); setShowServiceEditModal(true); }}>
-                        Editar
+                    <Button variant="outline-warning" onClick={() => { setSelectedServiceUnit(row); setShowServiceEditModal(true); }}>
+                        <i className="bi bi-pencil me-1"></i> Editar
                     </Button>
-                    <Button variant="danger" onClick={() => { setServiceUnitToDelete(row); setShowDeleteModal(true); }}>
-                        Eliminar
+                    <Button variant="outline-danger" onClick={() => { setServiceUnitToDelete(row); setShowDeleteModal(true); }}>
+                        <i className="bi bi-trash me-1"></i> Eliminar
                     </Button>
                 </div>
             ),
@@ -139,26 +149,23 @@ const ServicesUnitsPage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Gestión de Servicios y Unidades</h1>
+            <PageHeader title="Gestión de Servicios y Unidades" subtitle="Administrá la relación entre servicios y unidades." icon="bi bi-calculator" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     <div>
-                        <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                        <TableToolbar onSearch={handleSearch}>
                             <Button onClick={() => { setSelectedServiceUnit(null); setShowServiceEditModal(true); }}>
                                 Añadir Servicio/Unidad
                             </Button>
-                        </div>
+                        </TableToolbar>
 
                         {/* Tabla */}
                         <ReusableTable<ServiceUnitDto>
-                            data={serviceUnitData}
+                            data={filteredData}
                             columns={columns}
                             defaultSort="idServiceUnit"
                         />
@@ -178,6 +185,7 @@ const ServicesUnitsPage = () => {
                         <ConfirmModal
                             show={showConfirmActiveModal}
                             onHide={() => setShowConfirmActiveModal(false)}
+                            variant="question"
                             title="Confirmar Cambio de Estado"
                             message={
                                 <>
@@ -187,6 +195,7 @@ const ServicesUnitsPage = () => {
                                 </>
                             }
                             confirmText="Confirmar"
+                            confirmIcon="bi bi-check2-circle"
                             isLoading={false} // Puedes agregar un estado de carga si lo necesitas
                             onConfirm={handleConfirmActiveChange}
                         />
@@ -195,6 +204,7 @@ const ServicesUnitsPage = () => {
                         <ConfirmModal
                             show={showDeleteModal}
                             onHide={() => setShowDeleteModal(false)}
+                            variant="error"
                             title="Confirmar Eliminación"
                             message={
                                 <>
@@ -202,31 +212,59 @@ const ServicesUnitsPage = () => {
                                     <strong> {serviceUnitToDelete?.serviceUnitName}</strong>?
                                 </>
                             }
+                            hint="Esta acción no se puede deshacer."
                             confirmText="Confirmar"
+                            confirmIcon="bi bi-trash"
                             isLoading={isDeleting}
+                            loadingText="Eliminando..."
                             onConfirm={handleDelete}
                         />
                     </div>
 
-                    {/* Paginas para añadir/editar servicios o unidad */}
-                    <div>
-                        <p className="fst-italic text-danger">Nota.</p>
-                        <ul>
-                            <li>
-                                <p>Si no encuentra la <b>unidad</b> deseada puede crear una haciendo click aqui:
-                                    <Link to="/dashboard/admin/units" className="btn btn-warning btn-sm ms-1" title="Unidades">
-                                        <i className="bi bi-exclamation"></i>
-                                    </Link>
-                                </p>
-                            </li>
-                            <li>
-                                <p>Si no encuentra el <b>servicio</b> deseado puede crear una haciendo click aqui:
-                                    <Link to="/dashboard/admin/services" className="btn btn-warning btn-sm ms-1" title="Servicios">
-                                        <i className="bi bi-exclamation"></i>
-                                    </Link>
-                                </p>
-                            </li>
-                        </ul>
+                    {/* Accesos rápidos para crear servicios/unidades desde cero */}
+                    <div className="card mt-3" style={{ backgroundColor: "#f8fafc" }}>
+                        <div className="card-body p-4">
+                            <h6 className="fw-bold mb-1">¿No encontrás lo que buscás?</h6>
+                            <p className="text-muted small mb-3">Podés crear nuevos servicios o unidades desde los formularios correspondientes.</p>
+                            <div className="row g-3">
+                                <div className="col-md-6">
+                                    <div className="d-flex align-items-center justify-content-between gap-3 p-3 rounded-3 h-100 flex-wrap" style={{ backgroundColor: "#eff6ff" }}>
+                                        <div className="d-flex align-items-center gap-3">
+                                            <div className="icon-badge flex-shrink-0" style={{ backgroundColor: "#dbeafe", color: "#2563eb" }}>
+                                                <i className="bi bi-droplet-fill"></i>
+                                            </div>
+                                            <div>
+                                                <div className="fw-semibold">
+                                                    Si no encontrás la <span style={{ color: "#2563eb" }}>unidad</span> deseada
+                                                </div>
+                                                <div className="text-muted small">Creá una nueva unidad haciendo click en el botón.</div>
+                                            </div>
+                                        </div>
+                                        <Link to="/dashboard/admin/units" className="btn btn-outline-primary text-nowrap">
+                                            <i className="bi bi-plus-lg me-1"></i> Crear unidad
+                                        </Link>
+                                    </div>
+                                </div>
+                                <div className="col-md-6">
+                                    <div className="d-flex align-items-center justify-content-between gap-3 p-3 rounded-3 h-100 flex-wrap" style={{ backgroundColor: "#fff7ed" }}>
+                                        <div className="d-flex align-items-center gap-3">
+                                            <div className="icon-badge flex-shrink-0" style={{ backgroundColor: "#ffedd5", color: "#c2410c" }}>
+                                                <i className="bi bi-box-seam-fill"></i>
+                                            </div>
+                                            <div>
+                                                <div className="fw-semibold">
+                                                    Si no encontrás el <span style={{ color: "#c2410c" }}>servicio</span> deseado
+                                                </div>
+                                                <div className="text-muted small">Creá un nuevo servicio haciendo click en el botón.</div>
+                                            </div>
+                                        </div>
+                                        <Link to="/dashboard/admin/services" className="btn btn-outline-warning text-nowrap">
+                                            <i className="bi bi-plus-lg me-1"></i> Crear servicio
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

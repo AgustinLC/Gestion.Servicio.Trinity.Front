@@ -348,7 +348,7 @@ const DebtPage = ({
 
 const DebtPdfDocument = ({ debts, pdfParameters }: DebtPdfProps) => (
     <Document
-        title="Cuadros de Aviso de Deuda"
+        title="Intimación de Corte"
         author="Consorcio Vecinal de Agua Potable - Santa María de Oro"
         subject="Aviso de deuda pendiente"
         creator="Sistema de Gestión Trinity"

@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Badge, Button, Spinner } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
 import { getData } from "../../../core/services/apiService";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import useAuth from "../../../hooks/useAuth";
 import BillPdfGenerator, { BillPdfGeneratorRef } from "../../../shared/components/pdf/BillPdfGenerator";
 import { UserDto } from "../../../core/models/dto/UserDto";
@@ -45,13 +47,25 @@ const UserBills: React.FC = () => {
     const getPaymentStatusBadge = (status: PaymentStatus) => {
         switch (status) {
             case PaymentStatus.UNPAID:
-                return <Badge bg="danger">Impaga</Badge>;
+                return (
+                    <span className="badge-soft badge-soft-danger">
+                        <i className="bi bi-exclamation-circle-fill"></i> Impaga
+                    </span>
+                );
             case PaymentStatus.PAID_ON_TIME:
-                return <Badge bg="success">Pagada en término</Badge>;
+                return (
+                    <span className="badge-soft badge-soft-success">
+                        <i className="bi bi-check-circle-fill"></i> Pagada en término
+                    </span>
+                );
             case PaymentStatus.PAID_LATE:
-                return <Badge bg="warning" text="dark">Pagada fuera de término</Badge>;
+                return (
+                    <span className="badge-soft badge-soft-warning">
+                        <i className="bi bi-clock-fill"></i> Pagada fuera de término
+                    </span>
+                );
             default:
-                return <Badge bg="secondary">Desconocido</Badge>;
+                return <span className="badge-soft badge-soft-neutral">Desconocido</span>;
         }
     };
 
@@ -125,8 +139,8 @@ const UserBills: React.FC = () => {
                             Pagar
                         </Button>
                     )}*/}
-                    <Button variant="primary" onClick={() => handleViewInvoice(row)}>
-                        Visualizar
+                    <Button variant="outline-primary" onClick={() => handleViewInvoice(row)}>
+                        <i className="bi bi-download me-1"></i> Descargar
                     </Button>
                 </div>
             ),
@@ -136,22 +150,20 @@ const UserBills: React.FC = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Mis Facturas</h1>
+            <PageHeader title="Mis Facturas" subtitle="Consultá y visualizá tus facturas emitidas." icon="bi bi-file-earmark-spreadsheet" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
-                        <SearchBar onSearch={handleSearch} />
-                    </div>
+                <div className="content-fade-in">
+                    <TableToolbar onSearch={handleSearch} />
                     <ReusableTable
                         data={filteredData}
                         columns={columns}
+                        emptyIcon="bi bi-receipt"
+                        emptyTitle="Sin facturas"
+                        emptyMessage="Todavía no se generaron facturas para tu conexión."
                     />
                 </div>
             )}

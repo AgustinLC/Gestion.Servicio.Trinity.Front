@@ -2,11 +2,15 @@ import { useState } from "react";
 import { addData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import { FeeDto } from "../../../core/models/dto/FeeDto";
 import AddEditFeeModal from "./AddEditFeeModal";
 import useAppData from "../../../hooks/useAppData";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
+import { useSearch } from "../../../hooks/useSearch";
 
 const CrudFeePage = () => {
 
@@ -14,6 +18,12 @@ const CrudFeePage = () => {
     const [selectedFee, setSelectedFee] = useState<FeeDto | null>(null);
     const [showModal, setShowModal] = useState(false);
     const { fees, loading, error, refreshFees } = useAppData();
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<FeeDto>(
+        fees,
+        ["name", "description"]
+    );
 
     // Manejar añadir/editar
     const handleSave = async (fee: FeeDto) => {
@@ -47,8 +57,8 @@ const CrudFeePage = () => {
         { key: "maturityAmount", label: "Costo por Vencimiento", sortable: false },
         {
             key: "actions", label: "Acciones", actions: (row: FeeDto) => (
-                <Button variant="warning" onClick={() => { setSelectedFee(row); setShowModal(true); }}>
-                    Editar
+                <Button variant="outline-warning" onClick={() => { setSelectedFee(row); setShowModal(true); }}>
+                    <i className="bi bi-pencil me-1"></i> Editar
                 </Button>
             ),
         },
@@ -57,25 +67,22 @@ const CrudFeePage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Gestión de Tarifas</h1>
+            <PageHeader title="Gestión de Tarifas" subtitle="Administrá las tarifas del servicio." icon="bi bi-clipboard2-pulse" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                <div className="content-fade-in">
+                    <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedFee(null); setShowModal(true); }}>
                             Añadir Tarifa
                         </Button>
-                    </div>
+                    </TableToolbar>
 
                     {/* Tabla */}
                     <ReusableTable<FeeDto>
-                        data={fees}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="price"
                     />

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Card, Col, Form, Row, Spinner, Nav } from "react-bootstrap";
+import { Button, Col, Row, Nav } from "react-bootstrap";
 import { DebtStatus } from "../../../core/models/types/DebtStatus";
 import { BalanceControlDto } from "../../../core/models/dto/BalanceControlDto";
 import { CollectedBillDto } from "../../../core/models/dto/CollectedBillDto";
@@ -7,9 +7,13 @@ import { PaymentStatus } from "../../../core/models/dto/PaymentStatus";
 import { getData } from "../../../core/services/apiService";
 import { UnpaidBillDto } from "../../../core/models/dto/UnpaidBillDto";
 import { useSearch } from "../../../hooks/useSearch";
+import { useTableFilters } from "../../../hooks/useTableFilters";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
+import KpiCard from "../../../shared/components/kpi-card/KpiCard";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
@@ -19,6 +23,16 @@ const formatCurrency = (value: number | null | undefined): string => {
         currency: "ARS",
         minimumFractionDigits: 2
     }).format(value ?? 0);
+};
+
+const formatDateTime = (date: Date): string => {
+    return new Intl.DateTimeFormat("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    }).format(date);
 };
 
 const formatDate = (date: string | null | undefined): string => {
@@ -49,13 +63,13 @@ const getDebtStatusLabel = (status: DebtStatus): string => {
 const getDebtStatusClass = (status: DebtStatus): string => {
     switch (status) {
         case "PENDING":
-            return "bg-warning text-dark";
+            return "badge-soft-warning";
 
         case "OVERDUE":
-            return "bg-danger text-white";
+            return "badge-soft-danger";
 
         default:
-            return "bg-secondary text-white";
+            return "badge-soft-neutral";
     }
 };
 
@@ -78,13 +92,13 @@ const getPaymentStatusLabel = (status: PaymentStatus): string => {
 const getPaymentStatusClass = (status: PaymentStatus): string => {
     switch (status) {
         case PaymentStatus.PAID_ON_TIME:
-            return "bg-success text-white";
+            return "badge-soft-success";
 
         case PaymentStatus.PAID_LATE:
-            return "bg-info text-dark";
+            return "badge-soft-info";
 
         default:
-            return "bg-secondary text-white";
+            return "badge-soft-neutral";
     }
 };
 
@@ -95,10 +109,9 @@ const DebtControlPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<"DEBTS" | "COLLECTED">("DEBTS");
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-    // Estados de los filtros
-    const [statusFilter, setStatusFilter] = useState<string>("ALL");
-    const [periodFilter, setPeriodFilter] = useState<string>("ALL");
+    // Estados de los filtros (se migran a useTableFilters después de periodOptions)
 
     // Obtener datos del backend
     const getBalanceControl = async () => {
@@ -111,6 +124,7 @@ const DebtControlPage = () => {
             );
 
             setData(response);
+            setLastUpdated(new Date());
         } catch (error: any) {
             console.error(error);
 
@@ -178,55 +192,107 @@ const DebtControlPage = () => {
             periods.set(bill.idPeriod, bill.periodName);
         });
 
-        return Array.from(periods.entries()).map(
-            ([idPeriod, periodName]) => ({
+        // Los períodos se crean secuencialmente (ver "Generar nuevo período"),
+        // así que el id más alto es siempre el más reciente: ordenar por acá
+        // evita tener que parsear el nombre ("Marzo - Abril 2026").
+        return Array.from(periods.entries())
+            .map(([idPeriod, periodName]) => ({
                 idPeriod,
                 periodName
-            })
-        );
+            }))
+            .sort((a, b) => b.idPeriod - a.idPeriod);
     }, [unpaidBillsData, collectedBillsData]);
 
-    // Aplicar filtros de período y estado para deudas
+    // Filtros activables con checkbox (período, estado y monto mínimo)
+    const filterConfigs = useMemo(() => [
+        {
+            id: "period",
+            label: "Período",
+            emptyLabel: "Todos los períodos",
+            defaultValue: "ALL",
+            options: periodOptions.map(p => ({ value: String(p.idPeriod), label: p.periodName })),
+        },
+        {
+            id: "status",
+            label: activeTab === "DEBTS" ? "Estado deuda" : "Estado pago",
+            emptyLabel: activeTab === "DEBTS" ? "Todas las facturas" : "Todos los pagos",
+            defaultValue: "ALL",
+            options: activeTab === "DEBTS"
+                ? [
+                    { value: "PENDING", label: "Pendientes" },
+                    { value: "OVERDUE", label: "Vencidas" },
+                ]
+                : [
+                    { value: "PAID_ON_TIME", label: "En término" },
+                    { value: "PAID_LATE", label: "Fuera de término" },
+                ],
+        },
+        {
+            id: "minAmount",
+            label: activeTab === "DEBTS" ? "Monto a pagar (mín.)" : "Monto cobrado (mín.)",
+            type: "number" as const,
+            icon: "bi bi-cash-stack",
+            min: 0,
+            placeholder: "Monto mínimo",
+        },
+    ], [periodOptions, activeTab]);
+    const filterState = useTableFilters(filterConfigs);
+
+    // Aplicar filtros de período, estado y monto mínimo para deudas
     const visibleData = useMemo(() => {
+        const periodActive = filterState.getActiveValue("period");
+        const statusActive = filterState.getActiveValue("status");
+        const minAmountActive = filterState.getActiveValue("minAmount");
         return filteredUnpaid
             .filter(bill => {
                 const matchesStatus =
-                    statusFilter === "ALL" ||
-                    bill.debtStatus === statusFilter;
+                    !statusActive ||
+                    bill.debtStatus === statusActive;
 
                 const matchesPeriod =
-                    periodFilter === "ALL" ||
-                    bill.idPeriod === Number(periodFilter);
+                    !periodActive ||
+                    bill.idPeriod === Number(periodActive);
 
-                return matchesStatus && matchesPeriod;
+                const matchesAmount =
+                    !minAmountActive ||
+                    (bill.amountToPay ?? 0) >= Number(minAmountActive);
+
+                return matchesStatus && matchesPeriod && matchesAmount;
             })
             .sort((a, b) => {
                 const dateA = new Date(a.expirationDate).getTime();
                 const dateB = new Date(b.expirationDate).getTime();
                 return dateA - dateB;
             });
-    }, [filteredUnpaid, statusFilter, periodFilter]);
+    }, [filteredUnpaid, filterState]);
 
-    // Aplicar filtros de período y estado para cobros
+    // Aplicar filtros de período, estado y monto mínimo para cobros
     const visibleDataCollected = useMemo(() => {
+        const periodActive = filterState.getActiveValue("period");
+        const statusActive = filterState.getActiveValue("status");
+        const minAmountActive = filterState.getActiveValue("minAmount");
         return filteredCollected
             .filter(bill => {
                 const matchesStatus =
-                    statusFilter === "ALL" ||
-                    bill.paymentStatus === statusFilter;
+                    !statusActive ||
+                    bill.paymentStatus === statusActive;
 
                 const matchesPeriod =
-                    periodFilter === "ALL" ||
-                    bill.idPeriod === Number(periodFilter);
+                    !periodActive ||
+                    bill.idPeriod === Number(periodActive);
 
-                return matchesStatus && matchesPeriod;
+                const matchesAmount =
+                    !minAmountActive ||
+                    (bill.amountCollected ?? 0) >= Number(minAmountActive);
+
+                return matchesStatus && matchesPeriod && matchesAmount;
             })
             .sort((a, b) => {
                 const dateA = new Date(a.paymentDate).getTime();
                 const dateB = new Date(b.paymentDate).getTime();
                 return dateA - dateB;
             });
-    }, [filteredCollected, statusFilter, periodFilter]);
+    }, [filteredCollected, filterState]);
 
     // Ordenar datos visibles por número de conexión
     const sortedVisibleData = useMemo(() => {
@@ -346,7 +412,7 @@ const DebtControlPage = () => {
         },
         {
             key: "debtStatus", label: "Estado", sortable: true, render: (row: UnpaidBillDto) => (
-                <span className={`badge ${getDebtStatusClass(row.debtStatus)}`}>
+                <span className={`badge-soft ${getDebtStatusClass(row.debtStatus)}`}>
                     {getDebtStatusLabel(row.debtStatus)}
                 </span>
             )
@@ -380,7 +446,7 @@ const DebtControlPage = () => {
         },
         {
             key: "paymentStatus", label: "Estado", sortable: true, render: (row: CollectedBillDto) => (
-                <span className={`badge ${getPaymentStatusClass(row.paymentStatus)}`}>
+                <span className={`badge-soft ${getPaymentStatusClass(row.paymentStatus)}`}>
                     {getPaymentStatusLabel(row.paymentStatus)}
                 </span>
             )
@@ -389,9 +455,36 @@ const DebtControlPage = () => {
 
     if (loading) {
         return (
-            <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-                <span className="mb-2 fw-bold">CARGANDO...</span>
-                <Spinner animation="border" role="status" />
+            <div>
+                <PageHeader title="Balance" subtitle="Control de deudas pendientes y montos recaudados." icon="bi bi-graph-down-arrow">
+                    <div className="stat-card d-flex align-items-center gap-3 px-3 py-2">
+                        <div>
+                            <div className="skeleton skeleton-line mb-1" style={{ width: 130, height: 10 }}></div>
+                            <div className="skeleton skeleton-line" style={{ width: 100, height: 14 }}></div>
+                        </div>
+                        <div className="skeleton" style={{ width: 32, height: 32, borderRadius: "50%" }}></div>
+                    </div>
+                </PageHeader>
+
+                {/* Esqueleto de las pestañas + tarjetas de resumen, por encima del
+                    esqueleto de la tabla. */}
+                <div className="skeleton skeleton-line mb-4" style={{ width: 320, height: 38, borderRadius: 8 }}></div>
+                <Row className="g-3 mb-4">
+                    {Array.from({ length: 3 }).map((_, index) => (
+                        <Col xs={12} md={4} key={index}>
+                            <div className="kpi-card">
+                                <div className="kpi-card-icon skeleton"></div>
+                                <div className="kpi-card-body flex-grow-1">
+                                    <div className="skeleton skeleton-line mb-2" style={{ width: "70%", height: 12 }}></div>
+                                    <div className="skeleton skeleton-line" style={{ width: "45%", height: 18 }}></div>
+                                </div>
+                                <div className="kpi-card-trend skeleton"></div>
+                            </div>
+                        </Col>
+                    ))}
+                </Row>
+
+                <TableSkeleton />
             </div>
         );
     }
@@ -404,27 +497,53 @@ const DebtControlPage = () => {
 
     const currentResultsCount = activeTab === "DEBTS" ? sortedVisibleData.length : sortedVisibleDataCollected.length;
 
+    // Deuda pendiente = mala noticia (rojo), recaudado = buena noticia (verde).
+    // Mismos tonos rojo/verde que usa KpiCard en el resto del sistema.
+    const summaryColor = activeTab === "DEBTS" ? "#dc2626" : "#16a34a";
+    const summaryBg = activeTab === "DEBTS" ? "#fee2e2" : "#dcfce7";
+
     return (
         <div>
-            <h1 className="text-center mb-4">Balance</h1>
+            <PageHeader title="Balance" subtitle="Control de deudas pendientes y montos recaudados." icon="bi bi-graph-down-arrow">
+                <div className="stat-card d-flex align-items-center gap-3 px-3 py-2">
+                    <div>
+                        <div className="stat-label text-muted small">Última actualización</div>
+                        <div className="stat-value fw-bold" style={{ fontSize: "0.95rem" }}>
+                            {lastUpdated ? formatDateTime(lastUpdated) : "-"}
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-outline-primary rounded-circle d-flex align-items-center justify-content-center p-0"
+                        style={{ width: 32, height: 32 }}
+                        onClick={getBalanceControl}
+                        title="Actualizar"
+                    >
+                        <i className="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+            </PageHeader>
 
+            <div className="content-fade-in">
             {/* Alternancia de pestañas */}
             <Nav
                 variant="tabs"
                 activeKey={activeTab}
                 onSelect={(k) => {
                     setActiveTab(k as "DEBTS" | "COLLECTED");
-                    setStatusFilter("ALL");
+                    filterState.setFilterValue("status", "ALL");
                 }}
                 className="mb-4"
             >
                 <Nav.Item>
                     <Nav.Link eventKey="DEBTS" className="fw-semibold">
+                        <i className="bi bi-clock-history me-2"></i>
                         Deudas Pendientes
                     </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
                     <Nav.Link eventKey="COLLECTED" className="fw-semibold">
+                        <i className="bi bi-wallet2 me-2"></i>
                         Recaudado
                     </Nav.Link>
                 </Nav.Item>
@@ -433,87 +552,45 @@ const DebtControlPage = () => {
             {/* Tarjetas de resumen */}
             <Row className="g-3 mb-4">
                 <Col xs={12} md={4}>
-                    <Card className="h-100 shadow-sm">
-                        <Card.Body className="text-center">
-                            <Card.Title>
-                                {activeTab === "DEBTS" ? "Usuarios con deuda" : "Usuarios con pagos"}
-                            </Card.Title>
-                            <Card.Text className="fs-3 fw-bold">
-                                {activeTab === "DEBTS"
-                                    ? filteredSummary.usersWithDebt
-                                    : filteredSummaryCollected.usersWithPayment}
-                            </Card.Text>
-                        </Card.Body>
-                    </Card>
+                    <KpiCard
+                        icon="bi bi-people-fill"
+                        iconBg={summaryBg}
+                        iconColor={summaryColor}
+                        label={activeTab === "DEBTS" ? "Usuarios con deuda" : "Usuarios con pagos"}
+                        value={activeTab === "DEBTS" ? filteredSummary.usersWithDebt : filteredSummaryCollected.usersWithPayment}
+                        valueColor={summaryColor}
+                    />
                 </Col>
 
                 <Col xs={12} md={4}>
-                    <Card className="h-100 shadow-sm">
-                        <Card.Body className="text-center">
-                            <Card.Title>
-                                {activeTab === "DEBTS" ? "Facturas impagas" : "Facturas cobradas"}
-                            </Card.Title>
-                            <Card.Text className="fs-3 fw-bold">
-                                {activeTab === "DEBTS"
-                                    ? filteredSummary.unpaidBillCount
-                                    : filteredSummaryCollected.paidBillCount}
-                            </Card.Text>
-                        </Card.Body>
-                    </Card>
+                    <KpiCard
+                        icon="bi bi-file-earmark-text-fill"
+                        iconBg={summaryBg}
+                        iconColor={summaryColor}
+                        label={activeTab === "DEBTS" ? "Facturas impagas" : "Facturas cobradas"}
+                        value={activeTab === "DEBTS" ? filteredSummary.unpaidBillCount : filteredSummaryCollected.paidBillCount}
+                        valueColor={summaryColor}
+                    />
                 </Col>
 
                 <Col xs={12} md={4}>
-                    <Card className="h-100 shadow-sm">
-                        <Card.Body className="text-center">
-                            <Card.Title>
-                                {activeTab === "DEBTS" ? "Deuda total actual" : "Total recaudado"}
-                            </Card.Title>
-                            <Card.Text className="fs-3 fw-bold">
-                                {activeTab === "DEBTS"
-                                    ? formatCurrency(filteredSummary.totalDebt)
-                                    : formatCurrency(filteredSummaryCollected.totalCollected)}
-                            </Card.Text>
-                        </Card.Body>
-                    </Card>
+                    <KpiCard
+                        icon="bi bi-cash-stack"
+                        iconBg={summaryBg}
+                        iconColor={summaryColor}
+                        label={activeTab === "DEBTS" ? "Deuda total actual" : "Total recaudado"}
+                        value={activeTab === "DEBTS" ? formatCurrency(filteredSummary.totalDebt) : formatCurrency(filteredSummaryCollected.totalCollected)}
+                        valueColor={summaryColor}
+                    />
                 </Col>
             </Row>
 
             {/* Barra de búsqueda y filtros */}
-            <div className="d-flex flex-column flex-lg-row align-items-center justify-content-between gap-2 mb-3">
-                <SearchBar onSearch={handleSearchCombined} />
-
-                <Form.Select
-                    value={periodFilter}
-                    onChange={(event) => setPeriodFilter(event.target.value)}
-                    style={{ maxWidth: "260px" }}
-                >
-                    <option value="ALL">Todos los períodos</option>
-                    {periodOptions.map(period => (
-                        <option key={period.idPeriod} value={period.idPeriod}>
-                            {period.periodName}
-                        </option>
-                    ))}
-                </Form.Select>
-
-                <Form.Select
-                    value={statusFilter}
-                    onChange={(event) => setStatusFilter(event.target.value)}
-                    style={{ maxWidth: "220px" }}
-                >
-                    <option value="ALL">Todas las facturas</option>
-                    {activeTab === "DEBTS" ? (
-                        <>
-                            <option value="PENDING">Pendientes</option>
-                            <option value="OVERDUE">Vencidas</option>
-                        </>
-                    ) : (
-                        <>
-                            <option value="PAID_ON_TIME">En término</option>
-                            <option value="PAID_LATE">Fuera de término</option>
-                        </>
-                    )}
-                </Form.Select>
-
+            <TableToolbar
+                onSearch={handleSearchCombined}
+                filters={filterConfigs}
+                filterState={filterState}
+            >
                 <Button
                     variant="success"
                     onClick={exportToExcel}
@@ -521,20 +598,18 @@ const DebtControlPage = () => {
                 >
                     Exportar a Excel
                 </Button>
-            </div>
+            </TableToolbar>
 
-            {/* Cantidad de resultados */}
-            <div className="mb-2 text-muted">
-                Resultados encontrados: <strong>{currentResultsCount}</strong>
-            </div>
-
-            {/* Tabla */}
+            {/* Tabla (el conteo de resultados ya lo muestra el pie de ReusableTable) */}
             {activeTab === "DEBTS" ? (
                 <ReusableTable
                     key="debts-table"
                     data={sortedVisibleData}
                     columns={columns}
                     defaultSort="expirationDate"
+                    emptyIcon="bi bi-check-circle"
+                    emptyTitle="Sin deudas pendientes"
+                    emptyMessage="No hay facturas impagas para este período/filtro."
                 />
             ) : (
                 <ReusableTable
@@ -542,8 +617,12 @@ const DebtControlPage = () => {
                     data={sortedVisibleDataCollected}
                     columns={columnsCollected}
                     defaultSort="paymentDate"
+                    emptyIcon="bi bi-cash-stack"
+                    emptyTitle="Sin cobros registrados"
+                    emptyMessage="Todavía no se registraron facturas cobradas para este período/filtro."
                 />
             )}
+            </div>
         </div>
     );
 };

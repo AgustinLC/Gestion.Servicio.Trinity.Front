@@ -1,51 +1,113 @@
 import React, { useMemo, useState } from "react";
-import { Button, Form, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { UserDto } from "../../../../core/models/dto/UserDto";
 import { addData } from "../../../../core/services/apiService";
 import ReusableTable from "../../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../../shared/components/table-skeleton/TableSkeleton";
 import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
 import AddReadingModal from "./AddReadingModal";
-import SearchBar from "../../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../../shared/components/PageHeader";
 import { useSearch } from "../../../../hooks/useSearch";
+import { useTableFilters } from "../../../../hooks/useTableFilters";
 import useAppData from "../../../../hooks/useAppData";
+import { withFullName } from "../../../../core/utils/userUtils";
+import AutocompleteFilter from "../../../../shared/components/autocomplete-filter/AutocompleteFilter";
+
+type UserRow = UserDto & { fullName: string };
 
 const ReadingTakePage: React.FC = () => {
-
     // Estados
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const [showAddReadingModal, setShowAddReadingModal] = useState(false);
-    // Filtros
-    const [selectedStreet, setSelectedStreet] = useState<string>("");
-    const [selectedDistrict, setSelectedDistrict] = useState<string>("");
-    const { operatorReadingUsers, loading, error, refreshOperatorReadingUsers } = useAppData();
+    const {
+        operatorReadingUsers,
+        loading,
+        error,
+        refreshOperatorReadingUsers,
+    } = useAppData();
 
     const uniqueStreets = useMemo(
-        () => Array.from(new Set(operatorReadingUsers.map(u => u.residenceDto?.street).filter(Boolean))) as string[],
+        () =>
+            Array.from(
+                new Set(
+                    operatorReadingUsers
+                        .map((u) => u.residenceDto?.street)
+                        .filter(Boolean)
+                )
+            ) as string[],
         [operatorReadingUsers]
     );
     const uniqueDistricts = useMemo(
-        () => Array.from(new Set(operatorReadingUsers.map(u => u.residenceDto?.district).filter(Boolean))) as string[],
+        () =>
+            Array.from(
+                new Set(
+                    operatorReadingUsers
+                        .map((u) => u.residenceDto?.district)
+                        .filter(Boolean)
+                )
+            ) as string[],
+        [operatorReadingUsers]
+    );
+
+    // Filtros activables
+    const filterConfigs = useMemo(
+        () => [
+            {
+                id: "street",
+                label: "Calle",
+                type: "custom" as const,
+                render: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
+                    <AutocompleteFilter
+                        options={uniqueStreets.map((street) => ({ value: street, label: street }))}
+                        value={value}
+                        onChange={onChange}
+                        placeholder="Todas las calles"
+                        icon="bi bi-geo-alt"
+                    />
+                ),
+            },
+        ],
+        [uniqueStreets, uniqueDistricts]
+    );
+    const filterState = useTableFilters(filterConfigs);
+
+    // Se agrega el nombre y apellido concatenados para poder listarlos en una sola columna
+    // y para que el buscador encuentre coincidencias sin importar si se busca por
+    // nombre, apellido o ambos juntos.
+    const usersWithFullName = useMemo(
+        () => withFullName(operatorReadingUsers),
         [operatorReadingUsers]
     );
 
     // Hook reutilizable de búsqueda + filtros
-  const { filteredData, handleSearch } = useSearch<UserDto>(
-    operatorReadingUsers,
-    [ "firstName", "lastName", "idUser" ],
-    { "residenceDto.street": selectedStreet || null, "residenceDto.district": selectedDistrict || null, }
-  );
+    const { filteredData, handleSearch } = useSearch<UserRow>(
+        usersWithFullName,
+        ["fullName", "idUser"],
+        {
+            "residenceDto.street": filterState.getActiveValue("street"),
+            "residenceDto.district": filterState.getActiveValue("district"),
+        }
+    );
 
     // Manejar añadir nueva lectura
     const handleAddReading = async (idUser: number, readingValue: number) => {
         try {
-            await addData(`/operator/register-reading-active/${idUser}/${readingValue}`, {});
+            await addData(
+                `/operator/register-reading-active/${idUser}/${readingValue}`,
+                {}
+            );
             toast.success("Lectura creada exitosamente");
             setShowAddReadingModal(false);
             await refreshOperatorReadingUsers();
         } catch (error) {
             console.error(error);
-            toast.error(error instanceof Error ? error.message : "Error al guardar la lectura");
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Error al guardar la lectura"
+            );
         }
     };
 
@@ -55,20 +117,30 @@ const ReadingTakePage: React.FC = () => {
         setSelectedUser(null);
     };
 
-
     // Columnas para la tabla
-    const columns: TableColumnDefinition<UserDto>[] = [
+    const columns: TableColumnDefinition<UserRow>[] = [
         { key: "idUser", label: "N° Conexión", sortable: false },
-        { key: "firstName", label: "Nombre", sortable: false },
-        { key: "lastName", label: "Apellido", sortable: false },
-        { key: "dni", label: "DNI", sortable: false },
-        { key: "street" as keyof UserDto, label: "Calle", sortable: false, render: (row: UserDto) => row.residenceDto?.street || "Sin dirección" },
-        { key: "houseNumber" as keyof UserDto, label: "N° Casa", sortable: false, render: (row: UserDto) => row.residenceDto?.number || "Sin número" },
-        { key: "meterNumber" as keyof UserDto, label: "N° Medidor", sortable: false, render: (row: UserDto) => row.residenceDto?.serialNumber || "Sin número" },
+        { key: "fullName", label: "Nombre y Apellido", sortable: false },
         {
-            key: "actions", label: "Acciones", actions: (row: UserDto) => (
-                <Button className="text-nowrap" variant="primary" onClick={() => { setSelectedUser(row); setShowAddReadingModal(true); }}>
-                    Cargar lectura
+            key: "street" as keyof UserRow,
+            label: "Calle",
+            sortable: false,
+            render: (row: UserRow) =>
+                row.residenceDto?.street || "Sin dirección",
+        },
+        {
+            key: "actions",
+            label: "Acciones",
+            actions: (row: UserRow) => (
+                <Button
+                    className="text-nowrap"
+                    variant="outline-primary"
+                    onClick={() => {
+                        setSelectedUser(row);
+                        setShowAddReadingModal(true);
+                    }}
+                >
+                    <i className="bi bi-speedometer2 me-1"></i> Cargar lectura
                 </Button>
             ),
         },
@@ -76,45 +148,38 @@ const ReadingTakePage: React.FC = () => {
 
     return (
         <div>
-            <h1 className="text-center">Toma de Lecturas</h1>
+            <PageHeader
+                title="Toma de Lecturas"
+                subtitle="Cargá las lecturas de los medidores por usuario."
+                icon="bi bi-speedometer2"
+            />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     {/* Barra de busqueda y filtros */}
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
-                        <SearchBar onSearch={handleSearch} />
-                        {/* Añadir filtros */}
-                        <div className="d-flex gap-2">
-                            <Form.Select value={selectedStreet} onChange={(e) => setSelectedStreet(e.target.value)}>
-                                <option value="">Todas las calles</option>
-                                {uniqueStreets.map(street => (<option key={street} value={street}>{street}</option>))}
-                            </Form.Select>
-
-                            <Form.Select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)}>
-                                <option value="">Todos los distritos</option>
-                                {uniqueDistricts.map(district => (<option key={district} value={district}>{district}</option>))}
-                            </Form.Select>
-                        </div>
-                    </div>
-                    {/* Tabla de usuarios */}
-                    <ReusableTable
-                        data={filteredData}
-                        columns={columns}
+                    <TableToolbar
+                        onSearch={handleSearch}
+                        filters={filterConfigs}
+                        filterState={filterState}
                     />
+                    {/* Tabla de usuarios */}
+                    <ReusableTable data={filteredData} columns={columns} />
 
                     {/* Modal para añadir lectura */}
                     {selectedUser && (
                         <AddReadingModal
                             show={showAddReadingModal}
                             onHide={handleCloseAddReadingModal}
-                            user= {selectedUser.idUser}
-                            onSave={(readingValue) => handleAddReading(selectedUser.idUser, readingValue)}
+                            user={selectedUser.idUser}
+                            onSave={(readingValue) =>
+                                handleAddReading(
+                                    selectedUser.idUser,
+                                    readingValue
+                                )
+                            }
                         />
                     )}
                 </div>

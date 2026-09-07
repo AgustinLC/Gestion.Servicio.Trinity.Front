@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
 import ReusableTable from '../../../shared/components/table/ReusableTable';
+import TableSkeleton from '../../../shared/components/table-skeleton/TableSkeleton';
 import { Modality } from '../../../core/models/dto/Modality';
 import { toast } from 'react-toastify';
 import { TableColumnDefinition } from '../../../core/models/types/TableTypes';
-import { Form, Spinner } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import { getData, updateData } from '../../../core/services/apiService';
 import ConfirmModal from '../../../shared/components/confirm/ConfirmModal';
+import TableToolbar from '../../../shared/components/table-toolbar/TableToolbar';
+import PageHeader from '../../../shared/components/PageHeader';
+import { useSearch } from '../../../hooks/useSearch';
 
 const ModalityPage = () => {
 
@@ -15,6 +19,12 @@ const ModalityPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [showConfirmActiveModal, setShowConfirmActiveModal] = useState(false);
     const [modalityToUpdate, setModalityToUpdate] = useState<Modality | null>(null);
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<Modality>(
+        modalities,
+        ["name"]
+    );
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -78,20 +88,18 @@ const ModalityPage = () => {
 
     return (
         <div>
-            <h1 className="text-center">Modalidad activa</h1>
+            <PageHeader title="Modalidad activa" subtitle="Administrá las modalidades de facturación." icon="bi bi-arrow-down-up" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
+                    <TableToolbar onSearch={handleSearch} />
 
                     {/* Tabla */}
                     <ReusableTable<Modality>
-                        data={modalities}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="idModality"
                     />
@@ -100,6 +108,7 @@ const ModalityPage = () => {
                     <ConfirmModal
                         show={showConfirmActiveModal}
                         onHide={() => setShowConfirmActiveModal(false)}
+                        variant="question"
                         title="Confirmar Cambio de Estado"
                         message={
                             <>
@@ -109,6 +118,7 @@ const ModalityPage = () => {
                             </>
                         }
                         confirmText="Confirmar"
+                        confirmIcon="bi bi-check2-circle"
                         isLoading={false} // Puedes agregar un estado de carga si lo necesitas
                         onConfirm={handleConfirmActiveChange}
                     />

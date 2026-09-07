@@ -1,13 +1,22 @@
 import { useEffect, useState, useRef } from "react";
-import { Modal, Button, Table, Spinner, Form, Badge } from "react-bootstrap";
+import { Modal, Button, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { BillDetailsDto } from "../../../core/models/dto/BillDetailsDto";
 import { UserDto } from "../../../core/models/dto/UserDto";
 import { getData, deleteData, updateData } from "../../../core/services/apiService";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import BillPdfGenerator, { BillPdfGeneratorRef } from "../../../shared/components/pdf/BillPdfGenerator";
-import { formatCurrency } from "../../../core/utils/formatters";
+import { formatCurrency, formatDate } from "../../../core/utils/formatters";
 import { PaymentStatus } from "../../../core/models/dto/PaymentStatus";
+import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import HintBox from "../../../shared/components/hint-box/HintBox";
+import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableEmptyState from "../../../shared/components/table-empty-state/TableEmptyState";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
+import RowActions from "../../../shared/components/table/RowActions";
+import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
+import { useModalLayer } from "../../../context/ModalStackContext";
+import { onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
 interface BillActiveModalProps {
     show: boolean;
@@ -28,6 +37,9 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     const [billToUpdate, setBillToUpdate] = useState<BillDetailsDto | null>(null);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedStatus, setSelectedStatus] = useState<PaymentStatus | null>(null);
+    const [selectedPaymentType, setSelectedPaymentType] = useState<PaymentStatus | null>(null);
+    const modalZIndex = useModalLayer(show);
+    const paymentModalZIndex = useModalLayer(showPaymentModal);
 
     // Ref para el generador de PDF
     const pdfGeneratorRef = useRef<BillPdfGeneratorRef>(null);
@@ -118,9 +130,10 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     // Manejar el cambio de estado (abrir modal de confirmación)
     const handleTogglePaidStatus = (bill: BillDetailsDto) => {
         setBillToUpdate(bill);
-        
+
         // Si está impaga, mostrar modal para elegir tipo de pago
         if (bill.paidStatus === PaymentStatus.UNPAID) {
+            setSelectedPaymentType(null);
             setShowPaymentModal(true);
         } else {
             // Si está pagada, marcar directamente como impaga
@@ -129,9 +142,11 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
         }
     };
 
-    // Manejar la selección del tipo de pago
-    const handlePaymentTypeSelect = (status: PaymentStatus) => {
-        setSelectedStatus(status);
+    // Confirma la elección hecha en el modal "Seleccionar estado de pago"
+    // (el usuario primero elige la tarjeta, después confirma con el botón).
+    const handleConfirmPaymentType = () => {
+        if (!selectedPaymentType) return;
+        setSelectedStatus(selectedPaymentType);
         setShowPaymentModal(false);
         setShowConfirmStatusModal(true);
     };
@@ -139,13 +154,25 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
     const getPaymentStatusBadge = (status: PaymentStatus) => {
         switch (status) {
             case PaymentStatus.UNPAID:
-                return <Badge bg="danger">Impaga</Badge>;
+                return (
+                    <span className="badge-soft badge-soft-danger">
+                        <i className="bi bi-exclamation-circle-fill"></i> Impaga
+                    </span>
+                );
             case PaymentStatus.PAID_ON_TIME:
-                return <Badge bg="success">Pagada en término</Badge>;
+                return (
+                    <span className="badge-soft badge-soft-success">
+                        <i className="bi bi-check-circle-fill"></i> Pagada en término
+                    </span>
+                );
             case PaymentStatus.PAID_LATE:
-                return <Badge bg="warning" text="dark">Pagada fuera de término</Badge>;
+                return (
+                    <span className="badge-soft badge-soft-warning">
+                        <i className="bi bi-clock-fill"></i> Pagada fuera de término
+                    </span>
+                );
             default:
-                return <Badge bg="secondary">Desconocido</Badge>;
+                return <span className="badge-soft badge-soft-neutral">Desconocido</span>;
         }
     };
 
@@ -157,180 +184,247 @@ const BillActiveModal: React.FC<BillActiveModalProps> = ({ show, onHide, user })
         }, 100);
     };
 
+    // Si la fecha de vencimiento de la factura a marcar como pagada ya pasó,
+    // el aviso de esa fecha en el modal de selección se resalta en rojo.
+    const isPaymentOverdue = billToUpdate?.expirationDate
+        ? new Date(billToUpdate.expirationDate) < new Date()
+        : false;
+
+    // Totales para las tarjetas resumen
+
+    // Columnas de la tabla de facturas activas
+    const columns: TableColumnDefinition<BillDetailsDto>[] = [
+        {
+            key: "idBill",
+            label: "N° Factura",
+            sortable: true,
+            render: (bill) => (
+                <div className="d-flex align-items-center gap-2 text-start">
+                    <div className="icon-badge" style={{ width: 34, height: 34, fontSize: "0.9rem" }}>
+                        <i className="bi bi-file-earmark-text"></i>
+                    </div>
+                    <div>
+                        <div className="fw-bold">{bill.idBill}</div>
+                        <div className="text-muted small">{formatDate(bill.dateRegister)}</div>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            key: "periodName",
+            label: "Período",
+            render: (bill) => (
+                <div className="text-start">
+                    <div>{bill.periodName}</div>
+                    {bill.readingsBillDto?.previousReadingDate && bill.readingsBillDto?.currentReadingDate && (
+                        <div className="text-muted small">
+                            <i className="bi bi-calendar3 me-1"></i>
+                            {formatDate(bill.readingsBillDto.previousReadingDate)} - {formatDate(bill.readingsBillDto.currentReadingDate)}
+                        </div>
+                    )}
+                </div>
+            ),
+        },
+        { key: "consumption", label: "Consumo (m³)", sortable: true, render: (bill) => bill.consumption.toFixed(2) },
+        { key: "subTotal", label: "Subtotal", sortable: true, render: (bill) => formatCurrency(bill.subTotal) },
+        { key: "totalDiscounts", label: "Descuento", render: (bill) => formatCurrency(bill.totalDiscounts) },
+        { key: "total", label: "Total", sortable: true, render: (bill) => formatCurrency(bill.total) },
+        { key: "paidStatus", label: "Estado de pago", render: (bill) => getPaymentStatusBadge(bill.paidStatus) },
+        {
+            key: "actions",
+            label: "Acciones",
+            actions: (bill) => (
+                <RowActions
+                    items={[
+                        {
+                            label: bill.paidStatus === PaymentStatus.UNPAID ? "Marcar como pagada" : "Marcar como impaga",
+                            icon: "bi bi-cash-coin",
+                            onClick: () => handleTogglePaidStatus(bill),
+                        },
+                        {
+                            label: "Descargar factura",
+                            icon: "bi bi-download",
+                            onClick: () => handleViewInvoice(bill),
+                        },
+                        ...(bill.paidStatus === PaymentStatus.UNPAID
+                            ? [
+                                {
+                                    label: "Anular factura",
+                                    icon: "bi bi-trash",
+                                    onClick: () => handleAnnularClick(bill.idBill),
+                                    variant: "danger" as const,
+                                },
+                            ]
+                            : []),
+                    ]}
+                />
+            ),
+        },
+    ];
+
     return (
         <>
-            <Modal show={show} onHide={onHide} size="xl" centered>
-                <Modal.Header closeButton className="bg-light">
-                    <Modal.Title>
-                        Facturas Activas - {user?.firstName} {user?.lastName}
-                    </Modal.Title>
-                </Modal.Header>
+            <Modal show={show} onHide={onHide} onClick={onBackdropClick(onHide)} size="xl" centered scrollable backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} dialogClassName="bill-active-modal-dialog scrollable-modal-fix table-mobile-scroll" contentClassName="form-modal-content" aria-labelledby="bill-active-modal-title">
+                <FormModalHeader
+                    icon="bi bi-file-earmark-spreadsheet"
+                    title={`Facturas Activas - ${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
+                    subtitle="Consulta y gestiona las facturas activas del usuario."
+                    onClose={onHide}
+                    titleId="bill-active-modal-title"
+                />
 
                 <Modal.Body>
-                    {loading ? (
-                        <div className="text-center py-4">
-                            <Spinner animation="border" />
-                            <p className="mt-2">Cargando facturas...</p>
-                        </div>
-                    ) : bills.length === 0 ? (
-                        <p className="text-center">No hay facturas activas</p>
-                    ) : (
-                        <Table striped bordered hover responsive className="align-middle text-center text-nowrap">
-                            <thead>
-                                <tr>
-                                    <th>N° Factura</th>
-                                    <th>Período</th>
-                                    <th>Consumo</th>
-                                    <th>Subtotal</th>
-                                    <th>Descuento</th>
-                                    <th>Total</th>
-                                    <th>Estado de pago</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {bills.map((bill) => (
-                                    <tr key={bill.idBill}>
-                                        <td>{bill.idBill}</td>
-                                        <td>{bill.periodName}</td>
-                                        <td>{bill.consumption.toFixed(2)}</td>
-                                        <td>{formatCurrency(bill.subTotal)}</td>
-                                        <td>{formatCurrency(bill.totalDiscounts)}</td>
-                                        <td>{formatCurrency(bill.total)}</td>
-                                        <td className="text-center">
-                                            {getPaymentStatusBadge(bill.paidStatus)}
-                                        </td>
-                                        <td className="text-center">
-                                            <Form.Check
-                                                type="switch"
-                                                id={`paidStatusSwitch-${bill.idBill}`}
-                                                checked={bill.paidStatus !== PaymentStatus.UNPAID}
-                                                onChange={() => handleTogglePaidStatus(bill)}
-                                                className="custom-switch-container"
-                                            />
-                                        </td>
-                                        <td>
-                                            <div className="d-flex gap-2 justify-content-center">
-                                                <Button 
-                                                    variant="danger" 
-                                                    size="sm" 
-                                                    onClick={() => handleAnnularClick(bill.idBill)} 
-                                                    disabled={bill.paidStatus !== PaymentStatus.UNPAID}
-                                                >
-                                                    Anular
-                                                </Button>
-                                                <Button 
-                                                    variant="primary" 
-                                                    size="sm" 
-                                                    onClick={() => handleViewInvoice(bill)}
-                                                >
-                                                    Visualizar
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
+                    {/* Gateado en "show" para que al cerrar el body quede vacío
+                        de inmediato en vez de seguir mostrando la tabla estática
+                        durante el fade-out — mismo patrón que AddReadingModal
+                        ("Cargar Lectura"), que no presenta el glitch al cerrar. */}
+                    {show && (
+                        loading ? (
+                            <TableSkeleton showToolbar={false} rows={6} />
+                        ) : bills.length === 0 ? (
+                            <TableEmptyState
+                                icon="bi bi-receipt"
+                                title="Sin facturas activas"
+                                message="Este usuario no tiene facturas activas registradas."
+                            />
+                        ) : (
+                            <div>
+                                <ReusableTable<BillDetailsDto>
+                                    data={[...bills].sort((a, b) => b.idBill - a.idBill)}
+                                    columns={columns}
+                                    defaultPageSize={5}
+                                    showPageSizeSelector={false}
+                                />
+                                <HintBox className="mt-3">
+                                    Las facturas pagadas no pueden ser anuladas.
+                                </HintBox>
+                            </div>
+                        )
                     )}
                 </Modal.Body>
-
-                <Modal.Footer className="d-flex justify-content-between">
-                    <small className="text-muted">
-                        * Las facturas pagadas no pueden ser anuladas
-                    </small>
-                    <Button variant="secondary" onClick={onHide}>
-                        Cerrar
-                    </Button>
-                </Modal.Footer>
             </Modal>
 
             {/* Modal de Confirmación para Anular */}
             <ConfirmModal
                 show={showConfirmModal}
                 onHide={() => { setShowConfirmModal(false); setSelectedBillId(null); }}
+                variant="error"
                 title="¿Anular factura?"
-                message={
-                    <>
-                        <p>Estás por anular la factura N° <strong>{selectedBillId}</strong></p>
-                        <p className="text-danger fw-bold">Esta acción no se puede deshacer</p>
-                    </>
-                }
+                message={<>Estás por anular la factura N° <strong>{selectedBillId}</strong></>}
+                hint="Esta acción no se puede deshacer."
                 confirmText="Anular"
+                confirmIcon="bi bi-x-circle"
                 isLoading={anulando}
+                loadingText="Anulando..."
                 onConfirm={handleConfirmAnnular}
             />
 
             {/* Modal para seleccionar tipo de pago */}
-            <Modal show={showPaymentModal} onHide={() => setShowPaymentModal(false)} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Seleccionar estado de pago</Modal.Title>
-                </Modal.Header>
+            <Modal show={showPaymentModal} onHide={() => setShowPaymentModal(false)} onClick={onBackdropClick(() => setShowPaymentModal(false))} centered size="lg" backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: paymentModalZIndex }} contentClassName="form-modal-content" aria-labelledby="payment-status-modal-title">
+                <FormModalHeader
+                    icon="bi bi-credit-card"
+                    title="Seleccionar estado de pago"
+                    subtitle={`Elegí cómo marcar la factura #${billToUpdate?.idBill} como pagada.`}
+                    onClose={() => setShowPaymentModal(false)}
+                    titleId="payment-status-modal-title"
+                />
                 <Modal.Body>
-                    <p className="mb-3">
-                        ¿Cómo desea marcar la factura <strong>#{billToUpdate?.idBill}</strong>?
-                    </p>
-                    <div className="d-grid gap-2">
-                        <Button 
-                            variant="success" 
-                            size="lg"
-                            onClick={() => handlePaymentTypeSelect(PaymentStatus.PAID_ON_TIME)}
+                  {showPaymentModal && (
+                    <>
+                    <div className="fw-bold mb-3">¿Cómo deseas marcar esta factura como pagada?</div>
+
+                    <div className="option-card-list">
+                        <label
+                            className={`option-card ${selectedPaymentType === PaymentStatus.PAID_ON_TIME ? "active" : ""}`}
+                            style={selectedPaymentType === PaymentStatus.PAID_ON_TIME ? { borderColor: "#16a34a", boxShadow: "0 0 0 3px rgba(22, 163, 74, 0.08)" } : undefined}
                         >
-                            <i className="bi bi-check-circle me-2"></i>
-                            Pagada en término
+                            <input
+                                type="radio"
+                                className="option-card-radio"
+                                name="payment-type"
+                                checked={selectedPaymentType === PaymentStatus.PAID_ON_TIME}
+                                onChange={() => setSelectedPaymentType(PaymentStatus.PAID_ON_TIME)}
+                            />
+                            <div className="option-card-icon" style={{ backgroundColor: "#dcfce7", color: "#16a34a" }}>
+                                <i className="bi bi-check-circle-fill"></i>
+                            </div>
+                            <div className="flex-grow-1">
+                                <div className="fw-bold" style={{ color: "#16a34a" }}>Pagada en término</div>
+                                <div className="text-muted small">La factura se pagó antes o en la fecha de vencimiento.</div>
+                            </div>
+                            <span className="badge-soft badge-soft-success text-nowrap">
+                                <i className="bi bi-check-circle-fill"></i> En término
+                            </span>
+                        </label>
+
+                        <label
+                            className={`option-card ${selectedPaymentType === PaymentStatus.PAID_LATE ? "active" : ""}`}
+                            style={selectedPaymentType === PaymentStatus.PAID_LATE ? { borderColor: "#ea580c", boxShadow: "0 0 0 3px rgba(234, 88, 12, 0.08)" } : undefined}
+                        >
+                            <input
+                                type="radio"
+                                className="option-card-radio"
+                                name="payment-type"
+                                checked={selectedPaymentType === PaymentStatus.PAID_LATE}
+                                onChange={() => setSelectedPaymentType(PaymentStatus.PAID_LATE)}
+                            />
+                            <div className="option-card-icon" style={{ backgroundColor: "#ffedd5", color: "#c2410c" }}>
+                                <i className="bi bi-clock-fill"></i>
+                            </div>
+                            <div className="flex-grow-1">
+                                <div className="fw-bold" style={{ color: "#c2410c" }}>Pagada fuera de término</div>
+                                <div className="text-muted small">La factura se pagó después de la fecha de vencimiento.</div>
+                            </div>
+                            <span className="badge-soft badge-soft-warning text-nowrap">
+                                <i className="bi bi-clock-fill"></i> Fuera de término
+                            </span>
+                        </label>
+                    </div>
+
+                    <HintBox className="mt-3" variant={isPaymentOverdue ? "danger" : "info"}>
+                        <strong>Fecha de vencimiento:</strong>{" "}
+                        {billToUpdate?.expirationDate ? formatDate(billToUpdate.expirationDate) : "N/A"}
+                    </HintBox>
+
+                    <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
+                        <Button variant="outline-secondary" onClick={() => setShowPaymentModal(false)}>
+                            <i className="bi bi-x-circle me-1"></i> Cancelar
                         </Button>
-                        <Button 
-                            variant="warning" 
-                            size="lg"
-                            onClick={() => handlePaymentTypeSelect(PaymentStatus.PAID_LATE)}
-                        >
-                            <i className="bi bi-clock-history me-2"></i>
-                            Pagada fuera de término
+                        <Button variant="primary" onClick={handleConfirmPaymentType} disabled={!selectedPaymentType}>
+                            <i className="bi bi-check-circle me-1"></i> Confirmar selección
                         </Button>
                     </div>
-                    <p className="text-muted mt-3 small">
-                        <strong>Fecha de vencimiento:</strong> {billToUpdate?.expirationDate 
-                            ? new Date(billToUpdate.expirationDate).toLocaleDateString('es-AR')
-                            : 'N/A'}
-                    </p>
+                    </>
+                  )}
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowPaymentModal(false)}>
-                        Cancelar
-                    </Button>
-                </Modal.Footer>
             </Modal>
 
             {/* Modal de confirmación */}
-            <Modal show={showConfirmStatusModal} onHide={() => setShowConfirmStatusModal(false)} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirmar cambio de estado</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {selectedStatus === PaymentStatus.UNPAID ? (
-                        <p>
+            <ConfirmModal
+                show={showConfirmStatusModal}
+                onHide={() => setShowConfirmStatusModal(false)}
+                variant="question"
+                title="Confirmar cambio de estado"
+                message={
+                    selectedStatus === PaymentStatus.UNPAID ? (
+                        <>
                             ¿Está seguro que desea marcar la factura <strong>#{billToUpdate?.idBill}</strong> como <strong>impaga</strong>?
-                        </p>
+                        </>
                     ) : (
-                        <p>
+                        <>
                             ¿Está seguro que desea marcar la factura <strong>#{billToUpdate?.idBill}</strong> como{" "}
                             <strong>
-                                {selectedStatus === PaymentStatus.PAID_ON_TIME 
-                                    ? "pagada en término" 
+                                {selectedStatus === PaymentStatus.PAID_ON_TIME
+                                    ? "pagada en término"
                                     : "pagada fuera de término"}
                             </strong>?
-                        </p>
-                    )}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowConfirmStatusModal(false)}>
-                        Cancelar
-                    </Button>
-                    <Button variant="primary" onClick={handleConfirmStatusChange}>
-                        Confirmar
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+                        </>
+                    )
+                }
+                confirmText="Confirmar"
+                confirmIcon="bi bi-check2-circle"
+                onConfirm={handleConfirmStatusChange}
+            />
 
             {selectedBill && user && (
                 <BillPdfGenerator

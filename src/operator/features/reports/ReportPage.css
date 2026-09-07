@@ -31,7 +31,7 @@
 
 /* Colores por variante */
 .report-card.primary {
-    background: linear-gradient(135deg, #4e73df, #224abe) !important;
+    background: linear-gradient(135deg, #0077ff, #0055cc) !important;
 }
 
 .report-card.success {

@@ -1,32 +1,81 @@
 import { useEffect, useMemo, useState } from "react";
 import { ReadingMatrixDto } from "../../../../core/models/dto/ReadingMatrixDto";
 import { getData } from "../../../../core/services/apiService";
-import { Spinner, Button, OverlayTrigger, Tooltip, Dropdown, Form } from "react-bootstrap";
+import { Button, OverlayTrigger, Tooltip, Dropdown } from "react-bootstrap";
 import { ReadingMatrixTableRow } from "../../../../core/models/types/ReadingMatrixTableRow";
 import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
-import SearchBar from "../../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../../shared/components/PageHeader";
 import ReusableTable from "../../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../../shared/components/table-skeleton/TableSkeleton";
 import { useSearch } from "../../../../hooks/useSearch";
+import { useTableFilters } from "../../../../hooks/useTableFilters";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 import useAppData from "../../../../hooks/useAppData";
-type AlertType = | "decreasing" | "duplicate" | "jump" | "missing" | "noMeter" | null; //Tipos para alertas de estados de las lecturas
+import AutocompleteFilter from "../../../../shared/components/autocomplete-filter/AutocompleteFilter";
+type AlertType =
+    "decreasing" | "duplicate" | "jump" | "missing" | "noMeter" | null;
+
+const ALERT_FILTERS: {
+    value: string;
+    label: string;
+    alert?: Exclude<AlertType, null>;
+}[] = [
+    { value: "all", label: "Todas" },
+    { value: "anomalies", label: "Solo inconsistencias" },
+    {
+        value: "decreasing",
+        label: "Lecturas decrecientes",
+        alert: "decreasing",
+    },
+    { value: "duplicate", label: "Lecturas repetidas", alert: "duplicate" },
+    { value: "jump", label: "Saltos de consumo", alert: "jump" },
+    { value: "missing", label: "Lecturas faltantes", alert: "missing" },
+    { value: "noMeter", label: "Lecturas sin medidor", alert: "noMeter" },
+];
+
+// Clases "suaves" (pastel) para las celdas de la tabla, mismo lenguaje de
+// color que el resto del sistema (badge-soft-*).
+const getAlertClass = (alert: AlertType) => {
+    switch (alert) {
+        case "decreasing":
+            return "badge-soft-danger";
+        case "duplicate":
+            return "badge-soft-purple";
+        case "jump":
+            return "badge-soft-warning";
+        case "missing":
+            return "badge-soft-neutral";
+        case "noMeter":
+            return "badge-soft-cyan";
+        default:
+            return "";
+    }
+};
+
+const ALERT_DOT_COLORS: Record<Exclude<AlertType, null>, string> = {
+    decreasing: "#b91c1c", // badge-soft-danger
+    duplicate: "#9333ea", // badge-soft-purple
+    jump: "#c2410c", // badge-soft-warning
+    missing: "#475569", // badge-soft-neutral
+    noMeter: "#0d9488", // badge-soft-cyan
+};
 
 const ReadingControlPage = () => {
-
     //Estados
     const [data, setData] = useState<ReadingMatrixDto | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [alertFilter, setAlertFilter] = useState("all");
-    const [selectedStreet, setSelectedStreet] = useState("");
     const { operatorReadingUsers } = useAppData();
 
     // Funcion para obterner los datos
     const getReadingMatrix = async () => {
         setLoading(true);
         try {
-            const response = await getData<ReadingMatrixDto>("/operator/reading-matrix");
+            const response = await getData<ReadingMatrixDto>(
+                "/operator/reading-matrix"
+            );
             setData(response);
         } catch (error: any) {
             console.error(error);
@@ -34,7 +83,7 @@ const ReadingControlPage = () => {
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     // Efecto para cargar los datos
     useEffect(() => {
@@ -42,26 +91,31 @@ const ReadingControlPage = () => {
     }, []);
 
     const usersById = useMemo(
-        () => new Map(operatorReadingUsers.map(user => [user.idUser, user])),
+        () => new Map(operatorReadingUsers.map((user) => [user.idUser, user])),
         [operatorReadingUsers]
     );
 
     const uniqueStreets = useMemo(
-        () => Array.from(
-            new Set(operatorReadingUsers.map(user => user.residenceDto?.street).filter(Boolean))
-        ).sort() as string[],
+        () =>
+            Array.from(
+                new Set(
+                    operatorReadingUsers
+                        .map((user) => user.residenceDto?.street)
+                        .filter(Boolean)
+                )
+            ).sort() as string[],
         [operatorReadingUsers]
     );
 
-    // Datos para la tabla 
+    // Datos para la tabla
     const tableData: ReadingMatrixTableRow[] = useMemo(() => {
         if (!data) return [];
-        return data.rows.map(row => {
+        return data.rows.map((row) => {
             const user = usersById.get(row.idUser);
             const result: ReadingMatrixTableRow = {
                 idUser: row.idUser,
                 fullName: row.fullName,
-                street: user?.residenceDto?.street || ""
+                street: user?.residenceDto?.street || "",
             };
             row.readings.forEach((reading, index) => {
                 result[`period${index}`] = reading;
@@ -71,11 +125,130 @@ const ReadingControlPage = () => {
         });
     }, [data, usersById]);
 
-    // Hook para buscar por columnas 
+    const filterConfigs = useMemo(
+        () => [
+            {
+                id: "street",
+                label: "Calle",
+                type: "custom" as const,
+                render: ({
+                    value,
+                    onChange,
+                }: {
+                    value: string;
+                    onChange: (value: string) => void;
+                }) => (
+                    <AutocompleteFilter
+                        options={uniqueStreets.map((street) => ({
+                            value: street,
+                            label: street,
+                        }))}
+                        value={value}
+                        onChange={onChange}
+                        placeholder="Todas las calles"
+                        icon="bi bi-geo-alt"
+                    />
+                ),
+            },
+            {
+                id: "alert",
+                label: "Inconsistencias",
+                type: "custom" as const,
+                defaultValue: "all",
+                maxWidth: "250px",
+                render: ({
+                    value,
+                    onChange,
+                }: {
+                    value: string;
+                    onChange: (value: string) => void;
+                }) => {
+                    const selectedFilter = ALERT_FILTERS.find(
+                        (filter) => filter.value === value
+                    );
+                    const hasValue =
+                        !!value &&
+                        value !== "all" &&
+                        value !== "ALL" &&
+                        value !== "";
+
+                    return (
+                        <Dropdown className="w-100" drop="down">
+                            <Dropdown.Toggle
+                                variant="outline-secondary"
+                                className={`alert-filter-toggle w-100 d-flex align-items-center justify-content-between ${hasValue ? "has-value" : ""}`}
+                            >
+                                <span className="d-inline-flex align-items-center gap-2">
+                                    <i className="bi bi-funnel alert-filter-toggle-icon"></i>
+                                    {selectedFilter?.alert && (
+                                        <span
+                                            className="d-inline-block rounded-circle"
+                                            style={{
+                                                width: "10px",
+                                                height: "10px",
+                                                backgroundColor:
+                                                    ALERT_DOT_COLORS[
+                                                        selectedFilter.alert
+                                                    ],
+                                            }}
+                                            aria-hidden="true"
+                                        ></span>
+                                    )}
+                                    <span>
+                                        {selectedFilter?.label ?? "Todas"}
+                                    </span>
+                                </span>
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu
+                                className="w-100"
+                                popperConfig={{
+                                    modifiers: [
+                                        { name: "flip", enabled: false },
+                                    ],
+                                }}
+                            >
+                                {ALERT_FILTERS.map((filter) => (
+                                    <Dropdown.Item
+                                        key={filter.value}
+                                        active={value === filter.value}
+                                        onClick={() => onChange(filter.value)}
+                                        className="d-flex align-items-center gap-2"
+                                    >
+                                        <span
+                                            className="d-inline-block rounded-circle"
+                                            style={{
+                                                width: "10px",
+                                                height: "10px",
+                                                backgroundColor: filter.alert
+                                                    ? ALERT_DOT_COLORS[
+                                                          filter.alert
+                                                      ]
+                                                    : "transparent",
+                                            }}
+                                            aria-hidden="true"
+                                        ></span>
+                                        <span>{filter.label}</span>
+                                    </Dropdown.Item>
+                                ))}
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    );
+                },
+            },
+        ],
+        [uniqueStreets]
+    );
+    const filterState = useTableFilters(filterConfigs);
+
+    const alertFilter = filterState.isFilterEnabled("alert")
+        ? (filterState.values.alert ?? "all")
+        : "all";
+
+    // Hook para buscar por columnas
     const { filteredData, handleSearch } = useSearch<ReadingMatrixTableRow>(
         tableData,
         ["idUser", "fullName"],
-        { street: selectedStreet || null }
+        { street: filterState.getActiveValue("street") }
     );
 
     // Funcion para determinar el estado de la lectura
@@ -114,50 +287,25 @@ const ReadingControlPage = () => {
         return null;
     };
 
-    // Funcion para convertir el tipo de alerta a clase de bootstrap
-    const getAlertClass = (
-        alert: AlertType
-    ) => {
+    // Funcion para convertir el tipo de alerta a clase de bootstrap — ver getAlertClass (módulo)
 
-        switch (alert) {
-
-            case "decreasing":
-                return "bg-danger text-white";
-            case "duplicate":
-                return "bg-dark text-white";
-            case "jump":
-                return "bg-warning";
-            case "missing":
-                return "bg-secondary text-white";
-            case "noMeter":
-                return "bg-info text-dark";
-            default:
-                return "";
-        }
-    };
-
-    const alertLegendItems: { alert: Exclude<AlertType, null>; label: string }[] = [
+    const alertLegendItems: {
+        alert: Exclude<AlertType, null>;
+        label: string;
+    }[] = [
         { alert: "decreasing", label: "Lectura decreciente" },
         { alert: "duplicate", label: "Lectura repetida" },
         { alert: "jump", label: "Salto de consumo" },
         { alert: "missing", label: "Lectura faltante" },
-        { alert: "noMeter", label: "Lectura sin medidor" }
-    ];
-
-    const alertFilters: { value: string; label: string; alert?: Exclude<AlertType, null> }[] = [
-        { value: "all", label: "Todas" },
-        { value: "anomalies", label: "Solo inconsistencias" },
-        { value: "decreasing", label: "Lecturas decrecientes", alert: "decreasing" },
-        { value: "duplicate", label: "Lecturas repetidas", alert: "duplicate" },
-        { value: "jump", label: "Saltos de consumo", alert: "jump" },
-        { value: "missing", label: "Lecturas faltantes", alert: "missing" },
-        { value: "noMeter", label: "Lecturas sin medidor", alert: "noMeter" }
+        { alert: "noMeter", label: "Lectura sin medidor" },
     ];
 
     const getAlertLabel = (alert: AlertType) =>
-        alertLegendItems.find(item => item.alert === alert)?.label;
+        alertLegendItems.find((item) => item.alert === alert)?.label;
 
-    const selectedAlertFilter = alertFilters.find(filter => filter.value === alertFilter);
+    const selectedAlertFilter = ALERT_FILTERS.find(
+        (filter) => filter.value === alertFilter
+    );
 
     const sanitizeFileNamePart = (value: string) =>
         value
@@ -166,110 +314,101 @@ const ReadingControlPage = () => {
             .replace(/\s+/g, "_");
 
     // Determina si la fila tiene una alerta
-    const hasAlertType = (
-        row: ReadingMatrixTableRow,
-        type: string
-    ) => {
-
+    const hasAlertType = (row: ReadingMatrixTableRow, type: string) => {
         if (!data) return false;
 
         return data.periods.some((_, index) => {
             const alert = getReadingAlert(row, index);
 
-            if (type === "anomalies")
-                return alert !== null;
+            if (type === "anomalies") return alert !== null;
 
             return alert === type;
         });
     };
 
-    // Mostrar los datos segun el filtro de alerta seleccionado 
+    // Mostrar los datos segun el filtro de alerta seleccionado
     const visibleData = useMemo(() => {
-        const filtered = filteredData.filter(row => {
-
+        const filtered = filteredData.filter((row) => {
             if (alertFilter === "all") {
                 return true;
             }
             return hasAlertType(row, alertFilter);
         });
-        return filtered.sort(
-            (a, b) => a.idUser - b.idUser
-        );
-
+        return filtered.sort((a, b) => a.idUser - b.idUser);
     }, [filteredData, alertFilter, data]);
 
     // Datos de las columnas para la tabla
-    const columns: TableColumnDefinition<ReadingMatrixTableRow>[] = useMemo(() => {
+    const columns: TableColumnDefinition<ReadingMatrixTableRow>[] =
+        useMemo(() => {
+            if (!data) return [];
 
-        if (!data) return [];
+            const baseColumns: TableColumnDefinition<ReadingMatrixTableRow>[] =
+                [
+                    {
+                        key: "idUser",
+                        label: "N° Conexión",
+                        sortable: true,
+                    },
+                    {
+                        key: "fullName",
+                        label: "Usuario",
+                        sortable: true,
+                    },
+                ];
 
-        const baseColumns: TableColumnDefinition<ReadingMatrixTableRow>[] = [
-            {
-                key: "idUser",
-                label: "N° Conexión",
-                sortable: true
-            },
-            {
-                key: "fullName",
-                label: "Usuario",
-                sortable: true
-            }
-        ];
+            const periodColumns: TableColumnDefinition<ReadingMatrixTableRow>[] =
+                data.periods.map((period, index) => ({
+                    key: `period${index}` as keyof ReadingMatrixTableRow,
+                    label: period,
+                    sortable: false,
+                    render: (row: ReadingMatrixTableRow) => {
+                        const value = row[`period${index}`] as number | null;
+                        const alert = getReadingAlert(row, index);
+                        const alertLabel = getAlertLabel(alert);
+                        const readingContent = (
+                            <span
+                                className={`px-2 py-1 rounded ${getAlertClass(alert)}`}
+                                style={{
+                                    cursor: alert ? "pointer" : "default",
+                                }}
+                                aria-label={alertLabel}
+                            >
+                                {value ?? "-"}
+                            </span>
+                        );
 
-        const periodColumns: TableColumnDefinition<ReadingMatrixTableRow>[] =
-            data.periods.map((period, index) => ({
-                key: `period${index}` as keyof ReadingMatrixTableRow,
-                label: period,
-                sortable: false,
-                render: (row: ReadingMatrixTableRow) => {
-                    const value = row[`period${index}`] as number | null;
-                    const alert = getReadingAlert(row, index);
-                    const alertLabel = getAlertLabel(alert);
-                    const readingContent = (
-                        <span
-                            className={`px-2 py-1 rounded ${getAlertClass(alert)}`}
-                            style={{ cursor: alert ? "pointer" : "default" }}
-                            aria-label={alertLabel}
-                        >
-                            {value ?? "-"}
-                        </span>
-                    );
+                        if (!alertLabel) {
+                            return readingContent;
+                        }
 
-                    if (!alertLabel) {
-                        return readingContent;
-                    }
+                        return (
+                            <OverlayTrigger
+                                placement="top"
+                                overlay={
+                                    <Tooltip
+                                        id={`reading-alert-${row.idUser}-${index}`}
+                                    >
+                                        {alertLabel}
+                                    </Tooltip>
+                                }
+                            >
+                                {readingContent}
+                            </OverlayTrigger>
+                        );
+                    },
+                }));
 
-                    return (
-                        <OverlayTrigger
-                            placement="top"
-                            overlay={
-                                <Tooltip id={`reading-alert-${row.idUser}-${index}`}>
-                                    {alertLabel}
-                                </Tooltip>
-                            }
-                        >
-                            {readingContent}
-                        </OverlayTrigger>
-                    );
-                }
+            return [...baseColumns, ...periodColumns];
+        }, [data]);
 
-            }));
-
-        return [
-            ...baseColumns,
-            ...periodColumns
-        ];
-
-    }, [data]);
-
-    // Funcion para exportar datos a excel 
+    // Funcion para exportar datos a excel
     const exportToExcel = () => {
         if (!data || tableData.length === 0) return;
 
-        const excelData = visibleData.map(row => {
+        const excelData = visibleData.map((row) => {
             const excelRow: Record<string, any> = {
                 "N° Conexión": row.idUser,
-                "Usuario": row.fullName
+                Usuario: row.fullName,
             };
 
             data.periods.forEach((period, index) => {
@@ -282,26 +421,21 @@ const ReadingControlPage = () => {
         const worksheet = XLSX.utils.json_to_sheet(excelData);
         const workbook = XLSX.utils.book_new();
 
-        XLSX.utils.book_append_sheet(
-            workbook,
-            worksheet,
-            "Lecturas"
-        );
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Lecturas");
         const excelBuffer = XLSX.write(workbook, {
             bookType: "xlsx",
-            type: "array"
+            type: "array",
         });
-        const blob = new Blob(
-            [excelBuffer],
-            {
-                type:
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            }
+        const blob = new Blob([excelBuffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const streetFileName = sanitizeFileNamePart(
+            filterState.getActiveValue("street") || "Todas_las_calles"
         );
-        const streetFileName = sanitizeFileNamePart(selectedStreet || "Todas_las_calles");
-        const alertFilterFileName = alertFilter === "all"
-            ? ""
-            : `_${sanitizeFileNamePart(selectedAlertFilter?.label || "Inconsistencias")}`;
+        const alertFilterFileName =
+            alertFilter === "all"
+                ? ""
+                : `_${sanitizeFileNamePart(selectedAlertFilter?.label || "Inconsistencias")}`;
         const dateFileName = new Date().toISOString().split("T")[0];
 
         saveAs(
@@ -312,66 +446,23 @@ const ReadingControlPage = () => {
 
     return (
         <div>
-            <h1 className="text-center">Lecturas por período</h1>
+            <PageHeader
+                title="Lecturas por período"
+                subtitle="Control de inconsistencias en las lecturas registradas."
+                icon="bi bi-speedometer2"
+            />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
+                <div className="content-fade-in">
                     {/* Barra de busqueda y filtros */}
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
-                        <SearchBar onSearch={handleSearch} />
-                        <Form.Select
-                            className="w-100"
-                            style={{ maxWidth: "250px" }}
-                            value={selectedStreet}
-                            onChange={(e) => setSelectedStreet(e.target.value)}
-                        >
-                            <option value="">Todas las calles</option>
-                            {uniqueStreets.map(street => (
-                                <option key={street} value={street}>
-                                    {street}
-                                </option>
-                            ))}
-                        </Form.Select>
-                        <Dropdown className="w-100" style={{ maxWidth: "250px" }}>
-                            <Dropdown.Toggle
-                                variant="outline-secondary"
-                                className="w-100 d-flex align-items-center justify-content-between bg-white text-dark"
-                            >
-                                <span className="d-inline-flex align-items-center gap-2">
-                                    {selectedAlertFilter?.alert && (
-                                        <span
-                                            className={`d-inline-block rounded-circle ${getAlertClass(selectedAlertFilter.alert)}`}
-                                            style={{ width: "12px", height: "12px" }}
-                                            aria-hidden="true"
-                                        ></span>
-                                    )}
-                                    <span>{selectedAlertFilter?.label}</span>
-                                </span>
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu className="w-100">
-                                {alertFilters.map(filter => (
-                                    <Dropdown.Item
-                                        key={filter.value}
-                                        active={alertFilter === filter.value}
-                                        onClick={() => setAlertFilter(filter.value)}
-                                        className="d-flex align-items-center gap-2"
-                                    >
-                                        <span
-                                            className={`d-inline-block rounded-circle ${filter.alert ? getAlertClass(filter.alert) : ""}`}
-                                            style={{ width: "12px", height: "12px", opacity: filter.alert ? 1 : 0 }}
-                                            aria-hidden="true"
-                                        ></span>
-                                        <span>{filter.label}</span>
-                                    </Dropdown.Item>
-                                ))}
-                            </Dropdown.Menu>
-                        </Dropdown>
+                    <TableToolbar
+                        onSearch={handleSearch}
+                        filters={filterConfigs}
+                        filterState={filterState}
+                    >
                         <Button
                             variant="success"
                             onClick={exportToExcel}
@@ -379,7 +470,7 @@ const ReadingControlPage = () => {
                         >
                             Exportar a Excel
                         </Button>
-                    </div>
+                    </TableToolbar>
                     {/* Tabla de usuarios */}
                     <ReusableTable
                         data={visibleData}
@@ -390,6 +481,6 @@ const ReadingControlPage = () => {
             )}
         </div>
     );
-}
+};
 
 export default ReadingControlPage;

@@ -1,14 +1,21 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { Button, Form, Row, Col, Spinner, Alert, Card } from 'react-bootstrap';
+import { useState, useMemo } from 'react';
+import { Button, Form, Row, Col, Spinner, Card } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { getData } from '../../../core/services/apiService';
 import { BillDetailsDto } from '../../../core/models/dto/BillDetailsDto';
 import { UserDto } from '../../../core/models/dto/UserDto';
 import { PaymentStatus } from '../../../core/models/dto/PaymentStatus';
 import { TableColumnDefinition } from '../../../core/models/types/TableTypes';
+import { isNegativeInput } from '../../../core/utils/numberInput';
 import { useBillPdfGeneratorV2 } from '../../../shared/hooks/useBillPdfGeneratorV2';
 import useAppData from '../../../hooks/useAppData';
 import ReusableTable from '../../../shared/components/table/ReusableTable';
+import PageHeader from '../../../shared/components/PageHeader';
+import FloatingFieldset from '../../../shared/components/floating-fieldset/FloatingFieldset';
+import CustomSelect from '../../../shared/components/custom-select/CustomSelect';
+import HintBox from '../../../shared/components/hint-box/HintBox';
+import AutocompleteFilter from '../../../shared/components/autocomplete-filter/AutocompleteFilter';
+import AppDatePicker from '../../../shared/components/date-picker/AppDatePicker';
 import './BillGenerateFilteredPage.css';
 
 const BillGenerateFilteredPage = () => {
@@ -39,11 +46,6 @@ const BillGenerateFilteredPage = () => {
     // Hook para generar PDFs (V2 - usa @react-pdf/renderer, 10-50x más rápido)
     const { isGenerating: pdfLoading, generateSinglePdf, generateMultiplePdf } = useBillPdfGeneratorV2();
 
-    // Autocomplete para la calle
-    const [streetSearch, setStreetSearch] = useState('');
-    const [showStreetSuggestions, setShowStreetSuggestions] = useState(false);
-    const suggestionsRef = useRef<HTMLDivElement>(null);
-
     // Obtener calles únicas de los usuarios
     const uniqueStreets = useMemo(() => {
         return Array.from(
@@ -55,33 +57,16 @@ const BillGenerateFilteredPage = () => {
         ).sort() as string[];
     }, [operatorUsers]);
 
-    // Filtrar sugerencias
-    const streetSuggestions = useMemo(() => {
-        const term = streetSearch.trim().toLowerCase();
-        const filtered = term
-            ? uniqueStreets.filter((st) => st.toLowerCase().includes(term))
-            : uniqueStreets;
-        return filtered.slice(0, 50); // Limitar a 50 para rendimiento
-    }, [streetSearch, uniqueStreets]);
-
-    // Cerrar sugerencias al hacer clic fuera
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (
-                suggestionsRef.current &&
-                !suggestionsRef.current.contains(event.target as Node)
-            ) {
-                setShowStreetSuggestions(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
+    // "Reiniciar Filtros" solo tiene sentido si se cargó algún filtro —
+    // sortBy/sortDirection quedan afuera porque no son un filtro que el
+    // usuario haya escrito, son el orden por defecto de la tabla.
+    const hasActiveFilters = Object.entries(filters).some(
+        ([key, value]) => key !== 'sortBy' && key !== 'sortDirection' && value !== ''
+    );
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
+        if (type === "number" && isNegativeInput(value)) return;
         setFilters((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -105,7 +90,6 @@ const BillGenerateFilteredPage = () => {
             sortBy: 'date',
             sortDirection: 'ASC',
         });
-        setStreetSearch('');
         setFilteredBills([]);
         setUsers([]);
         toast.info('Filtros reiniciados');
@@ -160,6 +144,16 @@ const BillGenerateFilteredPage = () => {
     const unpaidCount = useMemo(() => {
         return filteredBills.filter(bill => bill.paidStatus === PaymentStatus.UNPAID).length;
     }, [filteredBills]);
+
+    // Facturas sin usuario cargado en la app. Ojo: NO es "filteredBills.length
+    // - users.length" (eso compara cantidad de facturas contra cantidad de
+    // usuarios ÚNICOS, y da falsos positivos apenas un mismo usuario tiene
+    // más de una factura en el rango filtrado, ej. varios períodos de un
+    // mismo año). Acá se cuenta factura por factura, igual que el resaltado
+    // de filas de la tabla.
+    const billsWithoutUserCount = useMemo(() => {
+        return filteredBills.filter(bill => !users.some(u => u.idUser === bill.idUser)).length;
+    }, [filteredBills, users]);
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('es-AR', {
@@ -219,13 +213,28 @@ const BillGenerateFilteredPage = () => {
             label: "Estado",
             sortable: true,
             render: (row: BillDetailsDto) => {
-                const isPaid = row.paidStatus !== PaymentStatus.UNPAID;
-                return (
-                    <span className={`badge bg-${isPaid ? 'success' : 'danger'}`}>
-                        {row.paidStatus === PaymentStatus.PAID_ON_TIME ? 'Pagada' :
-                         row.paidStatus === PaymentStatus.PAID_LATE ? 'Pagada Fuera de Término' : 'Impaga'}
-                    </span>
-                );
+                switch (row.paidStatus) {
+                    case PaymentStatus.PAID_ON_TIME:
+                        return (
+                            <span className="badge-soft badge-soft-success">
+                                <i className="bi bi-check-circle-fill"></i> Pagada en término
+                            </span>
+                        );
+                    case PaymentStatus.PAID_LATE:
+                        return (
+                            <span className="badge-soft badge-soft-warning">
+                                <i className="bi bi-clock-fill"></i> Pagada fuera de término
+                            </span>
+                        );
+                    case PaymentStatus.UNPAID:
+                        return (
+                            <span className="badge-soft badge-soft-danger">
+                                <i className="bi bi-exclamation-circle-fill"></i> Impaga
+                            </span>
+                        );
+                    default:
+                        return <span className="badge-soft badge-soft-neutral">Desconocido</span>;
+                }
             }
         },
         {
@@ -307,189 +316,182 @@ const BillGenerateFilteredPage = () => {
     };
 
     return (
-        <div className="generate-filtered-container">
-            <h2 className="mb-4 text-center fw-bold text-primary">Generación de Facturas por Filtros</h2>
+        <div className="generate-filtered-container d-flex flex-column" style={{ minHeight: "calc(100vh - var(--navbar-height) - 3rem)" }}>
+            <PageHeader title="Generación de Facturas por Filtros" subtitle="Buscá facturas por criterios y descargalas en PDF." icon="bi bi-funnel-fill" />
 
+            <div className="my-auto content-fade-in-slide">
             <Form className="mb-4">
-                <Card className="filter-card border-0 shadow-sm">
+                <Card className="filter-card border-0 shadow-lg">
                     <Row>
                         {/* Grupo 1: Ubicación e Identificación */}
-                        <Col lg={6} className="mb-4">
+                        <Col lg={6} className="mb-3">
                             <h5 className="filter-section-title">
                                 <i className="bi bi-geo-alt-fill text-primary"></i> Ubicación y Cliente
                             </h5>
                             <Row>
                                 <Col md={12} className="mb-3">
-                                    <Form.Group className="street-autocomplete-wrapper" ref={suggestionsRef}>
-                                        <Form.Label>Calle</Form.Label>
-                                        <div className="input-with-clear">
-                                            <Form.Control
-                                                name="street"
-                                                value={streetSearch}
-                                                onChange={(e) => {
-                                                    const val = e.target.value;
-                                                    setStreetSearch(val);
-                                                    setFilters(prev => ({ ...prev, street: val }));
-                                                    setShowStreetSuggestions(true);
-                                                }}
-                                                onFocus={() => setShowStreetSuggestions(true)}
-                                                placeholder="Escriba o seleccione una calle..."
+                                    <Form.Group>
+                                        <FloatingFieldset label="Calle">
+                                            <AutocompleteFilter
+                                                options={uniqueStreets.map((street) => ({ value: street, label: street }))}
+                                                value={filters.street}
+                                                onChange={(value) => setFilters(prev => ({ ...prev, street: value }))}
+                                                freeText
                                             />
-                                            {streetSearch && (
-                                                <button
-                                                    type="button"
-                                                    className="input-clear-btn"
-                                                    onClick={() => {
-                                                        setStreetSearch('');
-                                                        setFilters(prev => ({ ...prev, street: '' }));
-                                                        setShowStreetSuggestions(false);
-                                                    }}
-                                                >
-                                                    <i className="bi bi-x"></i>
-                                                </button>
-                                            )}
-                                        </div>
-                                        
-                                        {showStreetSuggestions && streetSuggestions.length > 0 && (
-                                            <ul className="street-suggestions-list">
-                                                {streetSuggestions.map((street) => (
-                                                    <li
-                                                        key={street}
-                                                        className="street-suggestion-item"
-                                                        onClick={() => {
-                                                            setStreetSearch(street);
-                                                            setFilters(prev => ({ ...prev, street }));
-                                                            setShowStreetSuggestions(false);
-                                                        }}
-                                                    >
-                                                        <i className="bi bi-geo-alt text-muted"></i> {street}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
+                                        </FloatingFieldset>
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
-                                        <Form.Label>N° de Conexión</Form.Label>
-                                        <Form.Control 
-                                            type="number" 
-                                            name="idUser" 
-                                            value={filters.idUser} 
-                                            onChange={handleChange} 
-                                            placeholder="N° Conexión"
-                                        />
+                                        <FloatingFieldset label="N° de Conexión">
+                                            <Form.Control
+                                                type="number"
+                                                name="idUser"
+                                                min={0}
+                                                value={filters.idUser}
+                                                onChange={handleChange}
+                                            />
+                                        </FloatingFieldset>
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
-                                        <Form.Label>Mostrar Eliminados</Form.Label>
-                                        <Form.Select name="deleted" value={filters.deleted} onChange={handleChange}>
-                                            <option value="">-- No filtrar --</option>
-                                            <option value="true">Sí</option>
-                                            <option value="false">No</option>
-                                        </Form.Select>
+                                        <FloatingFieldset label="Mostrar Eliminados">
+                                            <CustomSelect
+                                                value={filters.deleted}
+                                                onChange={(v) => setFilters((prev) => ({ ...prev, deleted: v }))}
+                                                placeholder="No filtrar"
+                                                options={[
+                                                    { value: "true", label: "Sí" },
+                                                    { value: "false", label: "No" },
+                                                ]}
+                                            />
+                                        </FloatingFieldset>
                                     </Form.Group>
                                 </Col>
                             </Row>
                         </Col>
 
                         {/* Grupo 2: Fechas y Períodos */}
-                        <Col lg={6} className="mb-4">
+                        <Col lg={6} className="mb-3">
                             <h5 className="filter-section-title">
                                 <i className="bi bi-calendar3 text-primary"></i> Período y Fechas
                             </h5>
                             <Row>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
-                                        <Form.Label>Año</Form.Label>
-                                        <Form.Control 
-                                            type="number" 
-                                            name="year" 
-                                            value={filters.year} 
-                                            onChange={handleChange} 
-                                            placeholder="Ej. 2026"
-                                        />
+                                        <FloatingFieldset label="Año">
+                                            <Form.Control
+                                                type="number"
+                                                name="year"
+                                                min={0}
+                                                value={filters.year}
+                                                onChange={handleChange}
+                                            />
+                                        </FloatingFieldset>
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
-                                        <Form.Label>Mes</Form.Label>
-                                        <Form.Control 
-                                            type="number" 
-                                            name="month" 
-                                            value={filters.month} 
-                                            onChange={handleChange} 
-                                            placeholder="Ej. 6"
-                                        />
+                                        <FloatingFieldset label="Mes">
+                                            <Form.Control
+                                                type="number"
+                                                name="month"
+                                                min={1}
+                                                max={12}
+                                                value={filters.month}
+                                                onChange={handleChange}
+                                            />
+                                        </FloatingFieldset>
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
-                                        <Form.Label>Fecha Desde</Form.Label>
-                                        <Form.Control type="date" name="dateFrom" value={filters.dateFrom} onChange={handleChange} />
+                                        <FloatingFieldset label="Fecha Desde">
+                                            <AppDatePicker
+                                                value={filters.dateFrom}
+                                                onChange={(value) => setFilters(prev => ({ ...prev, dateFrom: value }))}
+                                            />
+                                        </FloatingFieldset>
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
-                                        <Form.Label>Fecha Hasta</Form.Label>
-                                        <Form.Control type="date" name="dateTo" value={filters.dateTo} onChange={handleChange} />
+                                        <FloatingFieldset label="Fecha Hasta">
+                                            <AppDatePicker
+                                                value={filters.dateTo}
+                                                onChange={(value) => setFilters(prev => ({ ...prev, dateTo: value }))}
+                                            />
+                                        </FloatingFieldset>
                                     </Form.Group>
                                 </Col>
                             </Row>
                         </Col>
 
                         {/* Grupo 3: Condiciones Financieras */}
-                        <Col lg={6} className="mb-4">
+                        <Col lg={6} className="mb-3">
                             <h5 className="filter-section-title">
                                 <i className="bi bi-cash-coin text-primary"></i> Facturación y Tarifas
                             </h5>
                             <Row>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
-                                        <Form.Label>Tarifa</Form.Label>
-                                        <Form.Select name="idFee" value={filters.idFee} onChange={handleChange}>
-                                            <option value="">-- Seleccionar tarifa --</option>
-                                            {fees.map((fee) => (
-                                                <option key={fee.idFee} value={fee.idFee}>
-                                                    {fee.name}
-                                                </option>
-                                            ))}
-                                        </Form.Select>
+                                        <FloatingFieldset label="Tarifa">
+                                            <CustomSelect
+                                                value={filters.idFee}
+                                                onChange={(v) => setFilters((prev) => ({ ...prev, idFee: v }))}
+                                                placeholder="Seleccionar tarifa"
+                                                options={fees.map((fee) => ({ value: String(fee.idFee), label: fee.name }))}
+                                            />
+                                        </FloatingFieldset>
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
-                                        <Form.Label>Estado de Pago</Form.Label>
-                                        <Form.Select name="paidStatus" value={filters.paidStatus} onChange={handleChange}>
-                                            <option value="">-- Cualquiera --</option>
-                                            <option value="true">Pagado</option>
-                                            <option value="false">No pagado</option>
-                                        </Form.Select>
+                                        <FloatingFieldset label="Estado de Pago">
+                                            <CustomSelect
+                                                value={filters.paidStatus}
+                                                onChange={(v) => setFilters((prev) => ({ ...prev, paidStatus: v }))}
+                                                placeholder="Cualquiera"
+                                                options={[
+                                                    { value: "true", label: "Pagado" },
+                                                    { value: "false", label: "No pagado" },
+                                                ]}
+                                            />
+                                        </FloatingFieldset>
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
-                                        <Form.Label>Factura Digital</Form.Label>
-                                        <Form.Select name="digitalInvoice" value={filters.digitalInvoice} onChange={handleChange}>
-                                            <option value="">-- Cualquiera --</option>
-                                            <option value="true">Sí</option>
-                                            <option value="false">No</option>
-                                        </Form.Select>
+                                        <FloatingFieldset label="Factura Digital">
+                                            <CustomSelect
+                                                value={filters.digitalInvoice}
+                                                onChange={(v) => setFilters((prev) => ({ ...prev, digitalInvoice: v }))}
+                                                placeholder="Cualquiera"
+                                                options={[
+                                                    { value: "true", label: "Sí" },
+                                                    { value: "false", label: "No" },
+                                                ]}
+                                            />
+                                        </FloatingFieldset>
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Row>
-                                        <Col xs={6}>
+                                        {/* xs=12/sm=6: a xs=6 fijo, las etiquetas quedaban
+                                            truncadas en mobile ("Total Mini..."). */}
+                                        <Col xs={12} sm={6}>
                                             <Form.Group>
-                                                <Form.Label>Total Mínimo</Form.Label>
-                                                <Form.Control type="number" name="minTotal" value={filters.minTotal} onChange={handleChange} placeholder="Mínimo" />
+                                                <FloatingFieldset label="Total Mínimo">
+                                                    <Form.Control type="number" name="minTotal" min={0} value={filters.minTotal} onChange={handleChange} />
+                                                </FloatingFieldset>
                                             </Form.Group>
                                         </Col>
-                                        <Col xs={6}>
+                                        <Col xs={12} sm={6}>
                                             <Form.Group>
-                                                <Form.Label>Total Máximo</Form.Label>
-                                                <Form.Control type="number" name="maxTotal" value={filters.maxTotal} onChange={handleChange} placeholder="Máximo" />
+                                                <FloatingFieldset label="Total Máximo">
+                                                    <Form.Control type="number" name="maxTotal" min={0} value={filters.maxTotal} onChange={handleChange} />
+                                                </FloatingFieldset>
                                             </Form.Group>
                                         </Col>
                                     </Row>
@@ -498,42 +500,53 @@ const BillGenerateFilteredPage = () => {
                         </Col>
 
                         {/* Grupo 4: Ordenamiento */}
-                        <Col lg={6} className="mb-4">
+                        <Col lg={6} className="mb-3">
                             <h5 className="filter-section-title">
                                 <i className="bi bi-sort-down text-primary"></i> Ordenamiento
                             </h5>
                             <Row>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
-                                        <Form.Label>Ordenar por</Form.Label>
-                                        <Form.Select name="sortBy" value={filters.sortBy} onChange={handleChange}>
-                                            <option value="date">Fecha</option>
-                                            <option value="total">Total</option>
-                                            <option value="consumption">Consumo</option>
-                                            <option value="period">Período</option>
-                                            <option value="street">Calle</option>
-                                        </Form.Select>
+                                        <FloatingFieldset label="Ordenar por">
+                                            <CustomSelect
+                                                value={filters.sortBy}
+                                                onChange={(v) => setFilters((prev) => ({ ...prev, sortBy: v }))}
+                                                options={[
+                                                    { value: "date", label: "Fecha" },
+                                                    { value: "total", label: "Total" },
+                                                    { value: "consumption", label: "Consumo" },
+                                                    { value: "period", label: "Período" },
+                                                    { value: "street", label: "Calle" },
+                                                ]}
+                                            />
+                                        </FloatingFieldset>
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="mb-3">
                                     <Form.Group>
-                                        <Form.Label>Dirección</Form.Label>
-                                        <Form.Select name="sortDirection" value={filters.sortDirection} onChange={handleChange}>
-                                            <option value="ASC">Ascendente</option>
-                                            <option value="DESC">Descendente</option>
-                                        </Form.Select>
+                                        <FloatingFieldset label="Dirección">
+                                            <CustomSelect
+                                                value={filters.sortDirection}
+                                                onChange={(v) => setFilters((prev) => ({ ...prev, sortDirection: v }))}
+                                                options={[
+                                                    { value: "ASC", label: "Ascendente" },
+                                                    { value: "DESC", label: "Descendente" },
+                                                ]}
+                                            />
+                                        </FloatingFieldset>
                                     </Form.Group>
                                 </Col>
                             </Row>
                         </Col>
                     </Row>
 
-                    {/* Botones de acción */}
-                    <div className="d-flex gap-3 justify-content-end mt-3">
-                        <Button variant="outline-secondary" onClick={handleClearFilters} disabled={isLoading} className="px-4 py-2" style={{ borderRadius: '10px' }}>
+                    {/* Apilados a ancho completo hasta sm: lado a lado el texto
+                        envolvía a dos líneas dentro del botón. */}
+                    <div className="d-flex flex-column flex-sm-row gap-3 justify-content-sm-end mt-3">
+                        <Button variant="outline-secondary" onClick={handleClearFilters} disabled={isLoading || !hasActiveFilters} className="px-4 py-2 w-100-until-sm" style={{ borderRadius: '10px' }}>
                             <i className="bi bi-arrow-counterclockwise me-1"></i> Reiniciar Filtros
                         </Button>
-                        <Button variant="primary" onClick={handleSubmit} disabled={isLoading} className="px-4 py-2" style={{ borderRadius: '10px' }}>
+                        <Button variant="primary" onClick={handleSubmit} disabled={isLoading} className="px-4 py-2 w-100-until-sm" style={{ borderRadius: '10px' }}>
                             {isLoading ? (
                                 <>
                                     <Spinner animation="border" size="sm" className="me-2" />
@@ -551,12 +564,9 @@ const BillGenerateFilteredPage = () => {
 
             {/* Mensaje de ayuda / intro */}
             {!isLoading && filteredBills.length === 0 && (
-                <Alert variant="info" className="d-flex align-items-center gap-2 rounded-4">
-                    <i className="bi bi-info-circle-fill fs-5"></i>
-                    <div>
-                        <strong>Nota:</strong> Utiliza los filtros superiores para buscar facturas. Podrás previsualizarlas en una tabla interactiva y descargarlas de forma masiva o individual.
-                    </div>
-                </Alert>
+                <HintBox>
+                    Utiliza los filtros superiores para buscar facturas. Podrás previsualizarlas en una tabla interactiva y descargarlas de forma masiva o individual.
+                </HintBox>
             )}
 
             {/* Resultados */}
@@ -610,13 +620,10 @@ const BillGenerateFilteredPage = () => {
                     </Row>
 
                     {/* Alertas de consistencia */}
-                    {users.length < filteredBills.length && (
-                        <Alert variant="warning" className="d-flex align-items-center gap-2 mb-3 rounded-4">
-                            <i className="bi bi-exclamation-triangle-fill fs-5"></i>
-                            <div>
-                                Advertencia: <strong>{filteredBills.length - users.length}</strong> factura(s) no tienen un usuario asociado cargado en la aplicación. La descarga de estos archivos individuales no estará disponible.
-                            </div>
-                        </Alert>
+                    {billsWithoutUserCount > 0 && (
+                        <HintBox variant="danger" className="mb-3">
+                            <strong>{billsWithoutUserCount}</strong> factura(s) no tienen un usuario asociado cargado en la aplicación. La descarga de estos archivos individuales no estará disponible.
+                        </HintBox>
                     )}
 
                     {/* Tabla de Facturas */}
@@ -626,10 +633,14 @@ const BillGenerateFilteredPage = () => {
                             columns={columns}
                             defaultSort="idBill"
                             defaultSortDirection="desc"
+                            getRowClassName={(row) =>
+                                users.some((u) => u.idUser === row.idUser) ? undefined : "table-row-danger"
+                            }
                         />
                     </Card>
                 </div>
             )}
+            </div>
         </div>
     );
 };

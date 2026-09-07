@@ -3,12 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { addData, deleteData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { Unit } from "../../../core/models/dto/Unit";
 import AddEditUnitModal from "./AddEditUnitModal";
 import useAppData from "../../../hooks/useAppData";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
+import { useSearch } from "../../../hooks/useSearch";
 
 const UnitPage = () => {
 
@@ -19,6 +23,12 @@ const UnitPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const { adminUnits, loading, error, refreshAdminUnits } = useAppData();
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<Unit>(
+        adminUnits,
+        ["name", "symbol"]
+    );
 
     // Constantes
     const navigate = useNavigate();
@@ -71,11 +81,11 @@ const UnitPage = () => {
         {
             key: "actions", label: "Acciones", actions: (row: Unit) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="warning" onClick={() => { setSelectedUnit(row); setShowModal(true); }}>
-                        Editar
+                    <Button variant="outline-warning" onClick={() => { setSelectedUnit(row); setShowModal(true); }}>
+                        <i className="bi bi-pencil me-1"></i> Editar
                     </Button>
-                    <Button variant="danger" onClick={() => { setUnitToDelete(row); setShowDeleteModal(true); }}>
-                        Eliminar
+                    <Button variant="outline-danger" onClick={() => { setUnitToDelete(row); setShowDeleteModal(true); }}>
+                        <i className="bi bi-trash me-1"></i> Eliminar
                     </Button>
                 </div>
             ),
@@ -85,28 +95,25 @@ const UnitPage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Unidades</h1>
+            <PageHeader title="Unidades" subtitle="Administrá las unidades de medida disponibles." icon="bi bi-rulers" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
-                    <Button variant="secondary" onClick={() => navigate(-1)}>
+                <div className="content-fade-in">
+                    <TableToolbar onSearch={handleSearch}>
+                        <Button variant="secondary" onClick={() => navigate(-1)}>
                             Volver
                         </Button>
                         <Button onClick={() => { setSelectedUnit(null); setShowModal(true); }}>
                             Añadir Unidad
                         </Button>
-                    </div>
+                    </TableToolbar>
 
                     {/* Tabla */}
                     <ReusableTable<Unit>
-                        data={adminUnits}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="idUnit"
                     />
@@ -124,6 +131,7 @@ const UnitPage = () => {
                     <ConfirmModal
                         show={showDeleteModal}
                         onHide={() => setShowDeleteModal(false)}
+                        variant="error"
                         title="Confirmar Eliminación"
                         message={
                             <>
@@ -131,8 +139,11 @@ const UnitPage = () => {
                                 <strong> {unitToDelete?.name}</strong>?
                             </>
                         }
+                        hint="Esta acción no se puede deshacer."
                         confirmText="Confirmar"
+                        confirmIcon="bi bi-trash"
                         isLoading={isDeleting}
+                        loadingText="Eliminando..."
                         onConfirm={handleDelete}
                     />
                 </div>

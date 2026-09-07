@@ -2,11 +2,15 @@ import { useEffect, useState } from "react";
 import { addData, deleteData, getData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { FeatureDto } from "../../../core/models/dto/FeatureDto";
 import AddEditFeatureModal from "./AddEditFeatureModal";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
+import { useSearch } from "../../../hooks/useSearch";
 
 const CrudFeaturePage = () => {
 
@@ -19,6 +23,12 @@ const CrudFeaturePage = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<FeatureDto>(
+        featureData,
+        ["name", "description"]
+    );
 
     // Obtener datos al cargar el componente
     useEffect(() => {
@@ -87,11 +97,11 @@ const CrudFeaturePage = () => {
         {
             key: "actions", label: "Acciones", actions: (row: FeatureDto) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="warning" onClick={() => { setSelectedFeature(row); setShowModal(true); }}>
-                        Editar
+                    <Button variant="outline-warning" onClick={() => { setSelectedFeature(row); setShowModal(true); }}>
+                        <i className="bi bi-pencil me-1"></i> Editar
                     </Button>
-                    <Button variant="danger" onClick={() => { setFeatureToDelete(row); setShowDeleteModal(true); }}>
-                        Eliminar
+                    <Button variant="outline-danger" onClick={() => { setFeatureToDelete(row); setShowDeleteModal(true); }}>
+                        <i className="bi bi-trash me-1"></i> Eliminar
                     </Button>
                 </div>
             ),
@@ -101,25 +111,22 @@ const CrudFeaturePage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Gestión de Funciones</h1>
+            <PageHeader title="Gestión de Funciones" subtitle="Administrá las funcionalidades del sistema." icon="bi bi-file-break" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                <div className="content-fade-in">
+                    <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedFeature(null); setShowModal(true); }}>
                             Añadir Función
                         </Button>
-                    </div>
+                    </TableToolbar>
 
                     {/* Tabla */}
                     <ReusableTable<FeatureDto>
-                        data={featureData}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="idFeature"
                     />
@@ -137,6 +144,7 @@ const CrudFeaturePage = () => {
                     <ConfirmModal
                         show={showDeleteModal}
                         onHide={() => setShowDeleteModal(false)}
+                        variant="error"
                         title="Confirmar Eliminación"
                         message={
                             <>
@@ -144,8 +152,11 @@ const CrudFeaturePage = () => {
                                 <strong> {featureToDelete?.name}</strong>?
                             </>
                         }
+                        hint="Esta acción no se puede deshacer."
                         confirmText="Confirmar"
+                        confirmIcon="bi bi-trash"
                         isLoading={isDeleting}
+                        loadingText="Eliminando..."
                         onConfirm={handleDelete}
                     />
                 </div>

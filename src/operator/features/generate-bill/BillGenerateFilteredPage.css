@@ -1,10 +1,5 @@
 /* BillGenerateFilteredPage.css */
 
-.generate-filtered-container {
-    padding: 1.5rem;
-    animation: fadeIn 0.5s ease-out;
-}
-
 /* Card Styling for Filters Form */
 .filter-card {
     background: #ffffff;
@@ -12,25 +7,16 @@
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 8px rgba(0, 0, 0, 0.02);
     transition: transform 0.2s, box-shadow 0.2s;
-    padding: 2rem;
-    margin-bottom: 2rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    overflow: visible !important;
 }
 
-.filter-section-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 1.2rem;
-    border-bottom: 2px solid #edf2f7;
-    padding-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
+/* .filter-section-title se movió a index.css (se reutiliza en otras
+   páginas, ej. PdfParametersPage). */
 .form-label {
     font-weight: 600;
-    color: #4a5568;
+    color: #475569;
     font-size: 0.9rem;
     margin-bottom: 0.4rem;
 }
@@ -44,78 +30,13 @@
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: #4299e1;
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
-}
-
-/* Autocomplete Street Dropdown */
-.street-autocomplete-wrapper {
-    position: relative;
-}
-
-.street-suggestions-list {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 1050;
-    max-height: 250px;
-    overflow-y: auto;
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    margin-top: 5px;
-    padding: 0.4rem 0;
-    list-style: none;
-}
-
-.street-suggestion-item {
-    padding: 0.7rem 1.2rem;
-    cursor: pointer;
-    font-size: 0.9rem;
-    color: #2d3748;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.street-suggestion-item:hover, .street-suggestion-item.active {
-    background-color: #ebf8ff;
-    color: #2b6cb0;
-}
-
-/* Input clear button */
-.input-with-clear {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.input-clear-btn {
-    position: absolute;
-    right: 12px;
-    background: none;
-    border: none;
-    color: #a0aec0;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.input-clear-btn:hover {
-    background-color: #edf2f7;
-    color: #4a5568;
+    border-color: #80bfff;
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
 }
 
 /* Stats Cards */
 .stats-row {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .stat-card-gradient {
@@ -144,7 +65,7 @@
 }
 
 .stat-card-blue {
-    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    background: linear-gradient(135deg, #0077ff 0%, #0055cc 100%);
 }
 
 .stat-card-green {
@@ -185,14 +106,3 @@
     gap: 0.4rem;
 }
 
-/* Animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}

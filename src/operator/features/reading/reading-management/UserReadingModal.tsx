@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Spinner, Table, Form } from "react-bootstrap";
+import { Button, Modal, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { getData, updateData } from "../../../../core/services/apiService";
 import { ReadReadingDto } from "../../../../core/models/dto/ReadReadingDto";
+import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
+import ConfirmModal from "../../../../shared/components/confirm/ConfirmModal";
+import ReusableTable from "../../../../shared/components/table/ReusableTable";
+import TableEmptyState from "../../../../shared/components/table-empty-state/TableEmptyState";
+import TableSkeleton from "../../../../shared/components/table-skeleton/TableSkeleton";
+import { TableColumnDefinition } from "../../../../core/models/types/TableTypes";
+import { formatDate } from "../../../../core/utils/formatters";
+import { isNegativeInput } from "../../../../core/utils/numberInput";
+import { useModalLayer } from "../../../../context/ModalStackContext";
+import { onBackdropClick } from "../../../../shared/hooks/useConfirmDiscard";
 
 interface UserReadingsModalProps {
     show: boolean;
@@ -20,17 +30,11 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
     const [editingId, setEditingId] = useState<number | null>(null);
     const [tempReading, setTempReading] = useState<number>(0);
     const [saving, setSaving] = useState(false);
-    const [sortAsc, setSortAsc] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
+    const [showConfirmSave, setShowConfirmSave] = useState(false);
+    const [pendingSaveId, setPendingSaveId] = useState<number | null>(null);
+    const modalZIndex = useModalLayer(show);
 
-    // Constantes
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = readings.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(readings.length / itemsPerPage);
-
-    // Obtener datos de la API 
+    // Obtener datos de la API
     useEffect(() => {
         const fetchReadings = async () => {
             setLoading(true);
@@ -55,148 +59,155 @@ const UserReadingsModal: React.FC<UserReadingsModalProps> = ({ show, onHide, use
         setTempReading(reading.reading);
     };
 
-    // Manejar boton de guardar
-    const handleSave = async (idReading: number) => {
+    // Manejar boton de cancelar edición
+    const handleCancelEdit = () => {
+        setEditingId(null);
+    };
+
+    // Manejar boton de guardar: pide confirmación antes de pisar la lectura,
+    // ya que puede afectar el cálculo de consumo de facturas relacionadas.
+    const handleSaveClick = (idReading: number) => {
+        setPendingSaveId(idReading);
+        setShowConfirmSave(true);
+    };
+
+    const handleConfirmSave = async () => {
+        if (pendingSaveId === null) return;
         setSaving(true);
         try {
-            await updateData(`/operator/update-reading?idReading=${idReading}&reading`, tempReading , {});
+            await updateData(`/operator/update-reading?idReading=${pendingSaveId}&reading`, tempReading, {});
             toast.success("Lectura actualizada");
-            setReadings(readings.map(r => (r.idReading === idReading ? { ...r, reading: tempReading } : r)));
+            setReadings(readings.map(r => (r.idReading === pendingSaveId ? { ...r, reading: tempReading } : r)));
             setEditingId(null);
         } catch (error) {
             console.error(error);
             toast.error("Error al actualizar lectura");
         } finally {
             setSaving(false);
+            setShowConfirmSave(false);
+            setPendingSaveId(null);
         }
     };
 
-    // Manejar orden asc/desc por fecha
-    const handleSort = () => {
-        const sortedReadings = [...readings].sort((a, b) =>
-            sortAsc ? new Date(a.date).getTime() - new Date(b.date).getTime() : new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-        setReadings(sortedReadings);
-        setSortAsc(!sortAsc);
-    };
+    const columns: TableColumnDefinition<ReadReadingDto>[] = [
+        {
+            key: "date",
+            label: "Fecha",
+            sortable: true,
+            render: (reading) => (
+                <div className="d-flex align-items-center gap-2 text-start">
+                    <div className="icon-badge table-inline-edit-date-icon" style={{ width: 32, height: 32, fontSize: "0.85rem" }}>
+                        <i className="bi bi-calendar3"></i>
+                    </div>
+                    {formatDate(reading.date)}
+                </div>
+            ),
+        },
+        {
+            key: "periodName",
+            label: "Período",
+            render: (reading) => reading.periodName || "—",
+        },
+        {
+            key: "reading",
+            label: "Valor de Lectura",
+            sortable: true,
+            render: (reading) =>
+                editingId === reading.idReading ? (
+                    <Form.Control
+                        type="number"
+                        className="text-center table-inline-edit-field"
+                        min={0}
+                        value={tempReading}
+                        onChange={(e) => {
+                            if (isNegativeInput(e.target.value)) return;
+                            setTempReading(Number(e.target.value));
+                        }}
+                    />
+                ) : (
+                    reading.reading
+                ),
+        },
+        {
+            key: "actions",
+            label: "Acciones",
+            actions: (reading) =>
+                editingId === reading.idReading ? (
+                    <div className="d-flex justify-content-center gap-2 table-row-actions">
+                        <Button variant="outline-secondary" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={handleCancelEdit} disabled={saving}>
+                            <i className="bi bi-x-circle me-1"></i> <span className="d-none d-sm-inline">Cancelar</span>
+                        </Button>
+                        {/* Sin spinner propio: el ConfirmModal de abajo ya
+                            anima "Guardando..." con este mismo estado
+                            mientras está abierto — tenerlo acá también se veía
+                            como dos cosas guardando a la vez. Solo se
+                            deshabilita para evitar un segundo click. */}
+                        <Button variant="success" size="sm" className="d-inline-flex align-items-center justify-content-center text-nowrap" onClick={() => handleSaveClick(reading.idReading)} disabled={saving}>
+                            <i className="bi bi-check-circle me-1"></i> <span className="d-none d-sm-inline">Guardar</span>
+                        </Button>
+                    </div>
+                ) : (
+                    <Button variant="outline-warning" size="sm" onClick={() => handleEdit(reading)}>
+                        <i className="bi bi-pencil me-1"></i> Editar
+                    </Button>
+                ),
+        },
+    ];
 
     // Render
     return (
-        <Modal show={show} onHide={onHide} centered size="lg">
-            <Modal.Header closeButton>
-                <Modal.Title>Lecturas de {userName}</Modal.Title>
-            </Modal.Header>
+        <Modal show={show} onHide={onHide} onClick={onBackdropClick(onHide)} centered size="lg" backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} dialogClassName="scrollable-modal-fix table-mobile-scroll" contentClassName="form-modal-content" aria-labelledby="user-reading-modal-title">
+            <FormModalHeader
+                icon="bi bi-speedometer2"
+                title={`Lecturas de ${userName}`}
+                subtitle="Consultá las lecturas registradas para este usuario."
+                onClose={onHide}
+                titleId="user-reading-modal-title"
+            />
 
             <Modal.Body>
-                {loading ? (
-                    <div className="text-center">
-                        <Spinner animation="border" />
-                    </div>
-                ) : error ? (
-                    <div className="text-danger text-center">{error}</div>
-                ) : (
-                    <>
-                        <Table striped bordered hover>
-                            <thead>
-                                <tr className="text-center">
-                                    <th>
-                                        Fecha
-                                        <span
-                                            style={{ cursor: "pointer", marginLeft: "5px" }}
-                                            onClick={handleSort}
-                                        >
-                                            {sortAsc ? "▲" : "▼"}
-                                        </span>
-                                    </th>
-                                    <th>Período</th>
-                                    <th>Valor de Lectura</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {currentItems.length > 0 ? (
-                                    currentItems.map((reading) => (
-                                        <tr className="align-middle text-center" key={reading.idReading}>
-                                            <td>{reading.date}</td>
-                                            <td>{reading.periodName || "—"}</td>
-                                            <td>
-                                                {editingId === reading.idReading ? (
-                                                    <Form.Control
-                                                        className="text-center"
-                                                        type="number"
-                                                        value={tempReading}
-                                                        onChange={(e) =>
-                                                            setTempReading(Number(e.target.value))
-                                                        }
-                                                    />
-                                                ) : (
-                                                    reading.reading
-                                                )}
-                                            </td>
-                                            <td>
-                                                {editingId === reading.idReading ? (
-                                                    <Button
-                                                        variant="success"
-                                                        onClick={() => handleSave(reading.idReading)}
-                                                        disabled={saving}
-                                                    >
-                                                        {saving ? (
-                                                            <Spinner as="span" animation="border" size="sm" />
-                                                        ) : (
-                                                            "Guardar"
-                                                        )}
-                                                    </Button>
-                                                ) : (
-                                                    <Button
-                                                        variant="warning"
-                                                        onClick={() => handleEdit(reading)}
-                                                    >
-                                                        Editar
-                                                    </Button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={4} className="text-center">
-                                            No hay lecturas disponibles
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </Table>
-
-                        {/* Controles de paginación */}
-                        <div className="d-flex justify-content-between align-items-center">
-                            <Button
-                                variant="secondary"
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(prev => prev - 1)}
-                            >
-                                Anterior
-                            </Button>
-                            <span>
-                                Página {currentPage} de {totalPages}
-                            </span>
-                            <Button
-                                variant="secondary"
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage(prev => prev + 1)}
-                            >
-                                Siguiente
-                            </Button>
-                        </div>
-                    </>
+                {/* Gateado en "show" (no solo en loading/error/data) para que al
+                    cerrar el body quede vacío de inmediato en vez de seguir
+                    mostrando la tabla estática durante el fade-out del modal —
+                    mismo patrón que AddReadingModal ("Cargar Lectura"), que es
+                    el que no presenta el glitch visual al cerrar. */}
+                {show && (
+                    loading ? (
+                        <TableSkeleton showToolbar={false} rows={6} />
+                    ) : error ? (
+                        <div className="text-danger text-center">{error}</div>
+                    ) : readings.length === 0 ? (
+                        <TableEmptyState
+                            icon="bi bi-speedometer2"
+                            title="Sin lecturas registradas"
+                            message="Este usuario todavía no tiene lecturas cargadas."
+                        />
+                    ) : (
+                        <ReusableTable<ReadReadingDto>
+                            data={readings}
+                            columns={columns}
+                            defaultSort="date"
+                            defaultSortDirection="desc"
+                            defaultPageSize={5}
+                            showPageSizeSelector={false}
+                        />
+                    )
                 )}
             </Modal.Body>
 
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>
-                    Cerrar
-                </Button>
-            </Modal.Footer>
+            <ConfirmModal
+                show={showConfirmSave}
+                onHide={() => setShowConfirmSave(false)}
+                variant="warning"
+                title="¿Guardar lectura?"
+                message="Vas a modificar una lectura ya registrada."
+                hint="Esto puede afectar el cálculo de consumo de facturas relacionadas a este período."
+                confirmText="Guardar"
+                confirmIcon="bi bi-check-circle"
+                isLoading={saving}
+                loadingText="Guardando..."
+                onConfirm={handleConfirmSave}
+            />
         </Modal>
     );
 };

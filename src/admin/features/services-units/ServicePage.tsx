@@ -3,12 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { addData, deleteData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
 import { Service } from "../../../core/models/dto/Service";
 import AddEditServiceModal from "./AddEditServiceModal";
 import useAppData from "../../../hooks/useAppData";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
+import { useSearch } from "../../../hooks/useSearch";
 
 const ServicePage = () => {
 
@@ -19,6 +23,12 @@ const ServicePage = () => {
     const [showModal, setShowModal] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const { adminServices, loading, error, refreshAdminServices } = useAppData();
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<Service>(
+        adminServices,
+        ["name"]
+    );
 
     // Constantes
     const navigate = useNavigate();
@@ -70,11 +80,11 @@ const ServicePage = () => {
         {
             key: "actions", label: "Acciones", actions: (row: Service) => (
                 <div className="d-flex gap-2 justify-content-center overflow-auto text-nowrap">
-                    <Button variant="warning" onClick={() => { setSelectedService(row); setShowModal(true); }}>
-                        Editar
+                    <Button variant="outline-warning" onClick={() => { setSelectedService(row); setShowModal(true); }}>
+                        <i className="bi bi-pencil me-1"></i> Editar
                     </Button>
-                    <Button variant="danger" onClick={() => { setServiceToDelete(row); setShowDeleteModal(true); }}>
-                        Eliminar
+                    <Button variant="outline-danger" onClick={() => { setServiceToDelete(row); setShowDeleteModal(true); }}>
+                        <i className="bi bi-trash me-1"></i> Eliminar
                     </Button>
                 </div>
             ),
@@ -84,28 +94,25 @@ const ServicePage = () => {
     // Render
     return (
         <div>
-            <h1 className="text-center">Servicios</h1>
+            <PageHeader title="Servicios" subtitle="Administrá los servicios disponibles." icon="bi bi-gear" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                <div className="content-fade-in">
+                    <TableToolbar onSearch={handleSearch}>
                         <Button variant="secondary" onClick={() => navigate(-1)}>
                             Volver
                         </Button>
                         <Button onClick={() => { setSelectedService(null); setShowModal(true); }}>
                             Añadir Servicio
                         </Button>
-                    </div>
+                    </TableToolbar>
 
                     {/* Tabla */}
                     <ReusableTable<Service>
-                        data={adminServices}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="idService"
                     />
@@ -123,6 +130,7 @@ const ServicePage = () => {
                     <ConfirmModal
                         show={showDeleteModal}
                         onHide={() => setShowDeleteModal(false)}
+                        variant="error"
                         title="Confirmar Eliminación"
                         message={
                             <>
@@ -130,8 +138,11 @@ const ServicePage = () => {
                                 <strong> {serviceToDelete?.name}</strong>?
                             </>
                         }
+                        hint="Esta acción no se puede deshacer."
                         confirmText="Confirmar"
+                        confirmIcon="bi bi-trash"
                         isLoading={isDeleting}
+                        loadingText="Eliminando..."
                         onConfirm={handleDelete}
                     />
                 </div>
