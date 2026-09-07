@@ -1,31 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { OverlayTrigger, Popover } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
+import { useSidebar } from "../../../context/SidebarContext";
+import { SidebarSubmenuGroup, SidebarSubmenuItem } from "../../../shared/components/sidebar-submenu/SidebarSubmenu";
+import logo from "../../../assets/img/logoNavbar.svg";
 import "./OperatorDashboard.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const DashboardOperator: React.FC = () => {
-    const [activePopover, setActivePopover] = useState<string | null>(null);
-    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-    const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 992);
+    const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
+    const { isMobile, sidebarOpen, closeSidebar } = useSidebar();
     const location = useLocation();
     const currentPath = location.pathname;
 
-    // Detecta cambios de tamaño de pantalla
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 992);
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    const sidebarWidth = isMobile ? 220 : 180;
-    const buttonLeft = sidebarOpen ? sidebarWidth : 0;
-
-    const isReadingSection = [
-        "/dashboard/operator/readings/management",
-        "/dashboard/operator/readings/take",
-        "/dashboard/operator/readings/control",
-    ].includes(currentPath);
+    const isReadingSection = ["/dashboard/operator/readings/management", "/dashboard/operator/readings/take", "/dashboard/operator/readings/control"].includes(currentPath);
 
     const isBillSection = [
         "/dashboard/operator/bills/management",
@@ -34,94 +21,29 @@ const DashboardOperator: React.FC = () => {
         "/dashboard/operator/bills/update-expiration",
     ].includes(currentPath);
 
-    // Popovers
-    const ReadingsPopover = (
-        <Popover className="submenu-popover">
-            <Popover.Body className="p-2 d-flex flex-column">
-                <Link
-                    to="/dashboard/operator/readings/management"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/readings/management" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Gestión de Lecturas
-                </Link>
-                <Link
-                    to="/dashboard/operator/readings/take"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/readings/take" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Tomar Lecturas
-                </Link>
-                <Link
-                    to="/dashboard/operator/readings/control"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/readings/control" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Control de Lecturas
-                </Link>
-            </Popover.Body>
-        </Popover>
-    );
+    // Expande automáticamente el grupo correspondiente al entrar en una de
+    // sus rutas (por link directo, F5, etc.), sin pisar un cierre manual
+    // posterior mientras se sigue navegando dentro de la misma sección.
+    useEffect(() => {
+        if (isReadingSection) setExpandedMenu("readings");
+    }, [isReadingSection]);
 
-    const BillsPopover = (
-        <Popover className="submenu-popover">
-            <Popover.Body className="p-2 d-flex flex-column">
-                <Link
-                    to="/dashboard/operator/bills/management"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/management" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Consulta
-                </Link>
-                <Link
-                    to="/dashboard/operator/bills/generate"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/generate" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Generación de Facturas
-                </Link>
-                <Link
-                    to="/dashboard/operator/bills/generate-filtered"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/generate-filtered" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Generación de PDF
-                </Link>
-                <Link
-                    to="/dashboard/operator/bills/update-expiration"
-                    className={`nav-link link-dark py-2 text-indented ${currentPath === "/dashboard/operator/bills/update-expiration" ? "active" : ""}`}
-                    onClick={() => setActivePopover(null)}
-                >
-                    Actualizar Vencimiento
-                </Link>
-            </Popover.Body>
-        </Popover>
-    );
+    useEffect(() => {
+        if (isBillSection) setExpandedMenu("bills");
+    }, [isBillSection]);
 
     return (
         <div className="dashboard-container d-flex">
-            {/* Botón flotante solo en móvil */}
-            {isMobile && (
-                <button
-                    className="sidebar-toggle-btn"
-                    style={{ left: `${buttonLeft}px` }}
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                >
-                    <i className={`bi ${sidebarOpen ? "bi-chevron-left" : "bi-chevron-right"}`}></i>
-                </button>
-            )}
-
             {/* Sidebar */}
-            <aside
-                className={`sidebar bg-primary text-light d-flex flex-column align-items-center p-3 ${isMobile ? (sidebarOpen ? "open" : "collapsed") : "open"
-                    }`}
-            >
+            <aside className={`sidebar d-flex flex-column p-3 ${isMobile ? (sidebarOpen ? "open" : "collapsed") : "open"}`}>
                 <ul className="nav nav-pills flex-column w-100">
                     {/* Resumen */}
                     <li className="nav-item">
                         <Link
                             to="/dashboard/operator/resume"
-                            className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/resume" ? "active" : ""}`}
+                            className={`nav-link py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/resume" ? "active" : ""}`}
+                            title="Resumen"
+                            onClick={closeSidebar}
                         >
                             <i className="bi-person-lines-fill fs-4"></i>
                             <span className="ms-2 d-lg-inline">Resumen</span>
@@ -131,7 +53,9 @@ const DashboardOperator: React.FC = () => {
                     <li className="nav-item">
                         <Link
                             to="/dashboard/operator/users"
-                            className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/users" ? "active" : ""}`}
+                            className={`nav-link py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/users" ? "active" : ""}`}
+                            title="Usuarios"
+                            onClick={closeSidebar}
                         >
                             <i className="bi-people fs-4"></i>
                             <span className="ms-2 d-lg-inline">Usuarios</span>
@@ -139,52 +63,82 @@ const DashboardOperator: React.FC = () => {
                     </li>
 
                     {/* Lecturas */}
-                    <OverlayTrigger
-                        trigger="click"
-                        placement={window.innerWidth <= 768 ? "bottom" : "right"}
-                        show={activePopover === "readings"}
-                        onToggle={(show) => setActivePopover(show ? "readings" : "")}
-                        overlay={ReadingsPopover}
-                        rootClose
+                    <SidebarSubmenuGroup
+                        icon="bi-speedometer2"
+                        label="Lecturas"
+                        active={isReadingSection}
+                        expanded={expandedMenu === "readings"}
+                        onToggle={() => setExpandedMenu((prev) => (prev === "readings" ? null : "readings"))}
                     >
-                        <li className="nav-item popover-trigger">
-                            <div
-                                className={`nav-link link-light py-3 d-flex align-items-center ${isReadingSection ? "active-submenu" : ""}`}
-                                role="button"
-                            >
-                                <i className="bi-speedometer2 fs-4"></i>
-                                <span className="ms-2  d-lg-inline">Lecturas</span>
-                                <i className={`bi-chevron-right ms-1 mt-1 chevron-icon d-none d-lg-inline ${activePopover === "readings" ? "rotate" : ""}`}></i>
-                            </div>
-                        </li>
-                    </OverlayTrigger>
+                        <SidebarSubmenuItem
+                            to="/dashboard/operator/readings/management"
+                            icon="bi bi-bar-chart-line-fill"
+                            label="Gestionar"
+                            active={currentPath === "/dashboard/operator/readings/management"}
+                            onClick={closeSidebar}
+                        />
+                        <SidebarSubmenuItem
+                            to="/dashboard/operator/readings/take"
+                            icon="bi bi-calendar2-check-fill"
+                            label="Cargar actuales"
+                            active={currentPath === "/dashboard/operator/readings/take"}
+                            onClick={closeSidebar}
+                        />
+                        <SidebarSubmenuItem
+                            to="/dashboard/operator/readings/control"
+                            icon="bi bi-shield-check"
+                            label="Controlar"
+                            active={currentPath === "/dashboard/operator/readings/control"}
+                            onClick={closeSidebar}
+                        />
+                    </SidebarSubmenuGroup>
 
                     {/* Facturas */}
-                    <OverlayTrigger
-                        trigger="click"
-                        placement={window.innerWidth <= 768 ? "bottom" : "right"}
-                        show={activePopover === "bills"}
-                        onToggle={(show) => setActivePopover(show ? "bills" : "")}
-                        overlay={BillsPopover}
-                        rootClose
+                    <SidebarSubmenuGroup
+                        icon="bi bi-file-earmark-spreadsheet"
+                        label="Facturas"
+                        active={isBillSection}
+                        expanded={expandedMenu === "bills"}
+                        onToggle={() => setExpandedMenu((prev) => (prev === "bills" ? null : "bills"))}
                     >
-                        <li className="nav-item popover-trigger">
-                            <div
-                                className={`nav-link link-light py-3 d-flex align-items-center ${isBillSection ? "active-submenu" : ""}`}
-                                role="button"
-                            >
-                                <i className="bi bi-file-earmark-spreadsheet fs-4"></i>
-                                <span className="ms-2 d-lg-inline">Facturas</span>
-                                <i
-                                    className={`bi-chevron-right ms-1 mt-1 chevron-icon d-none d-lg-inline ${activePopover === "bills" ? "rotate" : ""}`}
-                                ></i>
-                            </div>
-                        </li>
-                    </OverlayTrigger>
+                        <SidebarSubmenuItem
+                            to="/dashboard/operator/bills/management"
+                            icon="bi bi-search"
+                            label="Gestionar"
+                            active={currentPath === "/dashboard/operator/bills/management"}
+                            onClick={closeSidebar}
+                        />
+                        <SidebarSubmenuItem
+                            to="/dashboard/operator/bills/generate"
+                            icon="bi bi-file-earmark-plus-fill"
+                            label="Generar"
+                            active={currentPath === "/dashboard/operator/bills/generate"}
+                            onClick={closeSidebar}
+                        />
+                        <SidebarSubmenuItem
+                            to="/dashboard/operator/bills/generate-filtered"
+                            icon="bi bi-file-earmark-pdf-fill"
+                            label="Descargar PDF's"
+                            active={currentPath === "/dashboard/operator/bills/generate-filtered"}
+                            onClick={closeSidebar}
+                        />
+                        <SidebarSubmenuItem
+                            to="/dashboard/operator/bills/update-expiration"
+                            icon="bi bi-calendar-event-fill"
+                            label="Vencimientos"
+                            active={currentPath === "/dashboard/operator/bills/update-expiration"}
+                            onClick={closeSidebar}
+                        />
+                    </SidebarSubmenuGroup>
 
                     {/* Deudores */}
                     <li className="nav-item">
-                        <Link to="/dashboard/operator/debt-disconnection" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/debt-disconnection" ? "active" : ""}`} onClick={() => setSidebarOpen(false)}>
+                        <Link
+                            to="/dashboard/operator/debt-disconnection"
+                            className={`nav-link py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/debt-disconnection" ? "active" : ""}`}
+                            title="Deudores"
+                            onClick={closeSidebar}
+                        >
                             <i className="bi bi-exclamation-triangle fs-4"></i>
                             <span className="ms-2 d-lg-inline">Deudores</span>
                         </Link>
@@ -192,7 +146,12 @@ const DashboardOperator: React.FC = () => {
 
                     {/* Conceptos */}
                     <li>
-                        <Link to="/dashboard/operator/parameters/bills" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/parameters/bills" ? "active" : ""}`}>
+                        <Link
+                            to="/dashboard/operator/parameters/bills"
+                            className={`nav-link py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/parameters/bills" ? "active" : ""}`}
+                            title="Conceptos"
+                            onClick={closeSidebar}
+                        >
                             <i className="bi bi-journal-plus fs-4"></i>
                             <span className="ms-2 d-lg-inline">Conceptos</span>
                         </Link>
@@ -200,7 +159,12 @@ const DashboardOperator: React.FC = () => {
 
                     {/* Descuentos */}
                     <li className="nav-item">
-                        <Link to="/dashboard/operator/discounts" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === '/dashboard/operator/discounts' ? 'active' : ''}`} title="Gestion de modalidad" onClick={() => setSidebarOpen(false)}>
+                        <Link
+                            to="/dashboard/operator/discounts"
+                            className={`nav-link py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/discounts" ? "active" : ""}`}
+                            title="Descuentos"
+                            onClick={closeSidebar}
+                        >
                             <i className="bi bi-plus-slash-minus fs-4"></i>
                             <span className="ms-2 d-lg-inline">Descuentos</span>
                         </Link>
@@ -208,16 +172,33 @@ const DashboardOperator: React.FC = () => {
 
                     {/* Reportes */}
                     <li className="nav-item">
-                        <Link to="/dashboard/operator/reports" className={`nav-link link-light py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/reports" ? "active" : ""}`}>
+                        <Link
+                            to="/dashboard/operator/reports"
+                            className={`nav-link py-3 d-flex align-items-center ${currentPath === "/dashboard/operator/reports" ? "active" : ""}`}
+                            title="Reportes"
+                            onClick={closeSidebar}
+                        >
                             <i className="bi-clipboard-data fs-4"></i>
                             <span className="ms-2 d-lg-inline">Reportes</span>
                         </Link>
                     </li>
                 </ul>
+
+                {/* Tarjeta de marca */}
+                <div className="sidebar-footer mt-auto w-100">
+                    <div className="sidebar-footer-icon">
+                        <img src={logo} alt="Logo" />
+                    </div>
+                    <div className="sidebar-footer-text">
+                        <div className="sidebar-footer-title">Sistema de gestión</div>
+                        <div className="sidebar-footer-subtitle">Consorcio de Agua</div>
+                        <div className="sidebar-footer-version">Versión {__APP_VERSION__}</div>
+                    </div>
+                </div>
             </aside>
 
             {/* Contenido principal */}
-            <main className="dashboard-main flex-grow-1 p-4 bg-light">
+            <main className="dashboard-main flex-grow-1 p-4">
                 <Outlet />
             </main>
         </div>

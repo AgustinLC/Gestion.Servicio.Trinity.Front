@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AuthService from "../../services/AuthService";
 import { RecoverPassDto } from "../../../core/models/dto/RecoverPassDto";
+import { getPasswordRuleResults, isPasswordValid } from "../../../core/utils/passwordValidation";
 
 const ResetPasswordPage = () => {
     const [newPassword, setNewPassword] = useState("");
@@ -17,6 +18,10 @@ const ResetPasswordPage = () => {
         e.preventDefault();
         if (!token) {
             setError("Token inválido o faltante.");
+            return;
+        }
+        if (!isPasswordValid(newPassword)) {
+            setError("La contraseña no cumple con los requisitos mínimos.");
             return;
         }
         setLoading(true);
@@ -42,10 +47,7 @@ const ResetPasswordPage = () => {
                         <div className="card-body">
                             <h1 className="text-center">Restablecer Contraseña</h1>
                             {success ? (
-                                <div className="alert alert-success">
-                                    Contraseña restablecida exitosamente. Redirigiendo al inicio de
-                                    sesión...
-                                </div>
+                                <div className="alert alert-success">Contraseña restablecida exitosamente. Redirigiendo al inicio de sesión...</div>
                             ) : (
                                 <form onSubmit={handleSubmit}>
                                     {error && <div className="alert alert-danger">{error}</div>}
@@ -59,12 +61,16 @@ const ResetPasswordPage = () => {
                                             required
                                             disabled={loading}
                                         />
+                                        <ul className="list-unstyled small mt-2 mb-0">
+                                            {getPasswordRuleResults(newPassword).map((rule) => (
+                                                <li key={rule.key} className={rule.passed ? "text-success" : "text-muted"}>
+                                                    <i className={`bi ${rule.passed ? "bi-check-circle-fill" : "bi-circle"} me-1`}></i>
+                                                    {rule.label}
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
-                                    <button
-                                        type="submit"
-                                        className="btn btn-primary w-100"
-                                        disabled={loading}
-                                    >
+                                    <button type="submit" className="btn btn-primary w-100" disabled={loading || !isPasswordValid(newPassword)}>
                                         {loading ? "Procesando..." : "Restablecer Contraseña"}
                                     </button>
                                 </form>

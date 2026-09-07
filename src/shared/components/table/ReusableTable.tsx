@@ -1,20 +1,60 @@
-import { useState } from "react";
-import { Table, Pagination } from "react-bootstrap";
-import { ReusableTableProps, TableColumnDefinition } from "../../../core/models/types/TableTypes";
+import { useEffect, useState } from "react";
+import { Table } from "react-bootstrap";
+import {
+    ReusableTableProps,
+    TableColumnDefinition,
+} from "../../../core/models/types/TableTypes";
+import CustomSelect from "../custom-select/CustomSelect";
+import TableEmptyState from "../table-empty-state/TableEmptyState";
 import React from "react";
+
+const PAGE_SIZE_OPTIONS = [5, 10, 20, 30];
+const SMALL_DATASET_PAGE_SIZE = 5;
 
 const ReusableTable = <T,>({
     data,
     columns,
     defaultSort,
     defaultSortDirection = "desc",
+    defaultPageSize = 10,
+    showPageSizeSelector = true,
+    getRowClassName,
+    emptyIcon = "bi bi-inbox",
+    emptyTitle = "No hay datos para mostrar",
+    emptyMessage = "Todavía no se registró información acá.",
 }: ReusableTableProps<T>) => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [sortField, setSortField] = useState<keyof T | undefined>(defaultSort);
-    const [sortDirection, setSortDirection] = useState<"asc" | "desc">(defaultSortDirection);
+    const [itemsPerPage, setItemsPerPage] = useState(defaultPageSize);
+    const [sortField, setSortField] = useState<keyof T | undefined>(
+        defaultSort
+    );
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
+        defaultSortDirection
+    );
+    const [userSetPageSize, setUserSetPageSize] = useState(false);
 
-    const itemsPerPage = 10;
-    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const totalItems = data.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const rangeStart =
+        totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+    const rangeEnd = Math.min(currentPage * itemsPerPage, totalItems);
+
+    useEffect(() => {
+        if (totalPages > 0 && currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [totalPages, currentPage]);
+
+    useEffect(() => {
+        if (userSetPageSize || totalItems === 0) return;
+        const nextSize =
+            totalItems <= SMALL_DATASET_PAGE_SIZE
+                ? SMALL_DATASET_PAGE_SIZE
+                : defaultPageSize;
+        setItemsPerPage((current) =>
+            current === nextSize ? current : nextSize
+        );
+    }, [totalItems, userSetPageSize, defaultPageSize]);
 
     // Ordenar los datos
     const sortedData = [...data].sort((a, b) => {
@@ -22,7 +62,9 @@ const ReusableTable = <T,>({
         const aValue = a[sortField];
         const bValue = b[sortField];
         if (typeof aValue === "string" && typeof bValue === "string") {
-            return sortDirection === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+            return sortDirection === "asc"
+                ? aValue.localeCompare(bValue)
+                : bValue.localeCompare(aValue);
         }
         if (typeof aValue === "number" && typeof bValue === "number") {
             return sortDirection === "desc" ? aValue - bValue : bValue - aValue;
@@ -39,6 +81,13 @@ const ReusableTable = <T,>({
     // Funcion para cambiar de pagina
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
+    };
+
+    // Funcion para cambiar la cantidad de resultados por página
+    const handlePageSizeChange = (size: number) => {
+        setUserSetPageSize(true);
+        setItemsPerPage(size);
+        setCurrentPage(1);
     };
 
     // Funcion para ordenar de manera asc o desc
@@ -64,15 +113,27 @@ const ReusableTable = <T,>({
 
     // Validacion de datos para que data y columns no esten vacios
     if (!data || data.length === 0) {
-        return <div>No hay datos para mostrar.</div>;
+        return (
+            <div className="reusable-table-card">
+                <TableEmptyState
+                    icon={emptyIcon}
+                    title={emptyTitle}
+                    message={emptyMessage}
+                />
+            </div>
+        );
     }
     if (!columns || columns.length === 0) {
-        return <div>No hay columnas definidas.</div>;
+        return (
+            <div className="reusable-table-card text-muted p-4">
+                No hay columnas definidas.
+            </div>
+        );
     }
 
     return (
-        <div className="mt-2">
-            <Table striped bordered hover responsive>
+        <div className="reusable-table reusable-table-card">
+            <Table hover responsive>
                 <thead>
                     <tr className="text-center">
                         {columns.map((column) => (
@@ -80,18 +141,35 @@ const ReusableTable = <T,>({
                                 className="align-middle"
                                 key={String(column.key)}
                                 onClick={() =>
-                                    "sortable" in column && column.sortable && handleSort(column.key as keyof T)
+                                    "sortable" in column &&
+                                    column.sortable &&
+                                    handleSort(column.key as keyof T)
                                 }
-                                style={{ cursor: "sortable" in column && column.sortable ? "pointer" : "default" }}
-                                aria-sort={sortField === column.key ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                                style={{
+                                    cursor:
+                                        "sortable" in column && column.sortable
+                                            ? "pointer"
+                                            : "default",
+                                }}
+                                aria-sort={
+                                    sortField === column.key
+                                        ? sortDirection === "asc"
+                                            ? "ascending"
+                                            : "descending"
+                                        : "none"
+                                }
                             >
                                 <div className="header-content">
-                                    <span className="header-text">{column.label}</span>
+                                    <span className="header-text">
+                                        {column.label}
+                                    </span>
                                     {"sortable" in column &&
                                         column.sortable &&
                                         sortField === column.key && (
                                             <span className="sort-arrow">
-                                                {sortDirection === "asc" ? "▲" : "▼"}
+                                                {sortDirection === "asc"
+                                                    ? "▲"
+                                                    : "▼"}
                                             </span>
                                         )}
                                 </div>
@@ -100,86 +178,191 @@ const ReusableTable = <T,>({
                     </tr>
                 </thead>
                 <tbody className="text-center align-middle">
-                    {paginatedData.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                            {columns.map((column) => (
-                                <td key={String(column.key)}>
-                                    {renderCellContent(column, row)}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
+                    {paginatedData.map((row, rowIndex) => {
+                        const isLastVisibleRow =
+                            rowIndex === paginatedData.length - 1 &&
+                            paginatedData.length < itemsPerPage;
+                        const rowClassName =
+                            [
+                                getRowClassName?.(row),
+                                isLastVisibleRow
+                                    ? "reusable-table-last-visible-row"
+                                    : undefined,
+                            ]
+                                .filter(Boolean)
+                                .join(" ") || undefined;
+                        return (
+                            <tr key={rowIndex} className={rowClassName}>
+                                {columns.map((column) => (
+                                    <td key={String(column.key)}>
+                                        {renderCellContent(column, row)}
+                                    </td>
+                                ))}
+                            </tr>
+                        );
+                    })}
+                    {paginatedData.length > 0 &&
+                        Array.from({
+                            length: Math.max(
+                                0,
+                                itemsPerPage - paginatedData.length
+                            ),
+                        }).map((_, index) => {
+                            const templateRow =
+                                paginatedData[paginatedData.length - 1];
+                            return (
+                                <tr
+                                    key={`filler-${index}`}
+                                    className="reusable-table-filler-row"
+                                    aria-hidden="true"
+                                >
+                                    {columns.map((column) => (
+                                        <td key={String(column.key)}>
+                                            {renderCellContent(
+                                                column,
+                                                templateRow
+                                            )}
+                                        </td>
+                                    ))}
+                                </tr>
+                            );
+                        })}
                 </tbody>
             </Table>
 
-            {/* Paginación */}
-            <Pagination className="justify-content-center flex-wrap">
-                <Pagination.Prev
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                />
+            {/* Pie de tabla: resultados + paginación + tamaño de página */}
+            <div className="reusable-table-footer d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mt-2">
+                <div className="reusable-table-count text-muted small d-flex align-items-center gap-2">
+                    <i className="bi bi-list-ul"></i>
+                    Mostrando {rangeStart} a {rangeEnd} de {totalItems}{" "}
+                    resultados
+                </div>
 
-                {(() => {
-                    const visiblePages = 5; // cantidad de botones visibles
-                    const pages = [];
+                <div className="table-pagination d-flex align-items-center gap-1 flex-wrap justify-content-center">
+                    <button
+                        type="button"
+                        className="table-pagination-nav"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        aria-label="Página anterior"
+                    >
+                        <i className="bi bi-chevron-left"></i>
+                    </button>
 
-                    let start = Math.max(1, currentPage - Math.floor(visiblePages / 2));
-                    const end = Math.min(totalPages, start + visiblePages - 1);
+                    {(() => {
+                        const visiblePages = 5; // cantidad de botones visibles
+                        const pages = [];
 
-                    if (end - start < visiblePages - 1) {
-                        start = Math.max(1, end - visiblePages + 1);
-                    }
-
-                    // Mostrar primer botón y puntos suspensivos
-                    if (start > 1) {
-                        pages.push(
-                            <Pagination.Item key={1} onClick={() => handlePageChange(1)}>
-                                1
-                            </Pagination.Item>
+                        let start = Math.max(
+                            1,
+                            currentPage - Math.floor(visiblePages / 2)
                         );
-                        if (start > 2) {
-                            pages.push(<Pagination.Ellipsis key="start-ellipsis" disabled />);
+                        const end = Math.min(
+                            totalPages,
+                            start + visiblePages - 1
+                        );
+
+                        if (end - start < visiblePages - 1) {
+                            start = Math.max(1, end - visiblePages + 1);
                         }
-                    }
 
-                    // Páginas visibles
-                    for (let i = start; i <= end; i++) {
-                        pages.push(
-                            <Pagination.Item
-                                key={i}
-                                active={i === currentPage}
-                                onClick={() => handlePageChange(i)}
-                            >
-                                {i}
-                            </Pagination.Item>
-                        );
-                    }
-
-                    // Mostrar puntos suspensivos finales
-                    if (end < totalPages) {
-                        if (end < totalPages - 1) {
-                            pages.push(<Pagination.Ellipsis key="end-ellipsis" disabled />);
+                        // Mostrar primer botón y puntos suspensivos
+                        if (start > 1) {
+                            pages.push(
+                                <button
+                                    key={1}
+                                    type="button"
+                                    className="table-pagination-item"
+                                    onClick={() => handlePageChange(1)}
+                                >
+                                    1
+                                </button>
+                            );
+                            if (start > 2) {
+                                pages.push(
+                                    <span
+                                        key="start-ellipsis"
+                                        className="table-pagination-ellipsis"
+                                    >
+                                        …
+                                    </span>
+                                );
+                            }
                         }
-                        pages.push(
-                            <Pagination.Item
-                                key={totalPages}
-                                onClick={() => handlePageChange(totalPages)}
-                            >
-                                {totalPages}
-                            </Pagination.Item>
-                        );
-                    }
 
-                    return pages;
-                })()}
+                        // Páginas visibles
+                        for (let i = start; i <= end; i++) {
+                            pages.push(
+                                <button
+                                    key={i}
+                                    type="button"
+                                    className={`table-pagination-item${i === currentPage ? " active" : ""}`}
+                                    onClick={() => handlePageChange(i)}
+                                    aria-current={
+                                        i === currentPage ? "page" : undefined
+                                    }
+                                >
+                                    {i}
+                                </button>
+                            );
+                        }
 
-                <Pagination.Next
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                />
-            </Pagination>
+                        // Mostrar puntos suspensivos finales
+                        if (end < totalPages) {
+                            if (end < totalPages - 1) {
+                                pages.push(
+                                    <span
+                                        key="end-ellipsis"
+                                        className="table-pagination-ellipsis"
+                                    >
+                                        …
+                                    </span>
+                                );
+                            }
+                            pages.push(
+                                <button
+                                    key={totalPages}
+                                    type="button"
+                                    className="table-pagination-item"
+                                    onClick={() => handlePageChange(totalPages)}
+                                >
+                                    {totalPages}
+                                </button>
+                            );
+                        }
+
+                        return pages;
+                    })()}
+
+                    <button
+                        type="button"
+                        className="table-pagination-nav"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        aria-label="Página siguiente"
+                    >
+                        <i className="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+
+                {showPageSizeSelector && (
+                    <CustomSelect
+                        fullWidth={false}
+                        className="table-page-size-select"
+                        value={String(itemsPerPage)}
+                        onChange={(v) => handlePageSizeChange(Number(v))}
+                        aria-label="Resultados por página"
+                        options={PAGE_SIZE_OPTIONS.map((size) => ({
+                            value: String(size),
+                            label: `${size} por página`,
+                        }))}
+                    />
+                )}
+            </div>
         </div>
     );
 };
 
-export default React.memo(ReusableTable) as <T>(props: ReusableTableProps<T>) => JSX.Element;
+export default React.memo(ReusableTable) as <T>(
+    props: ReusableTableProps<T>
+) => JSX.Element;

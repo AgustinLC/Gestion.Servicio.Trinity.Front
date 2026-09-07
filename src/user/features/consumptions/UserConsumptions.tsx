@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { ReadReadingDto } from "../../../core/models/dto/ReadReadingDto";
 import { getData } from "../../../core/services/apiService";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import SearchBar from "../../../shared/components/searcher/SearchBar";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
 import useAuth from "../../../hooks/useAuth";
 
 
@@ -66,22 +67,20 @@ const UserConsumptions: React.FC = () => {
 
     return (
         <div>
-            <h1 className="text-center">Historial de Consumos</h1>
+            <PageHeader title="Historial de Consumos" subtitle="Consultá tus lecturas y consumos registrados." icon="bi bi-clipboard-data" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
-                        <SearchBar onSearch={handleSearch} />
-                    </div>
+                <div className="content-fade-in">
+                    <TableToolbar onSearch={handleSearch} />
                     <ReusableTable
                         data={filteredData} // Ahora filteredData tiene el tipo correcto
                         columns={columns}
+                        emptyIcon="bi bi-droplet"
+                        emptyTitle="Sin consumos registrados"
+                        emptyMessage="Todavía no hay lecturas de consumo cargadas para tu conexión."
                     />
                 </div>
             )}

@@ -1,8 +1,10 @@
 // components/UserSearchInput.tsx
 import { useState, useEffect, useMemo } from 'react';
-import { Form, Spinner, ListGroup, Button, Alert } from 'react-bootstrap';
+import { Form, Spinner, ListGroup, Button } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 import { UserDto } from '../../../core/models/dto/UserDto';
 import useAppData from '../../../hooks/useAppData';
+import FloatingFieldset from '../../../shared/components/floating-fieldset/FloatingFieldset';
 
 interface UserSearchInputProps { onUserSelected: (userId: number | null) => void; }
 
@@ -14,23 +16,40 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
     const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
     const { operatorActiveUsers, loading: isLoading, error } = useAppData();
 
+    // El error es del contexto global (compartido con el resto del panel de
+    // operador), así que se avisa con un toast en vez de un Alert fijo en
+    // este campo puntual, para no repetir el mensaje en cada render.
+    useEffect(() => {
+        if (error) {
+            toast.error(`Error cargando usuarios: ${error}`, { autoClose: 8000 });
+        }
+    }, [error]);
+
     const filteredResults = useMemo(() => {
-        if (searchTerm.length < 1) return [];
+        // Con un usuario ya seleccionado, el input pasa a mostrar "idUser -
+        // Nombre" (para que se lea el resumen de la selección), pero ese
+        // mismo texto se reinterpretaba como una búsqueda nueva: el número
+        // de conexión suelto (ej. "1") matcheaba por substring a cualquier
+        // usuario cuyo ID lo contuviera (1, 21, 31...), repoblando la lista
+        // de sugerencias 300ms después de elegir. Cortarlo acá evita que
+        // "vuelva a pedir" seleccionar.
+        if (selectedUser || searchTerm.length < 1) return [];
 
         const term = searchTerm.trim().toLowerCase();
-        const numericTerm = searchTerm.replace(/\D/g, ""); // solo números
+
+        // Si el término es puramente numérico se interpreta como el N° de
+        // conexión exacto, para no traer 105 o 345 al buscar "5".
+        const conexQuery = /^\d+$/.test(term) ? Number(term) : null;
 
         return operatorActiveUsers.filter(user => {
-            const conexMatch = numericTerm
-                ? user.idUser.toString().includes(numericTerm)
-                : false;
+            const conexMatch = conexQuery !== null && user.idUser === conexQuery;
 
             const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
             const nameMatch = fullName.includes(term);
 
             return conexMatch || nameMatch;
         }).slice(0, 5);
-    }, [searchTerm, operatorActiveUsers]);
+    }, [searchTerm, operatorActiveUsers, selectedUser]);
 
     // Filtrar usuarios localmente con debounce
     useEffect(() => {
@@ -58,8 +77,6 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
 
     return (
         <Form.Group className="mb-3 position-relative">
-            <Form.Label>Buscar usuario por Nº Conexión</Form.Label>
-
             {isLoading && (
                 <div className="mb-2">
                     <Spinner animation="border" size="sm" />
@@ -67,20 +84,19 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
                 </div>
             )}
 
-            {error && <Alert variant="danger" className="mb-2">{`Error cargando usuarios: ${error}`}</Alert>}
-
-            <Form.Control
-                type="search"
-                value={searchTerm}
-                onChange={(e) => {
-                    const value = e.target.value;
-                    setSearchTerm(value);
-                    if (!value) clearSelection();
-                }}
-                placeholder="Ingrese numero de conexión o nombre..."
-                disabled={isLoading || !!selectedUser}
-                aria-label="Buscar usuario por numero de conexión o nombre"
-            />
+            <FloatingFieldset label="Buscar usuario por Nº Conexión">
+                <Form.Control
+                    type="search"
+                    value={searchTerm}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setSearchTerm(value);
+                        if (!value) clearSelection();
+                    }}
+                    disabled={isLoading || !!selectedUser}
+                    aria-label="Buscar usuario por numero de conexión o nombre"
+                />
+            </FloatingFieldset>
 
             {filteredUsers.length > 0 && (
                 <ListGroup className="position-absolute w-100 mt-1" style={{ zIndex: 1000 }}>
@@ -95,7 +111,7 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
                                     <div className="text-muted">
-                                        <strong>{user.firstName} {user.lastName}</strong>
+                                        <strong>{user.idUser} - {user.firstName} {user.lastName}</strong>
                                     </div>
                                     <div className="text-muted extra-small">
                                         {user.residenceDto?.street} {user.residenceDto?.number}
@@ -111,7 +127,7 @@ const UserSearchInput = ({ onUserSelected }: UserSearchInputProps) => {
             )}
 
             {selectedUser && (
-                <div className="mt-2 p-2 bg-light rounded">
+                <div className="selected-user-box mt-2">
                     <div className="d-flex justify-content-between align-items-center">
                         <div>
                             <strong>Seleccionado:</strong> {selectedUser.firstName} {selectedUser.lastName}

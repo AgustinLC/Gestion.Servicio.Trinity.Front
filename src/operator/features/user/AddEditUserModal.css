@@ -1,0 +1,48 @@
+/* --- Estilos específicos de este modal ---
+   El header, los encabezados de sección, la caja de aviso y el pie
+   ("form-modal-*", "icon-badge", "hint-box") ahora son compartidos: ver
+   src/index.css y los componentes FormModalHeader/FormSectionHeader/HintBox
+   en src/shared/components. Acá solo queda lo que es propio de este modal
+   (tamaño del contenido, tarjeta resumen, fondo del backdrop). */
+.user-modal-content {
+  border-radius: var(--card-border-radius) !important;
+}
+
+/* Con scrollable, .modal-body es el único que scrollea; por default el eje
+   vertical en "auto" hace que el navegador compute también el horizontal
+   como "auto" (spec de overflow), permitiendo un scroll horizontal si algo
+   adentro se pasa por unos px. Se fuerza a hidden: mejor recortar ese
+   sobrante que arrastrar todo el modal para el costado. */
+.user-modal-content .modal-body {
+  overflow-x: hidden;
+}
+
+/* --- Tarjeta resumen del usuario (avatar + estado/tarifa/medidor + domicilio):
+   info de solo lectura, fondo blanco para diferenciarla del gris de página
+   y del formulario editable de abajo. --- */
+.user-summary-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: var(--card-border-radius);
+  padding: 1.1rem 1.25rem;
+}
+
+.user-summary-avatar {
+  width: 48px;
+  height: 48px;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.user-summary-stat-label {
+  margin-bottom: 0.2rem;
+  white-space: nowrap;
+}
+
+/* El HintBox comparte fila con los botones (Cancelar/Guardar cambios) en el
+   pie: se le da un ancho "preferido" para que en pantallas angostas pase a
+   ocupar toda la fila (flex-wrap del padre) en vez de quedar aplastado al
+   lado de los botones. */
+.form-modal-footer .hint-box {
+  flex: 1 1 320px;
+}

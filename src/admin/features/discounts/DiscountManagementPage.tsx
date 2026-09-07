@@ -3,11 +3,15 @@ import { DiscountDto } from "../../../core/models/dto/Discount";
 import { addData, updateData } from "../../../core/services/apiService";
 import { toast } from "react-toastify";
 import { TableColumnDefinition } from "../../../core/models/types/TableTypes";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import ReusableTable from "../../../shared/components/table/ReusableTable";
+import TableSkeleton from "../../../shared/components/table-skeleton/TableSkeleton";
 import AddEditDiscountModal from "./AddEditDiscountModal";
 import applyConditionLabels from "../../../shared/components/labels-traductor/applyConditionLabels";
 import useAppData from "../../../hooks/useAppData";
+import TableToolbar from "../../../shared/components/table-toolbar/TableToolbar";
+import PageHeader from "../../../shared/components/PageHeader";
+import { useSearch } from "../../../hooks/useSearch";
 
 const DiscountManagementPage = () => {
 
@@ -15,6 +19,12 @@ const DiscountManagementPage = () => {
     const [selectedDiscount, setSelectedDiscount] = useState<DiscountDto | null>(null);
     const [showModal, setShowModal] = useState(false);
     const { discounts, loading, error, refreshDiscounts } = useAppData();
+
+    // Hook para buscar por columnas
+    const { filteredData, handleSearch } = useSearch<DiscountDto>(
+        discounts,
+        ["name", "description"]
+    );
 
     // Manejar añadir/editar
     const handleSave = async (discount: DiscountDto) => {
@@ -48,8 +58,8 @@ const DiscountManagementPage = () => {
         { key: "applyCondition", label: "Condición", sortable: false, render: (row) => applyConditionLabels[row.applyCondition] || row.applyCondition },
         {
             key: "actions", label: "Acciones", actions: (row: DiscountDto) => (
-                <Button variant="warning" onClick={() => { setSelectedDiscount(row); setShowModal(true); }}>
-                    Editar
+                <Button variant="outline-warning" onClick={() => { setSelectedDiscount(row); setShowModal(true); }}>
+                    <i className="bi bi-pencil me-1"></i> Editar
                 </Button>
             ),
         },
@@ -57,25 +67,22 @@ const DiscountManagementPage = () => {
 
     return (
         <div>
-            <h1 className="text-center">Gestión de Descuentos</h1>
+            <PageHeader title="Gestión de Descuentos" subtitle="Administrá los descuentos disponibles para los usuarios." icon="bi bi-plus-slash-minus" />
             {loading ? (
-                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-                    <span className="mb-2 fw-bold">CARGANDO...</span>
-                    <Spinner animation="border" role="status"></Spinner>
-                </div>
+                <TableSkeleton />
             ) : error ? (
                 <div className="text-center py-5">{error}</div>
             ) : (
-                <div>
-                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mb-1">
+                <div className="content-fade-in">
+                    <TableToolbar onSearch={handleSearch}>
                         <Button onClick={() => { setSelectedDiscount(null); setShowModal(true); }}>
                             Añadir Descuento
                         </Button>
-                    </div>
+                    </TableToolbar>
 
                     {/* Tabla */}
                     <ReusableTable<DiscountDto>
-                        data={discounts}
+                        data={filteredData}
                         columns={columns}
                         defaultSort="idDiscount"
                     />

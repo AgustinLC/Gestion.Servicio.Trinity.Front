@@ -1,58 +1,2615 @@
-/* Contenedor principal usando flexbox */
-#root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap");
+
+/* --- MODERN DESIGN SYSTEM VARIABLES --- */
+:root {
+    --bs-font-family-sans-serif:
+        "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        sans-serif;
+    --bs-body-font-family: var(--bs-font-family-sans-serif);
+
+    /* Modern Water-Themed Palette: Celeste/Blue & Slate */
+    --bs-primary: #0077ff; /* Celeste / Azul Agua */
+    --bs-primary-rgb: 0, 119, 255;
+    --bs-body-bg: #f8fafc;
+    --bs-body-color: #0f172a;
+
+    /* Custom variables for borders, shadows and colors */
+    --card-border-radius: 16px;
+    --input-border-radius: 10px;
+    --btn-border-radius: 10px;
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-sm:
+        0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 8px rgba(0, 0, 0, 0.02);
+    --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+    --navbar-height: 64px;
+}
+
+/* Global Root Configuration.
+   El scroll de toda la app vive en #root (no en html/body): así su propia
+   caja empieza justo debajo del navbar fijo y termina en el borde inferior
+   de la ventana, y la scrollbar (nativa o la estilizada de más abajo) queda
+   contenida ahí en vez de dibujarse en el borde de la ventana atravesando
+   el navbar. html/body quedan fijos al tamaño del viewport y sin scroll
+   propio; body además se desplaza navbar-height hacia abajo (margin-top)
+   y se achica esa misma medida (height) para no quedar recortado por el
+   overflow:hidden de html. */
+html {
+    height: 100%;
+    overflow: hidden;
 }
 
 body {
-  position: relative;
-  overflow-y: scroll;
-  margin-top: 70px;
+    position: relative;
+    height: calc(100% - var(--navbar-height));
+    margin-top: var(--navbar-height);
+    overflow: hidden;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    font-family: var(--bs-body-font-family);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+#root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none; /* Firefox: se reemplaza por CustomScrollbar.tsx */
+}
+
+/* Chrome/Edge en Windows tienen un bug ("Fluent scrollbars") que ignora el
+   ::-webkit-scrollbar personalizado en #root y muestra igual la nativa con
+   flechitas sin importar el CSS. Se oculta del todo y se reemplaza por
+   CustomScrollbar.tsx, que dibuja su propio thumb con un div y por eso es
+   inmune a ese bug. */
+#root::-webkit-scrollbar {
+    display: none;
+}
+
+/* Sin esto, los hijos flex de #root (contenido de cada página, footer, etc.)
+   se encogen para entrar en su altura fija en vez de desbordar y generar
+   scroll, que es exactamente lo que #root necesita poder hacer. */
+#root > * {
+    flex-shrink: 0;
+}
+
+/* --- SCROLLBAR ESTILIZADA ---
+   Sin scrollbar-gutter: stable a propósito, para que en las páginas sin
+   overflow no quede ningún espacio/franja reservada de más (ni gris ni de
+   color) donde no hay scroll real. La scrollbar solo ocupa lugar cuando
+   #root (u otro contenedor con su propio overflow: sidebar, tablas,
+   modales) realmente tiene contenido para scrollear; el resto del tiempo no
+   se ve nada. Este bloque solo la afina visualmente: delgada y con los
+   colores del sistema en vez de la gris por defecto del navegador. */
+* {
+    scrollbar-width: thin; /* Firefox */
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Windows dibuja flechitas arriba/abajo del track por default en scrollbars
+   personalizadas; se ocultan para dejar solo la barrita. Se listan también
+   los pseudo-estados individuales (:single-button, :start/:end) porque en
+   Chrome/Edge de Windows pisan la regla genérica con más especificidad, y se
+   fuerza con !important porque este proyecto importa bootstrap.min.css
+   duplicado en varios chunks, lo que reordena el bundle final y hace ganar
+   empates de cascada a reglas que no deberían ganar. */
+::-webkit-scrollbar-button,
+::-webkit-scrollbar-button:single-button,
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(15, 23, 42, 0.22);
+    border-radius: 999px;
+    /* El grosor visible del thumb queda dado por width(10px) - 2*border(3px):
+     un pill delgado "flotando" centrado en el track, en vez de ocupar todo
+     el ancho de la scrollbar. */
+    border: 3px solid transparent;
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 119, 255, 0.4);
+}
+
+/* Con html/body sin scroll propio (ver arriba), Bootstrap nunca detecta una
+   scrollbar de ventana que compensar, pero se deja igual como resguardo por
+   si algún flujo puntual reactiva el scroll nativo del body. */
+body.modal-open {
+    padding-right: 0 !important;
+}
+
+/* Estado de carga (spinner) dentro de .dashboard-main: usa la altura restante
+   bajo el navbar en vez de 100vh, para no sumar una pantalla completa extra
+   al contenido que ya está debajo de él (evita un scroll innecesario). */
+.loading-vh {
+    min-height: calc(100vh - var(--navbar-height));
+}
+
+/* --- CARDS MODERNIZADAS --- */
+.card {
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    border-radius: var(--card-border-radius) !important;
+    box-shadow: var(--shadow-md);
+    background-color: #ffffff;
+    transition: var(--transition-smooth);
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+/* NOTA: se probó hacer que la card dejara de recortar (overflow:visible)
+   mientras hay un dropdown abierto adentro, para que un CustomSelect/
+   DotDropdown cerca del borde inferior de una card no se corte. Se revirtió
+   dos veces: con strategy "fixed" en Popper el menú se posicionaba mal en
+   el primer render; con overflow:visible por :has() aparecía scroll
+   horizontal en toda la página (overflow-y:visible con overflow-x:hidden
+   computa como "auto" y arrastra el menú absoluto como overflow propio de
+   la card). Se deja overflow:hidden sin excepciones: el corte contra el
+   borde de la card queda como limitación conocida y menor. */
+
+.card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    padding: 1.25rem 1.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Cards de gráficos (Resumen): un poco más compactas para no sumar scroll
+   vertical innecesario en los tableros con muchas tarjetas KPI arriba. */
+/* Igual que .filter-card: el selector de período (arriba del gráfico de
+   torta, en Resumen) puede desplegar un menú largo y quedar cortado contra
+   el borde de la card si la lista de períodos crece. */
+.chart-card {
+    overflow: visible !important;
+}
+
+.chart-card .card-body {
+    padding: 1.1rem 1.25rem;
+}
+
+.chart-card .card-title {
+    margin-bottom: 0.5rem;
+}
+
+/* --- FORMULARIOS E INPUTS MODERNIZADOS --- */
+.form-label {
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+}
+
+.form-control,
+.form-select {
+    border-radius: var(--input-border-radius);
+    border: 1.5px solid #e2e8f0;
+    /* !important: mismo motivo que .btn-outline-* más abajo — en algunas
+       rutas bootstrap.min.css se reinyecta en su propio chunk y reordena el
+       CSS final, haciendo ganar el border-width:1px nativo de Bootstrap por
+       encima de este archivo. Sin esto, el grosor del borde queda distinto
+       según la página (se nota comparando inputs con ícono, ej. buscador vs
+       filtro de calle, uno al lado del otro). Se fija ancho Y color: el gris
+       nativo de Bootstrap (#ced4da/#dee2e6) es más oscuro que este. */
+    border-width: 1.5px !important;
+    border-color: #e2e8f0 !important;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.95rem;
+    color: #1e293b;
+    background-color: #ffffff;
+    transition: var(--transition-smooth);
+}
+
+/* El <select> nativo dibuja su flecha como background-image a la derecha;
+   con el mismo padding parejo de .form-control esa flecha queda pisando el
+   texto cuando el select es angosto (p. ej. el selector de "X por página").
+   Se reafirma el padding-right que Bootstrap reserva para el ícono.
+   !important: form-select-sm (variantes "size=sm" de react-bootstrap) trae
+   su propio padding-right más chico desde bootstrap.min.css, que en algunas
+   rutas se reinyecta después de este archivo y gana por orden de cascada. */
+.form-select {
+    padding-right: 2.25rem !important;
+}
+
+/* En mobile, Safari/Chrome hacen zoom automático al enfocar un campo con
+   tipografía menor a 16px (y ese zoom no se deshace solo al desenfocar,
+   hay que hacer pinch-zoom a mano) — es un comportamiento del navegador
+   pensado para legibilidad, no un bug de layout. La solución no es
+   deshabilitar el zoom del usuario (rompe accesibilidad), sino asegurar
+   16px como mínimo en los campos reales — <input>/<select>/<textarea>,
+   sea cual sea el wrapper (FloatingFieldset, CustomSelect, buscador,
+   filtros...) — y solo en mobile, para no tocar el tamaño de diseño en
+   desktop, donde el bug no ocurre. */
+@media (max-width: 767.98px) {
+    /* !important: selectores como .form-control/.form-select (más
+       específicos por clase) fijan su propio font-size más abajo en este
+       mismo archivo y le ganarían a un simple `input`/`select`/`textarea`
+       por especificidad, sin importar el orden. */
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #80bfff;
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
+    color: #0f172a;
+    /* Bootstrap pone background-color: var(--bs-body-bg) en :focus por
+       default, y ese token está pisado globalmente a un gris clarito
+       (#f8fafc, el mismo que el fondo de los modales) — sin esto, el input
+       se ve gris apenas se lo clickea en vez de mantenerse blanco. */
+    background-color: #ffffff !important;
+}
+
+.form-control::placeholder {
+    /* !important: mismo motivo que .form-control (border-width) más arriba
+       — sin esto, en algunas rutas gana el gris más oscuro nativo de
+       Bootstrap y el placeholder queda con un tono distinto al de otros
+       inputs (se nota comparando el buscador con un filtro al lado). */
+    color: #94a3b8 !important;
+    opacity: 1;
+}
+
+.form-control:disabled,
+.form-select:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
+}
+
+/* --- Labels flotantes que "cortan" el borde superior (estilo legend/notch) ---
+   Ver FloatingFieldset.tsx: usa el elemento nativo <fieldset>/<legend> en vez
+   de simularlo con posicionamiento absoluto, porque el navegador nunca
+   dibuja el borde del fieldset detrás del legend. El corte queda limpio en
+   cualquier fondo (no depende de que atrás haya blanco). */
+.floating-fieldset {
+    position: relative;
+    margin: 0.5rem 0.5rem;
+    padding: 0 0.9rem 0.5rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: var(--input-border-radius);
+    transition: var(--transition-smooth);
+}
+
+.floating-fieldset:focus-within {
+    border-color: #80bfff;
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
+}
+
+/* El Form.Control/CustomSelect interno cede su propio borde rojo de
+   "inválido" al quedar sin borde (ver más abajo); se repite acá en el
+   fieldset para no perder esa señal visual. */
+.floating-fieldset.is-invalid {
+    border-color: #dc3545;
+}
+
+.floating-fieldset.is-invalid:focus-within {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+}
+
+.invalid-feedback {
+    margin-left: 1.5rem;
+}
+
+/* El legend siempre existe (así el navegador reserva el corte nativo), pero
+   mientras el campo está vacío y sin foco se colapsa a ancho ~0: el borde
+   queda como una línea continua y el nombre del campo se ve por dentro (ver
+   .floating-fieldset-ghost) en vez de arriba cortando el borde. */
+.floating-fieldset-legend {
+    position: relative;
+    z-index: 1;
+    float: none;
+    width: auto;
+    max-width: 0.05px;
+    margin: 0;
+    padding: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1;
+    color: #64748b;
+    background-color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    outline: none !important;
+    transition:
+        max-width 0.15s ease,
+        padding 0.15s ease,
+        margin 0.15s ease;
+}
+
+/* Dentro de un modal el fondo real es var(--bs-modal-bg) (en esta app,
+   #f8fafc — un gris clarito, NO blanco puro, porque --bs-body-bg está
+   pisado globalmente). Si el legend queda con fondo #ffffff fijo, se ve un
+   parche blanco despegado del gris del modal; se lo hace matchear acá. */
+.modal-content .floating-fieldset-legend {
+    background-color: var(--bs-modal-bg);
+}
+
+/* Algunos navegadores dibujan un outline propio sobre el <legend> mientras
+   el fieldset está en :focus-within (aparece como un recuadro negro que
+   abraza justo el texto del label); se anula explícitamente. */
+.floating-fieldset:focus-within .floating-fieldset-legend,
+.floating-fieldset-legend:focus,
+.floating-fieldset-legend:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.floating-fieldset-floated .floating-fieldset-legend {
+    max-width: calc(100% - 1rem);
+    margin: 0 0 0 0.15rem;
+    padding: 0 0.4rem;
+}
+
+.floating-fieldset:focus-within .floating-fieldset-legend {
+    color: var(--bs-primary);
+}
+
+/* El label también se pone en rojo cuando el campo es inválido (además del
+   borde del fieldset y el mensaje de Form.Control.Feedback). Va después de
+   :focus-within a propósito y con selectores más específicos: si el campo
+   sigue inválido mientras se lo vuelve a foco, el rojo debe primar sobre el
+   celeste de foco normal. */
+.floating-fieldset.is-invalid .floating-fieldset-legend,
+.floating-fieldset.is-invalid:focus-within .floating-fieldset-legend {
+    color: #dc3545;
+}
+
+.floating-fieldset-body {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+}
+
+/* Los <textarea> son multilínea: alinear arriba en vez de centrar (el
+   texto empieza en la esquina superior, no en el medio del recuadro). */
+.floating-fieldset-textarea .floating-fieldset-body {
+    align-items: flex-start;
+    padding-top: 0.5rem;
+}
+
+.floating-fieldset-textarea .floating-fieldset-ghost {
+    top: 0.5rem;
+    transform: none;
+}
+
+.floating-fieldset .form-control,
+.floating-fieldset .form-select {
+    border: none !important;
+    background: transparent !important;
+    padding: 0.5rem 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* El aro de foco nativo del navegador (outline) no respeta el border-radius
+   del fieldset y queda una segunda línea recta superpuesta a la redondeada;
+   el único indicador de foco debe ser el propio :focus-within del fieldset. */
+.floating-fieldset .form-control:focus,
+.floating-fieldset .form-select:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Componentes a medida con su propio botón/borde (ej: CustomSelect) también
+   necesitan cederle el borde/fondo al fieldset que los envuelve, para no
+   quedar con un doble marco (el del botón + el del fieldset). */
+.floating-fieldset .alert-filter-toggle.btn,
+.floating-fieldset .alert-filter-toggle.btn:hover,
+.floating-fieldset .alert-filter-toggle.btn:focus,
+.floating-fieldset .alert-filter-toggle.btn:active {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0.5rem 0 !important;
+}
+
+.floating-fieldset-affix {
+    flex-shrink: 0;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.floating-fieldset-input-wrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Label mostrado "adentro" (como si fuera el valor) mientras el campo está
+   vacío y sin foco. pointer-events:none para que el click atraviese hasta
+   el input real y lo enfoque igual. Ancho auto (no ocupa todo el control):
+   en un CustomSelect, ocupar el 100% tapa también su flecha del lado
+   derecho — ver .floating-fieldset-mask-native para el caso que sí necesita
+   tapar todo el ancho. */
+.floating-fieldset-ghost {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    font-weight: 500;
+    pointer-events: none;
+}
+
+/* input[type=date/time/...] dibujan su propio texto nativo de "vacío"
+   (dd/mm/aaaa) que no es el atributo placeholder y no se puede ocultar por
+   CSS: en vez de evitar la superposición, se tapa el control entero con un
+   fondo opaco (acá sí puede ocupar todo el ancho: un <input> no tiene un
+   ícono propio del lado derecho que perder, a diferencia de un CustomSelect). */
+.floating-fieldset-mask-native .floating-fieldset-ghost {
+    inset: 0;
+    left: 0;
+    top: 0;
+    transform: none;
+    max-width: none;
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+}
+
+/* Mismo motivo que el fondo del legend: dentro de un modal el fondo real es
+   var(--bs-modal-bg) (#f8fafc en esta app), no blanco puro. */
+.modal-content .floating-fieldset-mask-native .floating-fieldset-ghost {
+    background-color: var(--bs-modal-bg);
+}
+
+/* --- CURSOR: elementos interactivos deben mostrar mano, no flecha --- */
+button:not(:disabled),
+.btn:not(:disabled),
+.form-select,
+select,
+.page-link,
+.dropdown-toggle,
+.dropdown-item,
+.nav-link,
+[role="button"] {
+    cursor: pointer;
+}
+
+button:disabled,
+.btn:disabled {
+    cursor: not-allowed;
+}
+
+/* Bootstrap por defecto pinta el link INACTIVO de las nav-tabs con el color
+   de link (celeste) y el ACTIVO en gris oscuro: es al revés de lo que se
+   espera visualmente (la pestaña activa es la que debería resaltar). */
+.nav-tabs .nav-link {
+    color: #475569;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--bs-primary);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--bs-primary);
+}
+
+/* --- BOTONES MODERNIZADOS --- */
+.btn {
+    border-radius: var(--btn-border-radius);
+    padding: 0.6rem 1.4rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: var(--transition-smooth);
+    border: none;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background-color: var(--bs-primary);
+    color: #ffffff;
+    box-shadow: 0 4px 14px 0 rgba(0, 119, 255, 0.25);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #0055cc !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 20px 0 rgba(0, 119, 255, 0.4) !important;
+}
+
+.btn-secondary {
+    background-color: #64748b;
+    color: #ffffff;
+    box-shadow: 0 4px 14px 0 rgba(100, 116, 139, 0.2);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background-color: #475569 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 20px 0 rgba(100, 116, 139, 0.35) !important;
+}
+
+.btn-success {
+    background-color: #10b981;
+    color: #ffffff;
+    box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.2);
+}
+
+.btn-success:hover,
+.btn-success:focus {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 20px 0 rgba(16, 185, 129, 0.35) !important;
+}
+
+.btn-danger {
+    background-color: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.2);
+}
+
+.btn-danger:hover,
+.btn-danger:focus {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 20px 0 rgba(239, 68, 68, 0.35) !important;
+}
+
+/* Alertas de advertencia (botones amarillos) con alto contraste */
+.btn-warning {
+    background-color: #f59e0b;
+    color: #1e293b !important;
+    box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.2);
+}
+
+.btn-warning:hover,
+.btn-warning:focus {
+    background-color: #d97706 !important;
+    color: #1e293b !important;
+    box-shadow: 0 6px 20px 0 rgba(245, 158, 11, 0.35) !important;
+}
+
+/* Variantes "outline" (regla de botones Figma, aplicable a TODOS los
+   variant="outline-*" del sistema): fondo blanco + borde de color en reposo,
+   relleno pastel suave en hover, relleno pastel un poco más saturado en
+   active/pressed. El texto/ícono mantiene siempre el mismo tono saturado,
+   solo cambia el fondo. Border-width 2px (igual que los inputs) para que el
+   borde de color se note bien sobre fondo blanco. */
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-success,
+.btn-outline-danger,
+.btn-outline-warning,
+.btn-outline-info {
+    background-color: #ffffff !important;
+    /* !important porque algunas rutas re-importan bootstrap.min.css en su
+     propio chunk (dashboards), lo que puede reordenar el CSS final y hacer
+     ganar el border-width:1px de Bootstrap por encima de este archivo. */
+    border-width: 1.5px !important;
+    /* .btn resetea "border: none" (border-style: none) para las variantes
+     sólidas; acá hay que reafirmar el estilo para que el borde de color se
+     vea (si no, border-width computa 0 aunque se declare un valor). */
+    border-style: solid !important;
+}
+
+/* .btn:hover trae un translateY(-1px) global (efecto "lift" de los botones
+   sólidos). En estos outline, al vivir muchas veces dentro de contenedores
+   con overflow:auto/hidden (acciones de fila en tablas), ese desplazamiento
+   corta el borde superior contra el límite del contenedor. El Figma tampoco
+   pide movimiento acá, solo cambio de color, así que se anula. */
+[class*="btn-outline-"]:hover,
+[class*="btn-outline-"]:focus,
+[class*="btn-outline-"]:active {
+    transform: none !important;
+}
+
+.btn-outline-primary:active,
+.btn-outline-primary.active,
+.btn-outline-secondary:active,
+.btn-outline-secondary.active,
+.btn-outline-success:active,
+.btn-outline-success.active,
+.btn-outline-danger:active,
+.btn-outline-danger.active,
+.btn-outline-warning:active,
+.btn-outline-warning.active,
+.btn-outline-info:active,
+.btn-outline-info.active {
+    box-shadow: none !important;
+}
+
+.btn-outline-primary {
+    color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background-color: #eff6ff !important;
+    color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+}
+
+.btn-outline-primary:active,
+.btn-outline-primary.active {
+    background-color: #dbeafe !important;
+    color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+}
+
+.btn-outline-secondary {
+    color: #475569;
+    border-color: #64748b;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border-color: #64748b !important;
+}
+
+.btn-outline-secondary:active,
+.btn-outline-secondary.active {
+    background-color: #e2e8f0 !important;
+    color: #334155 !important;
+    border-color: #64748b !important;
+}
+
+.btn-outline-success {
+    color: #15803d;
+    border-color: #22c55e;
+}
+
+.btn-outline-success:hover,
+.btn-outline-success:focus {
+    background-color: #ecfdf5 !important;
+    color: #15803d !important;
+    border-color: #22c55e !important;
+}
+
+.btn-outline-success:active,
+.btn-outline-success.active {
+    background-color: #bbf7d0 !important;
+    color: #15803d !important;
+    border-color: #22c55e !important;
+}
+
+.btn-outline-warning {
+    color: #b45309;
+    border-color: #f59e0b;
+}
+
+.btn-outline-warning:hover,
+.btn-outline-warning:focus {
+    background-color: #fffbeb !important;
+    color: #b45309 !important;
+    border-color: #f59e0b !important;
+}
+
+.btn-outline-warning:active,
+.btn-outline-warning.active {
+    background-color: #fde68a !important;
+    color: #b45309 !important;
+    border-color: #f59e0b !important;
+}
+
+.btn-outline-danger {
+    color: #dc2626;
+    border-color: #ef4444;
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus {
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+    border-color: #ef4444 !important;
+}
+
+.btn-outline-danger:active,
+.btn-outline-danger.active {
+    background-color: #fecaca !important;
+    color: #dc2626 !important;
+    border-color: #ef4444 !important;
+}
+
+.btn-outline-info {
+    color: #0d9488;
+    border-color: #2dd4bf;
+}
+
+.btn-outline-info:hover,
+.btn-outline-info:focus {
+    background-color: #f0fdfa !important;
+    color: #0d9488 !important;
+    border-color: #2dd4bf !important;
+}
+
+.btn-outline-info:active,
+.btn-outline-info.active {
+    background-color: #ccfbf1 !important;
+    color: #0d9488 !important;
+    border-color: #2dd4bf !important;
+}
+
+/* --- ALERTAS DE ALTO CONTRASTE (WCAG AA) --- */
+.alert {
+    border-radius: 12px;
+    border-width: 1.5px;
+    padding: 1rem 1.25rem;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.alert-success {
+    background-color: #ecfdf5 !important;
+    border-color: #a7f3d0 !important;
+    color: #065f46 !important;
+}
+
+.alert-danger {
+    background-color: #fef2f2 !important;
+    border-color: #fecaca !important;
+    color: #991b1b !important;
+}
+
+.alert-warning {
+    background-color: #fffbeb !important;
+    border-color: #fde68a !important;
+    color: #92400e !important;
+}
+
+.alert-info {
+    background-color: #f0f9ff !important;
+    border-color: #bae6fd !important;
+    color: #075985 !important;
+}
+
+/* --- TABLAS Y PAGINADORES --- */
+.table {
+    --bs-table-bg: transparent;
+    color: #1e293b;
+    vertical-align: middle;
+}
+
+.table th {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    border-bottom: 2px solid #e2e8f0;
+    background-color: #f8fafc;
+    padding: 1rem;
+}
+
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8fafc;
+}
+
+/* Tinte celeste muy suave (en vez del gris plano de Bootstrap) para que el
+   hover de fila entone con el resto de la paleta pastel/celeste del sistema
+   (mismo lenguaje que el hover del sidebar y de row-actions-edit). */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 119, 255, 0.045);
+}
+
+/* --- Paginación de ReusableTable (regla Figma) ---
+   Flechas prev/next circulares + números en cuadrados redondeados, la
+   página activa en azul sólido, puntos suspensivos como texto simple (sin
+   botón). Reemplaza el <Pagination> de Bootstrap por markup propio, así que
+   estas clases son las únicas que gobiernan el look de la paginación. */
+.table-pagination-nav,
+.table-pagination-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 0.4rem;
+    border: 1.5px solid #e2e8f0;
+    background-color: #ffffff;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition-smooth);
+}
+
+.table-pagination-nav {
+    border-radius: 50%;
+    color: #64748b;
+}
+
+.table-pagination-item {
+    border-radius: 8px;
+}
+
+.table-pagination-nav:hover:not(:disabled),
+.table-pagination-item:hover:not(.active) {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: var(--bs-primary);
+}
+
+.table-pagination-nav:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.table-pagination-item.active {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: #ffffff;
+}
+
+.table-pagination-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 34px;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.table-page-size-select {
+    width: auto;
+    min-width: 130px;
+    flex-shrink: 0;
+}
+
+/* --- DETALLES ANTERIORES PRESERVADOS --- */
 .pdf-loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  flex-direction: column;
-  gap: 1rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .custom-switch-container .form-check-input {
-  cursor: pointer;
+    cursor: pointer;
 }
 
-/* Navbar active link indicator */
-.navbar-active-link {
-  position: relative;
+/* --- NAVBAR (Fase 1: marca, links con icono y menu de usuario) ---
+   OJO: la altura NO debe depender de --navbar-height (esa variable la
+   calcula JS midiendo el navbar ya renderizado, para que el sidebar/body se
+   alineen debajo). Si el navbar leyera su propia altura medida como
+   min-height, cualquier crecimiento quedaría "pegado" para siempre (nunca
+   podría volver a achicarse). La altura real sale solo del padding+contenido. */
+.navbar.fixed-top {
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
 }
 
-.navbar-active-link::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 50%;
-  transform: translateX(-50%) scaleX(0);
-  width: 80%;
-  height: 2px;
-  background-color: #ffffff;
-  border-radius: 2px;
-  transition: transform 0.2s ease;
+.navbar-brand-icon {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
 }
 
-.navbar-active-link:hover::after {
-  transform: translateX(-50%) scaleX(0.5);
-  opacity: 0.6;
+.navbar-brand-text {
+    line-height: 1.15;
 }
 
-.navbar-active-link.navbar-link-active::after {
-  transform: translateX(-50%) scaleX(1);
+.navbar-brand-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #ffffff;
+}
+
+.navbar-brand-subtitle {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 400;
+}
+
+/* Links del navbar como "pill" (reemplaza el subrayado anterior) */
+.navbar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.85) !important;
+    border-radius: 999px;
+    padding: 0.5rem 0.9rem !important;
+    transition: var(--transition-smooth);
+}
+
+.navbar-link:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff !important;
+}
+
+.navbar-link.navbar-link-active {
+    background-color: rgba(255, 255, 255, 0.18);
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+/* Botón de notificaciones */
+.navbar-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    transition: var(--transition-smooth);
+}
+
+.navbar-icon-btn:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+/* Menú de usuario */
+.navbar-user-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: transparent !important;
+    border: none !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: 999px;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+    transition: var(--transition-smooth);
+}
+
+.navbar-user-toggle:hover,
+.navbar-user-toggle:focus {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.navbar-user-toggle::after {
+    display: none;
+}
+
+.navbar-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    color: var(--bs-primary);
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.navbar-user-info {
+    line-height: 1.2;
+    max-width: 160px;
+}
+
+.navbar-user-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.navbar-user-role {
+    font-size: 0.75rem;
+    opacity: 0.85;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.navbar-user-chevron {
+    font-size: 0.8rem;
+    opacity: 0.85;
+}
+
+/* Encabezado del desplegable de usuario: nombre + correo, a modo de
+   contexto (no es una opción, por eso no usa Dropdown.Item). El rol ya se
+   ve en el botón que abre el menú, así que acá no se repite. */
+.navbar-dropdown-header {
+    max-width: 260px;
+}
+
+/* Invertido respecto de .navbar-avatar: acá el fondo del desplegable es
+   claro, así que el círculo pasa a fondo celeste + letra blanca en vez de
+   fondo blanco + letra celeste (si no, se pierde contra el fondo). */
+.navbar-avatar-lg {
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    background-color: var(--bs-primary);
+    color: #ffffff;
+}
+
+/* Ítem de cerrar sesión con subtítulo, como el resto de las opciones que se
+   sumarán después (Mi perfil, Cambiar contraseña, Preferencias). */
+.navbar-dropdown-logout {
+    display: flex !important;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.navbar-dropdown-logout-icon {
+    font-size: 1.1rem;
+}
+
+.navbar-dropdown-logout-subtitle {
+    font-size: 0.8rem;
+    font-weight: 400;
+    opacity: 0.75;
+}
+
+/* --- ANIMACIONES DE ENTRADA --- */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Animación de entrada para el bloque de contenido de páginas tipo
+   formulario/detalle (no tablas). Se aplica solo al wrapper de contenido,
+   nunca al contenedor que también envuelve el PageHeader, para que el
+   título quede fijo y no se deslice junto con la card. */
+@keyframes contentFadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.content-fade-in-slide {
+    animation: contentFadeInSlide 0.5s ease-out;
+}
+
+/* Transición esqueleto -> contenido real: la tabla aparece en el mismo
+   lugar exacto que ocupaba el esqueleto, así que solo se desvanece (sin
+   deslizar) para no dar sensación de "venir de" ningún lado. */
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.content-fade-in {
+    animation: contentFadeIn 0.5s ease-out;
+}
+
+/* --- SKELETON LOADING (shimmer) ---
+   Bloque placeholder gris con un reflejo de luz que lo recorre de forma
+   continua (loop) mientras está en pantalla. Reemplaza al Spinner en
+   pantallas donde conviene mostrar la forma del contenido que está por
+   llegar en vez de un ícono de carga genérico. */
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: #e2e8f0;
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.65) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    animation: skeletonShimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes skeletonShimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.skeleton-line {
+    border-radius: 6px;
+}
+
+/* --- SKELETON DE TABLA (genérico) ---
+   Reproduce la forma de una pantalla de tabla (toolbar + ReusableTable) sin
+   atarse a una cantidad de columnas puntual: cada celda es una franja del
+   mismo alto/gap que una fila real, así sirve para cualquier tabla del
+   sistema. Ver TableSkeleton.tsx. */
+.table-skeleton-field {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    height: 38px;
+    flex-shrink: 0;
+    padding: 0 0.75rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #cbd5e1;
+    font-size: 0.95rem;
+}
+
+/* El botón principal conserva el color real (celeste): no sabemos su ícono
+   ni texto todavía, pero sí que siempre es la acción primaria de la barra.
+   Ancho de contenido (flex:0 1 auto), NO 100%/flex:1 (que lo estiraba a
+   ocupar todo el resto de la fila): el botón real ("Añadir Usuario") es
+   compacto, no se estira, así que el esqueleto debe reflejar ese mismo
+   tamaño — ver .table-toolbar-reset-group en TableSkeleton.tsx, cuyo
+   justify-content-between ya lo empuja a la derecha del botón de limpiar
+   sin necesidad de que crezca. min-width:0 solo por seguridad, para que
+   pueda achicarse en vez de desbordar si un día no entrara. */
+.table-skeleton-primary-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 1 auto;
+    min-width: 0;
+    height: 38px;
+    padding: 0 1.25rem;
+    border-radius: 10px;
+    background: var(--bs-primary);
+}
+
+/* En desktop (>= lg, igual que TableToolbar.tsx real) el buscador y el
+   filtro pasan a ancho fijo en una fila horizontal, y el botón se empuja
+   a la derecha. En mobile ocupan el 100% apilados en columna. */
+@media (min-width: 992px) {
+    .table-skeleton-field-search {
+        flex: 1 1 260px;
+        width: auto;
+        max-width: 380px;
+    }
+
+    .table-skeleton-field-filter {
+        flex: 0 1 220px;
+        width: auto;
+    }
+
+    .table-skeleton-primary-btn {
+        flex: 0 0 auto;
+        width: auto;
+        margin-left: auto;
+    }
+}
+
+.skeleton-on-primary {
+    background-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.skeleton-on-primary::after {
+    background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.8) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+}
+
+/* Scrollea de costado igual que la tabla real (Table responsive de
+   Bootstrap) en vez de apretar las columnas — ver table-skeleton-cell. */
+.table-skeleton-scroll {
+    overflow-x: auto;
+}
+
+.table-skeleton-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.1rem;
+    border-bottom: 1px solid #f1f5f9;
+    min-width: max-content;
+}
+
+.table-skeleton-row:last-of-type {
+    border-bottom: none;
+}
+
+.table-skeleton-cell {
+    flex: 1 0 110px;
+    display: flex;
+    justify-content: center;
+}
+
+.table-skeleton-avatar-cell {
+    flex: 0 0 32px;
+}
+
+.table-skeleton-actions-cell {
+    flex: 0 0 auto;
+    gap: 0.5rem;
+    color: #cbd5e1;
+}
+
+/* --- REUSABLE TABLE SORTING STYLES --- */
+.header-content {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.header-text {
+    white-space: nowrap;
+}
+
+/* --- BARRA DE FILTROS ESTANDARIZADA (buscadores de tableros) --- */
+/* El toolbar siempre precede a la tabla en este sistema, así que se estiliza
+   como la mitad superior de una única caja (como en el Figma): sin sombra
+   propia ni radio/borde inferior, separado solo por una línea divisoria. */
+.table-toolbar {
+    background-color: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-bottom: none;
+    border-top-left-radius: var(--card-border-radius);
+    border-top-right-radius: var(--card-border-radius);
+    box-shadow: var(--shadow-sm);
+    padding: 0.85rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 0;
+}
+
+/* Mitad inferior de la caja fusionada */
+.table-toolbar + .reusable-table-card {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    margin-top: 0;
+}
+
+.table-toolbar-main,
+.table-toolbar-active-filters,
+.table-toolbar-filter-toggles {
+    min-width: 0;
+}
+
+.table-toolbar-filters-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+.table-toolbar-filter-check .form-check-label {
+    font-size: 0.875rem;
+    color: #334155;
+    cursor: pointer;
+}
+
+.table-toolbar-filter-control {
+    width: 100%;
+    min-width: 180px;
+}
+
+/* Filtros y buscador traen su propio max-width (inline y en .search-bar-group)
+   pensado para desktop; por debajo de lg se anula para que midan lo mismo. */
+@media (max-width: 991.98px) {
+    .table-toolbar-filter-control,
+    .table-toolbar-filter-group,
+    .search-bar-group {
+        max-width: none !important;
+    }
+}
+
+/* Limpia búsqueda + filtros del toolbar de un click (ver TableToolbar.tsx).
+   Mismo lenguaje visual que .row-actions-edit (botón cuadrado con borde
+   suave), pero es una clase propia: conceptualmente es una acción del
+   toolbar, no de una fila de tabla. */
+.table-toolbar-reset-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background-color: #ffffff;
+    color: #64748b;
+    font-size: 1.05rem;
+    transition: var(--transition-smooth);
+}
+
+.table-toolbar-reset-btn:hover:not(:disabled) {
+    background-color: rgba(0, 119, 255, 0.06);
+    border-color: #80bfff;
+    color: var(--bs-primary);
+    transform: rotate(45deg);
+}
+
+.table-toolbar-reset-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Agrupa limpiar+acciones en una fila solo en mobile (ver TableToolbar.tsx);
+   desde lg se "disuelve" con display:contents para que cada uno vuelva a su
+   posición normal (limpiar junto a los filtros, acciones a la derecha).
+   !important necesario: gana por sobre el d-flex !important de Bootstrap. */
+@media (min-width: 992px) {
+    .table-toolbar-reset-group {
+        display: contents !important;
+    }
+}
+
+.search-bar-input {
+    width: auto;
+    max-width: 320px;
+    min-width: 200px;
+}
+
+/* --- FASE 3: buscador y selects como InputGroup con icono a la izquierda ---
+   Nota: en mobile el toolbar es flex-column, así que el eje principal pasa a
+   ser vertical. Por eso el flex-basis (pensado para el ancho en desktop) solo
+   se aplica desde el breakpoint lg en adelante; en mobile los grupos ocupan
+   simplemente el 100% del ancho disponible. */
+.search-bar-group {
+    width: 100%;
+    max-width: 380px;
+    min-width: 0;
+}
+
+.table-toolbar-filter-group {
+    width: 100%;
+    min-width: 0;
+}
+
+@media (min-width: 992px) {
+    .search-bar-group {
+        flex: 1 1 260px;
+        min-width: 220px;
+    }
+
+    .table-toolbar-filter-group {
+        flex: 1 1 220px;
+        min-width: 200px;
+    }
+}
+
+.search-bar-group .input-group-text,
+.table-toolbar-filter-group .input-group-text {
+    background-color: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-right: none;
+    /* Los !important van lado por lado (no "border-width: 1.5px") para no
+       pisar el border-right:none de arriba, que es lo que suelda el ícono
+       con el input en una sola pieza sin costura al medio. */
+    border-top-width: 1.5px !important;
+    border-bottom-width: 1.5px !important;
+    border-left-width: 1.5px !important;
+    border-right-width: 0 !important;
+    border-color: #e2e8f0 !important;
+    color: #94a3b8 !important;
+    padding-right: 0.4rem;
+}
+
+.search-bar-group .form-control,
+.table-toolbar-filter-group .form-select,
+.table-toolbar-filter-group .form-control {
+    border-left: none;
+    /* El border-width:1.5px !important de la regla base .form-control (ver
+       más arriba) pisa este border-left:none si no se lo iguala en
+       especificidad — si no, vuelve a aparecer una costura entre el ícono y
+       el input. */
+    border-left-width: 0 !important;
+    padding-left: 0.4rem;
+    max-width: none;
+    min-width: 0;
+}
+
+/* Al enfocar el input/select, resaltar también el borde del icono para que
+   el grupo se vea como una sola pieza. */
+.search-bar-group:focus-within .input-group-text,
+.table-toolbar-filter-group:focus-within .input-group-text {
+    border-color: #80bfff;
+    color: var(--bs-primary);
+}
+
+/* El halo de foco (box-shadow) de .form-control:focus solo abarca el propio
+   input, dejando al ícono con su borde celeste pero sin brillo: se ve
+   partido en dos piezas en vez de un solo control (a diferencia de
+   CustomSelect, que al ser un solo <button> no tiene este problema). Se
+   apaga el halo individual y se lo reemplaza por uno en el grupo entero. */
+.search-bar-group:focus-within,
+.table-toolbar-filter-group:focus-within {
+    border-radius: var(--input-border-radius);
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
+}
+
+.search-bar-group .form-control:focus,
+.table-toolbar-filter-group .form-control:focus,
+.table-toolbar-filter-group .form-select:focus {
+    box-shadow: none;
+}
+
+/* Un AutocompleteFilter dentro de un FloatingFieldset (ej: "Calle" en
+   BillGenerateFilteredPage) trae su propio .table-toolbar-filter-group
+   adentro; sin esto, su halo se suma al que ya pone el propio fieldset
+   (.floating-fieldset:focus-within) y quedan dos anillos anidados. */
+.floating-fieldset .table-toolbar-filter-group:focus-within {
+    box-shadow: none;
+}
+
+.sort-arrow {
+    font-size: 0.75rem;
+    color: var(--bs-primary);
+    opacity: 0.8;
+    transition: var(--transition-smooth);
+}
+
+/* --- ÍCONOS CIRCULARES REUTILIZABLES ---
+   Mismo círculo celeste pastel + ícono que se repetía con nombres de clase
+   distintos en cada formulario/modal (header de página, header de modal,
+   encabezado de sección, nota destacada). Un solo lugar para el tamaño y el
+   color; .icon-badge-lg para headers de página/modal (52px), el tamaño base
+   (40px) para todo lo demás (secciones, notas). */
+.icon-badge {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 119, 255, 0.1);
+    color: var(--bs-primary);
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+.icon-badge-lg {
+    width: 52px;
+    height: 52px;
+    font-size: 1.4rem;
+}
+
+.icon-badge-xl {
+    width: 64px;
+    height: 64px;
+    font-size: 1.75rem;
+}
+
+/* Variantes de color para .icon-badge (ver src/shared/components/modal-variant/modalVariant.ts).
+   Sin ninguna de estas clases, .icon-badge queda con el celeste neutro de siempre. */
+.icon-badge-info {
+    background: rgba(0, 119, 255, 0.1);
+    color: var(--bs-primary);
+}
+
+.icon-badge-warning {
+    background: rgba(245, 158, 11, 0.14);
+    color: #d97706;
+}
+
+.icon-badge-error {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+}
+
+.icon-badge-success {
+    background: rgba(34, 197, 94, 0.12);
+    color: #16a34a;
+}
+
+.icon-badge-question {
+    background: rgba(59, 130, 160, 0.12);
+    color: #3b82a0;
+}
+
+.btn-question {
+    background-color: #3b82a0;
+    border-color: #3b82a0;
+    color: #fff;
+}
+
+.btn-question:hover,
+.btn-question:focus {
+    background-color: #327089;
+    border-color: #327089;
+    color: #fff;
+}
+
+/* NEUTRAL — Información sin carga semántica */
+.icon-badge-neutral {
+    background: rgba(100, 116, 139, 0.12);
+    color: #64748b;
+}
+
+/* --- FORMULARIOS/MODALES: patrones reutilizables ---
+   Header con ícono+título+subtítulo+cerrar, título de sección con ícono,
+   pie con línea divisoria, botón de cerrar circular. Antes cada modal
+   redefinía esto con su propio prefijo de clase (user-modal-*, etc.); ahora
+   viven acá una sola vez y los usan los componentes compartidos
+   FormModalHeader / FormSectionHeader (src/shared/components). */
+/* Aplicar como contentClassName del <Modal> junto con FormModalHeader, para
+   que el modal tenga las mismas esquinas redondeadas que el resto del
+   sistema (Bootstrap por default las deja cuadradas). */
+.form-modal-content {
+    border-radius: var(--card-border-radius) !important;
+}
+
+/* Para modales cuyo contenido (tablas anchas, etc.) no entra cómodo en el
+   .modal-xl de Bootstrap (1140px). Usar como dialogClassName. */
+.bill-active-modal-dialog {
+    --bs-modal-width: 1180px;
+    max-width: 95vw;
+}
+
+/* .modal-content/.modal-body ya no se liberan con overflow:visible: no hace
+   falta (Popper default ya posiciona bien el menú de RowActions, no lo
+   corta) y tenía costo real, el contenido se desbordaba hacia la página en
+   vez de scrollear adentro del modal. Esta regla queda solo de fallback. */
+.scrollable-modal-fix .table-responsive {
+    overflow: visible !important;
+}
+
+/* Scroll horizontal real de la tabla dentro del modal — sumar junto con
+   "scrollable-modal-fix" en dialogClassName (seguro incluso con
+   RowActions/CustomSelect por fila, ya verificado). */
+.table-mobile-scroll .table-responsive {
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    max-width: 100%;
+}
+
+.table-mobile-scroll .reusable-table table {
+    min-width: 680px;
+}
+
+.table-mobile-scroll .table-row-actions {
+    flex-wrap: nowrap;
+}
+
+/* Backdrop único y compartido para toda la app (ver
+   src/context/ModalStackContext.tsx): reemplaza el de cada <Modal>
+   individual (backdrop={false}), así con N modales apilados se sigue
+   pintando un solo <div> en vez de N. Queda siempre montado (ver el
+   componente) y se anima con transition en vez de con una @keyframes de
+   "mount", porque una animación de mount no reproduce nada al desmontar: al
+   cerrar el último modal desaparecía de golpe mientras el <Modal> de
+   Bootstrap todavía estaba en medio de su propio fade-out (~0.15s), dejando
+   ver el modal semitransparente sobre la página ya sin oscurecer durante
+   ese lapso. Con transition + la clase -visible, el fade de entrada/salida
+   quedan sincronizados con el del modal. */
+.shared-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease-out;
+}
+
+.shared-modal-backdrop-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Los modales usan este backdrop nativo, transparente, solo para que
+   react-bootstrap pueda detectar el click fuera de .modal-content. El fondo
+   oscuro visible sigue siendo el backdrop compartido de ModalStackContext. */
+.modal-click-backdrop {
+    background-color: transparent;
+}
+
+.modal.fade {
+    transition: none !important;
+}
+
+/* Bootstrap desliza .modal-dialog al abrir/cerrar (transform translate ->
+   none). Si esa transición queda pisada a mitad de camino (interacciones
+   rápidas), un transform activo vuelve a .modal-dialog "containing block"
+   de sus hijos position:fixed, y un Dropdown.Menu (RowActions/CustomSelect)
+   puede aparecer lejos del botón que lo abrió. Se desactiva ese transform
+   (no la opacidad) para que nunca quede en ese estado intermedio. */
+.modal-dialog {
+    transition: none !important;
+    transform: none !important;
+}
+
+.form-modal-header {
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.form-modal-title {
+    font-weight: 700;
+}
+
+/* Layout "centrado" de ConfirmModal (ícono arriba, título y mensaje debajo,
+   todo centrado) para cuando se le pasa la prop "variant" — ver
+   ConfirmModal.tsx. Sin variant, ConfirmModal sigue usando FormModalHeader
+   (ícono a la izquierda) como siempre. */
+.confirm-modal-centered {
+    padding: 2rem 1.75rem 0.25rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.confirm-modal-title {
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: #0f172a;
+}
+
+.confirm-modal-message {
+    color: #64748b;
+    font-size: 0.95rem;
+    max-width: 380px;
+}
+
+.confirm-modal-footer {
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    margin-top: 1.5rem;
+}
+
+.confirm-modal-footer .btn {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+/* .btn-warning tiene texto oscuro forzado con !important más arriba (pensado
+   para dar contraste en botones amarillos sueltos); acá adentro el texto
+   blanco da mejor contraste, así que hace falta otro !important, más
+   específico, para ganarle a esa regla. */
+.confirm-modal-footer .btn-warning {
+    color: #fff !important;
+}
+
+.form-section-title {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* Título de sección con línea inferior (en vez del ícono circular de
+   FormSectionHeader): ícono celeste + texto negro, subrayado con un borde
+   gris clarito. Antes vivía solo en BillGenerateFilteredPage.css; se
+   generaliza acá para reutilizar en cualquier otra página con el mismo
+   lenguaje visual (ej. PdfParametersPage). */
+.filter-section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #edf2f7;
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-modal-footer {
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    padding-top: 0.75rem;
+}
+
+.modal-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    color: #64748b;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    transition: var(--transition-smooth);
+}
+
+.modal-close-btn:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+/* .modal-close-btn también se usa como Dropdown.Toggle para el menú de
+   opciones del header (ver FormModalHeader); sin esto Bootstrap le agrega
+   el caret triangular por defecto. */
+.modal-close-btn.dropdown-toggle::after {
+    display: none;
+}
+
+/* Caja de aviso/nota (ícono + texto sobre fondo celeste pastel): usada en
+   cualquier formulario para aclaraciones o notas importantes. */
+.hint-box {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(0, 119, 255, 0.06);
+    color: #1e293b;
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+}
+
+.hint-box i {
+    color: var(--bs-primary);
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+/* Variante roja (HintBox variant="danger"): ej. una fecha de vencimiento ya
+   pasada. Misma estructura, solo cambia el color. */
+.hint-box-danger {
+    background: rgba(220, 38, 38, 0.08);
+}
+
+.hint-box-danger i {
+    color: #dc2626;
+}
+
+/* Variante naranja (HintBox variant="warning"): aclaración más suave que
+   danger, ej. "esta acción no se puede deshacer" dentro de un ConfirmModal. */
+.hint-box-warning {
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.hint-box-warning i {
+    color: #d97706;
+}
+
+/* Variante con wrap para .hint-box con ícono + título + lista larga (ver
+   BillUpdateExpirationPage), que en mobile se apretujaba en una sola fila. */
+.hint-box-info-list {
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+/* Franja final tipo "nota destacada" que cubre TODO el ancho de una card
+   (fondo pastel de punta a punta, no solo un recuadro alrededor del texto),
+   con ícono + título en 2 líneas. Usada como cierre de BillGeneratePage
+   (nota + botón de envío) y CruDataMainPage ("Importante"). */
+.footer-note-banner {
+    background: rgba(0, 119, 255, 0.05);
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.footer-note-title {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--bs-primary);
+}
+
+.footer-note-subtitle {
+    font-size: 0.78rem;
+}
+
+.page-header-title {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.stat-card {
+    background: linear-gradient(180deg, #ffffff, #fbfdff);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 10px;
+    /* Sin ancho fijo: cada card ocupa lo que su propio contenido necesita
+     (una sola línea), y solo se re-acomoda si no entra en el ancho
+     disponible, gracias al flex-wrap del contenedor. */
+    flex-shrink: 0;
+}
+
+.stat-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.stat-label,
+.stat-value {
+    white-space: nowrap;
+}
+
+.stat-label {
+    color: #64748b;
+}
+.stat-value {
+    font-size: 1.15rem;
+}
+
+/* --- REUSABLE TABLE STYLES --- */
+/* Caja blanca que encierra toda la tabla (Fase 4: diferenciar del fondo gris de página) */
+.reusable-table-card {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Estado vacío de ReusableTable (data=[]) — ver emptyIcon/emptyTitle/
+   emptyMessage en ReusableTable.tsx. Genérico por defecto ("No hay datos
+   para mostrar"), personalizable por tabla en los pocos casos donde vacío
+   es un resultado esperado y frecuente (ej. "Sin descuentos registrados"). */
+.table-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 3rem 1.5rem;
+}
+
+.table-empty-state-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(0, 119, 255, 0.08);
+    color: var(--bs-primary);
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+}
+
+.table-empty-state-title {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.35rem;
+}
+
+.table-empty-state-message {
+    color: #64748b;
+    font-size: 0.9rem;
+    max-width: 360px;
+}
+
+/* El header (fondo gris) llega hasta las esquinas redondeadas de la caja.
+   Se redondea el th en vez de recortar con overflow:hidden en la card, para
+   no cortar el menú de acciones (RowActions) cuando se abre en la última fila. */
+.reusable-table-card table thead th:first-child {
+    border-top-left-radius: var(--card-border-radius);
+}
+
+.reusable-table-card table thead th:last-child {
+    border-top-right-radius: var(--card-border-radius);
+}
+
+/* Cuando la card está fusionada con el toolbar de arriba, sus esquinas
+   superiores son cuadradas, así que el header tampoco debe redondearse. */
+.table-toolbar + .reusable-table-card table thead th:first-child {
+    border-top-left-radius: 0;
+}
+
+.table-toolbar + .reusable-table-card table thead th:last-child {
+    border-top-right-radius: 0;
+}
+
+.reusable-table-footer {
+    padding: 0 1.1rem 1.1rem;
+}
+
+.reusable-table table {
+    border-collapse: collapse;
+    margin-bottom: 0;
+}
+
+.reusable-table tbody tr {
+    background: #fff;
+}
+
+/* Línea divisoria con box-shadow (no border-bottom): con border-collapse,
+   un borde afecta el alto de la fila de forma inconsistente entre filas con
+   y sin línea (ver filas de relleno). box-shadow es solo visual, no afecta
+   el alto. */
+.reusable-table td,
+.reusable-table th {
+    border: none !important;
+    box-shadow: inset 0 -1px 0 #f1f5f9 !important;
+    vertical-align: middle !important;
+}
+
+.reusable-table tbody tr:last-child:not(.reusable-table-filler-row) td,
+.reusable-table tbody tr.reusable-table-last-visible-row td {
+    box-shadow: none !important;
+}
+
+/* Remarca filas con algún problema (ej. facturas sin usuario asociado en
+   BillGenerateFilteredPage), mismo tono que badge-soft-danger. */
+.reusable-table tbody tr.table-row-danger {
+    background: #fef2f2;
+    box-shadow: inset 3px 0 0 #dc2626;
+}
+
+.reusable-table tbody tr.table-row-danger:hover {
+    background: #fee2e2;
+}
+
+/* Filas de relleno (completan la página hasta itemsPerPage para que la
+   tabla/modal no cambie de alto entre páginas, ver ReusableTable.tsx):
+   invisibles e inertes con visibility:hidden, que de paso las saca del tab
+   order. No les sacamos el box-shadow de línea divisoria a propósito, para
+   que midan lo mismo que una fila real. */
+.reusable-table tbody tr.reusable-table-filler-row,
+.reusable-table tbody tr.reusable-table-filler-row:hover {
+    background: transparent !important;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Tablas con edición inline (lecturas, descuentos y conceptos pendientes) */
+@media (max-width: 576px) {
+    .reusable-table th {
+        white-space: normal;
+    }
+
+    .table-inline-edit-field {
+        max-width: 90px;
+    }
+
+    .table-row-actions .btn {
+        width: auto;
+    }
+
+    /* Solo ícono en mobile (el texto ocupa demasiado ancho horizontal
+     apilado en una tabla angosta) — ver <span className="d-none d-sm-inline">
+     alrededor del texto de estos botones. */
+    .table-row-actions .btn i {
+        margin-right: 0 !important;
+    }
+
+    .table-inline-edit-date-icon {
+        display: none;
+    }
+}
+
+/* --- Badges "suaves" reutilizables (pill, fondo pastel + texto saturado) --- */
+.badge-soft {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    /* Sin esto, en una columna angosta (mobile) el texto envuelve en varias
+       líneas y el border-radius:999px (pensado para una píldora de una
+       línea) achata la forma en un círculo — se rompe visualmente. Con
+       nowrap se mantiene la píldora y es la tabla la que scrollea de
+       costado si hace falta, no el badge el que se deforma. */
+    white-space: nowrap;
+}
+
+.badge-soft-success {
+    background: #dcfce7;
+    color: #166534;
+}
+.badge-soft-warning {
+    background: #ffedd5;
+    color: #c2410c;
+}
+.badge-soft-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+.badge-soft-info {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+.badge-soft-neutral {
+    background: #f1f5f9;
+    color: #475569;
+}
+.badge-soft-purple {
+    background: #f3e8ff;
+    color: #9333ea;
+}
+.badge-soft-cyan {
+    background: #ccfbf1;
+    color: #0d9488;
+}
+
+/* Punto de color chico para usar dentro de un badge-soft o de un
+   DotDropdown (ver src/shared/components/dot-dropdown/DotDropdown.tsx),
+   cuando el pastel del badge no alcanza para diferenciar el estado de un
+   vistazo (ej. Activo/Suspendido/Inactivo). */
+.status-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+
+/* Selector de Estado del usuario en 3 botones (StatusSegmentedControl):
+   estado inactivo = tarjeta blanca neutra; el color de fondo/texto/borde del
+   activo lo pone el badge-soft-* correspondiente (ver STATUS_BADGE_CLASS),
+   así queda consistente con el resto de los chips de estado del sistema. */
+.status-segmented-control {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.status-segmented-option {
+    flex: 1 1 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.5rem;
+    border: 1.5px solid rgba(226, 232, 240, 0.9);
+    border-radius: var(--btn-border-radius);
+    background-color: #ffffff;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition-smooth);
+}
+
+.status-segmented-option:hover {
+    border-color: rgba(0, 119, 255, 0.35);
+}
+
+.status-segmented-option.active {
+    border-width: 1.5px;
+}
+
+/* Wrapper con padding uniforme para las 2 columnas de una fila de secciones
+   (ej. "Configuración" | "Estado del usuario" en AddEditUserModal). Se
+   aplica IGUAL en ambas columnas a propósito: así el ícono+título de las dos
+   arrancan siempre a la misma altura sin necesidad de ir calculando/ajustando
+   un offset a mano por cada combinación de textos (que se rompe apenas el
+   subtítulo de un lado ocupa distinta cantidad de líneas que el otro en
+   pantallas angostas). Sin color de fondo: solo resuelve el alineado. */
+.form-section-panel {
+    padding: 1rem 1.25rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* El padding horizontal de arriba solo sirve mientras las columnas conviven
+   lado a lado; apiladas (por debajo de md) solo desalinea esos campos
+   respecto al resto del formulario. */
+@media (max-width: 767.98px) {
+    .form-section-panel {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+/* Envuelve el contenido de un .form-section-panel que sea más corto que su
+   par (ej. los 3 botones de Estado del usuario vs. las 2 filas de campos de
+   Configuración): crece para ocupar el espacio sobrante debajo del header y
+   centra su contenido ahí, adaptándose a lo que mida el otro lado en cada
+   pantalla en vez de un margin fijo calculado a mano. */
+.form-section-panel-content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Panel con fondo verde suave para secciones tipo "resumen de impacto"
+   (ej. BillUpdateExpirationPage), mismo criterio que .hint-box pero en
+   verde para diferenciarlo como informativo-positivo en vez de neutro. */
+.impact-panel {
+    background-color: rgba(22, 163, 74, 0.04);
+    border: 1px solid rgba(22, 163, 74, 0.12);
+    border-radius: var(--card-border-radius);
+    padding: 1.25rem;
+}
+
+/* .stat-value a 1.15rem está pensado para números cortos (ej. "150"); acá
+   adentro los valores son palabras ("Inmediato", "Sin eliminar"), que a ese
+   tamaño se ven desproporcionadas frente al resto de la tarjeta. Se achica
+   solo dentro de .impact-panel, sin tocar el resto de usos de .stat-card. */
+.impact-panel .stat-card {
+    flex: 1 1 200px;
+}
+
+.impact-panel .stat-value {
+    font-size: 0.95rem;
+}
+
+/* El ícono del FormSectionHeader es celeste por default; acá adentro se
+   pisa a verde para que coincida con el resto del panel de impacto. */
+.impact-panel .icon-badge {
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+}
+
+/* --- Tarjetas seleccionables tipo radio (ícono + texto), reutilizadas en
+   ResetPasswordModal (método de restablecimiento) y en el selector de
+   estado de pago de BillActiveModal. .active por default resalta en el
+   celeste del sistema; para variantes con color semántico (ej. verde/
+   naranja según el estado), pisar border-color/box-shadow con estilo
+   inline en el elemento activo. --- */
+.option-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.option-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    border: 1.5px solid rgba(226, 232, 240, 0.9);
+    border-radius: var(--card-border-radius);
+    padding: 1rem 1.1rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    margin: 0;
+}
+
+.option-card:hover {
+    border-color: rgba(0, 119, 255, 0.35);
+}
+
+.option-card.active {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.08);
+}
+
+.option-card .option-card-radio {
+    margin-top: 0.3rem;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--bs-primary);
+    cursor: pointer;
+}
+
+.option-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+/* Campo de contraseña con ícono de candado fijo y botón de mostrar/ocultar */
+.password-reveal-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-reveal-icon-start {
+    position: absolute;
+    left: 0.9rem;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.password-reveal-input.form-control {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+}
+
+.password-reveal-toggle {
+    position: absolute;
+    right: 0.75rem;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+}
+
+.password-reveal-toggle:hover {
+    color: #475569;
+}
+
+/* Requisitos de contraseña como pills, en vez de lista con viñetas */
+.password-requirement-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.password-requirement-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    font-size: 0.78rem;
+    color: #64748b;
+    background-color: #ffffff;
+    transition: var(--transition-smooth);
+}
+
+.password-requirement-pill.passed {
+    color: #166534;
+    border-color: #bbf7d0;
+    background-color: #f0fdf4;
+}
+
+/* Selector custom de "Inconsistencias" (Lecturas por período): mismo look
+   que los selects estándar del TableToolbar (borde, radius, alto), aunque
+   por sus opciones con punto de color no puede ser un <Form.Select> nativo. */
+.alert-filter-toggle.btn {
+    background-color: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: var(--input-border-radius) !important;
+    /* Gris tenue por default — mismo criterio que el placeholder de un
+       input: mientras muestra el placeholder o la opción "Todos/as" (sin
+       filtro realmente aplicado), no un valor elegido de verdad. */
+    color: #94a3b8 !important;
+    font-weight: 400;
+    padding: 0.6rem 0.9rem !important;
+    box-shadow: none !important;
+}
+
+/* Con un valor real elegido (no el placeholder ni la opción "Todos/as"),
+   pasa al mismo tono oscuro que un input con texto tipeado. */
+.alert-filter-toggle.btn.has-value {
+    color: #1e293b !important;
+}
+
+/* Ícono fijo del selector (no cambia según la opción elegida): mismo gris
+   tenue que el ícono del buscador/filtro de calle, en vez del gris propio
+   de Bootstrap (.text-secondary), que se ve más oscuro/distinto. */
+.alert-filter-toggle-icon {
+    color: #94a3b8 !important;
+}
+
+.alert-filter-toggle.btn:hover,
+.alert-filter-toggle.btn:focus,
+.alert-filter-toggle.btn:active {
+    background-color: #ffffff !important;
+    border-color: #80bfff !important;
+    color: #1e293b !important;
+    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15) !important;
+}
+
+/* Menú desplegable genérico (Bootstrap Dropdown): por default es bastante
+   simple (esquinas casi rectas, hover gris plano). Se afina acá una sola
+   vez para que CustomSelect, RowActions, el menú de opciones del header y
+   cualquier otro <Dropdown> del sistema compartan el mismo look pulido. */
+.dropdown-menu {
+    background-color: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    padding: 0.4rem;
+}
+
+.dropdown-item {
+    border-radius: 8px;
+    padding: 0.55rem 0.75rem;
+    transition: var(--transition-smooth);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: rgba(0, 119, 255, 0.08);
+    color: var(--bs-primary);
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: rgba(0, 119, 255, 0.14);
+    color: var(--bs-primary);
+}
+
+.dropdown-item.text-danger:hover,
+.dropdown-item.text-danger:focus {
+    background-color: rgba(220, 38, 38, 0.08);
+}
+
+/* El botón/select que abre un CustomSelect: mismo look que
+   .alert-filter-toggle (borde, radius, alto), pero con su propia clase para
+   poder afinarlo sin afectar a los otros usos de .alert-filter-toggle. */
+.custom-select-toggle {
+    font-weight: 400;
+}
+
+/* Mismo criterio visual que .form-control.is-invalid/.form-select.is-invalid
+   de Bootstrap (borde rojo), pero acá a mano porque el toggle no es un
+   .form-control real. */
+.custom-select-toggle.is-invalid.btn {
+    border-color: #dc3545 !important;
+}
+
+.custom-select-toggle.is-invalid.btn:hover,
+.custom-select-toggle.is-invalid.btn:focus {
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
+}
+
+/* El menú no se estira al ancho del botón (que puede ser angosto, ej. un
+   filtro de 260px): arranca en ese mismo ancho como mínimo, pero crece para
+   entrar la opción más larga sin cortarla, hasta un tope razonable. Pasado
+   ese tope, se permite que el texto de cada opción pase a una segunda línea
+   en vez de truncarse (ver .dropdown-item más abajo, que por default de
+   Bootstrap no wrappea). */
+.custom-select .dropdown-menu {
+    /* strategy "fixed" (para que el menú no se corte contra una card con
+     overflow:hidden) se probó dos veces, incluso con el popperConfig como
+     constante de módulo estable para descartar reinicios de Popper por una
+     referencia nueva en cada render. Las dos veces el primer render posicionó
+     mal el menú (arriba a la izquierda, debajo del sidebar) hasta cerrarlo y
+     volver a abrirlo. Se descarta esa vía por completo. Con "absolute" de
+     siempre, min-width en % funciona bien porque se resuelve contra el
+     botón, no la ventana. */
+    min-width: 100%;
+    width: max-content;
+    max-width: min(90vw, 420px);
+    /* Más chico a propósito (antes 280px): con muchas opciones y el selector
+     abierto cerca del borde inferior de la pantalla, un menú alto se corta
+     contra el viewport y obliga a scrollear la página entera para llegar a
+     las últimas opciones (fácil de no notar). Con este tope entran ~5
+     opciones y el resto queda a un scroll interno del propio menú, mucho
+     más visible que el de la página. El 40vh es el resguardo para pantallas
+     chicas o zoom alto, donde ni 200px llega a entrar completo arriba/abajo
+     del botón (el flip de Popper, habilitado en CustomSelect.tsx, ya elige
+     el lado con más espacio; esto acorta el menú si ese lado tampoco alcanza). */
+    max-height: min(200px, 40vh);
+    overflow-y: auto;
+}
+
+/* El track de la barra de scroll es transparent por regla global (para que
+   la barra de la página se vea minimalista), pero acá esa franja angosta
+   deja ver lo que hay detrás del menú (ej. las píldoras de color de una
+   tabla). Se pisa a blanco, igual que el resto del menú. */
+.custom-select .dropdown-menu::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+
+.custom-select .dropdown-item {
+    white-space: normal;
+}
+
+/* Se probó reemplazar la barra nativa de .dropdown-menu por un thumb propio
+   (mismo truco que CustomScrollbar.tsx para #root, por el bug "Fluent
+   scrollbars" de Chrome/Edge en Windows que ignora ::-webkit-scrollbar). Se
+   revirtió: el thumb quedaba position:fixed calculado con
+   getBoundingClientRect, y en cuanto ese cálculo se adelantaba a que Popper
+   terminara de acomodar el menú, el navegador registraba ese punto como
+   parte del área desplazable del documento y aparecía scroll horizontal en
+   toda la página. Queda con la barra nativa del navegador tal cual, aunque
+   en Windows se vea distinta al resto del sitio. */
+
+/* --- FASE 4: pie de tabla (resultados + paginación a la derecha) --- */
+.reusable-table-count i {
+    color: #94a3b8;
+}
+
+/* --- FASE 4: acciones por fila (lápiz + menú de 3 puntos) --- */
+.row-actions-edit,
+.row-actions-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background-color: #ffffff;
+    color: #64748b;
+    transition: var(--transition-smooth);
+}
+
+.row-actions-edit {
+    border-color: rgba(0, 119, 255, 0.25);
+    color: var(--bs-primary);
+}
+
+.row-actions-edit:hover {
+    background-color: rgba(0, 119, 255, 0.08);
+    border-color: #80bfff;
+    color: var(--bs-primary);
+}
+
+.row-actions-menu:hover,
+.row-actions-menu:focus {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+.row-actions-menu::after {
+    display: none;
+}
+
+/* --- FASE 4: avatar pastel en filas de tabla --- */
+.row-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+/* --- REACT-DATEPICKER: el calendario nativo (input type="date") no se
+   puede estilar más allá del propio input — el popup lo pinta el sistema
+   operativo. Se reemplaza por react-datepicker en los campos de fecha y se
+   sobreescribe acá su CSS por defecto para que combine con el resto del
+   sistema (bordes, radios, sombra, celeste de acento) en vez de quedar con
+   el look genérico de la librería. Un solo lugar para que cualquier campo
+   de fecha del sistema que migre a este componente salga ya estilado. */
+.react-datepicker {
+    font-family: inherit;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.react-datepicker__triangle {
+    display: none;
+}
+
+.react-datepicker-popper {
+    z-index: 1060;
+}
+
+.react-datepicker__header {
+    background-color: #f8fafc;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    padding: 0.5rem 0 0.4rem;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.875rem;
+}
+
+.react-datepicker__month {
+    margin: 0.4rem;
+}
+
+.react-datepicker__day-name {
+    color: #64748b;
+    font-weight: 500;
+    font-size: 0.8rem;
+    width: 1rem;
+    line-height: 1.75rem;
+    margin: 0.1rem;
+}
+
+.react-datepicker__day {
+    width: 1.75rem;
+    line-height: 1.75rem;
+    font-size: 0.85rem;
+    margin: 0.1rem;
+    border-radius: 50% !important;
+    transition: var(--transition-smooth);
+}
+
+.react-datepicker__day:hover {
+    background-color: rgba(0, 119, 255, 0.1);
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+    background-color: var(--bs-primary) !important;
+    color: #ffffff !important;
+}
+
+.react-datepicker__day--today:not(.react-datepicker__day--selected) {
+    font-weight: 700;
+    color: var(--bs-primary);
+}
+
+/* Oculta (sin descuadrar la grilla — visibility, no display) los días de
+   los meses anterior/siguiente que rellenan la primera y última semana:
+   solo quedan a la vista los del mes que se está mirando. */
+.react-datepicker__day--outside-month {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.react-datepicker__navigation-icon::before {
+    border-color: #64748b;
+    transition: var(--transition-smooth);
+}
+
+.react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+    border-color: var(--bs-primary);
+}
+
+.react-datepicker__close-icon {
+    padding-right: 0.75rem;
+}
+
+.react-datepicker__close-icon::after {
+    background-color: transparent;
+    color: #94a3b8;
+    font-size: 1.3rem;
+    line-height: 1;
+}
+
+/* --- UTILIDADES RESPONSIVE COMPARTIDAS --- */
+/* Bootstrap no trae w-100 con variante responsive: para botones que en
+   mobile deben ir a ancho completo apilados (flex-column flex-sm-row). */
+@media (max-width: 575.98px) {
+    .w-100-until-sm {
+        width: 100% !important;
+    }
 }

@@ -1,9 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { ServiceUnitDto } from "../../../core/models/dto/ServiceUnitDto";
 import { Service } from "../../../core/models/dto/Service";
 import { Unit } from "../../../core/models/dto/Unit";
+import FormModalHeader from "../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../shared/components/floating-fieldset/FloatingFieldset";
+import CustomSelect from "../../../shared/components/custom-select/CustomSelect";
+import ConfirmModal from "../../../shared/components/confirm/ConfirmModal";
+import { useModalLayer } from "../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../shared/hooks/useConfirmDiscard";
 
 interface AddEditModalProps {
     show: boolean;
@@ -14,15 +20,27 @@ interface AddEditModalProps {
     unities: Unit[];
 }
 
-const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, serviceUnit, services, unities }) => {
+interface ServiceUnitFormProps {
+    onHide: () => void;
+    onSave: (serviceUnit: ServiceUnitDto) => Promise<void>;
+    serviceUnit?: ServiceUnitDto | any;
+    services: Service[];
+    unities: Unit[];
+    onDirtyChange: (dirty: boolean) => void;
+}
 
-    // Estados
+const ServiceUnitForm: React.FC<ServiceUnitFormProps> = ({ onHide, onSave, serviceUnit, services, unities, onDirtyChange }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Props para manejar formulario 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<ServiceUnitDto>({
-        defaultValues: serviceUnit || {},
+    const { handleSubmit, reset, control, formState: { errors, isDirty } } = useForm<ServiceUnitDto>({
+        defaultValues: serviceUnit || { idService: "" as unknown as number, idUnit: "" as unknown as number },
+        mode: "onTouched",
     });
+
+    useEffect(() => {
+        onDirtyChange(isDirty);
+        return () => onDirtyChange(false);
+    }, [isDirty, onDirtyChange]);
 
     // Manejo del botón de "Guardar"
     const onSubmit = async (data: ServiceUnitDto) => {
@@ -38,59 +56,103 @@ const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, on
     };
 
     return (
-        <Modal show={show} onHide={onHide} aria-labelledby="contained-modal-title-vcenter" centered>
-            <Modal.Header closeButton>
-                <Modal.Title>{serviceUnit ? "Editar Relación Servicio/Unidad" : "Añadir Relación Servicio/Unidad"}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Form onSubmit={handleSubmit(onSubmit)}>
+        <Form onSubmit={handleSubmit(onSubmit)}>
 
-                    {/* Servicio */}
-                    <Form.Group>
-                        <Form.Label>Servicio</Form.Label>
-                        <Form.Select
-                            {...register("idService", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.idService}
-                        >
-                            <option value="">Seleccione un servicio</option>
-                            {services.map((service) => (
-                                <option key={service.idService} value={service.idService}>
-                                    {service.name}
-                                </option>
-                            ))}
-                        </Form.Select>
-                        <Form.Control.Feedback type="invalid">
-                            {errors.idService?.message}
-                        </Form.Control.Feedback>
-                    </Form.Group>
+            {/* Servicio */}
+            <Form.Group>
+                <Controller
+                    control={control}
+                    name="idService"
+                    rules={{ required: "Este campo es obligatorio" }}
+                    render={({ field }) => (
+                        <FloatingFieldset label="Servicio">
+                            <CustomSelect
+                                value={field.value ? String(field.value) : ""}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                isInvalid={!!errors.idService}
+                                options={services.map((service) => ({ value: String(service.idService), label: service.name }))}
+                            />
+                        </FloatingFieldset>
+                    )}
+                />
+                <Form.Control.Feedback type="invalid">
+                    {errors.idService?.message}
+                </Form.Control.Feedback>
+            </Form.Group>
 
-                    {/* Unidad */}
-                    <Form.Group className="mt-2">
-                        <Form.Label>Unidad</Form.Label>
-                        <Form.Select
-                            {...register("idUnit", { required: "Este campo es obligatorio" })}
-                            isInvalid={!!errors.idUnit}
-                        >
-                            <option value="">Seleccione una unidad</option>
-                            {unities.map((unit) => (
-                                <option key={unit.idUnit} value={unit.idUnit}>
-                                    {unit.name}/{unit.symbol}
-                                </option>
-                            ))}
-                        </Form.Select>
-                        <Form.Control.Feedback type="invalid">
-                            {errors.idUnit?.message}
-                        </Form.Control.Feedback>
-                    </Form.Group>
-                    <Button className="mt-2" type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? "Guardando..." : "Guardar"}
-                    </Button>
-                    <Button className="mt-2 ms-2" variant="secondary" onClick={onHide} disabled={isSubmitting}>
-                        Cancelar
-                    </Button>
-                </Form>
-            </Modal.Body>
-        </Modal>
+            {/* Unidad */}
+            <Form.Group className="mt-2">
+                <Controller
+                    control={control}
+                    name="idUnit"
+                    rules={{ required: "Este campo es obligatorio" }}
+                    render={({ field }) => (
+                        <FloatingFieldset label="Unidad">
+                            <CustomSelect
+                                value={field.value ? String(field.value) : ""}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                isInvalid={!!errors.idUnit}
+                                options={unities.map((unit) => ({ value: String(unit.idUnit), label: `${unit.name}/${unit.symbol}` }))}
+                            />
+                        </FloatingFieldset>
+                    )}
+                />
+                <Form.Control.Feedback type="invalid">
+                    {errors.idUnit?.message}
+                </Form.Control.Feedback>
+            </Form.Group>
+            <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
+                <Button variant="outline-secondary" onClick={onHide} disabled={isSubmitting}>
+                    <i className="bi bi-x-circle me-1"></i> Cancelar
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                    <i className="bi bi-save me-1"></i> {isSubmitting ? "Guardando..." : "Guardar"}
+                </Button>
+            </div>
+        </Form>
+    );
+};
+
+const AddEditServiceUnitModal: React.FC<AddEditModalProps> = ({ show, onHide, onSave, serviceUnit, services, unities }) => {
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard, setIsDirty } = useConfirmDiscard({ onHide, alwaysConfirm: false });
+    const modalZIndex = useModalLayer(show);
+
+    return (
+        <>
+            <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="service-unit-modal-title">
+                <FormModalHeader
+                    icon="bi bi-calculator"
+                    title={serviceUnit ? "Editar Relación Servicio/Unidad" : "Añadir Relación Servicio/Unidad"}
+                    onClose={requestClose}
+                    titleId="service-unit-modal-title"
+                />
+                <Modal.Body>
+                    {show && (
+                        <ServiceUnitForm
+                            onHide={requestClose}
+                            onSave={onSave}
+                            serviceUnit={serviceUnit}
+                            services={services}
+                            unities={unities}
+                            onDirtyChange={setIsDirty}
+                        />
+                    )}
+                </Modal.Body>
+            </Modal>
+            <ConfirmModal
+                show={showConfirm}
+                onHide={cancelDiscard}
+                variant="warning"
+                title="¿Descartar cambios?"
+                message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+                hint="Esta acción no se puede deshacer."
+                confirmText="Salir sin guardar"
+                confirmIcon="bi bi-box-arrow-right"
+                onConfirm={confirmDiscard}
+            />
+        </>
     );
 };
 

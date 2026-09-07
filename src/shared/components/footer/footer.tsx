@@ -8,7 +8,6 @@ import { getCookie, setCookie } from "../../../core/utils/cookiesUtils";
 import { hasConsentFor } from "../../../core/utils/cookiesUtils";
 
 const Footer: React.FC = () => {
-
     //Estado para manejar la información principal
     const [data, setData] = useState<FooterInfoDto | null>(null);
     const [loading, setLoading] = useState(true);
@@ -56,10 +55,10 @@ const Footer: React.FC = () => {
 
     //Renderizado condicional para manejar los estados de carga y error
     if (loading) {
-        return <div className="text-center py-5">Cargando..</div>
+        return <div className="text-center py-5">Cargando..</div>;
     }
     if (error) {
-        return <div className="text-center py-5">{error}</div>
+        return <div className="text-center py-5">{error}</div>;
     }
 
     return (
@@ -74,9 +73,7 @@ const Footer: React.FC = () => {
                             <h6 className="text-uppercase fw-bold mb-4">
                                 <i className="fas fa-gem me-3">{data?.name}</i>
                             </h6>
-                            <p>
-                                {data?.slogan}
-                            </p>
+                            <p>{data?.slogan}</p>
                         </div>
                         <div className="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
                             <h6 className="text-uppercase fw-bold mb-4">Dirección</h6>
@@ -84,7 +81,9 @@ const Footer: React.FC = () => {
                             <p>Departamento: {data?.location}</p>
                             <p>Distrito: {data?.district}</p>
                             <p>Calle: {data?.street}</p>
-                            <Link to={data?.mapsUrl || "#"} target="_blank">Ver ubicación</Link>
+                            <Link to={data?.mapsUrl || "#"} target="_blank">
+                                Ver ubicación
+                            </Link>
                         </div>
                         <div className="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
                             <h6 className="text-uppercase fw-bold mb-4">Compañia</h6>
@@ -122,7 +121,7 @@ const Footer: React.FC = () => {
                     </div>
                 </div>
             </section>
-            <div className="text-center p-4">© 2025 Trinity. Todos los derechos reservados</div>
+            <div className="text-center p-4">© {new Date().getFullYear()} Trinity. Todos los derechos reservados</div>
         </footer>
     );
 };

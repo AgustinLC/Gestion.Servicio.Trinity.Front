@@ -1,0 +1,313 @@
+/*
+  Estilos compartidos de layout para los dashboards (Admin, Operator, User).
+  Sidebar, popovers, botón flotante mobile y animaciones asociadas.
+  Importado desde AdminDashboard.css, OperatorDashboard.css y UserDashboard.css
+  para evitar mantener 3 copias idénticas.
+*/
+
+/* --- Layout general ---
+   Igual que en #root: se resta --navbar-height porque este contenedor ya
+   arranca desplazado por el margin-top del body (deja lugar al navbar fijo),
+   así que 100vh completo generaría siempre ese alto de más.
+   background-color azul: el sidebar lo tapa por completo salvo en su esquina
+   superior izquierda redondeada, que es donde este azul asoma por detrás
+   (mismo color que el navbar) generando la curva. dashboard-main no tiene
+   esquina redondeada arriba (queda pegado al navbar, sin nada de este azul
+   detrás para asomar). */
+.dashboard-container {
+    min-height: calc(100vh - var(--navbar-height));
+    background-color: var(--bs-primary);
+}
+
+/* Sidebar fija (Fase 2: tema claro).
+   border-top-left-radius: redondea la esquina blanca; detrás asoma el azul
+   de .dashboard-container, dando el efecto de panel flotando bajo el navbar.
+   padding-left/right en 0 (pisando el p-3 de Bootstrap del <aside>): los
+   nav-link pasan a ocupar todo el ancho, para que no quede una franja muerta
+   entre el borde real del sidebar y la pill donde el mouse no hace nada. */
+.sidebar {
+    position: fixed;
+    top: var(--navbar-height);
+    left: 0;
+    height: calc(100vh - var(--navbar-height));
+    width: 224px;
+    background-color: #ffffff !important;
+    border-right: 1px solid rgba(226, 232, 240, 0.9);
+    border-top-left-radius: 20px;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1030;
+    box-shadow: 4px 0 14px rgba(15, 23, 42, 0.06);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Contenido principal: fondo gris de página (--bs-body-bg), sin recuadro
+   blanco propio, para que las secciones internas (PageHeader, TableToolbar,
+   tablas, KPI cards) se diferencien como tarjetas blancas contra ese fondo.
+   Sin border-top-right-radius a propósito: ese borde queda pegado al navbar,
+   así que redondearlo dejaba asomar un triángulo del celeste de
+   .dashboard-container justo debajo del navbar. El sidebar sí mantiene su
+   redondeo (no queda pegado a nada por arriba). */
+.dashboard-main {
+    margin-left: 224px;
+    width: calc(100% - 224px);
+    min-height: calc(100vh - var(--navbar-height));
+    overflow-x: auto;
+    background-color: var(--bs-body-bg);
+    transition:
+        margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Cada página renderiza un único div raíz dentro de <Outlet/>. Se le pone un
+   ancho máximo y se centra para que en monitores muy anchos el contenido no
+   se estire de punta a punta (quedaba "pegado" a los bordes del sidebar y
+   del navegador); en pantallas normales no cambia nada. */
+.dashboard-main > * {
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Responsive para móviles: el sidebar pasa a ser un drawer superpuesto y el
+   contenido ocupa todo el ancho, así que el redondeo "flotante" ya no aplica. */
+@media (max-width: 991px) {
+    .sidebar {
+        width: 240px;
+        transform: translateX(-100%);
+        border-top-left-radius: 0;
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    .dashboard-main {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+/* Sidebar colapsada o abierta en móvil */
+.sidebar.collapsed {
+    transform: translateX(-100%);
+}
+
+/* --- Estilos de navegación (Fase 2: texto oscuro sobre sidebar clara) ---
+   Fila a todo lo ancho (margin horizontal en 0, radius solo del lado
+   derecho): el hover/click y el borde de color del activo llegan hasta el
+   borde real del sidebar, sin la franja muerta que dejaba la pill flotante
+   con margen a los costados. */
+.sidebar .nav-link {
+    height: auto;
+    padding: 0.7rem 1.1rem 0.7rem 1.35rem !important;
+    color: #475569 !important; /* Slate 600 */
+    transition: var(--transition-smooth);
+    position: relative;
+    border-radius: 0 8px 8px 0;
+    margin: 4px 0;
+    display: flex;
+    align-items: center;
+    /* border-left reservado siempre (transparente) para que el ítem activo no
+       "salte" el contenido 3px al ganar el borde de color. */
+    border-top: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: 3px solid transparent !important;
+}
+
+.sidebar .nav-link i {
+    font-size: 1.25rem;
+    margin-right: 0.75rem;
+    transition: var(--transition-smooth);
+    color: #94a3b8;
+}
+
+/* En vez de mover la fila (translateX), el "feedback" de hover ensancha el
+   borde izquierdo (3px -> 5px), que queda siempre anclado al borde real del
+   sidebar en vez de despegarse de él. */
+.sidebar .nav-link:hover {
+    background-color: rgba(0, 119, 255, 0.06) !important;
+    color: var(--bs-primary) !important;
+    border-left-width: 5px !important;
+    border-left-color: rgba(0, 119, 255, 0.35) !important;
+}
+
+.sidebar .nav-link:hover i {
+    color: var(--bs-primary);
+}
+
+.sidebar .nav-link.active,
+.sidebar .nav-link.active-submenu {
+    background-color: rgba(0, 119, 255, 0.08) !important;
+    color: var(--bs-primary) !important;
+    border-left: 3px solid var(--bs-primary) !important;
+    box-shadow: none;
+    font-weight: 600;
+}
+
+.sidebar .nav-link.active i,
+.sidebar .nav-link.active-submenu i {
+    color: var(--bs-primary) !important;
+}
+
+/* --- Submenús inline (Fase: reemplazo del Popover flotante) ---
+   El grupo padre (ej: "Facturas") se comporta como un nav-link normal pero
+   es un <button> que expande una lista debajo, en vez de abrir un Popover
+   que se cerraba solo al mover el mouse. Así el usuario siempre ve en qué
+   sección está parado, incluso después de elegir una opción. */
+.sidebar-submenu-chevron {
+    margin-left: auto;
+    transition: transform 0.25s ease;
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.sidebar-submenu-chevron.rotate {
+    transform: rotate(180deg);
+}
+
+.sidebar-submenu-group .nav-link.active-submenu .sidebar-submenu-chevron {
+    color: var(--bs-primary);
+}
+
+/* Lista de hijos: indentada bajo el ícono del padre, con una línea vertical
+   que conecta los "puntos" de cada opción (efecto timeline). */
+.sidebar-submenu {
+    position: relative;
+    margin: 0 0 6px 0;
+    padding: 2px 0 2px 2.35rem;
+}
+
+.sidebar-submenu::before {
+    content: "";
+    position: absolute;
+    left: 2.15rem;
+    top: 4px;
+    bottom: 14px;
+    width: 3px;
+    border-radius: 3px;
+    background: #e2e8f0;
+}
+
+.sidebar-submenu-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0.75rem 0.45rem 0.15rem;
+    margin: 2px 0;
+    border-radius: 8px;
+    color: #64748b !important;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: var(--transition-smooth);
+}
+
+/* Segmento de la línea vertical "pintado" junto al ítem activo, sobre la
+   línea base gris de .sidebar-submenu::before (misma posición horizontal:
+   1.15rem del <ul> = -1.2rem del link, por el padding-left de 2.35rem). Así
+   se ve en qué opción del submenú está parado el usuario, en vez de una
+   línea pareja sin indicar posición. */
+.sidebar-submenu-link.active::before {
+    content: "";
+    position: absolute;
+    left: -0.2rem;
+    top: 2px;
+    bottom: 2px;
+    width: 3px;
+    border-radius: 3px;
+    background-color: var(--bs-primary);
+}
+
+.sidebar-submenu-link:hover {
+    background-color: rgba(0, 119, 255, 0.06);
+    color: var(--bs-primary) !important;
+}
+
+.sidebar-submenu-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    font-size: 0.95rem;
+    color: #94a3b8;
+    transition: var(--transition-smooth);
+}
+
+.sidebar-submenu-link.active {
+    background-color: rgba(0, 119, 255, 0.1);
+    color: var(--bs-primary) !important;
+    font-weight: 600;
+}
+
+.sidebar-submenu-link.active .sidebar-submenu-icon {
+    color: var(--bs-primary);
+}
+
+/* --- Tarjeta de marca al pie del sidebar (Fase 2) --- */
+.sidebar-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 0.6rem;
+    margin: 0.5rem 0.75rem 0.25rem;
+    border-top: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.sidebar-footer-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: rgba(0, 119, 255, 0.08);
+    flex-shrink: 0;
+}
+
+.sidebar-footer-icon img {
+    width: 18px;
+    height: 18px;
+    filter: invert(36%) sepia(93%) saturate(2661%) hue-rotate(199deg)
+        brightness(103%) contrast(101%);
+}
+
+.sidebar-footer-text {
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-footer-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #334155;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-footer-subtitle {
+    font-size: 0.72rem;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-footer-version {
+    font-size: 0.68rem;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+/* --- Animaciones --- */
+@keyframes border-glow {
+    0% {
+        opacity: 0.5;
+    }
+}

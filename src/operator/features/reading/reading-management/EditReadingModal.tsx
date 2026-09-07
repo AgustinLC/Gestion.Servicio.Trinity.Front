@@ -1,5 +1,11 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import FormModalHeader from "../../../../shared/components/form-modal-header/FormModalHeader";
+import FloatingFieldset from "../../../../shared/components/floating-fieldset/FloatingFieldset";
+import ConfirmModal from "../../../../shared/components/confirm/ConfirmModal";
+import { useModalLayer } from "../../../../context/ModalStackContext";
+import { useConfirmDiscard, onBackdropClick } from "../../../../shared/hooks/useConfirmDiscard";
+import { isNegativeInput } from "../../../../core/utils/numberInput";
 
 interface EditReadingModalProps {
     show: boolean;
@@ -16,43 +22,90 @@ interface EditReadingModalProps {
 
 const EditReadingModal: React.FC<EditReadingModalProps> = ({ show, onHide, reading, onSubmit }) => {
     const [readingValue, setReadingValue] = useState(reading.reading);
+    // En edición los valores ya vienen precargados, así que siempre se
+    // confirma al cerrar (ver useConfirmDiscard).
+    const { requestClose, showConfirm, confirmDiscard, cancelDiscard } = useConfirmDiscard({ onHide, alwaysConfirm: false, enabled: false });
+    const modalZIndex = useModalLayer(show);
+    const isInvalidReading = Number.isNaN(readingValue) || readingValue < 0 || readingValue > 9999999;
 
     const handleSubmit = () => {
+        if (isInvalidReading) return;
         onSubmit(readingValue);
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered>
-            <Modal.Header closeButton>
-                <Modal.Title>Editar Lectura</Modal.Title>
-            </Modal.Header>
+        <>
+        <Modal show={show} onHide={requestClose} onClick={onBackdropClick(requestClose)} centered backdrop backdropClassName="modal-click-backdrop" style={{ zIndex: modalZIndex }} contentClassName="form-modal-content" aria-labelledby="edit-reading-modal-title">
+            <FormModalHeader
+                icon="bi bi-speedometer2"
+                title="Editar Lectura"
+                onClose={requestClose}
+                titleId="edit-reading-modal-title"
+            />
             <Modal.Body>
-                <Form>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Fecha</Form.Label>
-                        <Form.Control type="text" value={reading.date || ""} disabled />
-                    </Form.Group>
-                    
-                    <Form.Group className="mb-3">
-                        <Form.Label>Periodo</Form.Label>
-                        <Form.Control type="text" value={reading.periodName || ""} disabled />
-                    </Form.Group>
+                {/* Gateado en "show" para que al cerrar el body quede vacío de
+                    inmediato en vez de seguir mostrando el formulario durante
+                    el fade-out — mismo patrón que AddReadingModal ("Cargar
+                    Lectura"), que no presenta el glitch al cerrar. */}
+                {show && (
+                    <>
+                        <Form>
+                            <Form.Group className="mb-3">
+                                <FloatingFieldset label="Fecha">
+                                    <Form.Control type="text" value={reading.date || ""} disabled />
+                                </FloatingFieldset>
+                            </Form.Group>
 
-                    <Form.Group className="mb-3">
-                        <Form.Label>Valor de Lectura</Form.Label>
-                        <Form.Control
-                            type="number"
-                            value={readingValue}
-                            onChange={(e) => setReadingValue(Number(e.target.value))}
-                        />
-                    </Form.Group>
-                </Form>
+                            <Form.Group className="mb-3">
+                                <FloatingFieldset label="Periodo">
+                                    <Form.Control type="text" value={reading.periodName || ""} disabled />
+                                </FloatingFieldset>
+                            </Form.Group>
+
+                            <Form.Group className="mb-3">
+                                <FloatingFieldset label="Valor de Lectura">
+                                    <Form.Control
+                                        type="number"
+                                        min="0"
+                                        max="9999999"
+                                        value={readingValue}
+                                        onChange={(e) => {
+                                            if (isNegativeInput(e.target.value)) return;
+                                            setReadingValue(Number(e.target.value));
+                                        }}
+                                        isInvalid={isInvalidReading}
+                                    />
+                                </FloatingFieldset>
+                                <Form.Control.Feedback type="invalid">
+                                    El valor debe estar entre 0 y 9999999
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                        </Form>
+
+                        <div className="form-modal-footer d-flex justify-content-end gap-2 mt-3">
+                            <Button variant="outline-secondary" onClick={requestClose}>
+                                <i className="bi bi-x-circle me-1"></i> Cancelar
+                            </Button>
+                            <Button variant="primary" onClick={handleSubmit} disabled={isInvalidReading}>
+                                <i className="bi bi-save me-1"></i> Guardar
+                            </Button>
+                        </div>
+                    </>
+                )}
             </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>Cancelar</Button>
-                <Button variant="primary" onClick={handleSubmit}>Guardar</Button>
-            </Modal.Footer>
         </Modal>
+        <ConfirmModal
+            show={showConfirm}
+            onHide={cancelDiscard}
+            variant="warning"
+            title="¿Descartar cambios?"
+            message="Si cerrás ahora vas a perder los cambios que hiciste en este formulario."
+            hint="Esta acción no se puede deshacer."
+            confirmText="Salir sin guardar"
+            confirmIcon="bi bi-box-arrow-right"
+            onConfirm={confirmDiscard}
+        />
+        </>
     );
 };
 
